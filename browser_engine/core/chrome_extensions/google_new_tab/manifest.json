@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "BrowserMulti Google New Tab",
+  "version": "1.0.0",
+  "description": "Open Google when a new Chromium tab is created.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  }
+}

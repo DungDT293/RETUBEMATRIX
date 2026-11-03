@@ -1,0 +1,87 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_plugin_store_readme_md",
+      "label": "README.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "source_file": "plugin-store/README.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_plugin_store_readme_youwee_plugin_store",
+      "label": "Youwee Plugin Store",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "plugin-store/README.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_plugin_store_readme_requirements",
+      "label": "Requirements",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "plugin-store/README.md",
+      "source_location": "L5"
+    },
+    {
+      "id": "$graphify-root$_plugin_store_readme_validate",
+      "label": "Validate",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "plugin-store/README.md",
+      "source_location": "L14"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_plugin_store_readme_md",
+      "target": "$graphify-root$_plugin_store_readme_youwee_plugin_store",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plugin-store/README.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_plugin_store_readme_youwee_plugin_store",
+      "target": "$graphify-root$_plugin_store_readme_requirements",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plugin-store/README.md",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_plugin_store_readme_youwee_plugin_store",
+      "target": "$graphify-root$_plugin_store_readme_validate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "plugin-store/README.md",
+      "source_location": "L14",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_plugin_store_readme_youwee_plugin_store",
+      "callee": "main",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "main",
+      "source_file": "plugin-store/README.md",
+      "source_location": "L3"
+    },
+    {
+      "caller_nid": "$graphify-root$_plugin_store_readme_requirements",
+      "callee": "vanloctech",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "vanloctech",
+      "source_file": "plugin-store/README.md",
+      "source_location": "L12"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

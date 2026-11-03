@@ -1,0 +1,691 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Create a release"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # macOS Apple Silicon
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            os_name: macos
+            arch: aarch64
+            friendly_name: Mac-Apple-Silicon
+            yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
+            yt_dlp_name: youwee-yt-dlp-aarch64-apple-darwin
+
+          # macOS Intel (yt-dlp_macos is Universal Binary for both Intel and Apple Silicon)
+          - platform: macos-15
+            target: x86_64-apple-darwin
+            os_name: macos
+            arch: x86_64
+            friendly_name: Mac-Intel
+            yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
+            yt_dlp_name: youwee-yt-dlp-x86_64-apple-darwin
+
+          # Linux x86_64
+          - platform: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            os_name: linux
+            arch: x86_64
+            friendly_name: Linux
+            yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux
+            yt_dlp_name: youwee-yt-dlp-x86_64-unknown-linux-gnu
+
+          # Windows x86_64
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            os_name: windows
+            arch: x86_64
+            friendly_name: Windows
+            yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
+            yt_dlp_name: youwee-yt-dlp-x86_64-pc-windows-msvc.exe
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+          key: ${{ matrix.target }}
+
+      - name: Install Linux dependencies
+        if: matrix.os_name == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            librsvg2-dev \
+            patchelf \
+            squashfs-tools \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download yt-dlp binary (Unix)
+        if: matrix.os_name != 'windows'
+        run: |
+          mkdir -p src-tauri/bin
+          curl -L -o "src-tauri/bin/${{ matrix.yt_dlp_name }}" "${{ matrix.yt_dlp_url }}"
+          chmod +x "src-tauri/bin/${{ matrix.yt_dlp_name }}"
+          ls -la src-tauri/bin/
+
+      - name: Download yt-dlp binary (Windows)
+        if: matrix.os_name == 'windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path src-tauri/bin
+          Invoke-WebRequest -Uri "${{ matrix.yt_dlp_url }}" -OutFile "src-tauri/bin/${{ matrix.yt_dlp_name }}"
+          Get-ChildItem src-tauri/bin/
+
+      - name: Build Tauri app with signing
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tauriScript: bun run tauri
+          args: --target ${{ matrix.target }}
+
+      - name: Fix Linux deep-link desktop entry
+        if: matrix.os_name == 'linux'
+        run: |
+          bash scripts/fix-deb-deep-link-desktop-entry.sh \
+            "src-tauri/target/${{ matrix.target }}/release/bundle/deb"
+
+      - name: Repair AppImage desktop runtime compatibility
+        if: matrix.os_name == 'linux'
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          APPIMAGE_DIR="src-tauri/target/${{ matrix.target }}/release/bundle/appimage"
+          APPIMAGE=$(find "$APPIMAGE_DIR" -maxdepth 1 -type f -name "*.AppImage" | head -n 1)
+          test -n "$APPIMAGE"
+          bash scripts/repair-appimage-runtime.sh "$APPIMAGE" "youwee"
+
+          # The AppImage payload changed after Tauri produced updater artifacts.
+          # Regenerate its signature so latest.json always matches the release file.
+          rm -f "$APPIMAGE.sig"
+          bun run tauri signer sign "$APPIMAGE"
+
+      - name: Rename artifacts with friendly names (macOS)
+        if: matrix.os_name == 'macos'
+        run: |
+          cd src-tauri/target/${{ matrix.target }}/release/bundle
+          # Rename .dmg
+          cd dmg
+          for f in *.dmg; do
+            mv "$f" "Youwee-${{ matrix.friendly_name }}.dmg"
+          done
+          cd ..
+          # Rename .app.tar.gz and .app.tar.gz.sig for updater (must be unique per arch)
+          cd macos
+          for f in *.app.tar.gz; do
+            mv "$f" "Youwee-${{ matrix.arch }}.app.tar.gz"
+          done
+          for f in *.app.tar.gz.sig; do
+            mv "$f" "Youwee-${{ matrix.arch }}.app.tar.gz.sig"
+          done
+          cd ..
+          ls -laR
+
+      - name: Rename artifacts with friendly names (Linux)
+        if: matrix.os_name == 'linux'
+        run: |
+          cd src-tauri/target/${{ matrix.target }}/release/bundle
+          # Rename .deb
+          if [ -d "deb" ]; then
+            cd deb
+            for f in *.deb; do
+              mv "$f" "Youwee-${{ matrix.friendly_name }}.deb"
+            done
+            cd ..
+          fi
+          # Rename .AppImage
+          if [ -d "appimage" ]; then
+            cd appimage
+            for f in *.AppImage; do
+              mv "$f" "Youwee-${{ matrix.friendly_name }}.AppImage"
+            done
+            cd ..
+          fi
+          ls -laR
+
+      - name: Rename artifacts with friendly names (Windows)
+        if: matrix.os_name == 'windows'
+        shell: pwsh
+        run: |
+          cd src-tauri/target/${{ matrix.target }}/release/bundle
+          # Rename .msi
+          if (Test-Path "msi") {
+            cd msi
+            Get-ChildItem *.msi | ForEach-Object { 
+              Rename-Item $_.Name "Youwee-${{ matrix.friendly_name }}.msi"
+            }
+            cd ..
+          }
+          # Rename .exe (NSIS installer)
+          if (Test-Path "nsis") {
+            cd nsis
+            Get-ChildItem *.exe | ForEach-Object {
+              Rename-Item $_.Name "Youwee-${{ matrix.friendly_name }}-Setup.exe"
+            }
+            cd ..
+          }
+          Get-ChildItem -Recurse
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: youwee-${{ matrix.os_name }}-${{ matrix.arch }}
+          path: |
+            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+            src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app.tar.gz
+            src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app.tar.gz.sig
+            src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
+            src-tauri/target/${{ matrix.target }}/release/bundle/appimage/*.AppImage
+            src-tauri/target/${{ matrix.target }}/release/bundle/appimage/*.AppImage.sig
+            src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
+            src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi.sig
+            src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe
+            src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe.sig
+          if-no-files-found: ignore
+
+  flatpak:
+    needs: build
+    runs-on: ubuntu-22.04
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Flatpak tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dbus-x11 flatpak flatpak-builder xvfb
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+      - name: Download Linux deb artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: youwee-linux-x86_64
+          path: flatpak/input
+
+      - name: Prepare Flatpak input
+        run: |
+          set -eu
+          DEB_FILE="$(find flatpak/input -type f -name "*.deb" | sort | head -n 1)"
+          if [ -z "$DEB_FILE" ]; then
+            echo "No Linux deb artifact found."
+            find flatpak/input -maxdepth 5 -type f
+            exit 1
+          fi
+          rm -rf flatpak/payload
+          mkdir -p flatpak/payload
+          cp "$DEB_FILE" flatpak/input/Youwee-Linux.deb
+          dpkg-deb -x "$DEB_FILE" flatpak/payload
+          ls -la flatpak/input
+          find flatpak/payload -maxdepth 3 -type f | head -50
+
+      - name: Build Flatpak bundle
+        run: |
+          flatpak-builder \
+            --force-clean \
+            --user \
+            --install-deps-from=flathub \
+            --repo=flatpak/repo \
+            flatpak/build-dir \
+            flatpak/com.vanloctech.youwee.yml
+          flatpak build-bundle flatpak/repo flatpak/Youwee-Linux.flatpak com.vanloctech.youwee
+          ls -lh flatpak/Youwee-Linux.flatpak
+
+      - name: Validate Flatpak bundle
+        run: |
+          set -eu
+          flatpak install --user --noninteractive -y flatpak/Youwee-Linux.flatpak
+          dbus-run-session -- flatpak run --command=sh com.vanloctech.youwee -c '
+            set -eu
+            test -x /app/bin/youwee
+            test -x /app/bin/youwee-yt-dlp
+            test -f /app/share/applications/com.vanloctech.youwee.desktop
+            ldd /app/bin/youwee | tee /tmp/youwee-ldd.txt
+            if grep -q "not found" /tmp/youwee-ldd.txt; then
+              echo "Missing runtime libraries in Flatpak bundle:"
+              cat /tmp/youwee-ldd.txt
+              exit 1
+            fi
+            /app/bin/youwee-yt-dlp --version >/tmp/youwee-ytdlp-version.txt
+            cat /tmp/youwee-ytdlp-version.txt
+          '
+
+      - name: Smoke test Flatpak launch
+        run: |
+          set -eu
+          set +e
+          xvfb-run -a dbus-run-session -- \
+            timeout --foreground 10s flatpak run com.vanloctech.youwee \
+            >/tmp/youwee-flatpak-launch.log 2>&1
+          STATUS=$?
+          set -e
+          cat /tmp/youwee-flatpak-launch.log
+          if [ "$STATUS" -ne 124 ]; then
+            echo "Youwee Flatpak exited before the launch smoke-test timeout (status $STATUS)."
+            exit "$STATUS"
+          fi
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: youwee-linux-flatpak
+          path: flatpak/Youwee-Linux.flatpak
+          if-no-files-found: error
+
+  extension:
+    # Firefox signing consumes an AMO version. Wait until every desktop package,
+    # including the dependent Flatpak bundle, has built successfully first.
+    needs: [build, flatpak]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build and package extension archives
+        run: bun run ext:package
+
+      - name: Validate Firefox signing secrets
+        run: |
+          if [ -z "${{ secrets.FIREFOX_AMO_JWT_ISSUER }}" ] || [ -z "${{ secrets.FIREFOX_AMO_JWT_SECRET }}" ]; then
+            echo "Missing FIREFOX_AMO_JWT_ISSUER or FIREFOX_AMO_JWT_SECRET secrets."
+            exit 1
+          fi
+
+      - name: Sign Firefox extension (AMO unlisted)
+        run: |
+          bunx web-ext sign \
+            --source-dir extensions/youwee-webext/dist/firefox \
+            --artifacts-dir extensions/youwee-webext/dist/packages \
+            --channel unlisted \
+            --api-key "${{ secrets.FIREFOX_AMO_JWT_ISSUER }}" \
+            --api-secret "${{ secrets.FIREFOX_AMO_JWT_SECRET }}"
+
+      - name: Rename signed Firefox XPI
+        run: |
+          SIGNED_XPI=$(find extensions/youwee-webext/dist/packages -name "*.xpi" | head -1)
+          if [ -z "$SIGNED_XPI" ]; then
+            echo "Signed Firefox XPI not found."
+            exit 1
+          fi
+          mv "$SIGNED_XPI" "extensions/youwee-webext/dist/packages/Youwee-Extension-Firefox-signed.xpi"
+          ls -la extensions/youwee-webext/dist/packages
+
+      - name: Upload extension artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: youwee-extension-packages
+          path: |
+            extensions/youwee-webext/dist/packages/Youwee-Extension-Chromium.zip
+            extensions/youwee-webext/dist/packages/Youwee-Extension-Firefox-signed.xpi
+          if-no-files-found: error
+
+  # Create release after all builds complete
+  release:
+    needs: [build, flatpak, extension]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: find artifacts -type f | head -50
+
+      - name: Get version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog for current version
+        id: changelog
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "Extracting changelog for version: $VERSION"
+
+          # Function to extract changelog section for a given file
+          extract_changelog() {
+            local file="$1"
+            if [ ! -f "$file" ]; then
+              echo ""
+              return
+            fi
+            awk -v ver="$VERSION" '
+              BEGIN { found=0; content="" }
+              /^## \[/ {
+                if (found) exit
+                if (index($0, "[" ver "]") > 0) found=1
+                next
+              }
+              found { content = content $0 "\n" }
+              END { print content }
+            ' "$file"
+          }
+
+          # Function to convert content to JSON-safe string
+          to_json_safe() {
+            echo "$1" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n$//'
+          }
+
+          # Extract English changelog (primary)
+          CHANGELOG_CONTENT=$(extract_changelog "CHANGELOG.md")
+          if [ -z "$CHANGELOG_CONTENT" ]; then
+            CHANGELOG_CONTENT="See commit history for changes in this release."
+          fi
+          echo "$CHANGELOG_CONTENT" > CHANGELOG_EXTRACT.md
+          CHANGELOG_JSON=$(to_json_safe "$CHANGELOG_CONTENT")
+          echo "$CHANGELOG_JSON" > CHANGELOG_JSON.txt
+
+          # Extract Vietnamese changelog
+          CHANGELOG_VI=$(extract_changelog "docs/CHANGELOG.vi.md")
+          if [ -n "$CHANGELOG_VI" ]; then
+            CHANGELOG_VI_JSON=$(to_json_safe "$CHANGELOG_VI")
+            echo "$CHANGELOG_VI_JSON" > CHANGELOG_VI_JSON.txt
+          fi
+
+          # Extract Chinese changelog
+          CHANGELOG_ZH=$(extract_changelog "docs/CHANGELOG.zh-CN.md")
+          if [ -n "$CHANGELOG_ZH" ]; then
+            CHANGELOG_ZH_JSON=$(to_json_safe "$CHANGELOG_ZH")
+            echo "$CHANGELOG_ZH_JSON" > CHANGELOG_ZH_JSON.txt
+          fi
+
+          # Extract French changelog
+          CHANGELOG_FR=$(extract_changelog "docs/CHANGELOG.fr.md")
+          if [ -n "$CHANGELOG_FR" ]; then
+            CHANGELOG_FR_JSON=$(to_json_safe "$CHANGELOG_FR")
+            echo "$CHANGELOG_FR_JSON" > CHANGELOG_FR_JSON.txt
+          fi
+
+          # Extract Russian changelog
+          CHANGELOG_RU=$(extract_changelog "docs/CHANGELOG.ru.md")
+          if [ -n "$CHANGELOG_RU" ]; then
+            CHANGELOG_RU_JSON=$(to_json_safe "$CHANGELOG_RU")
+            echo "$CHANGELOG_RU_JSON" > CHANGELOG_RU_JSON.txt
+          fi
+
+          echo "Extracted changelog:"
+          cat CHANGELOG_EXTRACT.md
+
+      - name: Generate latest.json for updater
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Read the JSON-safe changelogs
+          NOTES=$(cat CHANGELOG_JSON.txt 2>/dev/null || echo "Youwee $GITHUB_REF_NAME - Check release notes for details")
+          NOTES_VI=$(cat CHANGELOG_VI_JSON.txt 2>/dev/null || echo "")
+          NOTES_ZH=$(cat CHANGELOG_ZH_JSON.txt 2>/dev/null || echo "")
+          NOTES_FR=$(cat CHANGELOG_FR_JSON.txt 2>/dev/null || echo "")
+          NOTES_RU=$(cat CHANGELOG_RU_JSON.txt 2>/dev/null || echo "")
+
+          # Build notes fields
+          NOTES_EXTRA=""
+          if [ -n "$NOTES_VI" ]; then
+            NOTES_EXTRA="$NOTES_EXTRA
+            \"notes_vi\": \"$NOTES_VI\","
+          fi
+          if [ -n "$NOTES_ZH" ]; then
+            NOTES_EXTRA="$NOTES_EXTRA
+            \"notes_zh-CN\": \"$NOTES_ZH\","
+          fi
+          if [ -n "$NOTES_FR" ]; then
+            NOTES_EXTRA="$NOTES_EXTRA
+            \"notes_fr\": \"$NOTES_FR\","
+          fi
+          if [ -n "$NOTES_RU" ]; then
+            NOTES_EXTRA="$NOTES_EXTRA
+            \"notes_ru\": \"$NOTES_RU\","
+          fi
+
+          # Find signature files and create platform entries
+          cat > latest.json << EOF
+          {
+            "version": "$VERSION",
+            "notes": "$NOTES",${NOTES_EXTRA}
+            "pub_date": "$PUB_DATE",
+            "platforms": {
+          EOF
+
+          FIRST=true
+
+          # macOS Apple Silicon
+          AARCH64_SIG=$(find artifacts -name "Youwee-aarch64.app.tar.gz.sig" 2>/dev/null | head -1)
+          if [ -n "$AARCH64_SIG" ] && [ -f "$AARCH64_SIG" ]; then
+            SIG=$(cat "$AARCH64_SIG")
+            if [ "$FIRST" = false ]; then echo "," >> latest.json; fi
+            FIRST=false
+            cat >> latest.json << PLATFORM
+            "darwin-aarch64": {
+              "signature": "$SIG",
+              "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Youwee-aarch64.app.tar.gz"
+            }
+          PLATFORM
+          fi
+
+          # macOS Intel
+          X86_64_SIG=$(find artifacts -name "Youwee-x86_64.app.tar.gz.sig" 2>/dev/null | head -1)
+          if [ -n "$X86_64_SIG" ] && [ -f "$X86_64_SIG" ]; then
+            SIG=$(cat "$X86_64_SIG")
+            if [ "$FIRST" = false ]; then echo "," >> latest.json; fi
+            FIRST=false
+            cat >> latest.json << PLATFORM
+            "darwin-x86_64": {
+              "signature": "$SIG",
+              "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Youwee-x86_64.app.tar.gz"
+            }
+          PLATFORM
+          fi
+
+          # Linux
+          LINUX_SIG=$(find artifacts -name "*.AppImage.sig" 2>/dev/null | head -1)
+          if [ -n "$LINUX_SIG" ] && [ -f "$LINUX_SIG" ]; then
+            SIG=$(cat "$LINUX_SIG")
+            if [ "$FIRST" = false ]; then echo "," >> latest.json; fi
+            FIRST=false
+            cat >> latest.json << PLATFORM
+              "linux-x86_64": {
+                "signature": "$SIG",
+                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Youwee-Linux.AppImage"
+              }
+          PLATFORM
+          fi
+
+          # Windows NSIS
+          WIN_SIG=$(find artifacts -name "*.exe.sig" 2>/dev/null | head -1)
+          if [ -n "$WIN_SIG" ] && [ -f "$WIN_SIG" ]; then
+            SIG=$(cat "$WIN_SIG")
+            if [ "$FIRST" = false ]; then echo "," >> latest.json; fi
+            FIRST=false
+            cat >> latest.json << PLATFORM
+              "windows-x86_64": {
+                "signature": "$SIG",
+                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Youwee-Windows-Setup.exe"
+              }
+          PLATFORM
+          fi
+
+          # Close JSON
+          cat >> latest.json << EOF
+            }
+          }
+          EOF
+
+          echo "Generated latest.json:"
+          cat latest.json
+
+      - name: Generate SHA256 checksums
+        run: |
+          cd artifacts
+
+          # Create SHA256SUMS.txt with proper format
+          echo "# SHA256 Checksums for Youwee $GITHUB_REF_NAME" > ../SHA256SUMS.txt
+          echo "# Generated: $(date -u)" >> ../SHA256SUMS.txt
+          echo "" >> ../SHA256SUMS.txt
+
+          # Generate checksums for all installer files
+          find . -type f \( \
+            -name "*.dmg" -o \
+            -name "*.msi" -o \
+            -name "*.exe" -o \
+            -name "*.deb" -o \
+            -name "*.flatpak" -o \
+            -name "*.AppImage" -o \
+            -name "*.app.tar.gz" -o \
+            -name "*.xpi" -o \
+            -name "Youwee-Extension-*.zip" \
+          \) ! -name "*.sig" | sort | while read file; do
+            filename=$(basename "$file")
+            hash=$(sha256sum "$file" | cut -d' ' -f1)
+            echo "$hash  $filename" >> ../SHA256SUMS.txt
+          done
+
+          cd ..
+          echo "Generated SHA256SUMS.txt:"
+          cat SHA256SUMS.txt
+
+      - name: Create release body
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          # Start with header
+          cat > RELEASE_BODY.md << 'HEADER'
+          # Youwee ${{ github.ref_name }}
+
+          Beautiful and Ultimate yt-dlp GUI & Video Downloader - Processing - Free & Open Source
+
+          HEADER
+
+          # Add What's New section from changelog
+          echo "## What's New" >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+          cat CHANGELOG_EXTRACT.md >> RELEASE_BODY.md
+          echo "" >> RELEASE_BODY.md
+
+          # Add download section
+          cat >> RELEASE_BODY.md << 'DOWNLOADS'
+          ## Download
+
+          | Platform | File | Description |
+          |----------|------|-------------|
+          | 🍎 **Mac (M1/M2/M3/M4)** | `Youwee-Mac-Apple-Silicon.dmg` | For Apple Silicon Macs |
+          | 🍎 **Mac (Intel)** | `Youwee-Mac-Intel.dmg` | For Intel-based Macs |
+          | 🪟 **Windows** | `Youwee-Windows.msi` | MSI Installer |
+          | 🪟 **Windows** | `Youwee-Windows-Setup.exe` | EXE Installer |
+          | 🐧 **Linux** | `Youwee-Linux.deb` | Debian/Ubuntu |
+          | 🐧 **Linux** | `Youwee-Linux.flatpak` | Flatpak bundle for modern distros |
+          | 🐧 **Linux** | `Youwee-Linux.AppImage` | Portable fallback, may require FUSE |
+          | 🌐 **Extension (Chromium)** | `Youwee-Extension-Chromium.zip` | Unzip and load unpacked on Chrome/Edge/Brave |
+          | 🦊 **Extension (Firefox)** | `Youwee-Extension-Firefox-signed.xpi` | Signed unlisted add-on for Firefox stable |
+
+          ## 📋 Requirements
+          - **Windows**: Windows 10 or later
+          - **macOS**: 10.15 (Catalina) or later  
+          - **Linux**: Ubuntu 20.04 or equivalent
+
+          ## Optional
+          - **FFmpeg** - for best video/audio quality (auto-download available in Settings)
+          - **Gallery-dl** - for download images from supported sites (self-setup required)
+
+          ## Browser Extension Install
+          - Chromium: download `Youwee-Extension-Chromium.zip` -> extract -> open `chrome://extensions` -> enable Developer mode -> **Load unpacked**.
+          - Firefox: download `Youwee-Extension-Firefox-signed.xpi` and open it directly to install.
+
+          ## Verify Downloads
+
+          Download `SHA256SUMS.txt` and verify:
+          ```bash
+          sha256sum -c SHA256SUMS.txt
+          ```
+          DOWNLOADS
+
+          echo "Generated RELEASE_BODY.md:"
+          cat RELEASE_BODY.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: Youwee ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body_path: RELEASE_BODY.md
+          files: |
+            artifacts/**/*.dmg
+            artifacts/**/*.deb
+            artifacts/**/*.flatpak
+            artifacts/**/*.AppImage
+            artifacts/**/*.AppImage.sig
+            artifacts/**/*.msi
+            artifacts/**/*.msi.sig
+            artifacts/**/*.exe
+            artifacts/**/*.exe.sig
+            artifacts/**/*.app.tar.gz
+            artifacts/**/*.app.tar.gz.sig
+            artifacts/**/*.xpi
+            artifacts/**/Youwee-Extension-*.zip
+            latest.json
+            SHA256SUMS.txt

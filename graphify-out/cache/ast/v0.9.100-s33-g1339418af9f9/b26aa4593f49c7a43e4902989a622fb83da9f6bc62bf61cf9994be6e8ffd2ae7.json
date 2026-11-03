@@ -1,0 +1,480 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_md",
+      "label": "browser-extension.zh-CN.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "label": "Youwee \u6d4f\u89c8\u5668\u6269\u5c55\uff08Chromium + Firefox\uff09",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "label": "\u6838\u5fc3\u80fd\u529b",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L8"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_\u5de5\u4f5c\u6d41\u7a0b",
+      "label": "\u5de5\u4f5c\u6d41\u7a0b",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L29"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "label": "\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L39"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_\u7528\u6237\u4e0b\u8f7d\u5305",
+      "label": "\u7528\u6237\u4e0b\u8f7d\u5305",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L54"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_\u5b89\u88c5\u8bf4\u660e",
+      "label": "\u5b89\u88c5\u8bf4\u660e",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L61"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_chromium_chrome_edge_brave_opera_vivaldi_arc_coc_coc",
+      "label": "Chromium\uff08Chrome/Edge/Brave/Opera/Vivaldi/Arc/Coc Coc\uff09",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L63"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_firefox",
+      "label": "Firefox",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L71"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_\u524d\u7f6e\u6761\u4ef6",
+      "label": "\u524d\u7f6e\u6761\u4ef6",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L77"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_\u6545\u969c\u6392\u67e5",
+      "label": "\u6545\u969c\u6392\u67e5",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L82"
+    },
+    {
+      "id": "$graphify-root$_docs_browser_extension_zh_cn_\u5f00\u53d1\u6253\u5305",
+      "label": "\u5f00\u53d1\u6253\u5305",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L95"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_md",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_md",
+      "target": "$graphify-root$_docs_browser_extension_md",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "target_file": "$graphify-root$/docs/browser-extension.md"
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_md",
+      "target": "$graphify-root$_docs_browser_extension_vi_md",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L6",
+      "weight": 1.0,
+      "target_file": "$graphify-root$/docs/browser-extension.vi.md"
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_\u5de5\u4f5c\u6d41\u7a0b",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_\u7528\u6237\u4e0b\u8f7d\u5305",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_\u5b89\u88c5\u8bf4\u660e",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_\u5b89\u88c5\u8bf4\u660e",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_chromium_chrome_edge_brave_opera_vivaldi_arc_coc_coc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_\u5b89\u88c5\u8bf4\u660e",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_firefox",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_\u524d\u7f6e\u6761\u4ef6",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_\u6545\u969c\u6392\u67e5",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_browser_extension_zh_cn_youwee_\u6d4f\u89c8\u5668\u6269\u5c55_chromium_firefox",
+      "target": "$graphify-root$_docs_browser_extension_zh_cn_\u5f00\u53d1\u6253\u5305",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L95",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "callee": "Video",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "Video",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "callee": "Audio",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "Audio",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "callee": "Best",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "Best",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L14"
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "callee": "Auto",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "Auto",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "callee": "YouTube",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "YouTube",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "callee": "Universal",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "Universal",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "callee": "v",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "v",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "callee": "list",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "list",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u6838\u5fc3\u80fd\u529b",
+      "callee": "index",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "index",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "youtube.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L41",
+      "qualifiers": ["youtube"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "be",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "youtu.be",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L41",
+      "qualifiers": ["youtu"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "music.youtube.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L41",
+      "qualifiers": ["music", "youtube"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "tiktok.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L42",
+      "qualifiers": ["tiktok"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "instagram.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L43",
+      "qualifiers": ["instagram"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "facebook.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L44",
+      "qualifiers": ["facebook"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "watch",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "fb.watch",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L44",
+      "qualifiers": ["fb"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "x.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L45",
+      "qualifiers": ["x"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "twitter.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L45",
+      "qualifiers": ["twitter"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "vimeo.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L46",
+      "qualifiers": ["vimeo"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "tv",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "twitch.tv",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L47",
+      "qualifiers": ["twitch"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "tv",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "clips.twitch.tv",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L47",
+      "qualifiers": ["clips", "twitch"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "bilibili.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L48",
+      "qualifiers": ["bilibili"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "tv",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "b23.tv",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L48",
+      "qualifiers": ["b23"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "dailymotion.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L49",
+      "qualifiers": ["dailymotion"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "ly",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "dai.ly",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L49",
+      "qualifiers": ["dai"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_browser_extension_zh_cn_\u60ac\u6d6e\u6309\u94ae\u652f\u6301\u7ad9\u70b9",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "soundcloud.com",
+      "source_file": "docs/browser-extension.zh-CN.md",
+      "source_location": "L50",
+      "qualifiers": ["soundcloud"]
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "_cached_target_files": [
+    "$graphify-root$/docs/browser-extension.md",
+    "$graphify-root$/docs/browser-extension.vi.md"
+  ]
+}

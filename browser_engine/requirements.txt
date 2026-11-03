@@ -1,0 +1,6 @@
+# Các thư viện Python cần thiết cho bộ máy reupytb (Browser Engine & Outlier Hunter)
+requests>=2.31.0
+psutil>=5.9.0
+playwright>=1.40.0
+youtube-transcript-api>=0.6.0
+

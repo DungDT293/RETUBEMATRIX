@@ -1,0 +1,113 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "label": "mod.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "target": "ai",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "ai"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "target": "deno",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "deno"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "target": "ffmpeg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "ffmpeg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "target": "gallerydl",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "gallerydl"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "target": "plugin",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "plugin"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "target": "whisper",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "whisper"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "target": "youtube_search",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "youtube_search"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "target": "ytdlp",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "ytdlp"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_mod_rs",
+      "target": "ytdlp_args",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/mod.rs",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "ytdlp_args"
+    }
+  ],
+  "raw_calls": []
+}

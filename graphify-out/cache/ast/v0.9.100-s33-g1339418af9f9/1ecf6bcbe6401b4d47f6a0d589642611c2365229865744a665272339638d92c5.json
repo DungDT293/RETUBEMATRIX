@@ -1,0 +1,1394 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_project_context_md",
+      "label": "PROJECT_CONTEXT.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_project_context_project_context_reupytb",
+      "label": "PROJECT CONTEXT \u2014 REUPYTB",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_project_context_1_t\u1ed5ng_quan_d\u1ef1_\u00e1n_m\u1ee5c_\u0111\u00edch",
+      "label": "1. T\u1ed4NG QUAN D\u1ef0 \u00c1N & M\u1ee4C \u0110\u00cdCH",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L12"
+    },
+    {
+      "id": "$graphify-root$_project_context_2_docs_cho_backend_api",
+      "label": "2. DOCS CHO BACKEND & API",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L42"
+    },
+    {
+      "id": "$graphify-root$_project_context_2_1_rust_tauri_ipc_commands",
+      "label": "2.1. Rust Tauri IPC Commands",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L72"
+    },
+    {
+      "id": "$graphify-root$_project_context_a_download_queue_commands_commands_download_rs",
+      "label": "A. Download & Queue Commands (`commands/download.rs`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L78"
+    },
+    {
+      "id": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "label": "B. Channel Monitoring Commands (`commands/channels.rs`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L94"
+    },
+    {
+      "id": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "label": "C. MultiBrowser Profiles Commands (`commands/profiles.rs`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L114"
+    },
+    {
+      "id": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "label": "D. AI & Subtitles Commands (`commands/ai.rs`, `commands/whisper.rs`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L150"
+    },
+    {
+      "id": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "label": "2.2. Python Browser Engine CLI API (`browser_engine/runner.py`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L164"
+    },
+    {
+      "id": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "label": "3. DOCS CHO DATABASE SCHEMA (SQLite `youwee.db`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L189"
+    },
+    {
+      "id": "$graphify-root$_project_context_3_1_b\u1ea3ng_history_l\u1ecbch_s\u1eed_t\u1ea3i_th\u01b0_vi\u1ec7n",
+      "label": "3.1. B\u1ea3ng `history` (L\u1ecbch s\u1eed t\u1ea3i & Th\u01b0 vi\u1ec7n)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L217"
+    },
+    {
+      "id": "$graphify-root$_project_context_3_2_b\u1ea3ng_history_search_fts_virtual_table_fts5",
+      "label": "3.2. B\u1ea3ng `history_search_fts` (Virtual Table FTS5)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L269"
+    },
+    {
+      "id": "$graphify-root$_project_context_3_3_b\u1ea3ng_followed_channels_theo_d\u00f5i_k\u00eanh_\u0111\u1ed1i_th\u1ee7",
+      "label": "3.3. B\u1ea3ng `followed_channels` (Theo d\u00f5i k\u00eanh \u0111\u1ed1i th\u1ee7)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L295"
+    },
+    {
+      "id": "$graphify-root$_project_context_3_4_b\u1ea3ng_channel_videos_danh_s\u00e1ch_video_qu\u00e9t_t\u1eeb_k\u00eanh",
+      "label": "3.4. B\u1ea3ng `channel_videos` (Danh s\u00e1ch video qu\u00e9t t\u1eeb k\u00eanh)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L363"
+    },
+    {
+      "id": "$graphify-root$_project_context_3_5_b\u1ea3ng_processing_jobs_ti\u1ebfn_tr\u00ecnh_x\u1eed_l\u00fd_ffmpeg",
+      "label": "3.5. B\u1ea3ng `processing_jobs` (Ti\u1ebfn tr\u00ecnh x\u1eed l\u00fd FFmpeg)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L407"
+    },
+    {
+      "id": "$graphify-root$_project_context_3_6_c\u00e1c_b\u1ea3ng_kh\u00e1c",
+      "label": "3.6. C\u00e1c b\u1ea3ng kh\u00e1c",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L443"
+    },
+    {
+      "id": "$graphify-root$_project_context_4_docs_cho_lu\u1ed3ng_x\u1eed_l\u00fd_ai_worker",
+      "label": "4. DOCS CHO LU\u1ed2NG X\u1eec L\u00dd AI & WORKER",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L455"
+    },
+    {
+      "id": "$graphify-root$_project_context_4_1_lu\u1ed3ng_worker_polling_k\u00eanh_\u0111\u1ed1i_th\u1ee7_services_polling_rs",
+      "label": "4.1. Lu\u1ed3ng Worker Polling K\u00eanh \u0110\u1ed1i Th\u1ee7 (`services/polling.rs`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L513"
+    },
+    {
+      "id": "$graphify-root$_project_context_4_2_lu\u1ed3ng_reup_pipeline_x\u1eed_l\u00fd_video_services_ffmpeg_rs",
+      "label": "4.2. Lu\u1ed3ng Reup Pipeline & X\u1eed l\u00fd Video (`services/ffmpeg.rs`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L534"
+    },
+    {
+      "id": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "label": "4.3. Lu\u1ed3ng Ki\u1ec3m Tra K\u00eanh BKT (Shadow Check) & T\u1ef1 \u0110\u1ed9ng H\u00f3a YouTube Studio",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L558"
+    },
+    {
+      "id": "$graphify-root$_project_context_4_4_lu\u1ed3ng_ai_t\u00f3m_t\u1eaft_ph\u1ee5_\u0111\u1ec1_services_ai_rs_services_whisper_rs",
+      "label": "4.4. Lu\u1ed3ng AI T\u00f3m t\u1eaft & Ph\u1ee5 \u0111\u1ec1 (`services/ai.rs`, `services/whisper.rs`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L579"
+    },
+    {
+      "id": "$graphify-root$_project_context_4_5_lu\u1ed3ng_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_browser_upload_browser_engine_actions_upload_actions_py",
+      "label": "4.5. Lu\u1ed3ng T\u1ef1 \u0111\u1ed9ng h\u00f3a Browser Upload (`browser_engine/actions/upload_actions.py`)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L591"
+    },
+    {
+      "id": "$graphify-root$_project_context_5_h\u01b0\u1edbng_d\u1eabn_b\u1eaft_\u0111\u1ea7u_cho_ai_developer",
+      "label": "5. H\u01af\u1edaNG D\u1eaaN B\u1eaeT \u0110\u1ea6U CHO AI & DEVELOPER",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L603"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_project_context_md",
+      "target": "$graphify-root$_project_context_project_context_reupytb",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_project_context_reupytb",
+      "target": "$graphify-root$_project_context_1_t\u1ed5ng_quan_d\u1ef1_\u00e1n_m\u1ee5c_\u0111\u00edch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_project_context_reupytb",
+      "target": "$graphify-root$_project_context_2_docs_cho_backend_api",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_2_docs_cho_backend_api",
+      "target": "$graphify-root$_project_context_2_1_rust_tauri_ipc_commands",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_2_1_rust_tauri_ipc_commands",
+      "target": "$graphify-root$_project_context_a_download_queue_commands_commands_download_rs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_2_1_rust_tauri_ipc_commands",
+      "target": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_2_1_rust_tauri_ipc_commands",
+      "target": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_2_1_rust_tauri_ipc_commands",
+      "target": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L150",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_2_docs_cho_backend_api",
+      "target": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_project_context_reupytb",
+      "target": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "target": "$graphify-root$_project_context_3_1_b\u1ea3ng_history_l\u1ecbch_s\u1eed_t\u1ea3i_th\u01b0_vi\u1ec7n",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "target": "$graphify-root$_project_context_3_2_b\u1ea3ng_history_search_fts_virtual_table_fts5",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L269",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "target": "$graphify-root$_project_context_3_3_b\u1ea3ng_followed_channels_theo_d\u00f5i_k\u00eanh_\u0111\u1ed1i_th\u1ee7",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L295",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "target": "$graphify-root$_project_context_3_4_b\u1ea3ng_channel_videos_danh_s\u00e1ch_video_qu\u00e9t_t\u1eeb_k\u00eanh",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L363",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "target": "$graphify-root$_project_context_3_5_b\u1ea3ng_processing_jobs_ti\u1ebfn_tr\u00ecnh_x\u1eed_l\u00fd_ffmpeg",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L407",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "target": "$graphify-root$_project_context_3_6_c\u00e1c_b\u1ea3ng_kh\u00e1c",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L443",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_project_context_reupytb",
+      "target": "$graphify-root$_project_context_4_docs_cho_lu\u1ed3ng_x\u1eed_l\u00fd_ai_worker",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L455",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_4_docs_cho_lu\u1ed3ng_x\u1eed_l\u00fd_ai_worker",
+      "target": "$graphify-root$_project_context_4_1_lu\u1ed3ng_worker_polling_k\u00eanh_\u0111\u1ed1i_th\u1ee7_services_polling_rs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L513",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_4_docs_cho_lu\u1ed3ng_x\u1eed_l\u00fd_ai_worker",
+      "target": "$graphify-root$_project_context_4_2_lu\u1ed3ng_reup_pipeline_x\u1eed_l\u00fd_video_services_ffmpeg_rs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L534",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_4_docs_cho_lu\u1ed3ng_x\u1eed_l\u00fd_ai_worker",
+      "target": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L558",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_4_docs_cho_lu\u1ed3ng_x\u1eed_l\u00fd_ai_worker",
+      "target": "$graphify-root$_project_context_4_4_lu\u1ed3ng_ai_t\u00f3m_t\u1eaft_ph\u1ee5_\u0111\u1ec1_services_ai_rs_services_whisper_rs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L579",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_4_docs_cho_lu\u1ed3ng_x\u1eed_l\u00fd_ai_worker",
+      "target": "$graphify-root$_project_context_4_5_lu\u1ed3ng_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_browser_upload_browser_engine_actions_upload_actions_py",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L591",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_project_context_project_context_reupytb",
+      "target": "$graphify-root$_project_context_5_h\u01b0\u1edbng_d\u1eabn_b\u1eaft_\u0111\u1ea7u_cho_ai_developer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L603",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_project_context_1_t\u1ed5ng_quan_d\u1ef1_\u00e1n_m\u1ee5c_\u0111\u00edch",
+      "callee": "rusqlite",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "rusqlite",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_1_t\u1ed5ng_quan_d\u1ef1_\u00e1n_m\u1ee5c_\u0111\u00edch",
+      "callee": "FFmpeg",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "FFmpeg",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_1_t\u1ed5ng_quan_d\u1ef1_\u00e1n_m\u1ee5c_\u0111\u00edch",
+      "callee": "bun",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "bun",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_1_t\u1ed5ng_quan_d\u1ef1_\u00e1n_m\u1ee5c_\u0111\u00edch",
+      "callee": "npm",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "npm",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_a_download_queue_commands_commands_download_rs",
+      "callee": "start_download",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "start_download",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_a_download_queue_commands_commands_download_rs",
+      "callee": "url",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "url",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_a_download_queue_commands_commands_download_rs",
+      "callee": "cancel_download",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "cancel_download",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_a_download_queue_commands_commands_download_rs",
+      "callee": "download_id",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "download_id",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_a_download_queue_commands_commands_download_rs",
+      "callee": "get_download_queue",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "get_download_queue",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_a_download_queue_commands_commands_download_rs",
+      "callee": "clear_download_queue",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "clear_download_queue",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "get_followed_channels",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "get_followed_channels",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "add_followed_channel",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "add_followed_channel",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "url",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "url",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "config",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "config",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "channel_id",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "channel_id",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "update_followed_channel",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "update_followed_channel",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "id",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "id",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "delete_followed_channel",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "delete_followed_channel",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "check_channel_videos",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "check_channel_videos",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "get_channel_videos",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "get_channel_videos",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "status",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "status",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "page",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "page",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_b_channel_monitoring_commands_commands_channels_rs",
+      "callee": "limit",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "limit",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "get_multibrowser_profiles",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "get_multibrowser_profiles",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "save_multibrowser_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "save_multibrowser_profile",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "delete_multibrowser_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "delete_multibrowser_profile",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "profile_id",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "profile_id",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "launch_multibrowser_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "launch_multibrowser_profile",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "stop_multibrowser_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "stop_multibrowser_profile",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "bulk_stop_multibrowser_profiles",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "bulk_stop_multibrowser_profiles",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "profile_ids",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "profile_ids",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "test_multibrowser_proxy",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "test_multibrowser_proxy",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "proxy",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "proxy",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "get_multibrowser_stats",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "get_multibrowser_stats",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "arrange_multibrowser_windows",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "arrange_multibrowser_windows",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "params",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "params",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "clean_multibrowser_profile_cache",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "clean_multibrowser_profile_cache",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "update_multibrowser_profile_meta",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "update_multibrowser_profile_meta",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "note",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "note",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "tags",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "tags",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "color",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "color",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "bulk_set_multibrowser_group",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "bulk_set_multibrowser_group",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "group",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "group",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_c_multibrowser_profiles_commands_commands_profiles_rs",
+      "callee": "upload_video_multibrowser",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "upload_video_multibrowser",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "callee": "generate_summary",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "generate_summary",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "callee": "text",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "text",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "callee": "transcribe_video_with_whisper",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "transcribe_video_with_whisper",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "callee": "video_path",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "video_path",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "callee": "format",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "format",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "callee": "api_key",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "api_key",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "callee": "cancel_summary_generation",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "cancel_summary_generation",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_d_ai_subtitles_commands_commands_ai_rs_commands_whisper_rs",
+      "callee": "request_id",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "request_id",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "list_profiles",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "list_profiles",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "add_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "add_profile",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "update_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "update_profile",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "delete_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "delete_profile",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "test_proxy",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "test_proxy",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "open_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "open_profile",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "CloakSession",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "CloakSession",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "SingletonLock",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "SingletonLock",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "upload_video",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "upload_video",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L179"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "get_stats",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "get_stats",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "jsonl",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "run_history.jsonl",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L181",
+      "qualifiers": ["run_history"]
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "psutil",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "psutil",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "arrange_windows",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "arrange_windows",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L183"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "EnumWindows",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "EnumWindows",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L183"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "SetWindowPos",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "SetWindowPos",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L183"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "clean_cache",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "clean_cache",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L185"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "Cache",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "Cache",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L185"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "GPUCache",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "GPUCache",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L185"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_2_2_python_browser_engine_cli_api_browser_engine_runner_py",
+      "callee": "DawnCache",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "DawnCache",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L185"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "callee": "db",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "youwee.db",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L189",
+      "qualifiers": ["youwee"]
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_docs_cho_database_schema_sqlite_youwee_db",
+      "callee": "db",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "logs.db",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L193",
+      "qualifiers": ["logs"]
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_1_b\u1ea3ng_history_l\u1ecbch_s\u1eed_t\u1ea3i_th\u01b0_vi\u1ec7n",
+      "callee": "history",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "history",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_2_b\u1ea3ng_history_search_fts_virtual_table_fts5",
+      "callee": "history_search_fts",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "history_search_fts",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_3_b\u1ea3ng_followed_channels_theo_d\u00f5i_k\u00eanh_\u0111\u1ed1i_th\u1ee7",
+      "callee": "followed_channels",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "followed_channels",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L295"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_4_b\u1ea3ng_channel_videos_danh_s\u00e1ch_video_qu\u00e9t_t\u1eeb_k\u00eanh",
+      "callee": "channel_videos",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "channel_videos",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_5_b\u1ea3ng_processing_jobs_ti\u1ebfn_tr\u00ecnh_x\u1eed_l\u00fd_ffmpeg",
+      "callee": "processing_jobs",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "processing_jobs",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L407"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_6_c\u00e1c_b\u1ea3ng_kh\u00e1c",
+      "callee": "tags",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "tags",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L445"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_6_c\u00e1c_b\u1ea3ng_kh\u00e1c",
+      "callee": "history_tags",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "history_tags",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L445"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_6_c\u00e1c_b\u1ea3ng_kh\u00e1c",
+      "callee": "collections",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "collections",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L447"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_6_c\u00e1c_b\u1ea3ng_kh\u00e1c",
+      "callee": "history_collections",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "history_collections",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L447"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_6_c\u00e1c_b\u1ea3ng_kh\u00e1c",
+      "callee": "logs",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "logs",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L449"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_3_6_c\u00e1c_b\u1ea3ng_kh\u00e1c",
+      "callee": "download_queues",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "download_queues",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L451"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_1_lu\u1ed3ng_worker_polling_k\u00eanh_\u0111\u1ed1i_th\u1ee7_services_polling_rs",
+      "callee": "youtube_channel_id",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "youtube_channel_id",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_1_lu\u1ed3ng_worker_polling_k\u00eanh_\u0111\u1ed1i_th\u1ee7_services_polling_rs",
+      "callee": "filter_min_duration",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "filter_min_duration",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L523"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_1_lu\u1ed3ng_worker_polling_k\u00eanh_\u0111\u1ed1i_th\u1ee7_services_polling_rs",
+      "callee": "filter_max_duration",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "filter_max_duration",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L523"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_1_lu\u1ed3ng_worker_polling_k\u00eanh_\u0111\u1ed1i_th\u1ee7_services_polling_rs",
+      "callee": "filter_include_keywords",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "filter_include_keywords",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L525"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_1_lu\u1ed3ng_worker_polling_k\u00eanh_\u0111\u1ed1i_th\u1ee7_services_polling_rs",
+      "callee": "filter_exclude_keywords",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "filter_exclude_keywords",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L525"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_1_lu\u1ed3ng_worker_polling_k\u00eanh_\u0111\u1ed1i_th\u1ee7_services_polling_rs",
+      "callee": "history",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "history",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L527"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_1_lu\u1ed3ng_worker_polling_k\u00eanh_\u0111\u1ed1i_th\u1ee7_services_polling_rs",
+      "callee": "channel_videos",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "channel_videos",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L527"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_2_lu\u1ed3ng_reup_pipeline_x\u1eed_l\u00fd_video_services_ffmpeg_rs",
+      "callee": "red_matched",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "red_matched",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L550"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_2_lu\u1ed3ng_reup_pipeline_x\u1eed_l\u00fd_video_services_ffmpeg_rs",
+      "callee": "hflip",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "hflip",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L552"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "vevo",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "vevo",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L561"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "umg",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "umg",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L561"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "sme",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "sme",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L561"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "wmg",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "wmg",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L561"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "canonical_url",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "canonical_url",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L563"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "video_id",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "video_id",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L563"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "history",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "history",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L563"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "channel_videos",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "channel_videos",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L563"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "unlisted",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "unlisted",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L568"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "pending",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "pending",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L571"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "green_clean",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "green_clean",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L573"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_3_lu\u1ed3ng_ki\u1ec3m_tra_k\u00eanh_bkt_shadow_check_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_youtube_studio",
+      "callee": "red_matched",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "red_matched",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L575"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_4_lu\u1ed3ng_ai_t\u00f3m_t\u1eaft_ph\u1ee5_\u0111\u1ec1_services_ai_rs_services_whisper_rs",
+      "callee": "srt",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "srt",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L583"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_4_lu\u1ed3ng_ai_t\u00f3m_t\u1eaft_ph\u1ee5_\u0111\u1ec1_services_ai_rs_services_whisper_rs",
+      "callee": "vtt",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "vtt",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L583"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_4_lu\u1ed3ng_ai_t\u00f3m_t\u1eaft_ph\u1ee5_\u0111\u1ec1_services_ai_rs_services_whisper_rs",
+      "callee": "CANCELLED_SUMMARY_REQUESTS",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "CANCELLED_SUMMARY_REQUESTS",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L587"
+    },
+    {
+      "caller_nid": "$graphify-root$_project_context_4_5_lu\u1ed3ng_t\u1ef1_\u0111\u1ed9ng_h\u00f3a_browser_upload_browser_engine_actions_upload_actions_py",
+      "callee": "jsonl",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "run_history.jsonl",
+      "source_file": "PROJECT_CONTEXT.md",
+      "source_location": "L599",
+      "qualifiers": ["run_history"]
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

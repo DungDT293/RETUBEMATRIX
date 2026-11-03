@@ -1,0 +1,3625 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "label": "dependencies.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_downloadprogress",
+      "label": "DownloadProgress",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L28",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_githubrelease",
+      "label": "GitHubRelease",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L36",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_detectedbrowser",
+      "label": "DetectedBrowser",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L41",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_browserprofile",
+      "label": "BrowserProfile",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L47",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_version",
+      "label": "get_ytdlp_version()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L53"
+    },
+    {
+      "id": "apphandle",
+      "label": "AppHandle",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["tauri"]
+    },
+    {
+      "id": "ytdlpversioninfo",
+      "label": "YtdlpVersionInfo",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "label": "check_ytdlp_update()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L58"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "label": "update_ytdlp()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L99"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_channel_cmd",
+      "label": "get_ytdlp_channel_cmd()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L224"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_source_cmd",
+      "label": "get_ytdlp_source_cmd()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L230"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_set_ytdlp_source_cmd",
+      "label": "set_ytdlp_source_cmd()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L236"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_set_ytdlp_channel_cmd",
+      "label": "set_ytdlp_channel_cmd()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L242"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_get_all_ytdlp_versions_cmd",
+      "label": "get_all_ytdlp_versions_cmd()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L248"
+    },
+    {
+      "id": "ytdlpallversions",
+      "label": "YtdlpAllVersions",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "label": "get_installed_channel_version()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L252"
+    },
+    {
+      "id": "ytdlpchannel",
+      "label": "YtdlpChannel",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "label": "check_ytdlp_channel_update()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L297"
+    },
+    {
+      "id": "ytdlpchannelupdateinfo",
+      "label": "YtdlpChannelUpdateInfo",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "label": "download_ytdlp_channel()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L360"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg",
+      "label": "check_ffmpeg()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L506"
+    },
+    {
+      "id": "ffmpegstatus",
+      "label": "FfmpegStatus",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_source_cmd",
+      "label": "get_ffmpeg_source_cmd()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L511"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_set_ffmpeg_source_cmd",
+      "label": "set_ffmpeg_source_cmd()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L517"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg_update",
+      "label": "check_ffmpeg_update()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L523"
+    },
+    {
+      "id": "ffmpegupdateinfo",
+      "label": "FfmpegUpdateInfo",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "label": "download_ffmpeg()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L528"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_path_for_ytdlp",
+      "label": "get_ffmpeg_path_for_ytdlp()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L787"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno",
+      "label": "check_deno()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L794"
+    },
+    {
+      "id": "denostatus",
+      "label": "DenoStatus",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_check_gallerydl",
+      "label": "check_gallerydl()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L799"
+    },
+    {
+      "id": "gallerydlstatus",
+      "label": "GalleryDlStatus",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno_update",
+      "label": "check_deno_update()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L804"
+    },
+    {
+      "id": "denoupdateinfo",
+      "label": "DenoUpdateInfo",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/dependencies.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "label": "download_deno()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L809"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "label": "detect_installed_browsers()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L983"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "label": "get_browser_profiles()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1137"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "services",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "services",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "check_deno_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "check_deno_internal",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "check_deno_update_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "check_deno_update_internal",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "check_ffmpeg_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "check_ffmpeg_internal",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "check_ffmpeg_update_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "check_ffmpeg_update_internal",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "check_gallerydl_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "check_gallerydl_internal",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_all_ytdlp_versions",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_all_ytdlp_versions",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_channel_api_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_channel_api_url",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_deno_download_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_deno_download_url",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_ffmpeg_download_info",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_ffmpeg_download_info",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_ffmpeg_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_ffmpeg_path",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_ffmpeg_source",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_ffmpeg_source",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_latest_ffmpeg_release_info",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_latest_ffmpeg_release_info",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_ytdlp_channel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_ytdlp_channel",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_ytdlp_channel_download_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_ytdlp_channel_download_url",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_ytdlp_download_info",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_ytdlp_download_info",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_ytdlp_source",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_ytdlp_source",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "get_ytdlp_version_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_ytdlp_version_internal",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "parse_ffmpeg_version",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "parse_ffmpeg_version",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "set_ffmpeg_source",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "set_ffmpeg_source",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "set_ytdlp_channel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "set_ytdlp_channel",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "set_ytdlp_source",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "set_ytdlp_source",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "system_ffmpeg_upgrade_message",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "system_ffmpeg_upgrade_message",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "system_ytdlp_upgrade_message",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "system_ytdlp_upgrade_message",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "verify_sha256",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "verify_sha256",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "write_app_ffmpeg_release_version",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "write_app_ffmpeg_release_version",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "denoupdateinfo",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "DenoUpdateInfo",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "ffmpegupdateinfo",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "FfmpegUpdateInfo",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "backenderror",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BackendError",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "denostatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "DenoStatus",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "dependencysource",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "DependencySource",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "ffmpegstatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "FfmpegStatus",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "gallerydlstatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "GalleryDlStatus",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "ytdlpallversions",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YtdlpAllVersions",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "ytdlpchannel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YtdlpChannel",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "ytdlpchannelupdateinfo",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YtdlpChannelUpdateInfo",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "ytdlpversioninfo",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YtdlpVersionInfo",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "utils",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "extract_deno_zip",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "extract_deno_zip",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "extract_tar_gz",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "extract_tar_gz",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "extract_tar_xz",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "extract_tar_xz",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "extract_zip",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "extract_zip",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "firefox_profiles_from_ini",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "firefox_profiles_from_ini",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "commandext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "CommandExt",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "streamext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "serde",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "deserialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "serialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "stdio",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "tauri",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "apphandle",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "emitter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "manager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "asyncwriteext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "command",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_downloadprogress",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_githubrelease",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_detectedbrowser",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_browserprofile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_version",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_version",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_version",
+      "target": "ytdlpversioninfo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L99",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L99",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_channel_cmd",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L224",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_channel_cmd",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L224",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_source_cmd",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L230",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_source_cmd",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L230",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_set_ytdlp_source_cmd",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L236",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_set_ytdlp_source_cmd",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L236",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_set_ytdlp_channel_cmd",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L242",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_set_ytdlp_channel_cmd",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L242",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_get_all_ytdlp_versions_cmd",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L248",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_all_ytdlp_versions_cmd",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L248",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_all_ytdlp_versions_cmd",
+      "target": "ytdlpallversions",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L248",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L252",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L252",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "target": "ytdlpchannel",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L252",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L297",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L297",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "target": "ytdlpchannelupdateinfo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L297",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L360",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L360",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L506",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L506",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg",
+      "target": "ffmpegstatus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L506",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_source_cmd",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L511",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_source_cmd",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L511",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_set_ffmpeg_source_cmd",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L517",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_set_ffmpeg_source_cmd",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L517",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg_update",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L523",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg_update",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L523",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg_update",
+      "target": "ffmpegupdateinfo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L523",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L528",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L528",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_path_for_ytdlp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L787",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_path_for_ytdlp",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L787",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L794",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L794",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno",
+      "target": "denostatus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L794",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_check_gallerydl",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L799",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_gallerydl",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L799",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_gallerydl",
+      "target": "gallerydlstatus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L799",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno_update",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L804",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno_update",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L804",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno_update",
+      "target": "denoupdateinfo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L804",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L809",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L809",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L983",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_detectedbrowser",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L983",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1137",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_browserprofile",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1137",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "target": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L309",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_version",
+      "callee": "get_ytdlp_version_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "timeout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "user_agent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "is_timeout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "is_connect",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "is_success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_update",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "get_ytdlp_source",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "with_retryable",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "system_ytdlp_upgrade_message",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "get_ytdlp_download_info",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "app_data_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "timeout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "user_agent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "is_success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "text",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "find_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "is_success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L176"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "verify_sha256",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "with_extension",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "permissions",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "set_mode",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L199"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "args",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "output",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_update_ytdlp",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_channel_cmd",
+      "callee": "get_ytdlp_channel",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L225"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_channel_cmd",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L226"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_source_cmd",
+      "callee": "get_ytdlp_source",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_ytdlp_source_cmd",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_set_ytdlp_source_cmd",
+      "callee": "set_ytdlp_source",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L238"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_set_ytdlp_channel_cmd",
+      "callee": "set_ytdlp_channel",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_all_ytdlp_versions_cmd",
+      "callee": "get_all_ytdlp_versions",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "app_data_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L257"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L257"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L272"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L272"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "stderr",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "stdout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "args",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L281"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "output",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L283"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L284"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_installed_channel_version",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L288"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "ok_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "get_channel_api_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "timeout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "user_agent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L318"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "is_timeout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "is_connect",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L321"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "is_success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L335"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "trim_start_matches",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L345"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L345"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "normalize_version",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L348"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "normalize_version",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L348"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ytdlp_channel_update",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L352"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "get_ytdlp_source",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L361"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L362"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "with_retryable",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L362"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "ok_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L369"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "get_ytdlp_channel_download_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L369"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L371"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "app_data_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L371"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L371"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L376"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L378"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L396"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L398"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "timeout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L398"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "user_agent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L398"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L416"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "is_success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L422"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L422"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L429"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "text",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L429"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L434"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "find_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L434"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L434"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L437"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L447"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "is_success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L453"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L453"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L460"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "verify_sha256",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L466"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "with_extension",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L471"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L472"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "permissions",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L479"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L479"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "set_mode",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L483"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L484"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L489"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "args",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L495"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L496"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L497"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "output",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L497"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ytdlp_channel",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L502"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg",
+      "callee": "check_ffmpeg_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L507"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_source_cmd",
+      "callee": "get_ffmpeg_source",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L512"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_source_cmd",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L513"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_set_ffmpeg_source_cmd",
+      "callee": "set_ffmpeg_source",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L519"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_ffmpeg_update",
+      "callee": "check_ffmpeg_update_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L524"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "get_ffmpeg_source",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L529"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L530"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "with_retryable",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L530"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "system_ffmpeg_upgrade_message",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L532"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "get_ffmpeg_download_info",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L538"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L545"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L555"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "app_data_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L555"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L555"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L560"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L562"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L566"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "user_agent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L566"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L572"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "is_success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L578"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L578"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L585"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "text",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L585"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L591"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "find_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L591"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L591"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L594"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L607"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L618"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "is_success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L624"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L624"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L631"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "content_length",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L631"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L636"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L637"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "bytes_stream",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L641"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L644"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L645"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "write_all",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L645"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L660"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L672"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "flush",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L672"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "drop",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L675"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L678"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L683"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "verify_sha256",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L694"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L700"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L715"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "extract_tar_gz",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L718"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "extract_tar_xz",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L719"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "extract_zip",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L720"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "permissions",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "set_mode",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L734"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L735"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L741"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "stderr",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L752"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "stdout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L752"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "args",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L752"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L755"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L756"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "output",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L756"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L761"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L762"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L763"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "parse_ffmpeg_version",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L775"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "get_latest_ffmpeg_release_info",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L776"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_ffmpeg",
+      "callee": "write_app_ffmpeg_release_version",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L779"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_path_for_ytdlp",
+      "callee": "get_ffmpeg_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L788"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_ffmpeg_path_for_ytdlp",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L790"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno",
+      "callee": "check_deno_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L795"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_gallerydl",
+      "callee": "check_gallerydl_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L800"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_check_deno_update",
+      "callee": "check_deno_update_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L805"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "get_deno_download_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L810"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L817"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L827"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "app_data_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L827"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L827"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L832"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L834"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L838"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "user_agent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L838"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L843"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "is_success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L849"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L849"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L856"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "content_length",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L856"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L861"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L862"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "bytes_stream",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L866"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L869"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L870"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "write_all",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L870"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L885"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L897"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "flush",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L897"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "drop",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L900"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L903"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L908"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L923"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "extract_deno_zip",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L926"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "permissions",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L934"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L934"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "set_mode",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L938"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L939"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L945"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "stderr",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L956"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "stdout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L956"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "args",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L956"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L959"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L960"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "output",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L960"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L967"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L967"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L971"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L971"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_download_deno",
+      "callee": "trim_start_matches",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L971"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L999"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1010"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1011"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1012"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1086"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "stderr",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1114"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "stdout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1114"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1114"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1117"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1118"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_detect_installed_browsers",
+      "callee": "success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1121"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1183"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1185"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "get_firefox_profiles",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1202"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "flatten",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1235"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1236"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "is_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1237"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1238"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1238"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1239"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1240"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1240"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1241"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "get_chromium_profile_name",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1241"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "sort_by",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1253"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "cmp",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1259"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1266"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1267"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1269"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "get_firefox_profiles",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1281"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "flatten",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1289"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1290"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "is_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1291"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1292"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1292"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1293"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1294"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1295"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "get_chromium_profile_name",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1295"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "sort_by",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1306"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "cmp",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1319"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1321"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "get_firefox_profiles",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1329"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "flatten",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1337"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1338"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "is_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1339"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1340"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1340"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1341"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1342"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1343"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "get_chromium_profile_name",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1343"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "sort_by",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1354"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_dependencies_get_browser_profiles",
+      "callee": "cmp",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/dependencies.rs",
+      "source_location": "L1360"
+    }
+  ]
+}

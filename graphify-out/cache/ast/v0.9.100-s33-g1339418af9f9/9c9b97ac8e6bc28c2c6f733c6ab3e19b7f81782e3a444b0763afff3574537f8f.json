@@ -1,0 +1,177 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_telegram_rs",
+      "label": "telegram.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_telegram_set_telegram_config",
+      "label": "set_telegram_config()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L6"
+    },
+    {
+      "id": "apphandle",
+      "label": "AppHandle",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/telegram.rs",
+      "_rust_use_roots": ["tauri"]
+    },
+    {
+      "id": "telegramconfig",
+      "label": "TelegramConfig",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/telegram.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_telegram_get_telegram_status",
+      "label": "get_telegram_status()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L12"
+    },
+    {
+      "id": "telegramstatus",
+      "label": "TelegramStatus",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/telegram.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_telegram_send_telegram_reply",
+      "label": "send_telegram_reply()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L17"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_rs",
+      "target": "apphandle",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_rs",
+      "target": "telegram",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "telegram",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_rs",
+      "target": "telegram",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "telegram",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_rs",
+      "target": "telegramconfig",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "TelegramConfig",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_rs",
+      "target": "telegramstatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "TelegramStatus",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_telegram_set_telegram_config",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_set_telegram_config",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_set_telegram_config",
+      "target": "telegramconfig",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_telegram_get_telegram_status",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_get_telegram_status",
+      "target": "telegramstatus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_telegram_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_telegram_send_telegram_reply",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/telegram.rs",
+      "source_location": "L17",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

@@ -1,0 +1,117 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_docs_plugins_vi_md",
+      "label": "PLUGINS.vi.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_docs_plugins_vi_plugin_youwee",
+      "label": "Plugin Youwee",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_docs_plugins_vi_plugin_\u0111\u01b0\u1ee3c_h\u1ed7_tr\u1ee3",
+      "label": "Plugin \u0111\u01b0\u1ee3c h\u1ed7 tr\u1ee3",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L15"
+    },
+    {
+      "id": "$graphify-root$_docs_plugins_vi_c\u00e0i_plugin",
+      "label": "C\u00e0i plugin",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L22"
+    },
+    {
+      "id": "$graphify-root$_docs_plugins_vi_t\u1ef1_vi\u1ebft_plugin",
+      "label": "T\u1ef1 vi\u1ebft plugin",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L30"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_docs_plugins_vi_md",
+      "target": "$graphify-root$_docs_plugins_vi_plugin_youwee",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_plugins_vi_plugin_youwee",
+      "target": "$graphify-root$_docs_plugins_vi_plugin_\u0111\u01b0\u1ee3c_h\u1ed7_tr\u1ee3",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_plugins_vi_plugin_youwee",
+      "target": "$graphify-root$_docs_plugins_vi_c\u00e0i_plugin",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_plugins_vi_plugin_youwee",
+      "target": "$graphify-root$_docs_plugins_vi_t\u1ef1_vi\u1ebft_plugin",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_docs_plugins_vi_md",
+      "target": "$graphify-root$_sdk_js_readme_md",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L34",
+      "weight": 1.0,
+      "target_file": "$graphify-root$/sdk-js/README.md"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_docs_plugins_vi_plugin_\u0111\u01b0\u1ee3c_h\u1ed7_tr\u1ee3",
+      "callee": "completed",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "download.completed",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L19",
+      "qualifiers": ["download"]
+    },
+    {
+      "caller_nid": "$graphify-root$_docs_plugins_vi_plugin_\u0111\u01b0\u1ee3c_h\u1ed7_tr\u1ee3",
+      "callee": "failed",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "download.failed",
+      "source_file": "docs/PLUGINS.vi.md",
+      "source_location": "L19",
+      "qualifiers": ["download"]
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "_cached_target_files": ["$graphify-root$/sdk-js/README.md"]
+}

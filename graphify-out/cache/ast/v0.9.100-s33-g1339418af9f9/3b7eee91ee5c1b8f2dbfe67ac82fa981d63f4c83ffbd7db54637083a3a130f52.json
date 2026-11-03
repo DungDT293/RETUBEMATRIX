@@ -1,0 +1,221 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_yml",
+      "label": "com.vanloctech.youwee.yml",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_id",
+      "label": "id",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_runtime",
+      "label": "runtime",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L2"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_runtime_version",
+      "label": "runtime-version",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L3"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_sdk",
+      "label": "sdk",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L4"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_command",
+      "label": "command",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L5"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_finish_args",
+      "label": "finish-args",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L7"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_modules",
+      "label": "modules",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L22"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_name",
+      "label": "name",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L23"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_buildsystem",
+      "label": "buildsystem",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L24"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_sources",
+      "label": "sources",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L25"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_sources_type",
+      "label": "type",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L26"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_sources_path",
+      "label": "path",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L27"
+    },
+    {
+      "id": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_build_commands",
+      "label": "build-commands",
+      "file_type": "code",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L28"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_yml",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_id",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_yml",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_runtime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_yml",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_runtime_version",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_yml",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_sdk",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_yml",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_command",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_yml",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_finish_args",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_yml",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_modules",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_modules",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_modules",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_buildsystem",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_modules",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_sources",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_sources",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_sources_type",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_sources",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_sources_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_flatpak_com_vanloctech_youwee_modules",
+      "target": "$graphify-root$_flatpak_com_vanloctech_youwee_modules_build_commands",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "flatpak/com.vanloctech.youwee.yml",
+      "source_location": "L28",
+      "weight": 1.0
+    }
+  ]
+}

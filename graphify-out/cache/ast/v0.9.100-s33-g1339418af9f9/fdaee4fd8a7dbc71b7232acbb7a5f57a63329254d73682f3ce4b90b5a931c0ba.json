@@ -1,0 +1,3098 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_changelog_md",
+      "label": "CHANGELOG.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_changelog_changelog",
+      "label": "Changelog",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_changelog_unreleased",
+      "label": "[Unreleased]",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L8"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_20_5_2026_11_02",
+      "label": "[0.20.5] - 2026-11-02",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L10"
+    },
+    {
+      "id": "$graphify-root$_changelog_added",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L12"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L17"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_20_4_2026_09_20",
+      "label": "[0.20.4] - 2026-09-20",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L29"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_31",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L31"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L38"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_20_3_2026_08_23",
+      "label": "[0.20.3] - 2026-08-23",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L43"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_45",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L45"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_49",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L49"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_20_2_2026_08_23",
+      "label": "[0.20.2] - 2026-08-23",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L53"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_55",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L55"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_20_1_2026_08_01",
+      "label": "[0.20.1] - 2026-08-01",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L60"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_62",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L62"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_70",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L70"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_20_0_2026_07_08",
+      "label": "[0.20.0] - 2026-07-08",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L74"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_76",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L76"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_84",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L84"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_88",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L88"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_19_0_2026_06_30",
+      "label": "[0.19.0] - 2026-06-30",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L99"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_101",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L101"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_109",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L109"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_115",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L115"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_18_0_2026_06_29",
+      "label": "[0.18.0] - 2026-06-29",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L123"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_125",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L125"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_136",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L136"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_140",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L140"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_17_2_2026_06_17",
+      "label": "[0.17.2] - 2026-06-17",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L150"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_152",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L152"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_158",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L158"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_17_1_2026_06_11",
+      "label": "[0.17.1] - 2026-06-11",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L164"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_166",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L166"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_172",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L172"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_176",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L176"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_17_0_2026_06_07",
+      "label": "[0.17.0] - 2026-06-07",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L187"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_189",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L189"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_198",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L198"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_203",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L203"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_16_0_2026_06_02",
+      "label": "[0.16.0] - 2026-06-02",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L207"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_209",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L209"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_215",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L215"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_220",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L220"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_15_1_2026_05_27",
+      "label": "[0.15.1] - 2026-05-27",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L226"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_228",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L228"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_14_1_2026_05_24",
+      "label": "[0.14.1] - 2026-05-24",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L233"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_235",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L235"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_240",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L240"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_14_0_2026_05_24",
+      "label": "[0.14.0] - 2026-05-24",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L246"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_248",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L248"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_253",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L253"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_257",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L257"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_13_3_2026_05_14",
+      "label": "[0.13.3] - 2026-05-14",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L261"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_263",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L263"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_265",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L265"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_267",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L267"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_13_2_2026_05_10",
+      "label": "[0.13.2] - 2026-05-10",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L273"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_275",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L275"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_281",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L281"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_283",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L283"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_13_1_2026_04_26",
+      "label": "[0.13.1] - 2026-04-26",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L288"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_290",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L290"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_294",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L294"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_296",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L296"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_13_0_2026_04_15",
+      "label": "[0.13.0] - 2026-04-15",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L300"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_302",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L302"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_310",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L310"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_314",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L314"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_12_0_2026_03_04",
+      "label": "[0.12.0] - 2026-03-04",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L317"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_319",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L319"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_324",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L324"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_330",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L330"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_11_1_2026_03_01",
+      "label": "[0.11.1] - 2026-03-01",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L338"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_340",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L340"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_345",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L345"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_349",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L349"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_11_0_2026_02_20",
+      "label": "[0.11.0] - 2026-02-20",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L355"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_357",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L357"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_362",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L362"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_366",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L366"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_10_1_2026_02_15",
+      "label": "[0.10.1] - 2026-02-15",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L371"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_373",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L373"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_379",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L379"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_381",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L381"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_10_0_2026_02_15",
+      "label": "[0.10.0] - 2026-02-15",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L385"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_387",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L387"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_392",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L392"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_394",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L394"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_9_4_2026_02_14",
+      "label": "[0.9.4] - 2026-02-14",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L396"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_398",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L398"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_405",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L405"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_411",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L411"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_9_3_2026_02_14",
+      "label": "[0.9.3] - 2026-02-14",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L420"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_422",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L422"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_426",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L426"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_9_2_2026_02_13",
+      "label": "[0.9.2] - 2026-02-13",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L430"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_432",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L432"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_9_1_2026_02_13",
+      "label": "[0.9.1] - 2026-02-13",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L437"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_439",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L439"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_9_0_2026_02_12",
+      "label": "[0.9.0] - 2026-02-12",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L450"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_452",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L452"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_458",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L458"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_8_2_2026_02_11",
+      "label": "[0.8.2] - 2026-02-11",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L462"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_464",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L464"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_472",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L472"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_8_1_2026_02_09",
+      "label": "[0.8.1] - 2026-02-09",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L478"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_480",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L480"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_8_0_2026_02_09",
+      "label": "[0.8.0] - 2026-02-09",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L486"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_488",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L488"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_496",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L496"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_501",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L501"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_7_1_2026_02_06",
+      "label": "[0.7.1] - 2026-02-06",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L509"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_511",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L511"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_519",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L519"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_524",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L524"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_7_0_2026_02_05",
+      "label": "[0.7.0] - 2026-02-05",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L529"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_531",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L531"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_537",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L537"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_541",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L541"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_6_1_2026_02_03",
+      "label": "[0.6.1] - 2026-02-03",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L546"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_548",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L548"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_554",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L554"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_560",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L560"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_6_0_2026_02_03",
+      "label": "[0.6.0] - 2026-02-03",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L567"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_569",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L569"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_575",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L575"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_5_4_2026_01_28",
+      "label": "[0.5.4] - 2026-01-28",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L582"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_584",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L584"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_588",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L588"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_5_3_2026_01_28",
+      "label": "[0.5.3] - 2026-01-28",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L593"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_595",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L595"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_5_2_2026_01_27",
+      "label": "[0.5.2] - 2026-01-27",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L602"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_604",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L604"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_5_1_2026_01_27",
+      "label": "[0.5.1] - 2026-01-27",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L612"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_614",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L614"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_622",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L622"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_628",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L628"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_5_0_2026_01_27",
+      "label": "[0.5.0] - 2026-01-27",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L633"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_635",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L635"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_642",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L642"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_4_1_2026_01_24",
+      "label": "[0.4.1] - 2026-01-24",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L652"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_654",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L654"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_664",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L664"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_673",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L673"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_4_0_2026_01_24",
+      "label": "[0.4.0] - 2026-01-24",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L680"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_682",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L682"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_695",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L695"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_703",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L703"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_3_2_2026_01_22",
+      "label": "[0.3.2] - 2026-01-22",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L714"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_716",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L716"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_722",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L722"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_727",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L727"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_3_1_2025_01_21",
+      "label": "[0.3.1] - 2025-01-21",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L731"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_733",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L733"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_737",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L737"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_3_0_2025_01_20",
+      "label": "[0.3.0] - 2025-01-20",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L741"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_743",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L743"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_752",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L752"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_757",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L757"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_2_1_2025_01_15",
+      "label": "[0.2.1] - 2025-01-15",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L764"
+    },
+    {
+      "id": "$graphify-root$_changelog_fixed_766",
+      "label": "Fixed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L766"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_2_0_2025_01_10",
+      "label": "[0.2.0] - 2025-01-10",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L770"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_772",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L772"
+    },
+    {
+      "id": "$graphify-root$_changelog_changed_781",
+      "label": "Changed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L781"
+    },
+    {
+      "id": "$graphify-root$_changelog_0_1_0_2025_01_01",
+      "label": "[0.1.0] - 2025-01-01",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L786"
+    },
+    {
+      "id": "$graphify-root$_changelog_added_788",
+      "label": "Added",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L788"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_changelog_md",
+      "target": "$graphify-root$_changelog_changelog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_unreleased",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_20_5_2026_11_02",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_5_2026_11_02",
+      "target": "$graphify-root$_changelog_added",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_5_2026_11_02",
+      "target": "$graphify-root$_changelog_fixed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_20_4_2026_09_20",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_4_2026_09_20",
+      "target": "$graphify-root$_changelog_fixed_31",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_4_2026_09_20",
+      "target": "$graphify-root$_changelog_changed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_20_3_2026_08_23",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_3_2026_08_23",
+      "target": "$graphify-root$_changelog_fixed_45",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_3_2026_08_23",
+      "target": "$graphify-root$_changelog_changed_49",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_20_2_2026_08_23",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_2_2026_08_23",
+      "target": "$graphify-root$_changelog_fixed_55",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_20_1_2026_08_01",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_1_2026_08_01",
+      "target": "$graphify-root$_changelog_added_62",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_1_2026_08_01",
+      "target": "$graphify-root$_changelog_fixed_70",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_20_0_2026_07_08",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_0_2026_07_08",
+      "target": "$graphify-root$_changelog_added_76",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_0_2026_07_08",
+      "target": "$graphify-root$_changelog_changed_84",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_20_0_2026_07_08",
+      "target": "$graphify-root$_changelog_fixed_88",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_19_0_2026_06_30",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L99",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_19_0_2026_06_30",
+      "target": "$graphify-root$_changelog_added_101",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L101",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_19_0_2026_06_30",
+      "target": "$graphify-root$_changelog_changed_109",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_19_0_2026_06_30",
+      "target": "$graphify-root$_changelog_fixed_115",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_18_0_2026_06_29",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L123",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_18_0_2026_06_29",
+      "target": "$graphify-root$_changelog_added_125",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_18_0_2026_06_29",
+      "target": "$graphify-root$_changelog_changed_136",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_18_0_2026_06_29",
+      "target": "$graphify-root$_changelog_fixed_140",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_17_2_2026_06_17",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L150",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_17_2_2026_06_17",
+      "target": "$graphify-root$_changelog_changed_152",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_17_2_2026_06_17",
+      "target": "$graphify-root$_changelog_fixed_158",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L158",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_17_1_2026_06_11",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_17_1_2026_06_11",
+      "target": "$graphify-root$_changelog_added_166",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_17_1_2026_06_11",
+      "target": "$graphify-root$_changelog_changed_172",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L172",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_17_1_2026_06_11",
+      "target": "$graphify-root$_changelog_fixed_176",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L176",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_17_0_2026_06_07",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L187",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_17_0_2026_06_07",
+      "target": "$graphify-root$_changelog_added_189",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L189",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_17_0_2026_06_07",
+      "target": "$graphify-root$_changelog_changed_198",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_17_0_2026_06_07",
+      "target": "$graphify-root$_changelog_fixed_203",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L203",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_16_0_2026_06_02",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L207",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_16_0_2026_06_02",
+      "target": "$graphify-root$_changelog_added_209",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L209",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_16_0_2026_06_02",
+      "target": "$graphify-root$_changelog_changed_215",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L215",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_16_0_2026_06_02",
+      "target": "$graphify-root$_changelog_fixed_220",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L220",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_15_1_2026_05_27",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_15_1_2026_05_27",
+      "target": "$graphify-root$_changelog_changed_228",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L228",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_14_1_2026_05_24",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L233",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_14_1_2026_05_24",
+      "target": "$graphify-root$_changelog_changed_235",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L235",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_14_1_2026_05_24",
+      "target": "$graphify-root$_changelog_fixed_240",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L240",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_14_0_2026_05_24",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_14_0_2026_05_24",
+      "target": "$graphify-root$_changelog_added_248",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L248",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_14_0_2026_05_24",
+      "target": "$graphify-root$_changelog_changed_253",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L253",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_14_0_2026_05_24",
+      "target": "$graphify-root$_changelog_fixed_257",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L257",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_13_3_2026_05_14",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L261",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_3_2026_05_14",
+      "target": "$graphify-root$_changelog_added_263",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L263",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_3_2026_05_14",
+      "target": "$graphify-root$_changelog_changed_265",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L265",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_3_2026_05_14",
+      "target": "$graphify-root$_changelog_fixed_267",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L267",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_13_2_2026_05_10",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L273",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_2_2026_05_10",
+      "target": "$graphify-root$_changelog_added_275",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L275",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_2_2026_05_10",
+      "target": "$graphify-root$_changelog_changed_281",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L281",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_2_2026_05_10",
+      "target": "$graphify-root$_changelog_fixed_283",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L283",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_13_1_2026_04_26",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L288",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_1_2026_04_26",
+      "target": "$graphify-root$_changelog_added_290",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L290",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_1_2026_04_26",
+      "target": "$graphify-root$_changelog_changed_294",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L294",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_1_2026_04_26",
+      "target": "$graphify-root$_changelog_fixed_296",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L296",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_13_0_2026_04_15",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L300",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_0_2026_04_15",
+      "target": "$graphify-root$_changelog_added_302",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L302",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_0_2026_04_15",
+      "target": "$graphify-root$_changelog_changed_310",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L310",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_13_0_2026_04_15",
+      "target": "$graphify-root$_changelog_fixed_314",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L314",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_12_0_2026_03_04",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L317",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_12_0_2026_03_04",
+      "target": "$graphify-root$_changelog_added_319",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L319",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_12_0_2026_03_04",
+      "target": "$graphify-root$_changelog_changed_324",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L324",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_12_0_2026_03_04",
+      "target": "$graphify-root$_changelog_fixed_330",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L330",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_11_1_2026_03_01",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L338",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_11_1_2026_03_01",
+      "target": "$graphify-root$_changelog_added_340",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L340",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_11_1_2026_03_01",
+      "target": "$graphify-root$_changelog_changed_345",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L345",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_11_1_2026_03_01",
+      "target": "$graphify-root$_changelog_fixed_349",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L349",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_11_0_2026_02_20",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L355",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_11_0_2026_02_20",
+      "target": "$graphify-root$_changelog_added_357",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L357",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_11_0_2026_02_20",
+      "target": "$graphify-root$_changelog_changed_362",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L362",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_11_0_2026_02_20",
+      "target": "$graphify-root$_changelog_fixed_366",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L366",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_10_1_2026_02_15",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L371",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_10_1_2026_02_15",
+      "target": "$graphify-root$_changelog_added_373",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L373",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_10_1_2026_02_15",
+      "target": "$graphify-root$_changelog_changed_379",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L379",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_10_1_2026_02_15",
+      "target": "$graphify-root$_changelog_fixed_381",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L381",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_10_0_2026_02_15",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L385",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_10_0_2026_02_15",
+      "target": "$graphify-root$_changelog_added_387",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L387",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_10_0_2026_02_15",
+      "target": "$graphify-root$_changelog_changed_392",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L392",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_10_0_2026_02_15",
+      "target": "$graphify-root$_changelog_fixed_394",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L394",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_9_4_2026_02_14",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L396",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_9_4_2026_02_14",
+      "target": "$graphify-root$_changelog_added_398",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L398",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_9_4_2026_02_14",
+      "target": "$graphify-root$_changelog_changed_405",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L405",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_9_4_2026_02_14",
+      "target": "$graphify-root$_changelog_fixed_411",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L411",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_9_3_2026_02_14",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L420",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_9_3_2026_02_14",
+      "target": "$graphify-root$_changelog_added_422",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L422",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_9_3_2026_02_14",
+      "target": "$graphify-root$_changelog_changed_426",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L426",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_9_2_2026_02_13",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L430",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_9_2_2026_02_13",
+      "target": "$graphify-root$_changelog_added_432",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L432",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_9_1_2026_02_13",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L437",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_9_1_2026_02_13",
+      "target": "$graphify-root$_changelog_fixed_439",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L439",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_9_0_2026_02_12",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L450",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_9_0_2026_02_12",
+      "target": "$graphify-root$_changelog_added_452",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L452",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_9_0_2026_02_12",
+      "target": "$graphify-root$_changelog_fixed_458",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L458",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_8_2_2026_02_11",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L462",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_8_2_2026_02_11",
+      "target": "$graphify-root$_changelog_added_464",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L464",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_8_2_2026_02_11",
+      "target": "$graphify-root$_changelog_fixed_472",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L472",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_8_1_2026_02_09",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L478",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_8_1_2026_02_09",
+      "target": "$graphify-root$_changelog_fixed_480",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L480",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_8_0_2026_02_09",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L486",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_8_0_2026_02_09",
+      "target": "$graphify-root$_changelog_added_488",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L488",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_8_0_2026_02_09",
+      "target": "$graphify-root$_changelog_changed_496",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L496",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_8_0_2026_02_09",
+      "target": "$graphify-root$_changelog_fixed_501",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L501",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_7_1_2026_02_06",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L509",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_7_1_2026_02_06",
+      "target": "$graphify-root$_changelog_added_511",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L511",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_7_1_2026_02_06",
+      "target": "$graphify-root$_changelog_fixed_519",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L519",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_7_1_2026_02_06",
+      "target": "$graphify-root$_changelog_changed_524",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L524",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_7_0_2026_02_05",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L529",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_7_0_2026_02_05",
+      "target": "$graphify-root$_changelog_added_531",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L531",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_7_0_2026_02_05",
+      "target": "$graphify-root$_changelog_fixed_537",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L537",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_7_0_2026_02_05",
+      "target": "$graphify-root$_changelog_changed_541",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L541",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_6_1_2026_02_03",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L546",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_6_1_2026_02_03",
+      "target": "$graphify-root$_changelog_added_548",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L548",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_6_1_2026_02_03",
+      "target": "$graphify-root$_changelog_changed_554",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L554",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_6_1_2026_02_03",
+      "target": "$graphify-root$_changelog_fixed_560",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L560",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_6_0_2026_02_03",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L567",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_6_0_2026_02_03",
+      "target": "$graphify-root$_changelog_changed_569",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L569",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_6_0_2026_02_03",
+      "target": "$graphify-root$_changelog_fixed_575",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L575",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_5_4_2026_01_28",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L582",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_5_4_2026_01_28",
+      "target": "$graphify-root$_changelog_fixed_584",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L584",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_5_4_2026_01_28",
+      "target": "$graphify-root$_changelog_changed_588",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L588",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_5_3_2026_01_28",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L593",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_5_3_2026_01_28",
+      "target": "$graphify-root$_changelog_added_595",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L595",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_5_2_2026_01_27",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L602",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_5_2_2026_01_27",
+      "target": "$graphify-root$_changelog_fixed_604",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L604",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_5_1_2026_01_27",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L612",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_5_1_2026_01_27",
+      "target": "$graphify-root$_changelog_added_614",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L614",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_5_1_2026_01_27",
+      "target": "$graphify-root$_changelog_changed_622",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L622",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_5_1_2026_01_27",
+      "target": "$graphify-root$_changelog_fixed_628",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L628",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_5_0_2026_01_27",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L633",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_5_0_2026_01_27",
+      "target": "$graphify-root$_changelog_added_635",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L635",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_5_0_2026_01_27",
+      "target": "$graphify-root$_changelog_fixed_642",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L642",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_4_1_2026_01_24",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L652",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_4_1_2026_01_24",
+      "target": "$graphify-root$_changelog_added_654",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L654",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_4_1_2026_01_24",
+      "target": "$graphify-root$_changelog_changed_664",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L664",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_4_1_2026_01_24",
+      "target": "$graphify-root$_changelog_fixed_673",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L673",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_4_0_2026_01_24",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L680",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_4_0_2026_01_24",
+      "target": "$graphify-root$_changelog_added_682",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L682",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_4_0_2026_01_24",
+      "target": "$graphify-root$_changelog_changed_695",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L695",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_4_0_2026_01_24",
+      "target": "$graphify-root$_changelog_fixed_703",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L703",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_3_2_2026_01_22",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L714",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_3_2_2026_01_22",
+      "target": "$graphify-root$_changelog_added_716",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L716",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_3_2_2026_01_22",
+      "target": "$graphify-root$_changelog_changed_722",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L722",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_3_2_2026_01_22",
+      "target": "$graphify-root$_changelog_fixed_727",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L727",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_3_1_2025_01_21",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L731",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_3_1_2025_01_21",
+      "target": "$graphify-root$_changelog_added_733",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L733",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_3_1_2025_01_21",
+      "target": "$graphify-root$_changelog_fixed_737",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L737",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_3_0_2025_01_20",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L741",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_3_0_2025_01_20",
+      "target": "$graphify-root$_changelog_added_743",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L743",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_3_0_2025_01_20",
+      "target": "$graphify-root$_changelog_changed_752",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L752",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_3_0_2025_01_20",
+      "target": "$graphify-root$_changelog_fixed_757",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L757",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_2_1_2025_01_15",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L764",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_2_1_2025_01_15",
+      "target": "$graphify-root$_changelog_fixed_766",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L766",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_2_0_2025_01_10",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L770",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_2_0_2025_01_10",
+      "target": "$graphify-root$_changelog_added_772",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L772",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_2_0_2025_01_10",
+      "target": "$graphify-root$_changelog_changed_781",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L781",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_changelog",
+      "target": "$graphify-root$_changelog_0_1_0_2025_01_01",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L786",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_changelog_0_1_0_2025_01_01",
+      "target": "$graphify-root$_changelog_added_788",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L788",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed",
+      "callee": "asetrate",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "asetrate",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed",
+      "callee": "aresample",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "aresample",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed",
+      "callee": "YTDLP_BIN",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "YTDLP_BIN",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed",
+      "callee": "RequestBlocked",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "RequestBlocked",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed",
+      "callee": "acceleration_status",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "acceleration_status",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed",
+      "callee": "view_velocity",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "view_velocity",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_88",
+      "callee": "ini",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "profiles.ini",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L93",
+      "qualifiers": ["profiles"]
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_140",
+      "callee": "failed",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "download.failed",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L142",
+      "qualifiers": ["download"]
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_added_189",
+      "callee": "youwee",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "youwee",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_changed_198",
+      "callee": "db",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "logs.db",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L201",
+      "qualifiers": ["logs"]
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_changed_198",
+      "callee": "db",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "youwee.db",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L201",
+      "qualifiers": ["youwee"]
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_added_209",
+      "callee": "audio",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "audio",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_added_209",
+      "callee": "mp3",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "mp3",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_220",
+      "callee": "ini",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "profiles.ini",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L224",
+      "qualifiers": ["profiles"]
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_added_302",
+      "callee": "aria2c",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "aria2c",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_added_302",
+      "callee": "Gallery",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "Gallery",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L308"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_changed_324",
+      "callee": "Homebrew",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "Homebrew",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L326"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_changed_324",
+      "callee": "PATH",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "PATH",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L326"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_changed_324",
+      "callee": "generate_release_notes",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "generate_release_notes",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L327"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_330",
+      "callee": "finished",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "finished",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L335"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_330",
+      "callee": "com",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "douyin.com",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L336",
+      "qualifiers": ["douyin"]
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_330",
+      "callee": "modal_id",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "modal_id",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L336"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_439",
+      "callee": "liblzma",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "liblzma",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L441"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_439",
+      "callee": "xz2",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "xz2",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L441"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_439",
+      "callee": "isSafeUrl",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "isSafeUrl",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L443"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_472",
+      "callee": "readFile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "readFile()",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L474"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_480",
+      "callee": "sourceFilter",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "sourceFilter",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L484"
+    },
+    {
+      "caller_nid": "$graphify-root$_changelog_fixed_480",
+      "callee": "source",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "source",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L484"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

@@ -1,0 +1,601 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "label": "permissions.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_permissions_resolve_plugin_entrypoint",
+      "label": "resolve_plugin_entrypoint()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L13"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_missing_permissions",
+      "label": "collect_missing_permissions()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L48"
+    },
+    {
+      "id": "pluginpermissionrequest",
+      "label": "PluginPermissionRequest",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/permissions.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "pluginpermissionapproval",
+      "label": "PluginPermissionApproval",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/permissions.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_user_selected_permission_paths",
+      "label": "collect_user_selected_permission_paths()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L77"
+    },
+    {
+      "id": "pluginconfigfield",
+      "label": "PluginConfigField",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/permissions.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "value",
+      "label": "Value",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/permissions.rs",
+      "_rust_use_roots": ["serde_json"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_permissions_path_scope_variants",
+      "label": "path_scope_variants()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L96"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "label": "build_permission_path_scopes()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L108"
+    },
+    {
+      "id": "pluginmanifest",
+      "label": "PluginManifest",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/permissions.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_permissions_push_allow_flag",
+      "label": "push_allow_flag()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L180"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "btreemap",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "value",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "pluginconfigfield",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginConfigField",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "pluginconfigfieldinputtype",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginConfigFieldInputType",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "pluginfilesystempermission",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginFilesystemPermission",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "pluginmanifest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginManifest",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "pluginpermissionapproval",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginPermissionApproval",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "pluginpermissionrequest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginPermissionRequest",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "validate_plugin_write_scope",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "validate_plugin_write_scope"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_permissions_resolve_plugin_entrypoint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_missing_permissions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_missing_permissions",
+      "target": "pluginpermissionrequest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L48",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_missing_permissions",
+      "target": "pluginpermissionapproval",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L48",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_user_selected_permission_paths",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_user_selected_permission_paths",
+      "target": "pluginconfigfield",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L77",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_user_selected_permission_paths",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L77",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_permissions_path_scope_variants",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "target": "pluginmanifest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L108",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L108",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_permissions_push_allow_flag",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L180",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_permissions_path_scope_variants",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_user_selected_permission_paths",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L118",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_resolve_plugin_entrypoint",
+      "callee": "is_absolute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L18"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_resolve_plugin_entrypoint",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L21"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_resolve_plugin_entrypoint",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_resolve_plugin_entrypoint",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_resolve_plugin_entrypoint",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_resolve_plugin_entrypoint",
+      "callee": "is_file",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_missing_permissions",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_missing_permissions",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_user_selected_permission_paths",
+      "callee": "filter_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_collect_user_selected_permission_paths",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_path_scope_variants",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_path_scope_variants",
+      "callee": "dedup",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L104"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "validate_plugin_write_scope",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "add_write_scope",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "add_write_scope",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "add_write_scope",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L162"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "add_write_scope",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "dedup",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_permissions_build_permission_path_scopes",
+      "callee": "dedup",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/permissions.rs",
+      "source_location": "L176"
+    }
+  ]
+}

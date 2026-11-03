@@ -1,0 +1,669 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "label": "firefox_profiles.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefoxprofile",
+      "label": "FirefoxProfile",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L4",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefoxprofileentry",
+      "label": "FirefoxProfileEntry",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L10",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_folder_name",
+      "label": "firefox_profile_folder_name()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L18"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_cookie_value",
+      "label": "firefox_profile_cookie_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L25"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "label": "firefox_profiles_from_ini()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L38"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_from_ini",
+      "label": "resolve_firefox_profile_from_ini()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L124"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "label": "firefox_profiles_ini_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L138"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_for_cookies",
+      "label": "resolve_firefox_profile_for_cookies()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L177"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_relative_profile_uses_the_real_directory_name",
+      "label": "firefox_relative_profile_uses_the_real_directory_name()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L196"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_absolute_profile_path_is_preserved_for_ytdlp",
+      "label": "firefox_absolute_profile_path_is_preserved_for_ytdlp()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L208"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_separates_display_name_from_cookie_value",
+      "label": "firefox_profiles_ini_separates_display_name_from_cookie_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L222"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_preserves_absolute_paths",
+      "label": "firefox_profiles_ini_preserves_absolute_paths()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L239"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_resolution_migrates_legacy_display_names",
+      "label": "firefox_profile_resolution_migrates_legacy_display_names()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L258"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefoxprofile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefoxprofileentry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_folder_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_cookie_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefoxprofile",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_from_ini",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L138",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_for_cookies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L177",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "super",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L190",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "super",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "firefox_profile_cookie_value",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L191",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "firefox_profile_cookie_value",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "firefox_profile_folder_name",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L191",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "firefox_profile_folder_name",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "firefox_profiles_from_ini",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L191",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "firefox_profiles_from_ini",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "resolve_firefox_profile_from_ini",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L192",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "resolve_firefox_profile_from_ini",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_relative_profile_uses_the_real_directory_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L196",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_absolute_profile_path_is_preserved_for_ytdlp",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L208",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_separates_display_name_from_cookie_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L222",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_preserves_absolute_paths",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L239",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_rs",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_resolution_migrates_legacy_display_names",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L258",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_cookie_value",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_folder_name",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_cookie_value",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_from_ini",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_for_cookies",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L178",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_for_cookies",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_from_ini",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L184",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_separates_display_name_from_cookie_value",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L223",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_preserves_absolute_paths",
+      "target": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L240",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_folder_name",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_folder_name",
+      "callee": "rsplit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_folder_name",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profile_cookie_value",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "ends_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "take",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "is_some_and",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "as_mut",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "strip_prefix",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "strip_prefix",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "strip_prefix",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "strip_prefix",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "is_some_and",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "sort_by_key",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "is_some_and",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "filter_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "into_iter",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_from_ini",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_from_ini",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_from_ini",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_from_ini",
+      "callee": "into_iter",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_firefox_profiles_ini_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_for_cookies",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_utils_firefox_profiles_resolve_firefox_profile_for_cookies",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/utils/firefox_profiles.rs",
+      "source_location": "L182"
+    }
+  ]
+}

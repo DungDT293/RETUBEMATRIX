@@ -1,0 +1,1037 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "label": "bkt_channels.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_bkt_channels_get_bkt_test_channels",
+      "label": "get_bkt_test_channels()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L16"
+    },
+    {
+      "id": "bkttestchannel",
+      "label": "BktTestChannel",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/bkt_channels.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_bkt_channels_save_bkt_test_channel",
+      "label": "save_bkt_test_channel()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L22"
+    },
+    {
+      "id": "bkttestchannelinput",
+      "label": "BktTestChannelInput",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/bkt_channels.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_bkt_channels_delete_bkt_test_channel",
+      "label": "delete_bkt_test_channel()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L37"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_bkt_channels_get_bkt_test_jobs",
+      "label": "get_bkt_test_jobs()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L43"
+    },
+    {
+      "id": "bkttestjob",
+      "label": "BktTestJob",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/bkt_channels.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "label": "dispatch_batch_bkt_test()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L49"
+    },
+    {
+      "id": "apphandle",
+      "label": "AppHandle",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/bkt_channels.rs",
+      "_rust_use_roots": ["tauri"]
+    },
+    {
+      "id": "bktbatchdispatchrequest",
+      "label": "BktBatchDispatchRequest",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/bkt_channels.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "bktdispatchresult",
+      "label": "BktDispatchResult",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/bkt_channels.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "label": "run_single_bkt_job_pipeline()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L228"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "prelude",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "local",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "tauri",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "apphandle",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "emitter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "profiles",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "profiles",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "create_runner_cmd",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "create_runner_cmd",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "parse_json_from_output",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "parse_json_from_output",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "database",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "database"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "bktbatchdispatchrequest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BktBatchDispatchRequest",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "bktdispatchitemresult",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BktDispatchItemResult",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "bktdispatchresult",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BktDispatchResult",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "bkttestchannel",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BktTestChannel",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "bkttestchannelinput",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BktTestChannelInput",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "bkttestjob",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BktTestJob",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "commandext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "CommandExt"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_bkt_channels_get_bkt_test_channels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_get_bkt_test_channels",
+      "target": "bkttestchannel",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_bkt_channels_save_bkt_test_channel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_save_bkt_test_channel",
+      "target": "bkttestchannelinput",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_save_bkt_test_channel",
+      "target": "bkttestchannel",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_bkt_channels_delete_bkt_test_channel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_bkt_channels_get_bkt_test_jobs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_get_bkt_test_jobs",
+      "target": "bkttestjob",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L43",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L49",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "target": "bktbatchdispatchrequest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L49",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "target": "bktdispatchresult",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L49",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L228",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L228",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "target": "bkttestjob",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L228",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "target": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L212",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_save_bkt_test_channel",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_save_bkt_test_channel",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "format",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "into_iter",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "into_iter",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "sort_by",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "cmp",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "copied",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "to_rfc3339",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_dispatch_batch_bkt_test",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L229"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L267"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "encode",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L277"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "create_runner_cmd",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L292"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "stderr",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "stdout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L303"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "output",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "parse_json_from_output",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L327"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L334"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L341"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_bool",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L347"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L347"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L355"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L362"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L368"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L376"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L377"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L383"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "encode",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L394"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "create_runner_cmd",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "stderr",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "stdout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L405"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "output",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L407"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "parse_json_from_output",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L411"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_object",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L415"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L418"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L418"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L418"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L419"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L419"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L419"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L424"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L424"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L424"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L425"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L425"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L425"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L434"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L435"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_bkt_channels_run_single_bkt_job_pipeline",
+      "callee": "emit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/bkt_channels.rs",
+      "source_location": "L441"
+    }
+  ]
+}

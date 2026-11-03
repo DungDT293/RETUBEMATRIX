@@ -1,0 +1,1666 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "label": "youtube_search.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_youtube_search_api_url",
+      "label": "YOUTUBE_SEARCH_API_URL",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L12"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_youtube_web_client_name",
+      "label": "YOUTUBE_WEB_CLIENT_NAME",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L13"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_youtube_web_client_version",
+      "label": "YOUTUBE_WEB_CLIENT_VERSION",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L14"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_default_search_limit",
+      "label": "DEFAULT_SEARCH_LIMIT",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L15"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_max_search_limit",
+      "label": "MAX_SEARCH_LIMIT",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L16"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_clamp_search_limit",
+      "label": "clamp_search_limit()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L18"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_write_varint",
+      "label": "write_varint()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L24"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_write_varint_field",
+      "label": "write_varint_field()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L32"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_write_length_delimited_field",
+      "label": "write_length_delimited_field()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L37"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_upload_date_filter_value",
+      "label": "upload_date_filter_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L43"
+    },
+    {
+      "id": "youtubesearchuploaddatefilter",
+      "label": "YoutubeSearchUploadDateFilter",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/youtube_search.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_duration_filter_value",
+      "label": "duration_filter_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L52"
+    },
+    {
+      "id": "youtubesearchdurationfilter",
+      "label": "YoutubeSearchDurationFilter",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/youtube_search.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_sort_filter_value",
+      "label": "sort_filter_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L60"
+    },
+    {
+      "id": "youtubesearchsortfilter",
+      "label": "YoutubeSearchSortFilter",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/youtube_search.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_feature_filter_field_number",
+      "label": "feature_filter_field_number()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L67"
+    },
+    {
+      "id": "youtubesearchfeaturefilter",
+      "label": "YoutubeSearchFeatureFilter",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/youtube_search.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "label": "build_search_params()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L81"
+    },
+    {
+      "id": "youtubesearchfilters",
+      "label": "YoutubeSearchFilters",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/youtube_search.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "label": "run_text()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L112"
+    },
+    {
+      "id": "value",
+      "label": "Value",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/youtube_search.rs",
+      "_rust_use_roots": ["serde_json"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_normalize_thumbnail_url",
+      "label": "normalize_thumbnail_url()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L138"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_thumbnail_matches_video",
+      "label": "thumbnail_matches_video()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L146"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_fallback_thumbnail",
+      "label": "fallback_thumbnail()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L150"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "label": "best_thumbnail()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L154"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "label": "parse_video_renderer()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L172"
+    },
+    {
+      "id": "youtubesearchvideo",
+      "label": "YoutubeSearchVideo",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/youtube_search.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "label": "collect_search_parts()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L198"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "label": "parse_youtube_search_response()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L237"
+    },
+    {
+      "id": "youtubesearchresponse",
+      "label": "YoutubeSearchResponse",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/youtube_search.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "label": "fetch_search_page()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L249"
+    },
+    {
+      "id": "client",
+      "label": "Client",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/youtube_search.rs"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "label": "search_youtube_videos_internal()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L306"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_builds_default_video_filter_params",
+      "label": "builds_default_video_filter_params()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L373"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_builds_combined_filter_params",
+      "label": "builds_combined_filter_params()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L378"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_parses_video_renderer_and_continuation",
+      "label": "parses_video_renderer_and_continuation()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L395"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_serializes_response_with_sdk_camel_case_fields",
+      "label": "serializes_response_with_sdk_camel_case_fields()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L447"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_falls_back_when_thumbnail_does_not_match_video_id",
+      "label": "falls_back_when_thumbnail_does_not_match_video_id()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L471"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_skips_renderers_without_video_id_or_title",
+      "label": "skips_renderers_without_video_id_or_title()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L498"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_youtube_search_handles_response_without_videos",
+      "label": "handles_response_without_videos()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L513"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "backenderror",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BackendError",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "youtubesearchdurationfilter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchDurationFilter",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "youtubesearchfeaturefilter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchFeatureFilter",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "youtubesearchfilters",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchFilters",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "youtubesearchresponse",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchResponse",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "youtubesearchsortfilter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchSortFilter",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "youtubesearchuploaddatefilter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchUploadDateFilter",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "youtubesearchvideo",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchVideo",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "standard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "engine",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "statuscode",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "serde_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "value",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "hashset",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_youtube_search_api_url",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_youtube_web_client_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_youtube_web_client_version",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_default_search_limit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_max_search_limit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_clamp_search_limit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_write_varint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_write_varint_field",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_write_length_delimited_field",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_upload_date_filter_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_upload_date_filter_value",
+      "target": "youtubesearchuploaddatefilter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L43",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_duration_filter_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_duration_filter_value",
+      "target": "youtubesearchdurationfilter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L52",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_sort_filter_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_sort_filter_value",
+      "target": "youtubesearchsortfilter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L60",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_feature_filter_field_number",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_feature_filter_field_number",
+      "target": "youtubesearchfeaturefilter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L67",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "target": "youtubesearchfilters",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L81",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L112",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_normalize_thumbnail_url",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L138",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_thumbnail_matches_video",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L146",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_fallback_thumbnail",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L150",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L154",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L154",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L172",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L172",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "target": "youtubesearchvideo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L172",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L198",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "target": "youtubesearchvideo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L198",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L237",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L237",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "target": "youtubesearchresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L237",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L249",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "target": "client",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L249",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "target": "youtubesearchfilters",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L249",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "target": "youtubesearchresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L249",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L306",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "target": "youtubesearchfilters",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L306",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "target": "youtubesearchresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L306",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "super",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L370",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "super"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_builds_default_video_filter_params",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L373",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_builds_combined_filter_params",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L378",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_parses_video_renderer_and_continuation",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L395",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_serializes_response_with_sdk_camel_case_fields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L447",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_falls_back_when_thumbnail_does_not_match_video_id",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L471",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_skips_renderers_without_video_id_or_title",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L498",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_handles_response_without_videos",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L513",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_write_varint_field",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_write_varint",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_write_length_delimited_field",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_write_varint",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_write_varint_field",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_upload_date_filter_value",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_duration_filter_value",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_feature_filter_field_number",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_write_length_delimited_field",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_thumbnail_matches_video",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L165",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_fallback_thumbnail",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L169",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L178",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L187",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L206",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L240",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L270",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L303",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_clamp_search_limit",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L323",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L336",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_builds_combined_filter_params",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L379",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_parses_video_renderer_and_continuation",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L428",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_falls_back_when_thumbnail_does_not_match_video_id",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L488",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_skips_renderers_without_video_id_or_title",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L506",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_youtube_search_handles_response_without_videos",
+      "target": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L516",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_clamp_search_limit",
+      "callee": "clamp",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_clamp_search_limit",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_write_length_delimited_field",
+      "callee": "extend_from_slice",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "callee": "cloned",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_build_search_params",
+      "callee": "encode",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "as_array",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "filter_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_run_text",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_normalize_thumbnail_url",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_normalize_thumbnail_url",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "callee": "as_array",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "callee": "find_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "callee": "rev",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_best_thumbnail",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L189"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L189"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_parse_video_renderer",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L192"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "is_none",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L217"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "values",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "collect_search_parts",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L225"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_collect_search_parts",
+      "callee": "collect_search_parts",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_parse_youtube_search_response",
+      "callee": "retain",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "json",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "header",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "post",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "is_timeout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "is_connect",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L287"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "status",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L290"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L293"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L298"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_fetch_search_page",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L299"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L313"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "is_none",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L320"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "timeout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L340"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "is_none",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L356"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_youtube_search_search_youtube_videos_internal",
+      "callee": "truncate",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/youtube_search.rs",
+      "source_location": "L361"
+    }
+  ]
+}

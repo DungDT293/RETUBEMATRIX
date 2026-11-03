@@ -1,0 +1,3573 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "label": "video.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_default_transcript_languages",
+      "label": "default_transcript_languages()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L15"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "label": "parse_basic_video_info_output()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L35"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_json_string",
+      "label": "json_string()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L68"
+    },
+    {
+      "id": "value",
+      "label": "Value",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/video.rs"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_json",
+      "label": "playlist_title_from_json()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L76"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_entry_json",
+      "label": "playlist_title_from_entry_json()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L80"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "label": "playlist_entry_from_json()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L84"
+    },
+    {
+      "id": "playlistvideoentry",
+      "label": "PlaylistVideoEntry",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/video.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "label": "parse_playlist_entries_output()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L130"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "label": "get_video_transcript()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L182"
+    },
+    {
+      "id": "apphandle",
+      "label": "AppHandle",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/video.rs",
+      "_rust_use_roots": ["tauri"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "label": "is_description_content_relevant()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L670"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "label": "build_metadata_fallback_from_info_json()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L771"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "label": "parse_subtitle_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L862"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "label": "get_video_basic_info()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L909"
+    },
+    {
+      "id": "videoinforesponse",
+      "label": "VideoInfoResponse",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/video.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "label": "get_video_info()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1027"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "label": "get_playlist_entries()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1236"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "label": "get_available_subtitles()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1314"
+    },
+    {
+      "id": "subtitleinfo",
+      "label": "SubtitleInfo",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/video.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output_reads_printed_fields",
+      "label": "parse_basic_video_info_output_reads_printed_fields()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1479"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output_ignores_missing_optional_fields",
+      "label": "parse_basic_video_info_output_ignores_missing_optional_fields()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1499"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output_applies_parent_playlist_title",
+      "label": "parse_playlist_entries_output_applies_parent_playlist_title()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1509"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output_keeps_line_json_entry_playlist_title",
+      "label": "parse_playlist_entries_output_keeps_line_json_entry_playlist_title()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1538"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "add_log_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "add_log_internal"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "services",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "services",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "build_cookie_args",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "build_cookie_args",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "build_proxy_args",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "build_proxy_args",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "build_site_header_args",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "build_site_header_args",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "get_deno_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_deno_path",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "parse_ytdlp_error",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "parse_ytdlp_error",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "run_ytdlp_json_with_cookies",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "run_ytdlp_json_with_cookies",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "run_ytdlp_with_stderr",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "run_ytdlp_with_stderr",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "run_ytdlp_with_stderr_and_cookies",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "run_ytdlp_with_stderr_and_cookies",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "backenderror",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BackendError",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "formatoption",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "FormatOption",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "playlistvideoentry",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PlaylistVideoEntry",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "subtitleinfo",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "SubtitleInfo",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "videoinfo",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "VideoInfo",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "videoinforesponse",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "VideoInfoResponse",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "utils",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "normalize_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "normalize_url",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "validate_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "validate_url",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "duration",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "apphandle",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "timeout",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "uuid",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_default_transcript_languages",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_json_string",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_json_string",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L68",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_json",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_json",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L76",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_entry_json",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_entry_json",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L80",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L84",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "target": "playlistvideoentry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L84",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "target": "playlistvideoentry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L130",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L182",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L182",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L670",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L771",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L771",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L862",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L909",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L909",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "target": "videoinforesponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L909",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1027",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1027",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "target": "videoinforesponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1027",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1236",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1236",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "target": "playlistvideoentry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1236",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1314",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1314",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "target": "subtitleinfo",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1314",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "super",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1476",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "super"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output_reads_printed_fields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1479",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output_ignores_missing_optional_fields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1499",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output_applies_parent_playlist_title",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1509",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output_keeps_line_json_entry_playlist_title",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1538",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_json",
+      "target": "$graphify-root$_src_tauri_src_commands_video_json_string",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_entry_json",
+      "target": "$graphify-root$_src_tauri_src_commands_video_json_string",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "target": "$graphify-root$_src_tauri_src_commands_video_json_string",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "target": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_entry_json",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "target": "$graphify-root$_src_tauri_src_commands_video_playlist_title_from_json",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "target": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "target": "$graphify-root$_src_tauri_src_commands_video_default_transcript_languages",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L420",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "target": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L524",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "target": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L616",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "target": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L786",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L990",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1304",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output_reads_printed_fields",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1485",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output_ignores_missing_optional_fields",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1501",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output_applies_parent_playlist_title",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1529",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output_keeps_line_json_entry_playlist_title",
+      "target": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1546",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_default_transcript_languages",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L16"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "splitn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_basic_video_info_output",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_json_string",
+      "callee": "find_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_json_string",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_json_string",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "as_array",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "first",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "is_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "as_f64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_playlist_entry_from_json",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "as_array",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "filter_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "is_none",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_playlist_entries_output",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "validate_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "normalize_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L210"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L215"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L219"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L226"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "get_deno_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L241"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L285"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L289"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L293"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "timeout",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "run_ytdlp_with_stderr_and_cookies",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L298"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L302"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L303"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L304"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L306"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L322"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "parse_ytdlp_error",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L337"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "is_none",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L338"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "flatten",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L347"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "extension",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L348"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "sort_by",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L400"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L401"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L401"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L401"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L402"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L402"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L402"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "cmp",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L414"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L421"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L421"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L421"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L422"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L422"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L429"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L453"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L480"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "timeout",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L482"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "run_ytdlp_json_with_cookies",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L484"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L487"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L488"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L489"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L490"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L491"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L492"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "splitn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L499"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L500"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "first",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L500"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L500"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L501"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L501"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L510"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L528"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L544"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L553"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L565"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L576"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "timeout",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L599"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "run_ytdlp_json_with_cookies",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L601"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "copied",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L603"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L604"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L605"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L606"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L607"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L608"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L609"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L617"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L629"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L638"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L656"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L663"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "message",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L663"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_transcript",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L665"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L671"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L672"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L700"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "matches",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L700"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L700"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "matches",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L700"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L701"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L701"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L728"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L739"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L739"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L750"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L756"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L768"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_is_description_content_relevant",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L768"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L772"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L772"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L772"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L774"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L777"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L777"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L777"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L779"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L794"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L794"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L794"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L794"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L796"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L797"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L797"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L800"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L800"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L800"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L802"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L805"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L805"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_f64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L805"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L806"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L806"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L806"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L807"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L807"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L807"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L808"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L808"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L810"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L812"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L812"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L814"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L816"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L816"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L816"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_build_metadata_fallback_from_info_json",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L818"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L865"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L866"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L874"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L874"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "chars",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L884"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "is_ascii_digit",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L884"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L889"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L889"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L894"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "replace_all",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L895"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L898"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L900"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "last",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L900"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_parse_subtitle_file",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L905"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L919"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "validate_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L919"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L919"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "normalize_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L920"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "get_deno_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L933"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L944"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L946"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "timeout",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L948"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "run_ytdlp_with_stderr_and_cookies",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L950"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L953"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L954"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L955"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L956"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L957"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L958"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L968"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "message",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L968"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L969"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L973"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L974"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L974"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L978"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "parse_ytdlp_error",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L978"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L979"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L986"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "message",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L986"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L987"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L990"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L991"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_basic_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1012"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1037"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "validate_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1037"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1037"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "normalize_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1038"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "get_deno_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1052"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "build_site_header_args",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1061"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1062"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "build_cookie_args",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1062"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1064"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1065"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1066"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1067"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1068"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1070"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "build_proxy_args",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1070"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1070"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "position",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1072"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "splice",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1073"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1077"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1079"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "timeout",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1080"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "run_ytdlp_with_stderr",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1082"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1091"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "message",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1091"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1092"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1096"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1097"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1097"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1101"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "parse_ytdlp_error",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1101"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1102"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1109"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "message",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1109"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1110"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1114"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1116"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1117"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1120"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1120"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1122"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1123"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1130"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1130"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1132"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1135"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1135"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1137"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1140"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1142"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1144"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_f64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1144"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1145"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1147"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1149"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1151"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1153"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1157"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1157"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1158"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1158"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1167"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1169"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1171"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1173"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1176"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_bool",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1176"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1177"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_bool",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1177"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1178"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1180"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1184"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_array",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1184"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "filter_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1185"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1188"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1188"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1189"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1189"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1189"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1194"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1196"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1198"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1198"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1199"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1199"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1200"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1202"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1204"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1206"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1208"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1208"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1209"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_u64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1209"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1210"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_f64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1210"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1211"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1213"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1215"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_f64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1215"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1216"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "as_f64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1216"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_video_info",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1224"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1247"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "validate_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1247"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1247"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "normalize_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1248"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "get_deno_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1267"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1273"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "build_site_header_args",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1273"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "build_cookie_args",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1276"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1278"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1279"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1280"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1281"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1282"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1284"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1287"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1297"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "run_ytdlp_with_stderr",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1298"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1299"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1300"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_playlist_entries",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1307"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1324"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "validate_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1324"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1324"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "normalize_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1325"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "get_deno_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1335"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1344"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "run_ytdlp_json_with_cookies",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1349"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1350"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1351"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1352"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1353"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1354"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "cloned",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1360"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1391"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1392"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1405"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1406"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1412"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "first",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1413"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1422"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_video_get_available_subtitles",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/video.rs",
+      "source_location": "L1423"
+    }
+  ]
+}

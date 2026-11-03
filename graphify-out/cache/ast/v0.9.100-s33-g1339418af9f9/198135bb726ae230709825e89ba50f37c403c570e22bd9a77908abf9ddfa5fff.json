@@ -1,0 +1,278 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "label": "mod.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "ai",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L26",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "ai"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "assets",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "assets"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "bkt_channels",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L28",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "bkt_channels"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "channels",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "channels"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "cli",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "cli"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "cli_shortcut",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L31",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "cli_shortcut"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "dependencies",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "dependencies"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "download",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L33",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "download"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "download_queue",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L34",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "download_queue"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "environment",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "environment"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "external",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L36",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "external"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "gallery",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L37",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "gallery"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "history",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "history"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "logs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L39",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "logs"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "media_split",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L40",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "media_split"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "metadata",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L41",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "metadata"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "outliers",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L42",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "outliers"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "plugin",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L43",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "plugin"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "processing",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L44",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "processing"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "profiles",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L45",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "profiles"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "telegram",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L46",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "telegram"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "video",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L47",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "video"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "whisper",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L48",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "whisper"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_mod_rs",
+      "target": "youtube_search",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/mod.rs",
+      "source_location": "L49",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "youtube_search"
+    }
+  ],
+  "raw_calls": []
+}

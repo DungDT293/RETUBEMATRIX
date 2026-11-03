@@ -1,0 +1,197 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+  pull_request:
+    branches: [main, master, develop]
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            librsvg2-dev \
+            patchelf \
+            squashfs-tools \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Create placeholder yt-dlp binary for check
+        run: |
+          mkdir -p src-tauri/bin
+          touch src-tauri/bin/youwee-yt-dlp-x86_64-unknown-linux-gnu
+          chmod +x src-tauri/bin/youwee-yt-dlp-x86_64-unknown-linux-gnu
+
+      - name: Check frontend (Biome)
+        run: bun run lint
+
+      - name: Check TypeScript
+        run: bun run build
+
+      - name: Check Rust
+        working-directory: src-tauri
+        run: cargo check
+
+      - name: Run Rust tests
+        working-directory: src-tauri
+        run: cargo test
+
+  build-test:
+    needs: check
+    runs-on: ${{ matrix.platform }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            yt_dlp_name: youwee-yt-dlp-aarch64-apple-darwin
+            yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
+
+          - platform: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            yt_dlp_name: youwee-yt-dlp-x86_64-unknown-linux-gnu
+            yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+          key: ${{ matrix.target }}
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            librsvg2-dev \
+            patchelf \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download yt-dlp binary
+        run: |
+          mkdir -p src-tauri/bin
+          curl -L -o "src-tauri/bin/${{ matrix.yt_dlp_name }}" "${{ matrix.yt_dlp_url }}"
+          chmod +x "src-tauri/bin/${{ matrix.yt_dlp_name }}"
+
+      - name: Build Tauri app (compile-only, unsigned)
+        if: matrix.platform != 'ubuntu-22.04'
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: bun run tauri
+          args: --target ${{ matrix.target }} --no-bundle
+
+      - name: Build Linux deb and AppImage bundles (unsigned)
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: bun run tauri
+          args: --target ${{ matrix.target }} --bundles deb,appimage --no-sign --ci
+
+      - name: Validate Linux deep-link desktop entry
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          set -eu
+          DEB_DIR="src-tauri/target/${{ matrix.target }}/release/bundle/deb"
+          bash scripts/fix-deb-deep-link-desktop-entry.sh "$DEB_DIR"
+
+          DEB_FILE="$(find "$DEB_DIR" -maxdepth 1 -type f -name '*.deb' | sort | head -n 1)"
+          test -n "$DEB_FILE"
+          PACKAGE_DIR="$(mktemp -d)"
+          trap 'rm -rf "$PACKAGE_DIR"' EXIT
+          dpkg-deb -x "$DEB_FILE" "$PACKAGE_DIR"
+
+          DESKTOP_FILE="$PACKAGE_DIR/usr/share/applications/Youwee.desktop"
+          grep -Fx 'Exec=youwee %U' "$DESKTOP_FILE"
+          grep -Fqx 'MimeType=x-scheme-handler/youwee;' "$DESKTOP_FILE"
+
+      - name: Validate repaired Linux AppImage runtime
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          set -eu
+          APPIMAGE_DIR="src-tauri/target/${{ matrix.target }}/release/bundle/appimage"
+          APPIMAGE="$(find "$APPIMAGE_DIR" -maxdepth 1 -type f -name '*.AppImage' | sort | head -n 1)"
+          test -n "$APPIMAGE"
+          APPIMAGE="$(cd "$(dirname "$APPIMAGE")" && pwd)/$(basename "$APPIMAGE")"
+          bash scripts/repair-appimage-runtime.sh "$APPIMAGE" "youwee"
+
+          INSPECT_DIR="$(mktemp -d)"
+          trap 'rm -rf "$INSPECT_DIR"' EXIT
+          (
+            cd "$INSPECT_DIR"
+            APPIMAGE_EXTRACT_AND_RUN=1 "$APPIMAGE" --appimage-extract >/dev/null
+          )
+
+          test -x "$INSPECT_DIR/squashfs-root/AppRun"
+          grep -Fqx 'unset GST_PLUGIN_SYSTEM_PATH GST_PLUGIN_SYSTEM_PATH_1_0 GST_PLUGIN_PATH_1_0' \
+            "$INSPECT_DIR/squashfs-root/AppRun"
+          ! find "$INSPECT_DIR/squashfs-root/usr/lib" -maxdepth 1 \( -type f -o -type l \) \( \
+            -name 'libwayland-*.so*' -o \
+            -name 'libglib-2.0.so*' -o \
+            -name 'libgio-2.0.so*' -o \
+            -name 'libgobject-2.0.so*' -o \
+            -name 'libgmodule-2.0.so*' \
+          \) -print -quit | grep -q .
+
+      - name: Skip artifact upload
+        run: echo "build-test validates build artifacts but does not upload them."

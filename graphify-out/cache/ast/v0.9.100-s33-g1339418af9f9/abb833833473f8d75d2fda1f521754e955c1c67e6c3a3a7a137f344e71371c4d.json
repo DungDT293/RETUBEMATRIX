@@ -1,0 +1,355 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "label": "scaffold.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_sdk_trigger_identifier",
+      "label": "sdk_trigger_identifier()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L5"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_plugin_module",
+      "label": "build_scaffold_plugin_module()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L15"
+    },
+    {
+      "id": "pluginmanifest",
+      "label": "PluginManifest",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/scaffold.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_locale_file",
+      "label": "build_scaffold_locale_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L68"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_package_json",
+      "label": "build_scaffold_package_json()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L77"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_tsconfig",
+      "label": "build_scaffold_tsconfig()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L113"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_ci_workflow",
+      "label": "build_scaffold_ci_workflow()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L131"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_release_workflow",
+      "label": "build_scaffold_release_workflow()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L176"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_readme",
+      "label": "build_scaffold_readme()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L252"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_changelog",
+      "label": "build_scaffold_changelog()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L568"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_success_result_example",
+      "label": "build_scaffold_success_result_example()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L572"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_failure_result_example",
+      "label": "build_scaffold_failure_result_example()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L585"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_scaffold_sample_download_payload",
+      "label": "sample_download_payload()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L598"
+    },
+    {
+      "id": "postdownloadpluginpayload",
+      "label": "PostDownloadPluginPayload",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/scaffold.rs",
+      "_rust_use_roots": ["crate"]
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "pluginmanifest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginManifest",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "pluginprovider",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginProvider",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "postdownloadpluginpayload",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PostDownloadPluginPayload",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "current_sdk_version",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "current_sdk_version"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_sdk_trigger_identifier",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_plugin_module",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_plugin_module",
+      "target": "pluginmanifest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_locale_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_package_json",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_package_json",
+      "target": "pluginmanifest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L77",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_tsconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_ci_workflow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_release_workflow",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L176",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_readme",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L252",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_readme",
+      "target": "pluginmanifest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L252",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_changelog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L568",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_success_result_example",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L572",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_failure_result_example",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L585",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_sample_download_payload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L598",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_sample_download_payload",
+      "target": "postdownloadpluginpayload",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L598",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_plugin_module",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_scaffold_sdk_trigger_identifier",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L19",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_plugin_module",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L16"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_plugin_module",
+      "callee": "first",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L16"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_scaffold_build_scaffold_package_json",
+      "callee": "current_sdk_version",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/scaffold.rs",
+      "source_location": "L78"
+    }
+  ]
+}

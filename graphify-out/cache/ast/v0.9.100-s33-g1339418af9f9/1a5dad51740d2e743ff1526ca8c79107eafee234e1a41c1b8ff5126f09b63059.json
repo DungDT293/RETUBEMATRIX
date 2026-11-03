@@ -1,0 +1,145 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh",
+      "label": "fix-deb-deep-link-desktop-entry.sh",
+      "file_type": "code",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L1",
+      "metadata": { "language": "bash", "kind": "file" }
+    },
+    {
+      "id": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "label": "fix-deb-deep-link-desktop-entry.sh script",
+      "file_type": "code",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L1",
+      "metadata": { "language": "bash", "kind": "bash_entrypoint" }
+    },
+    {
+      "id": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_cleanup",
+      "label": "cleanup()",
+      "file_type": "code",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L18",
+      "metadata": { "language": "bash", "kind": "bash_function" }
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh",
+      "target": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh",
+      "target": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_cleanup",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "target": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_cleanup",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L39",
+      "weight": 1.0,
+      "context": "call"
+    }
+  ],
+  "raw_calls": [
+    {
+      "language": "bash",
+      "callee": "set",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L3"
+    },
+    {
+      "language": "bash",
+      "callee": "echo",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L6"
+    },
+    {
+      "language": "bash",
+      "callee": "exit",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L7"
+    },
+    {
+      "language": "bash",
+      "callee": "continue",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L14"
+    },
+    {
+      "language": "bash",
+      "callee": "mktemp",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L17"
+    },
+    {
+      "language": "bash",
+      "callee": "trap",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L21"
+    },
+    {
+      "language": "bash",
+      "callee": "dpkg-deb",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L23"
+    },
+    {
+      "language": "bash",
+      "callee": "test",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L26"
+    },
+    {
+      "language": "bash",
+      "callee": "sed",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L27"
+    },
+    {
+      "language": "bash",
+      "callee": "grep",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L28"
+    },
+    {
+      "language": "bash",
+      "callee": "printf",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_sh__entry",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L31"
+    },
+    {
+      "language": "bash",
+      "callee": "rm",
+      "caller_nid": "$graphify-root$_scripts_fix_deb_deep_link_desktop_entry_cleanup",
+      "source_file": "scripts/fix-deb-deep-link-desktop-entry.sh",
+      "source_location": "L19"
+    }
+  ],
+  "bash_sources": []
+}

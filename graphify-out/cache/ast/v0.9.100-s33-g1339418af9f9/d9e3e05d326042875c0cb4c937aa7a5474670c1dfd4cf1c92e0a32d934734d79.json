@@ -1,0 +1,61 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_json",
+      "label": "MANIFEST.json",
+      "file_type": "code",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/MANIFEST.json",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_captured_utc",
+      "label": "captured_utc",
+      "file_type": "code",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/MANIFEST.json",
+      "source_location": "L2"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_report_scope",
+      "label": "report_scope",
+      "file_type": "code",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/MANIFEST.json",
+      "source_location": "L3"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_files",
+      "label": "files",
+      "file_type": "code",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/MANIFEST.json",
+      "source_location": "L4"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_json",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_captured_utc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/MANIFEST.json",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_json",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_report_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/MANIFEST.json",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_json",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_manifest_files",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/MANIFEST.json",
+      "source_location": "L4",
+      "weight": 1.0
+    }
+  ]
+}

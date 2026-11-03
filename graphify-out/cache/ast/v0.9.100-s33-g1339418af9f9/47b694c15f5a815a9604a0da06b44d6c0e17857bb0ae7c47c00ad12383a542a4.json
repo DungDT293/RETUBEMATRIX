@@ -1,0 +1,109 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_json",
+      "label": "manifest.json",
+      "file_type": "code",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_manifest_version",
+      "label": "manifest_version",
+      "file_type": "code",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L2"
+    },
+    {
+      "id": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_name",
+      "label": "name",
+      "file_type": "code",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L3"
+    },
+    {
+      "id": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_version",
+      "label": "version",
+      "file_type": "code",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L4"
+    },
+    {
+      "id": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_description",
+      "label": "description",
+      "file_type": "code",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L5"
+    },
+    {
+      "id": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_chrome_url_overrides",
+      "label": "chrome_url_overrides",
+      "file_type": "code",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L6"
+    },
+    {
+      "id": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_chrome_url_overrides_newtab",
+      "label": "newtab",
+      "file_type": "code",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L7"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_json",
+      "target": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_manifest_version",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_json",
+      "target": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_json",
+      "target": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_version",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_json",
+      "target": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_description",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_json",
+      "target": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_chrome_url_overrides",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_chrome_url_overrides",
+      "target": "$graphify-root$_browser_engine_core_chrome_extensions_google_new_tab_manifest_chrome_url_overrides_newtab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "browser_engine/core/chrome_extensions/google_new_tab/manifest.json",
+      "source_location": "L7",
+      "weight": 1.0
+    }
+  ]
+}

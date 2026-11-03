@@ -1,0 +1,1238 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_rs",
+      "label": "error.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backend_error_prefix",
+      "label": "BACKEND_ERROR_PREFIX",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L4"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backend_unknown",
+      "label": "BACKEND_UNKNOWN",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L7"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_validation_invalid_url",
+      "label": "VALIDATION_INVALID_URL",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L8"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_validation_invalid_input",
+      "label": "VALIDATION_INVALID_INPUT",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L9"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_download_cancelled",
+      "label": "DOWNLOAD_CANCELLED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L10"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_transcript_not_available",
+      "label": "TRANSCRIPT_NOT_AVAILABLE",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L11"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_rate_limited",
+      "label": "YT_RATE_LIMITED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L12"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_private_video",
+      "label": "YT_PRIVATE_VIDEO",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L13"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_age_restricted",
+      "label": "YT_AGE_RESTRICTED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L14"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_members_only",
+      "label": "YT_MEMBERS_ONLY",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L15"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_signin_required",
+      "label": "YT_SIGNIN_REQUIRED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L16"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_geo_restricted",
+      "label": "YT_GEO_RESTRICTED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L17"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_video_unavailable",
+      "label": "YT_VIDEO_UNAVAILABLE",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L18"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_no_subtitles",
+      "label": "YT_NO_SUBTITLES",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L19"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_skipped_live",
+      "label": "YT_SKIPPED_LIVE",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L20"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_skipped_filter",
+      "label": "YT_SKIPPED_FILTER",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L21"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_upcoming_live",
+      "label": "YT_UPCOMING_LIVE",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L22"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_cookie_db_locked",
+      "label": "YT_COOKIE_DB_LOCKED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L23"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_yt_fresh_cookies_required",
+      "label": "YT_FRESH_COOKIES_REQUIRED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L24"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_network_timeout",
+      "label": "NETWORK_TIMEOUT",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L25"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_network_request_failed",
+      "label": "NETWORK_REQUEST_FAILED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L26"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_process_start_failed",
+      "label": "PROCESS_START_FAILED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L27"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_process_execution_failed",
+      "label": "PROCESS_EXECUTION_FAILED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L28"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_process_exit_non_zero",
+      "label": "PROCESS_EXIT_NON_ZERO",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L29"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_parse_failed",
+      "label": "PARSE_FAILED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L30"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_io_operation_failed",
+      "label": "IO_OPERATION_FAILED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L31"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_db_operation_failed",
+      "label": "DB_OPERATION_FAILED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L32"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_ytdlp_not_found",
+      "label": "YTDLP_NOT_FOUND",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L33"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_ytdlp_system_not_found",
+      "label": "YTDLP_SYSTEM_NOT_FOUND",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L34"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_ytdlp_app_not_found",
+      "label": "YTDLP_APP_NOT_FOUND",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L35"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_ytdlp_system_managed",
+      "label": "YTDLP_SYSTEM_MANAGED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L36"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_gallerydl_not_found",
+      "label": "GALLERYDL_NOT_FOUND",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L37"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_aria2_not_found",
+      "label": "ARIA2_NOT_FOUND",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L38"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_ffmpeg_not_found",
+      "label": "FFMPEG_NOT_FOUND",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L39"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_ffmpeg_system_managed",
+      "label": "FFMPEG_SYSTEM_MANAGED",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L40"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_ai_api_error",
+      "label": "AI_API_ERROR",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L41"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_ai_no_api_key",
+      "label": "AI_NO_API_KEY",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L42"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_ai_no_transcript",
+      "label": "AI_NO_TRANSCRIPT",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L43"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_whisper_api_error",
+      "label": "WHISPER_API_ERROR",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L44"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_whisper_no_api_key",
+      "label": "WHISPER_NO_API_KEY",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L45"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_whisper_unsupported_format",
+      "label": "WHISPER_UNSUPPORTED_FORMAT",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L46"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderrorwire",
+      "label": "BackendErrorWire",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L50",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "value",
+      "label": "Value",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/types/error.rs",
+      "_rust_use_roots": ["serde_json"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "label": "BackendError",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L62",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_new",
+      "label": ".new()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L67"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_from_message",
+      "label": ".from_message()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L81"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_with_source",
+      "label": ".with_source()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L87"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_with_retryable",
+      "label": ".with_retryable()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L92"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_with_param",
+      "label": ".with_param()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L97"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_with_params",
+      "label": ".with_params()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L107"
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/types/error.rs",
+      "_rust_use_roots": ["serde_json"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_code",
+      "label": ".code()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L112"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_message",
+      "label": ".message()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L116"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_params",
+      "label": ".params()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L120"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_to_wire",
+      "label": ".to_wire()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L124"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_backenderror_to_wire_string",
+      "label": ".to_wire_string()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L128"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_to_wire_error_string",
+      "label": "to_wire_error_string()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L141"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_parse_wire_error_string",
+      "label": "parse_wire_error_string()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L145"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_infer_error_code",
+      "label": "infer_error_code()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L150"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_default_retryable",
+      "label": "default_retryable()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L299"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_error_escape_json_string",
+      "label": "escape_json_string()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L311"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "serde",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "deserialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "serialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "serde_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "map",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "value",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_backend_error_prefix",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_backend_unknown",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_validation_invalid_url",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_validation_invalid_input",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_download_cancelled",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_transcript_not_available",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_rate_limited",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_private_video",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_age_restricted",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_members_only",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_signin_required",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_geo_restricted",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_video_unavailable",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_no_subtitles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_skipped_live",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_skipped_filter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_upcoming_live",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_cookie_db_locked",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_yt_fresh_cookies_required",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_network_timeout",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_network_request_failed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_process_start_failed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_process_execution_failed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_process_exit_non_zero",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_parse_failed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_io_operation_failed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_db_operation_failed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_ytdlp_not_found",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_ytdlp_system_not_found",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_ytdlp_app_not_found",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_ytdlp_system_managed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_gallerydl_not_found",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_aria2_not_found",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_ffmpeg_not_found",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_ffmpeg_system_managed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_ai_api_error",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_ai_no_api_key",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_ai_no_transcript",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_whisper_api_error",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_whisper_no_api_key",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_whisper_unsupported_format",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderrorwire",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderrorwire",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L54",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderrorwire",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L63",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_new",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_from_message",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_with_source",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_with_retryable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_with_param",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror_with_param",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L97",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_with_params",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror_with_params",
+      "target": "map",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L107",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror_with_params",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L107",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_code",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_message",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_params",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror_params",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L120",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_to_wire",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror_to_wire",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderrorwire",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L124",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_to_wire_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_to_wire_error_string",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_parse_wire_error_string",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L145",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_parse_wire_error_string",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderrorwire",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L145",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_infer_error_code",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L150",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_default_retryable",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L299",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_rs",
+      "target": "$graphify-root$_src_tauri_src_types_error_escape_json_string",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L311",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror_new",
+      "target": "$graphify-root$_src_tauri_src_types_error_default_retryable",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L69",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror_from_message",
+      "target": "$graphify-root$_src_tauri_src_types_error_infer_error_code",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_backenderror_from_message",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_new",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_to_wire_error_string",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_to_wire_string",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_error_to_wire_error_string",
+      "target": "$graphify-root$_src_tauri_src_types_error_backenderror_from_message",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L142",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_types_error_backenderror_with_param",
+      "callee": "take",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_types_error_backenderror_params",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_types_error_parse_wire_error_string",
+      "callee": "strip_prefix",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_types_error_infer_error_code",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_types_error_escape_json_string",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_types_error_escape_json_string",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_types_error_escape_json_string",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_types_error_escape_json_string",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_types_error_escape_json_string",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/types/error.rs",
+      "source_location": "L312"
+    }
+  ]
+}

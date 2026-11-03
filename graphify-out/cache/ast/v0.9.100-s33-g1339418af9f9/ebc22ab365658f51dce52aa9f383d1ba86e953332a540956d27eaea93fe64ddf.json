@@ -1,0 +1,1578 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "label": "ytdlp_args.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_ytdlpadvancedoption",
+      "label": "YtdlpAdvancedOption",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L6",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_builtytdlpadvancedargs",
+      "label": "BuiltYtdlpAdvancedArgs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L13",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "label": "build_ytdlp_advanced_args()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L19"
+    },
+    {
+      "id": "backenderror",
+      "label": "BackendError",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/ytdlp_args.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_youtube_extractor_args",
+      "label": "build_youtube_extractor_args()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L173"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_ytdlp_advanced_args",
+      "label": "redact_ytdlp_advanced_args()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L193"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_push_flag_value",
+      "label": "push_flag_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L215"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_value",
+      "label": "required_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L220"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_secondary_value",
+      "label": "required_secondary_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L231"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "label": "ensure_no_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L242"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_impersonate",
+      "label": "validate_impersonate()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L264"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_number",
+      "label": "validate_number()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L277"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_integer",
+      "label": "validate_integer()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L291"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_size",
+      "label": "validate_size()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L305"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_country",
+      "label": "validate_country()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L326"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_format_sort",
+      "label": "validate_format_sort()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L334"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_youtube_player_client",
+      "label": "validate_youtube_player_client()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L344"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_http_url",
+      "label": "validate_http_url()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L354"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_header_name",
+      "label": "validate_header_name()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L366"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "label": "validate_text()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L392"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_reject_raw_separator",
+      "label": "reject_raw_separator()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L412"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_is_bilibili_managed_header_option",
+      "label": "is_bilibili_managed_header_option()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L422"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_is_bilibili_host",
+      "label": "is_bilibili_host()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L426"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_header_value",
+      "label": "redact_header_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L436"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "label": "validation_error()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L443"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_option",
+      "label": "option()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L451"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_allows_vetted_options",
+      "label": "build_ytdlp_advanced_args_allows_vetted_options()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L460"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_dangerous_or_managed_options",
+      "label": "build_ytdlp_advanced_args_rejects_dangerous_or_managed_options()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L505"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_sensitive_headers",
+      "label": "build_ytdlp_advanced_args_rejects_sensitive_headers()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L517"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_skips_headers_for_bilibili",
+      "label": "build_ytdlp_advanced_args_skips_headers_for_bilibili()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L533"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_youtube_extractor_args_merges_actual_player_js_and_player_client",
+      "label": "build_youtube_extractor_args_merges_actual_player_js_and_player_client()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L552"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_ytdlp_advanced_args_redacts_custom_headers",
+      "label": "redact_ytdlp_advanced_args_redacts_custom_headers()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L562"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "code",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "code",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "backenderror",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BackendError",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "deserialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_ytdlpadvancedoption",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_builtytdlpadvancedargs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_ytdlpadvancedoption",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_builtytdlpadvancedargs",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_youtube_extractor_args",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L173",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_ytdlp_advanced_args",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L193",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_push_flag_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L215",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L220",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_value",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_ytdlpadvancedoption",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L220",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_value",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L220",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_secondary_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L231",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_secondary_value",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_ytdlpadvancedoption",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L231",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_secondary_value",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L231",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L242",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_ytdlpadvancedoption",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L242",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L242",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_impersonate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L264",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_impersonate",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L264",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_number",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L277",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_number",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L277",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_integer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L291",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_integer",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L291",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_size",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L305",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_size",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L305",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_country",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L326",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_country",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L326",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_format_sort",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L334",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_format_sort",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L334",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_youtube_player_client",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L344",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_youtube_player_client",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L344",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_http_url",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L354",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_http_url",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L354",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_header_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L366",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_header_name",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L366",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L392",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L392",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_reject_raw_separator",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L412",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_reject_raw_separator",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L412",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_is_bilibili_managed_header_option",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L422",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_is_bilibili_host",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L426",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_header_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L436",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L443",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "target": "backenderror",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L443",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "super",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L449",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "super"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_option",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L451",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_option",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_ytdlpadvancedoption",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L451",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_allows_vetted_options",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L460",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_dangerous_or_managed_options",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L505",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_sensitive_headers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L517",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_skips_headers_for_bilibili",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L533",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_youtube_extractor_args_merges_actual_player_js_and_player_client",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L552",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_rs",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_ytdlp_advanced_args_redacts_custom_headers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L562",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_is_bilibili_host",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_is_bilibili_managed_header_option",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_push_flag_value",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_impersonate",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_value",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_number",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_http_url",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_header_name",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_secondary_value",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_integer",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_size",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_country",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L139",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_format_sort",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L149",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_youtube_player_client",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L152",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_ytdlp_advanced_args",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_header_value",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L200",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_value",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_secondary_value",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L237",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L256",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_impersonate",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L265",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_impersonate",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L270",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_number",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_reject_raw_separator",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L278",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_number",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L281",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_integer",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_reject_raw_separator",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L292",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_integer",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L295",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_size",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L306",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_size",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L314",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_country",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L327",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_country",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L329",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_format_sort",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L335",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_format_sort",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L339",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_youtube_player_client",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L345",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_youtube_player_client",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L348",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_http_url",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L355",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_http_url",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L357",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_header_name",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L367",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_header_name",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L378",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L394",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_text",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_reject_raw_separator",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L408",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_reject_raw_separator",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L414",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_allows_vetted_options",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L461",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_allows_vetted_options",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_option",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L465",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_dangerous_or_managed_options",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L506",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_dangerous_or_managed_options",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_option",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L509",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_sensitive_headers",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L518",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_sensitive_headers",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_option",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L521",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_skips_headers_for_bilibili",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L534",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_skips_headers_for_bilibili",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_option",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L538",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_youtube_extractor_args_merges_actual_player_js_and_player_client",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_youtube_extractor_args",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L553",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_ytdlp_advanced_args_redacts_custom_headers",
+      "target": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_ytdlp_advanced_args",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L563",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_ytdlp_advanced_args",
+      "callee": "take",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_value",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_value",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_value",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_secondary_value",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_secondary_value",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_required_secondary_value",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "callee": "is_some",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L243"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L243"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "callee": "is_some",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_ensure_no_value",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_impersonate",
+      "callee": "chars",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L266"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_impersonate",
+      "callee": "is_ascii_alphanumeric",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_number",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_number",
+      "callee": "is_finite",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_integer",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L293"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_size",
+      "callee": "peekable",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_size",
+      "callee": "chars",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_country",
+      "callee": "chars",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_country",
+      "callee": "is_ascii_alphabetic",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_country",
+      "callee": "to_ascii_uppercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L331"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_format_sort",
+      "callee": "chars",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L336"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_format_sort",
+      "callee": "is_ascii_alphanumeric",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L337"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_http_url",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L357"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_http_url",
+      "callee": "scheme",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L358"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_header_name",
+      "callee": "to_ascii_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L368"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_header_name",
+      "callee": "chars",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L383"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validate_header_name",
+      "callee": "is_ascii_alphanumeric",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L385"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_is_bilibili_host",
+      "callee": "host_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L430"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_is_bilibili_host",
+      "callee": "to_ascii_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L430"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_is_bilibili_host",
+      "callee": "ends_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L433"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_redact_header_value",
+      "callee": "split_once",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L437"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_validation_error",
+      "callee": "with_retryable",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L444"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_dangerous_or_managed_options",
+      "callee": "expect_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_ytdlp_args_build_ytdlp_advanced_args_rejects_sensitive_headers",
+      "callee": "expect_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/ytdlp_args.rs",
+      "source_location": "L518"
+    }
+  ]
+}

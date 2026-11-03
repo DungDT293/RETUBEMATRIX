@@ -1,0 +1,124 @@
+# AGENTS.md — Project Rules for AI Assistants
+
+This file is read automatically at the start of every session. Follow these rules strictly.
+
+## Project Info
+
+- **App name**: reupytb
+- **Repo**: `github.com/vanloctech/youwee`
+- **Stack**: Tauri 2.0 (Rust backend) + React 19 + TypeScript + Tailwind CSS
+- **Runtime**: Use `bun` (not npm/npx)
+- **Linting**: `bun run biome check --write .`
+- **Rust check**: `cargo check` (run in `src-tauri/`)
+- **TypeScript check**: `bun run tsc -b`
+- **Default branch**: `main`
+- **Language**: User communicates in Vietnamese
+- **Project Context**: Xem PROJECT_CONTEXT.md để nắm toàn bộ kiến trúc, API, Database Schema và Worker Pipelines.
+
+## Mandatory Checklists
+
+### Version Bump Checklist
+
+When bumping the version, you MUST do ALL of the following:
+
+1. Update version in **3 files**:
+   - `package.json` → `"version"`
+   - `src-tauri/Cargo.toml` → `version`
+   - `src-tauri/tauri.conf.json` → `"version"`
+
+2. Update **3 changelog files**:
+   - `CHANGELOG.md` (English, root)
+   - `docs/CHANGELOG.vi.md` (Vietnamese)
+   - `docs/CHANGELOG.zh-CN.md` (Chinese Simplified)
+
+   In each changelog:
+   - Change `## [Unreleased]` heading to `## [X.Y.Z] - YYYY-MM-DD`
+   - Add a new empty `## [Unreleased]` section above it
+   - Add entries for any new features/fixes done since the last release
+
+   **NEVER bump version without updating changelogs. This is non-negotiable.**
+
+3. `Cargo.lock` will auto-update — no manual edit needed.
+
+### Commit Rules
+
+- **NEVER commit unless the user explicitly asks** (e.g. "commit nha", "commit di")
+- **NEVER push unless the user explicitly asks**
+- Always run all 3 checks before committing: Biome → `tsc -b` → cargo check
+- Commit message style: `type: short description` (e.g. `feat:`, `fix:`, `chore:`, `docs:`)
+
+### Branch and PR Rules
+
+- When creating a work branch, start from the latest `main` unless the user explicitly requests another base branch.
+- Pull Requests should target `main` by default.
+- Do not merge directly into `main`; use a Pull Request workflow.
+- If editing contributing docs, keep `CONTRIBUTING.md`, `docs/CONTRIBUTING.vi.md`, and `docs/CONTRIBUTING.zh-CN.md` aligned.
+
+### Pre-commit Hook
+
+The repo has a `.git/hooks/pre-commit` that runs 3 checks automatically:
+1. Biome lint
+2. TypeScript type check (`tsc --noEmit`)
+3. Cargo check
+
+All must pass before a commit succeeds.
+
+## Changelog Conventions
+
+- Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+- Sections: `### Added`, `### Fixed`, `### Changed`, `### Removed`
+- Each entry starts with `- **Feature name** - Description`
+- Vietnamese changelog uses: `### Thêm mới`, `### Sửa lỗi`, `### Thay đổi`, `### Xóa bỏ`
+- Chinese changelog uses: `### 新增`, `### 修复`, `### 变更`, `### 移除`
+
+## i18n
+
+- Namespaces: `common`, `settings`, `pages`, `channels`, `download`, `universal`, `gallery`, `metadata`, `subtitles`, plus any future feature-specific namespaces already present in `src/i18n/locales/{lang}/`
+- Primary locales: `en`, `vi`, `zh-CN`
+- Supported locale directories currently live in `src/i18n/locales/{lang}/`
+- When adding new UI text, add keys to **every existing locale directory**, not only the 3 primary locales
+- Before finishing i18n work, compare the touched namespace across all locale directories and ensure no locale is missing the new keys
+
+## SDK Rules
+
+- SDK source lives in `sdk-js/src/`; generated build output lives in `sdk-js/dist/`
+- When changing SDK TypeScript source, run `bun run build:sdk`
+- When adding or changing public SDK APIs, update `sdk-js/README.md` and add an `Unreleased` entry in `sdk-js/CHANGELOG.md`
+- Do not bump `sdk-js/package.json` version unless the user explicitly asks for an SDK release/version bump
+- Keep SDK TypeScript strict and avoid `any` in public API types unless there is a clear compatibility reason
+
+## Browser Extension Rules
+
+- Extension source lives in `extensions/youwee-webext/`
+- When changing extension behavior, run `bun run ext:build`
+- Keep extension user-facing text and icons consistent with the app's current UI language and visual style
+- Browser extension deep links must preserve the URL payload when opening the desktop app from a closed state
+
+## UI Design Patterns
+
+- **Info badges** (read-only): `rounded`, no border, solid background (e.g. `bg-blue-500/10 text-blue-600`)
+- **Action buttons**: `rounded-md`, `border border-dashed`, hover effects
+- **Time range**: amber color scheme (`bg-amber-500/10 text-amber-600 dark:text-amber-400`), Scissors icon
+- **AI/Summary**: purple color scheme (`bg-purple-500/10 text-purple-500`), Sparkles icon
+
+## Architecture Patterns
+
+- Per-item settings are **snapshotted** at add-time from global settings, stored as `item.settings`
+- App data is stored in SQLite (`youwee.db`), initialized in `src-tauri/src/database/connection.rs`
+- `logs.db` is the legacy database filename; keep automatic migration to `youwee.db` and preserve the legacy file as a backup
+- DB migrations use `ALTER TABLE ... ADD COLUMN` with `.ok()` to ignore "already exists" errors
+- FFmpeg is bundled (not system) on macOS — rebuilt with `--enable-securetransport` for TLS support
+- `download_sections` format: `"*MM:SS-MM:SS"` (with `*` prefix for yt-dlp). Strip `*` before storing in history.
+- Library/history is the source for downloaded-video duplicate detection; do not add a separate duplicate-history table unless explicitly requested.
+- History should remain persistent until the user deletes/clears Library entries; do not reintroduce a fixed max-history limit.
+- yt-dlp advanced options must remain structured and allowlisted; do not add raw command-line argument text boxes without explicit approval.
+- Validate yt-dlp advanced options on both frontend and backend, and keep app-managed options such as cookies, output paths, retries, and site-specific headers authoritative.
+
+## Reup & Engine Quality Rules (Anti-Regression)
+
+- **Bundled Runtimes & Packaging**: Never rely on NTFS junctions or symlinks for directories listed under `tauri.conf.json` resources (such as `roots/browsermulti/`), because Tauri's NSIS packager skips reparse points and produces broken clean-install builds. Always use real directory copies. Keep Python embed (`src-tauri/python/`), static `ffmpeg`/`ffprobe`/`deno`/`yt-dlp` in `src-tauri/bin/`, and full `BrowserMulti` runtimes present and verified.
+- **Dynamic Audio Resampling**: Never hardcode `44100` Hz in FFmpeg audio modification filters (`asetrate=44100*...`). Always probe the actual source sample rate via FFprobe and apply `asetrate={sr}*pitch,aresample={sr},atempo={speed/pitch}` to prevent audio length drift (e.g. +2.5s drift on standard 48 kHz YouTube audio).
+- **BKT Verification Honesty**: Never report `green_clean` ("Sạch Bản Quyền") when `checked_count === 0` or when YouTube Studio results are null/pending. Always clear stale verification states when switching profiles or channels.
+- **IPC Contract & Tauri v2 Compatibility**: Command parameters in Tauri v2 default to camelCase in frontend JS invocations. When writing commands that receive configuration options (such as `update_channel_settings`), always ensure frontend passes both camelCase and snake_case. Always parse JSON outputs from Python runners safely, accepting both boolean flags and dictionary tombstones.
+- **Outlier Hunter Robustness**: Always inject `YTDLP_BIN` to the runner environment. If yt-dlp fails or is missing, raise a structured error — never swallow exceptions and return `discovered_videos: []`. Always parse subscriber strings with suffix multipliers (`K`, `M`, `B`, `N`, `Triệu`, `Nghìn`) to avoid misidentifying 340K subscriber channels as small 340-sub channels.
+- **Transcript Diagnostics**: Explicitly distinguish YouTube `RequestBlocked` / HTTP 429 rate limits from "video has no CC", providing actionable proxy advice to the user.

@@ -1,0 +1,969 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "label": "gallery.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_gallery_recent_output_limit",
+      "label": "RECENT_OUTPUT_LIMIT",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L15"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_gallery_gallerydownloadresult",
+      "label": "GalleryDownloadResult",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L18",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_gallery_push_recent_output",
+      "label": "push_recent_output()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L23"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_gallery_kill_gallery_processes",
+      "label": "kill_gallery_processes()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L34"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_gallery_archive_file_path",
+      "label": "archive_file_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L53"
+    },
+    {
+      "id": "apphandle",
+      "label": "AppHandle",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/gallery.rs",
+      "_rust_use_roots": ["tauri"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_gallery_stop_gallery_download",
+      "label": "stop_gallery_download()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L62"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "label": "download_gallery()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L68"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "vecdeque",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "stdio",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "tauri",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "apphandle",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "manager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "io",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "asyncbufreadext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "bufreader",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "command",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "add_history_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "add_history_internal"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "add_log_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "add_log_internal"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "services",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "services",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "build_cookie_args",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "build_cookie_args",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "get_gallerydl_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_gallerydl_path",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "system_gallerydl_not_found_message",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "system_gallerydl_not_found_message",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "backenderror",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "BackendError"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "utils",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "normalize_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "normalize_url",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "sanitize_output_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "sanitize_output_path",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "validate_url",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "validate_url",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "commandext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "CommandExt",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_recent_output_limit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_gallerydownloadresult",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_push_recent_output",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_kill_gallery_processes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_archive_file_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_archive_file_path",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_stop_gallery_download",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L68",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_gallerydownloadresult",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L68",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_stop_gallery_download",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_kill_gallery_processes",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_archive_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "target": "$graphify-root$_src_tauri_src_commands_gallery_push_recent_output",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L148",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_push_recent_output",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_push_recent_output",
+      "callee": "pop_front",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_push_recent_output",
+      "callee": "push_back",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_kill_gallery_processes",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_kill_gallery_processes",
+      "callee": "args",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_kill_gallery_processes",
+      "callee": "args",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_kill_gallery_processes",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_kill_gallery_processes",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_archive_file_path",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_archive_file_path",
+      "callee": "app_data_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_archive_file_path",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_archive_file_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_archive_file_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "validate_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "normalize_url",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "get_gallerydl_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "with_retryable",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L85"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "system_gallerydl_not_found_message",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "sanitize_output_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "build_cookie_args",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L112"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "stderr",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "stdout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "args",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "take",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "take",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "next_line",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "next_line",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L162"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L170"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "wait",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L170"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "into_iter",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "extend",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "into_iter",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "success",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "cloned",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "rev",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "cloned",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "last",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "to_wire_string",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "with_param",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "code",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L202"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "add_history_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_gallery_download_gallery",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/gallery.rs",
+      "source_location": "L217"
+    }
+  ]
+}

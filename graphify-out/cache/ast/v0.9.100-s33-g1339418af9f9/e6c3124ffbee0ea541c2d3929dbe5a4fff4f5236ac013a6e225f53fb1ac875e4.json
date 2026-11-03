@@ -1,0 +1,3442 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "label": "bridge.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_max_bridge_body_bytes",
+      "label": "MAX_BRIDGE_BODY_BYTES",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L24"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_strip_subprocess_env_keys",
+      "label": "STRIP_SUBPROCESS_ENV_KEYS",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L25"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "label": "PluginBridgePolicy",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L32",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgerunstate",
+      "label": "PluginBridgeRunState",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L42",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver",
+      "label": "PluginBridgeServer",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L47",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "sender",
+      "label": "Sender",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/bridge.rs"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_url",
+      "label": ".url()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L55"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_token",
+      "label": ".token()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L59"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_tools_csv",
+      "label": ".tools_csv()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L63"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_drop",
+      "label": ".drop()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L69"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_fspathrequest",
+      "label": "FsPathRequest",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L78",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_fswritetextrequest",
+      "label": "FsWriteTextRequest",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L84",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_fswritebase64request",
+      "label": "FsWriteBase64Request",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L91",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_fstempdirrequest",
+      "label": "FsTempDirRequest",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L98",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_toolrunrequest",
+      "label": "ToolRunRequest",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L104",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_youtubesearchvideosrequest",
+      "label": "YoutubeSearchVideosRequest",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L113",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "youtubesearchfilters",
+      "label": "YoutubeSearchFilters",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/bridge.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_bridgeresponse",
+      "label": "BridgeResponse",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L122",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "t",
+      "label": "T",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/bridge.rs"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_toolrunresponse",
+      "label": "ToolRunResponse",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L132",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_fsdirectoryentry",
+      "label": "FsDirectoryEntry",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L141",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_start_plugin_bridge",
+      "label": "start_plugin_bridge()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L147"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "label": "handle_bridge_connection()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L199"
+    },
+    {
+      "id": "tcpstream",
+      "label": "TcpStream",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/bridge.rs",
+      "_rust_use_roots": ["tokio"]
+    },
+    {
+      "id": "mutex",
+      "label": "Mutex",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/bridge.rs",
+      "_rust_use_roots": ["tokio"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "label": "handle_bridge_request()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L251"
+    },
+    {
+      "id": "value",
+      "label": "Value",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/bridge.rs"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "label": "read_directory_entries()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L413"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_body",
+      "label": "parse_body()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L458"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "label": "run_tool()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L462"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "label": "validate_tool_args_with_policy()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L531"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_resolve_arg_path",
+      "label": "resolve_arg_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L572"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_read_path",
+      "label": "validate_read_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L581"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_working_directory_path",
+      "label": "validate_working_directory_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L591"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_path",
+      "label": "validate_write_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L603"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_scope_path",
+      "label": "validate_write_scope_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L614"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "label": "validate_remove_file_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L625"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "label": "remember_generated_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L659"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_temp_dir",
+      "label": "remember_temp_dir()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L664"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_removable_plugin_file",
+      "label": "is_removable_plugin_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L669"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_path_within_scopes",
+      "label": "path_within_scopes()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L679"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "label": "normalize_existing_or_parent()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L687"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "label": "is_local_path_candidate()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L704"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_plugin_temp_dir_path",
+      "label": "plugin_temp_dir_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L716"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_has_valid_auth",
+      "label": "has_valid_auth()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L722"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_find_headers_end",
+      "label": "find_headers_end()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L733"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_content_length",
+      "label": "parse_content_length()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L737"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "label": "test_dir()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L760"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "label": "test_policy()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L769"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_youtube_search_requires_network_permission",
+      "label": "youtube_search_requires_network_permission()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L781"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_base64_returns_binary_file_content",
+      "label": "read_base64_returns_binary_file_content()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L810"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_dir_returns_directory_entries",
+      "label": "read_dir_returns_directory_entries()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L837"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_base64_writes_binary_file_and_marks_generated",
+      "label": "write_base64_writes_binary_file_and_marks_generated()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L880"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_generated_file",
+      "label": "remove_file_allows_generated_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L912"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_file_inside_run_temp_dir",
+      "label": "remove_file_allows_file_inside_run_temp_dir()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L926"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_preexisting_file",
+      "label": "remove_file_rejects_preexisting_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L942"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_directory",
+      "label": "remove_file_rejects_directory()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L955"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_outside_write_scope",
+      "label": "remove_file_rejects_outside_write_scope()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L967"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_dangerous_extension",
+      "label": "remove_file_rejects_dangerous_extension()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L983"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_symlink",
+      "label": "remove_file_rejects_symlink()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L998"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "label": "write_json_response()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1018"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "collections",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "btreemap",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "btreeset",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "arc",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "duration",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "engine",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "serde",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "deserialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "serialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "io",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "asyncreadext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "asyncwriteext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "net",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "tcplistener",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "tcpstream",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "command",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "sync",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "oneshot",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "mutex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "commandext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "CommandExt"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "crate",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "crate",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "search_youtube_videos_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "search_youtube_videos_internal",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "youtubesearchfilters",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchFilters",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "youtubesearchresponse",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchResponse",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "security_policy",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "security_policy",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "validate_command_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "validate_command_path",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "validate_plugin_output_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "validate_plugin_output_path",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "validate_plugin_write_scope",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "validate_plugin_write_scope",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "validate_tool_arg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "validate_tool_arg",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_max_bridge_body_bytes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_strip_subprocess_env_keys",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgerunstate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L47",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver",
+      "target": "sender",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L51",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_url",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_token",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_tools_csv",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_drop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L69",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_fspathrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_fswritetextrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_fswritebase64request",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_fstempdirrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_toolrunrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_youtubesearchvideosrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_youtubesearchvideosrequest",
+      "target": "youtubesearchfilters",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L116",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_bridgeresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L122",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_bridgeresponse",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L125",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_toolrunresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_fsdirectoryentry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_start_plugin_bridge",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_start_plugin_bridge",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L147",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_start_plugin_bridge",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L147",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L199",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "target": "tcpstream",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L199",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L199",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L199",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgerunstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L199",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L251",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L251",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L251",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgerunstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L251",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L251",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L413",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_fsdirectoryentry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L413",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_body",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L458",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_body",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L458",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L462",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L462",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L462",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgerunstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L462",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_toolrunrequest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L462",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_toolrunresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L462",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L531",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L531",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_resolve_arg_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L572",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_read_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L581",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_read_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L581",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_working_directory_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L591",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_working_directory_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L591",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L603",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L603",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_scope_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L614",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_scope_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L614",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L625",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L625",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L625",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgerunstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L625",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L659",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L659",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgerunstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L659",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_temp_dir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L664",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_temp_dir",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L664",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_temp_dir",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgerunstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L664",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_removable_plugin_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L669",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_removable_plugin_file",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L669",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_removable_plugin_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgerunstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L669",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_path_within_scopes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L679",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L687",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L704",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_plugin_temp_dir_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L716",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_has_valid_auth",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L722",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_find_headers_end",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L733",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_content_length",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L737",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "super",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L758",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "super"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L760",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L769",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgepolicy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L769",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_youtube_search_requires_network_permission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L781",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_base64_returns_binary_file_content",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L810",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_dir_returns_directory_entries",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L837",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_base64_writes_binary_file_and_marks_generated",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L880",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_generated_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L912",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_file_inside_run_temp_dir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L926",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_preexisting_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L942",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_directory",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L955",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_outside_write_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L967",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_dangerous_extension",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L983",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_symlink",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L998",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1018",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "target": "tcpstream",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1018",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1018",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_find_headers_end",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L228",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_content_length",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L231",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L235",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_has_valid_auth",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L273",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_body",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L279",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_read_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L281",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L288",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L317",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L323",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L346",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_scope_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L355",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_plugin_temp_dir_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L366",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_temp_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L371",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L376",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_working_directory_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L485",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L487",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L519",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L543",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_resolve_arg_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L544",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L545",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_read_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L552",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_read_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_path_within_scopes",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L582",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_working_directory_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_path_within_scopes",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L592",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_path_within_scopes",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L605",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_scope_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_path_within_scopes",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L616",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L630",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_removable_plugin_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L650",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L660",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_temp_dir",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L665",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_removable_plugin_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L670",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_path_within_scopes",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L680",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_youtube_search_requires_network_permission",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L782",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_youtube_search_requires_network_permission",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L783",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_youtube_search_requires_network_permission",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L791",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_base64_returns_binary_file_content",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L811",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_base64_returns_binary_file_content",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L814",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_base64_returns_binary_file_content",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L821",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_dir_returns_directory_entries",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L838",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_dir_returns_directory_entries",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L843",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_dir_returns_directory_entries",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L850",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_base64_writes_binary_file_and_marks_generated",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L881",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_base64_writes_binary_file_and_marks_generated",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L883",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_base64_writes_binary_file_and_marks_generated",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L891",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_base64_writes_binary_file_and_marks_generated",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L900",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_generated_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L913",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_generated_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L917",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_generated_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L919",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_generated_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L919",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_file_inside_run_temp_dir",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L927",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_file_inside_run_temp_dir",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_temp_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L933",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_file_inside_run_temp_dir",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L935",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_file_inside_run_temp_dir",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L935",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_preexisting_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L943",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_preexisting_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L948",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_preexisting_file",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L948",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_directory",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L956",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_directory",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_temp_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L958",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_directory",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L960",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_directory",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L960",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_outside_write_scope",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L968",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_outside_write_scope",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L973",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_outside_write_scope",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L975",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_outside_write_scope",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L975",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_dangerous_extension",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L984",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_dangerous_extension",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L988",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_dangerous_extension",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L990",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_dangerous_extension",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L990",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_symlink",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1001",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_symlink",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_remember_generated_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1008",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_symlink",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1010",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_symlink",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1010",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_tools_csv",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_pluginbridgeserver_drop",
+      "callee": "take",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_start_plugin_bridge",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_start_plugin_bridge",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_start_plugin_bridge",
+      "callee": "local_addr",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_start_plugin_bridge",
+      "callee": "is_some",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_start_plugin_bridge",
+      "callee": "is_some",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "callee": "extend_from_slice",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "callee": "is_none",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "callee": "to_vec",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L234"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_connection",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "split_whitespace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L264"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L265"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L299"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L308"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "encode",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L311"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L318"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L331"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L332"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "decode",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L332"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L335"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L347"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L356"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L368"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L379"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "search_youtube_videos_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L392"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_handle_bridge_request",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L401"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L414"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "is_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L417"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L424"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L428"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "next_entry",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L428"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L433"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L434"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L434"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L435"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "file_type",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L435"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "is_file",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L439"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "is_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L441"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "is_symlink",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L443"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L450"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "sort_by",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L454"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_directory_entries",
+      "callee": "cmp",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L454"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_body",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L459"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L467"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L467"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L468"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L469"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "validate_command_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L478"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L479"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L479"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L482"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "cloned",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L488"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L490"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "stderr",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L495"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "stdout",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L495"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "args",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L495"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "hide_window",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L499"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "current_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L501"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "env_clear",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L503"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L504"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "env",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L507"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L512"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L512"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "output",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L512"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "is_file",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_run_tool",
+      "callee": "code",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L524"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "callee": "validate_tool_arg",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L541"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "callee": "split_once",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L542"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L563"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "callee": "sort",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L567"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_tool_args_with_policy",
+      "callee": "dedup",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L568"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_resolve_arg_path",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L573"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_resolve_arg_path",
+      "callee": "strip_prefix",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L573"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_resolve_arg_path",
+      "callee": "is_absolute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L574"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_resolve_arg_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L577"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_path",
+      "callee": "validate_plugin_output_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L604"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_write_scope_path",
+      "callee": "validate_plugin_write_scope",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L615"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L631"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "callee": "file_type",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L637"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "callee": "is_symlink",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L638"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_validate_remove_file_path",
+      "callee": "is_file",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L644"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_removable_plugin_file",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L676"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_path_within_scopes",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L684"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L688"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L689"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "to_path_buf",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L689"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L690"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L691"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L692"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L692"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L692"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "to_path_buf",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L693"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "to_path_buf",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L695"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "trim_end_matches",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L697"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L697"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_normalize_existing_or_parent",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L697"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L705"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L706"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L709"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "callee": "strip_prefix",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L709"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "callee": "is_absolute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L710"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "callee": "is_some",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L713"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_is_local_path_candidate",
+      "callee": "extension",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L713"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_has_valid_auth",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L723"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_has_valid_auth",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L724"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_has_valid_auth",
+      "callee": "split_once",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L724"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_has_valid_auth",
+      "callee": "eq_ignore_ascii_case",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L726"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_has_valid_auth",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L727"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_find_headers_end",
+      "callee": "position",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L734"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_find_headers_end",
+      "callee": "windows",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L734"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_content_length",
+      "callee": "lines",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L739"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_content_length",
+      "callee": "split_once",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L740"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_content_length",
+      "callee": "eq_ignore_ascii_case",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L741"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_content_length",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L742"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_parse_content_length",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L742"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_dir",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L761"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_test_policy",
+      "callee": "to_path_buf",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L773"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_base64_returns_binary_file_content",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L812"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_dir_returns_directory_entries",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L839"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_read_dir_returns_directory_entries",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L840"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_base64_writes_binary_file_and_marks_generated",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L882"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_generated_file",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L914"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_file_inside_run_temp_dir",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L928"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_allows_file_inside_run_temp_dir",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L930"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_preexisting_file",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L944"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_outside_write_scope",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L970"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_dangerous_extension",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L985"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_symlink",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1003"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_symlink",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1004"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_remove_file_rejects_symlink",
+      "callee": "symlink",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1006"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "callee": "is_none",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1025"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1029"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1044"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "callee": "write_all",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1044"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "callee": "as_bytes",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1045"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1048"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_bridge_write_json_response",
+      "callee": "write_all",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/bridge.rs",
+      "source_location": "L1048"
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_youtube_search_rs",
+      "label": "youtube_search.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_youtube_search_search_youtube_videos",
+      "label": "search_youtube_videos()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L5"
+    },
+    {
+      "id": "youtubesearchfilters",
+      "label": "YoutubeSearchFilters",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/youtube_search.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "youtubesearchresponse",
+      "label": "YoutubeSearchResponse",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/youtube_search.rs",
+      "_rust_use_roots": ["crate"]
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_youtube_search_rs",
+      "target": "search_youtube_videos_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "search_youtube_videos_internal"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_youtube_search_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_youtube_search_rs",
+      "target": "youtubesearchfilters",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchFilters",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_youtube_search_rs",
+      "target": "youtubesearchresponse",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "YoutubeSearchResponse",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_youtube_search_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_youtube_search_search_youtube_videos",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_youtube_search_search_youtube_videos",
+      "target": "youtubesearchfilters",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_youtube_search_search_youtube_videos",
+      "target": "youtubesearchresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "generic_arg"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_youtube_search_search_youtube_videos",
+      "callee": "search_youtube_videos_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/youtube_search.rs",
+      "source_location": "L11"
+    }
+  ]
+}

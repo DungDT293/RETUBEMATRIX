@@ -1,0 +1,421 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "label": "external.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_pending_external_links",
+      "label": "PENDING_EXTERNAL_LINKS",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L4"
+    },
+    {
+      "id": "mutex",
+      "label": "Mutex",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/external.rs",
+      "_rust_use_roots": ["std"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_max_pending_external_links",
+      "label": "MAX_PENDING_EXTERNAL_LINKS",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L5"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_max_external_link_length",
+      "label": "MAX_EXTERNAL_LINK_LENGTH",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L6"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_externalopenurleventpayload",
+      "label": "ExternalOpenUrlEventPayload",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L9",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "label": "extract_external_link_from_arg()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L13"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_is_valid_external_link",
+      "label": "is_valid_external_link()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L32"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_extract_external_links_from_argv",
+      "label": "extract_external_links_from_argv()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L43"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_enqueue_external_links",
+      "label": "enqueue_external_links()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L55"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_take_pending_external_links",
+      "label": "take_pending_external_links()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L75"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_consume_pending_external_links",
+      "label": "consume_pending_external_links()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L83"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_deep_link_extraction_stays_string_based",
+      "label": "deep_link_extraction_stays_string_based()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L92"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_summary_deep_link_extraction_uses_same_pending_queue",
+      "label": "summary_deep_link_extraction_uses_same_pending_queue()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L107"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_external_pending_external_links_are_deduped_and_drained",
+      "label": "pending_external_links_are_deduped_and_drained()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L123"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "mutex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_pending_external_links",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_pending_external_links",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_max_pending_external_links",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_max_external_link_length",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_externalopenurleventpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_is_valid_external_link",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_extract_external_links_from_argv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_enqueue_external_links",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_take_pending_external_links",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_consume_pending_external_links",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "super",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L89",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "super"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_deep_link_extraction_stays_string_based",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_summary_deep_link_extraction_uses_same_pending_queue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_external_pending_external_links_are_deduped_and_drained",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L123",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "target": "$graphify-root$_src_tauri_src_commands_external_is_valid_external_link",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_extract_external_links_from_argv",
+      "target": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_enqueue_external_links",
+      "target": "$graphify-root$_src_tauri_src_commands_external_is_valid_external_link",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_consume_pending_external_links",
+      "target": "$graphify-root$_src_tauri_src_commands_external_take_pending_external_links",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_deep_link_extraction_stays_string_based",
+      "target": "$graphify-root$_src_tauri_src_commands_external_extract_external_links_from_argv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_summary_deep_link_extraction_uses_same_pending_queue",
+      "target": "$graphify-root$_src_tauri_src_commands_external_extract_external_links_from_argv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_pending_external_links_are_deduped_and_drained",
+      "target": "$graphify-root$_src_tauri_src_commands_external_take_pending_external_links",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_external_pending_external_links_are_deduped_and_drained",
+      "target": "$graphify-root$_src_tauri_src_commands_external_enqueue_external_links",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L128",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "callee": "trim_matches",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L14"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "callee": "trim_matches",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L14"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L14"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_extract_external_link_from_arg",
+      "callee": "trim_matches",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_is_valid_external_link",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_is_valid_external_link",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_is_valid_external_link",
+      "callee": "starts_with",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_external_enqueue_external_links",
+      "callee": "drain",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/external.rs",
+      "source_location": "L68"
+    }
+  ]
+}

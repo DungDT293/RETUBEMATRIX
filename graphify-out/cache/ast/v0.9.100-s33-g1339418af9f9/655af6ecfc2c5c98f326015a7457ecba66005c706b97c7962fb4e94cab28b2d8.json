@@ -1,0 +1,776 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "label": "whisper.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "label": "transcribe_video_with_whisper()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L17"
+    },
+    {
+      "id": "apphandle",
+      "label": "AppHandle",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/whisper.rs",
+      "_rust_use_roots": ["tauri"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "label": "transcribe_url_with_whisper()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L134"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "label": "generate_subtitles_with_whisper()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L316"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "add_log_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "add_log_internal"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "services",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "services",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "extract_audio_for_whisper",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "extract_audio_for_whisper",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "get_ffmpeg_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_ffmpeg_path",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "run_ytdlp_with_stderr_and_cookies",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "run_ytdlp_with_stderr_and_cookies",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "transcribe_audio",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "transcribe_audio",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "whispererror",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "WhisperError",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "whisperresponseformat",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "WhisperResponseFormat",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "apphandle",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "uuid",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L134",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L316",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L316",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "target": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L333",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "extension",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L53"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "to_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "get_ffmpeg_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "extract_audio_for_whisper",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "transcribe_audio",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_video_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "run_ytdlp_with_stderr_and_cookies",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L206"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L208"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L210"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L229"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "flatten",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L234"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "extension",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L238"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L253"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "get_ffmpeg_path",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L271"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "extract_audio_for_whisper",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L284"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "transcribe_audio",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L290"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L292"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_transcribe_url_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L300"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L326"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L326"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "callee": "with_extension",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L347"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L350"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_whisper_generate_subtitles_with_whisper",
+      "callee": "add_log_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/whisper.rs",
+      "source_location": "L353"
+    }
+  ]
+}

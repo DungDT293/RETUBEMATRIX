@@ -1,0 +1,142 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_types_channel_rs",
+      "label": "channel.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_channel_channelinfo",
+      "label": "ChannelInfo",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L5",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_channel_followedchannel",
+      "label": "FollowedChannel",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L12",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_channel_channelvideo",
+      "label": "ChannelVideo",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L52",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_channel_postingscheduleanalysis",
+      "label": "PostingScheduleAnalysis",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L77",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_types_channel_channelstats",
+      "label": "ChannelStats",
+      "file_type": "code",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L86",
+      "_rust_declaration_count": 1
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_types_channel_rs",
+      "target": "serde",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_channel_rs",
+      "target": "deserialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_channel_rs",
+      "target": "serialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_channel_rs",
+      "target": "$graphify-root$_src_tauri_src_types_channel_channelinfo",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_channel_rs",
+      "target": "$graphify-root$_src_tauri_src_types_channel_followedchannel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_channel_rs",
+      "target": "$graphify-root$_src_tauri_src_types_channel_channelvideo",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_channel_rs",
+      "target": "$graphify-root$_src_tauri_src_types_channel_postingscheduleanalysis",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_channel_rs",
+      "target": "$graphify-root$_src_tauri_src_types_channel_channelstats",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_types_channel_channelstats",
+      "target": "$graphify-root$_src_tauri_src_types_channel_postingscheduleanalysis",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/types/channel.rs",
+      "source_location": "L91",
+      "weight": 1.0,
+      "context": "generic_arg"
+    }
+  ],
+  "raw_calls": []
+}

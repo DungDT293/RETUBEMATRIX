@@ -1,0 +1,524 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "label": "assets.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path",
+      "label": "normalize_asset_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L6"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "label": "candidate_scope_directory()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L18"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories",
+      "label": "collect_scope_directories()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L44"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "label": "allow_asset_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L61"
+    },
+    {
+      "id": "apphandle",
+      "label": "AppHandle",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/assets.rs",
+      "_rust_use_roots": ["tauri"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_assets_sync_asset_scope_paths",
+      "label": "sync_asset_scope_paths()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L83"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path_strips_windows_extended_prefix",
+      "label": "normalize_asset_path_strips_windows_extended_prefix()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L106"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories_dedupes_parent_directories",
+      "label": "collect_scope_directories_dedupes_parent_directories()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L112"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "btreeset",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "tauri",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "scopes",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "apphandle",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "manager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L61",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_sync_asset_scope_paths",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_sync_asset_scope_paths",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L83",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "super",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L102",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "super",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "collect_scope_directories",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L102",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "collect_scope_directories",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "normalize_asset_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L102",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "normalize_asset_path",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L103",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path_strips_windows_extended_prefix",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories_dedupes_parent_directories",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L48",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_sync_asset_scope_paths",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path_strips_windows_extended_prefix",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories_dedupes_parent_directories",
+      "target": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L113",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L7"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L13"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_normalize_asset_path",
+      "callee": "strip_prefix",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L13"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "as_os_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "is_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "to_path_buf",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "is_file",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "to_path_buf",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "is_some",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "extension",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "to_path_buf",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_candidate_scope_directory",
+      "callee": "to_path_buf",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_collect_scope_directories",
+      "callee": "into_iter",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L62"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "callee": "is_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "callee": "allow_directory",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_allow_asset_file",
+      "callee": "allow_file",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_sync_asset_scope_paths",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_assets_sync_asset_scope_paths",
+      "callee": "allow_directory",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/assets.rs",
+      "source_location": "L88"
+    }
+  ]
+}

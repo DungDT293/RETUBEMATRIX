@@ -1,0 +1,2251 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "label": "history.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_add_history",
+      "label": "add_history()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L18"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_update_summary",
+      "label": "update_summary()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L35"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_add_summary_only_history",
+      "label": "add_summary_only_history()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L41"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_get_history",
+      "label": "get_history()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L53"
+    },
+    {
+      "id": "historyadvancedfilters",
+      "label": "HistoryAdvancedFilters",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/history.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "historysort",
+      "label": "HistorySort",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/history.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "historyentry",
+      "label": "HistoryEntry",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/history.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_get_history_entries_by_ids",
+      "label": "get_history_entries_by_ids()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L65"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_find_duplicate_downloads",
+      "label": "find_duplicate_downloads()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L70"
+    },
+    {
+      "id": "downloadduplicateidentity",
+      "label": "DownloadDuplicateIdentity",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/history.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "downloadduplicatematch",
+      "label": "DownloadDuplicateMatch",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/history.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_delete_history",
+      "label": "delete_history()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L77"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "label": "delete_history_media_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L89"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_clear_history",
+      "label": "clear_history()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L110"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_get_history_count",
+      "label": "get_history_count()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L115"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_get_tags",
+      "label": "get_tags()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L124"
+    },
+    {
+      "id": "historytag",
+      "label": "HistoryTag",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/history.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_get_collections",
+      "label": "get_collections()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L129"
+    },
+    {
+      "id": "historycollection",
+      "label": "HistoryCollection",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/commands/history.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_create_collection",
+      "label": "create_collection()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L134"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_rename_collection",
+      "label": "rename_collection()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L139"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_delete_collection",
+      "label": "delete_collection()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L144"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_assign_history_tags",
+      "label": "assign_history_tags()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L149"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_assign_history_collections",
+      "label": "assign_history_collections()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L154"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_remove_history_tag",
+      "label": "remove_history_tag()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L162"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_remove_history_from_collection",
+      "label": "remove_history_from_collection()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L167"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_check_file_exists",
+      "label": "check_file_exists()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L175"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_renamedownloadedfileresult",
+      "label": "RenameDownloadedFileResult",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L181",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_validate_new_name",
+      "label": "validate_new_name()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L186"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "label": "build_renamed_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L204"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "label": "rename_downloaded_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L228"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_sync_history_renamed_entry",
+      "label": "sync_history_renamed_entry()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L274"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "label": "open_file_location()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L288"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_open_macos_privacy_settings",
+      "label": "open_macos_privacy_settings()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L355"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "label": "make_temp_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L379"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_keeps_extension",
+      "label": "build_renamed_path_keeps_extension()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L389"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_empty_name",
+      "label": "build_renamed_path_rejects_empty_name()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L403"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_path_separator",
+      "label": "build_renamed_path_rejects_path_separator()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L412"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_fails_for_missing_file",
+      "label": "build_renamed_path_fails_for_missing_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L421"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_removes_regular_file",
+      "label": "delete_history_media_file_removes_regular_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L429"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_ignores_missing_file",
+      "label": "delete_history_media_file_ignores_missing_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L439"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_rejects_directory",
+      "label": "delete_history_media_file_rejects_directory()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L448"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_ensure_test_history_table",
+      "label": "ensure_test_history_table()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L460"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "label": "rename_downloaded_file_updates_history_by_id()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L491"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "label": "rename_downloaded_file_updates_history_by_filepath_fallback()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L537"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "database",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "database",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "add_history_internal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "add_history_internal",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "add_history_with_summary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "add_history_with_summary",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "assign_history_collections_in_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "assign_history_collections_in_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "assign_history_tags_in_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "assign_history_tags_in_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "clear_history_from_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "clear_history_from_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "create_collection_in_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "create_collection_in_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "delete_collection_from_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "delete_collection_from_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "delete_history_from_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "delete_history_from_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "find_duplicate_downloads_in_history_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "find_duplicate_downloads_in_history_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "get_collections_from_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_collections_from_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "get_history_count_from_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_history_count_from_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "get_history_entries_by_ids_from_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_history_entries_by_ids_from_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "get_history_from_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_history_from_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "get_tags_from_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_tags_from_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "remove_history_from_collection_in_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "remove_history_from_collection_in_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "remove_history_tag_from_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "remove_history_tag_from_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "rename_collection_in_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "rename_collection_in_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "update_history_filepath_and_title",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "update_history_filepath_and_title",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "update_history_filepath_and_title_by_id",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "update_history_filepath_and_title_by_id",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "update_history_summary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "update_history_summary",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "downloadduplicateidentity",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "DownloadDuplicateIdentity",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "downloadduplicatematch",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "DownloadDuplicateMatch",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "historyadvancedfilters",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "HistoryAdvancedFilters",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "historycollection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "HistoryCollection",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "historyentry",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "HistoryEntry",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "historysort",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "HistorySort",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "historytag",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "HistoryTag",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_add_history",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_update_summary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_add_summary_only_history",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_get_history",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_get_history",
+      "target": "historyadvancedfilters",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_get_history",
+      "target": "historysort",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_get_history",
+      "target": "historyentry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L53",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_get_history_entries_by_ids",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L65",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_get_history_entries_by_ids",
+      "target": "historyentry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L65",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_find_duplicate_downloads",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_find_duplicate_downloads",
+      "target": "downloadduplicateidentity",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L70",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_find_duplicate_downloads",
+      "target": "downloadduplicatematch",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L70",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_history",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_clear_history",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_get_history_count",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_get_history_count",
+      "target": "historyadvancedfilters",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L115",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_get_tags",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_get_tags",
+      "target": "historytag",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L124",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_get_collections",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_get_collections",
+      "target": "historycollection",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L129",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_create_collection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_create_collection",
+      "target": "historycollection",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L134",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_rename_collection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L139",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_collection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L144",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_assign_history_tags",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L149",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_assign_history_collections",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L154",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_remove_history_tag",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L162",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_remove_history_from_collection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_check_file_exists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L175",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_renamedownloadedfileresult",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L181",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_validate_new_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L204",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L228",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "target": "$graphify-root$_src_tauri_src_commands_history_renamedownloadedfileresult",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L228",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_sync_history_renamed_entry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L274",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L288",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_open_macos_privacy_settings",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L355",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "super",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L373",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "super"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "database",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L374",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "database",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "db_test_guard",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L374",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "db_test_guard",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "get_db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L374",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "get_db",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "db_connection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L374",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "DB_CONNECTION",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "params",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L375",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L376",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "mutex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L377",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L379",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_keeps_extension",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L389",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_empty_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L403",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_path_separator",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L412",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_fails_for_missing_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L421",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_removes_regular_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L429",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_ignores_missing_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L439",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_rejects_directory",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L448",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_ensure_test_history_table",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L460",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L491",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L537",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_delete_history",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "target": "$graphify-root$_src_tauri_src_commands_history_validate_new_name",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L212",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L234",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_keeps_extension",
+      "target": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L390",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_keeps_extension",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L392",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_empty_name",
+      "target": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L404",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_empty_name",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L405",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_path_separator",
+      "target": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L413",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_path_separator",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L414",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_fails_for_missing_file",
+      "target": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L424",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_removes_regular_file",
+      "target": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L430",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_removes_regular_file",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L432",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_ignores_missing_file",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L443",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_rejects_directory",
+      "target": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L454",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "target": "$graphify-root$_src_tauri_src_commands_history_ensure_test_history_table",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L493",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "target": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L494",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "target": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L507",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "target": "$graphify-root$_src_tauri_src_commands_history_ensure_test_history_table",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L539",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "target": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L540",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "target": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L553",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_add_history",
+      "callee": "add_history_internal",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_update_summary",
+      "callee": "update_history_summary",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L36"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_add_summary_only_history",
+      "callee": "add_history_with_summary",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_get_history",
+      "callee": "get_history_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L61"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_get_history_entries_by_ids",
+      "callee": "get_history_entries_by_ids_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L66"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_find_duplicate_downloads",
+      "callee": "find_duplicate_downloads_in_history_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history",
+      "callee": "into_iter",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history",
+      "callee": "get_history_entries_by_ids_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history",
+      "callee": "delete_history_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "callee": "is_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_clear_history",
+      "callee": "clear_history_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_get_history_count",
+      "callee": "get_history_count_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_get_tags",
+      "callee": "get_tags_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L125"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_get_collections",
+      "callee": "get_collections_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_create_collection",
+      "callee": "create_collection_in_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_collection",
+      "callee": "rename_collection_in_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_collection",
+      "callee": "delete_collection_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L145"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_assign_history_tags",
+      "callee": "assign_history_tags_in_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_assign_history_collections",
+      "callee": "assign_history_collections_in_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_remove_history_tag",
+      "callee": "remove_history_tag_from_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_remove_history_from_collection",
+      "callee": "remove_history_from_collection_in_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_check_file_exists",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L176"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_validate_new_name",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "callee": "is_file",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L208"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "callee": "extension",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L219"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L248"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L250"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "callee": "to_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L250"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "callee": "update_history_filepath_and_title_by_id",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L256"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file",
+      "callee": "update_history_filepath_and_title",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L258"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_sync_history_renamed_entry",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_sync_history_renamed_entry",
+      "callee": "update_history_filepath_and_title_by_id",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L284"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "is_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L295"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L307"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L325"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L325"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L325"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L325"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L337"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L337"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L337"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L343"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L343"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L344"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L344"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_file_location",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L344"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_macos_privacy_settings",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L360"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_macos_privacy_settings",
+      "callee": "spawn",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L360"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_open_macos_privacy_settings",
+      "callee": "arg",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L360"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L381"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_make_temp_file",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L383"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_keeps_extension",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L399"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_keeps_extension",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L399"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_empty_name",
+      "callee": "expect_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L405"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_empty_name",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L408"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_empty_name",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L408"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_path_separator",
+      "callee": "expect_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L414"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_path_separator",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L417"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_rejects_path_separator",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L417"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_fails_for_missing_file",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L423"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_build_renamed_path_fails_for_missing_file",
+      "callee": "expect_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L424"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_removes_regular_file",
+      "callee": "to_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L432"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_removes_regular_file",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L435"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_removes_regular_file",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L435"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_ignores_missing_file",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L441"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_ignores_missing_file",
+      "callee": "to_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L443"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_rejects_directory",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L450"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_rejects_directory",
+      "callee": "expect_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L454"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_delete_history_media_file_rejects_directory",
+      "callee": "to_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L454"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_ensure_test_history_table",
+      "callee": "is_none",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L461"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_ensure_test_history_table",
+      "callee": "get_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L466"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_ensure_test_history_table",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L467"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_ensure_test_history_table",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L486"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "callee": "db_test_guard",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L492"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L495"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "callee": "get_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L499"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L500"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L508"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "callee": "get_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L515"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "callee": "query_row",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L516"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L530"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_id",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L530"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "callee": "db_test_guard",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L538"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L541"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "callee": "get_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L545"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L546"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L554"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "callee": "get_db",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L561"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "callee": "query_row",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L562"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L576"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_history_rename_downloaded_file_updates_history_by_filepath_fallback",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/history.rs",
+      "source_location": "L576"
+    }
+  ]
+}

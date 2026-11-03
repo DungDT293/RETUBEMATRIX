@@ -1,0 +1,1303 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "label": "cli_shortcut.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_clishortcutstatus",
+      "label": "CliShortcutStatus",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L18",
+      "_rust_declaration_count": 1
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_current_platform",
+      "label": "current_platform()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L37"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_current_exe",
+      "label": "current_exe()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L49"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_linux_cli_source_exe",
+      "label": "linux_cli_source_exe()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L54"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_user_local_bin",
+      "label": "user_local_bin()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L62"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "label": "command_parent_is_in_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L66"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_path",
+      "label": "command_parent_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L95"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_not_in_path_note",
+      "label": "path_not_in_path_note()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L102"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_ensure_command_parent_is_in_path",
+      "label": "ensure_command_parent_is_in_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L115"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_windows_apps_shim_path",
+      "label": "windows_apps_shim_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L131"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "label": "get_cli_shortcut_status()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L139"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "label": "path_contains_exe_dir()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L274"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_cli_shortcut",
+      "label": "install_cli_shortcut()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L290"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "label": "create_symlink()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L316"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "label": "install_macos_symlink()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L350"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_linux_symlink",
+      "label": "install_linux_symlink()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L365"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "label": "install_windows_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L378"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "serialize",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_clishortcutstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_current_platform",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_current_exe",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_linux_cli_source_exe",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_user_local_bin",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_not_in_path_note",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_ensure_command_parent_is_in_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_windows_apps_shim_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L139",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_clishortcutstatus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L139",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L274",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_cli_shortcut",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L290",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L316",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L350",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_linux_symlink",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L365",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L378",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_linux_cli_source_exe",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_current_exe",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_ensure_command_parent_is_in_path",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_current_platform",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_current_exe",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_user_local_bin",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L156",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_not_in_path_note",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L158",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L159",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_windows_apps_shim_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L181",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_cli_shortcut",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_current_exe",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L293",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_cli_shortcut",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L294",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_cli_shortcut",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L300",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_cli_shortcut",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_linux_cli_source_exe",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L305",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_cli_shortcut",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_linux_symlink",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L306",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L352",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_user_local_bin",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L357",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_linux_symlink",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_user_local_bin",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L370",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_linux_symlink",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L373",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L379",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_windows_apps_shim_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L386",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "target": "$graphify-root$_src_tauri_src_commands_cli_shortcut_ensure_command_parent_is_in_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L399",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_current_exe",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_user_local_bin",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_user_local_bin",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L70"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_is_in_path",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_path",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_path",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_path",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_command_parent_path",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_not_in_path_note",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_not_in_path_note",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L103"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_not_in_path_note",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_not_in_path_note",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_ensure_command_parent_is_in_path",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_ensure_command_parent_is_in_path",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_ensure_command_parent_is_in_path",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_ensure_command_parent_is_in_path",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_windows_apps_shim_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_windows_apps_shim_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_windows_apps_shim_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L142"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L156"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L162"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L184"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L186"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L187"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L189"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L194"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L196"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L204"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L215"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L216"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L220"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L220"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L252"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_get_cli_shortcut_status",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L254"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "callee": "split",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L281"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "callee": "to_lowercase",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_path_contains_exe_dir",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L282"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L318"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L319"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "callee": "is_symlink",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "callee": "file_type",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L331"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L337"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_create_symlink",
+      "callee": "symlink",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L346"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "callee": "is_ok",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L352"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L353"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L357"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L357"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_macos_symlink",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L361"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_linux_symlink",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L367"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_linux_symlink",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_linux_symlink",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_linux_symlink",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L374"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L382"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L386"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L389"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L390"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L394"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "replace",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_cli_shortcut_install_windows_path",
+      "callee": "display",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/cli_shortcut.rs",
+      "source_location": "L401"
+    }
+  ]
+}

@@ -1,0 +1,1931 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "label": "connection.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_db_connection",
+      "label": "DB_CONNECTION",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L7"
+    },
+    {
+      "id": "oncelock",
+      "label": "OnceLock",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/database/connection.rs"
+    },
+    {
+      "id": "mutex",
+      "label": "Mutex",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/database/connection.rs",
+      "_rust_use_roots": ["std"]
+    },
+    {
+      "id": "connection",
+      "label": "Connection",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/database/connection.rs",
+      "_rust_use_roots": ["rusqlite"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_db_test_lock",
+      "label": "DB_TEST_LOCK",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L10"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_max_log_entries",
+      "label": "MAX_LOG_ENTRIES",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L12"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_database_file_name",
+      "label": "DATABASE_FILE_NAME",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L13"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_legacy_database_file_name",
+      "label": "LEGACY_DATABASE_FILE_NAME",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L14"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_migrating_database_file_name",
+      "label": "MIGRATING_DATABASE_FILE_NAME",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L15"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_database_sidecar_path",
+      "label": "database_sidecar_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L17"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_remove_incomplete_database",
+      "label": "remove_incomplete_database()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L22"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_migrating_database_path",
+      "label": "migrating_database_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L32"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_verify_database_file",
+      "label": "verify_database_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L36"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "label": "migrate_legacy_database()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L51"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "label": "resolve_database_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L88"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_rebuild_history_search_index",
+      "label": "rebuild_history_search_index()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L106"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "label": "init_history_search_index()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L118"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "label": "init_database()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L164"
+    },
+    {
+      "id": "apphandle",
+      "label": "AppHandle",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/database/connection.rs",
+      "_rust_use_roots": ["tauri"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_get_db",
+      "label": "get_db()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L742"
+    },
+    {
+      "id": "mutexguard",
+      "label": "MutexGuard",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/database/connection.rs"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_db_test_guard",
+      "label": "db_test_guard()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L751"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_make_temp_app_data_dir",
+      "label": "make_temp_app_data_dir()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L763"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_create_sample_database",
+      "label": "create_sample_database()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L770"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_resolves_new_database_path_without_creating_file",
+      "label": "resolves_new_database_path_without_creating_file()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L813"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_migrates_legacy_database_and_keeps_backup",
+      "label": "migrates_legacy_database_and_keeps_backup()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L825"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_removes_stale_migrating_database_when_resolving_path",
+      "label": "removes_stale_migrating_database_when_resolving_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L853"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_existing_new_database_is_not_overwritten_by_legacy_database",
+      "label": "existing_new_database_is_not_overwritten_by_legacy_database()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L868"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_migrates_committed_legacy_wal_data",
+      "label": "migrates_committed_legacy_wal_data()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L893"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_database_connection_corrupt_legacy_database_fails_without_creating_new_database",
+      "label": "corrupt_legacy_database_fails_without_creating_new_database()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L930"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "rusqlite",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "params",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "connection",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "mutex",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "tauri",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "apphandle",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "manager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_db_connection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_db_connection",
+      "target": "oncelock",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_db_connection",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_db_connection",
+      "target": "connection",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_db_test_lock",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_db_test_lock",
+      "target": "oncelock",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_db_test_lock",
+      "target": "mutex",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_max_log_entries",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_database_file_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_legacy_database_file_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrating_database_file_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_database_sidecar_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_remove_incomplete_database",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrating_database_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_verify_database_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L88",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_rebuild_history_search_index",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rebuild_history_search_index",
+      "target": "connection",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "target": "connection",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L118",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L164",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_get_db",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L742",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_get_db",
+      "target": "mutexguard",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L742",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_get_db",
+      "target": "connection",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L742",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_db_test_guard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L751",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_db_test_guard",
+      "target": "mutexguard",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L751",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "super",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L760",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "super"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L761",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_make_temp_app_data_dir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L763",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_create_sample_database",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L770",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_resolves_new_database_path_without_creating_file",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L813",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrates_legacy_database_and_keeps_backup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L825",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_removes_stale_migrating_database_when_resolving_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L853",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_existing_new_database_is_not_overwritten_by_legacy_database",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L868",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrates_committed_legacy_wal_data",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L893",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_rs",
+      "target": "$graphify-root$_src_tauri_src_database_connection_corrupt_legacy_database_fails_without_creating_new_database",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L930",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_remove_incomplete_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_database_sidecar_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrating_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_remove_incomplete_database",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L53",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_verify_database_file",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrating_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "target": "$graphify-root$_src_tauri_src_database_connection_remove_incomplete_database",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "target": "$graphify-root$_src_tauri_src_database_connection_rebuild_history_search_index",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L177",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L349",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_resolves_new_database_path_without_creating_file",
+      "target": "$graphify-root$_src_tauri_src_database_connection_make_temp_app_data_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L814",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_resolves_new_database_path_without_creating_file",
+      "target": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L815",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_migrates_legacy_database_and_keeps_backup",
+      "target": "$graphify-root$_src_tauri_src_database_connection_make_temp_app_data_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L826",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_migrates_legacy_database_and_keeps_backup",
+      "target": "$graphify-root$_src_tauri_src_database_connection_create_sample_database",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L828",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_migrates_legacy_database_and_keeps_backup",
+      "target": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L830",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_removes_stale_migrating_database_when_resolving_path",
+      "target": "$graphify-root$_src_tauri_src_database_connection_make_temp_app_data_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L854",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_removes_stale_migrating_database_when_resolving_path",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrating_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L856",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_removes_stale_migrating_database_when_resolving_path",
+      "target": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L859",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_existing_new_database_is_not_overwritten_by_legacy_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_make_temp_app_data_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L869",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_existing_new_database_is_not_overwritten_by_legacy_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_create_sample_database",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L872",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_existing_new_database_is_not_overwritten_by_legacy_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_migrating_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L874",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_existing_new_database_is_not_overwritten_by_legacy_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L877",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_migrates_committed_legacy_wal_data",
+      "target": "$graphify-root$_src_tauri_src_database_connection_make_temp_app_data_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L894",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_migrates_committed_legacy_wal_data",
+      "target": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L915",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_corrupt_legacy_database_fails_without_creating_new_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_make_temp_app_data_dir",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L931",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_database_connection_corrupt_legacy_database_fails_without_creating_new_database",
+      "target": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L936",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_database_sidecar_path",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L18"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_database_sidecar_path",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L18"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_database_sidecar_path",
+      "callee": "with_file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrating_database_path",
+      "callee": "with_file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_verify_database_file",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_verify_database_file",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_verify_database_file",
+      "callee": "query_row",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_verify_database_file",
+      "callee": "eq_ignore_ascii_case",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "callee": "drop",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrate_legacy_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L89"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_resolve_database_path",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_rebuild_history_search_index",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_rebuild_history_search_index",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_rebuild_history_search_index",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_rebuild_history_search_index",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L109"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L119"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "callee": "execute_batch",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "callee": "query_row",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_history_search_index",
+      "callee": "query_row",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "is_some",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "app_data_dir",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "path",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L174"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L179"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L203"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L210"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L210"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L266"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L266"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L288"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L288"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L299"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L311"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L317"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L323"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L329"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L335"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L341"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L354"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L354"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L373"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L373"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L388"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L426"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L426"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L447"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L453"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L459"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L466"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L466"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L477"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L484"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L491"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L498"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L505"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L512"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L519"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L526"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L533"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L540"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L547"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L552"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L557"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L562"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L567"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L572"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L579"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L586"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L591"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L596"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L601"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L608"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L613"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L618"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L623"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L628"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L633"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L638"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L645"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L650"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L655"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L660"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L665"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L672"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L672"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L696"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L696"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L730"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L731"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L732"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_init_database",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L734"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_get_db",
+      "callee": "map_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L743"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_get_db",
+      "callee": "ok_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L743"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_db_test_guard",
+      "callee": "get_or_init",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L752"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_make_temp_app_data_dir",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L765"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_create_sample_database",
+      "callee": "execute_batch",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L772"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_create_sample_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L798"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_create_sample_database",
+      "callee": "execute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L804"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrates_legacy_database_and_keeps_backup",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L827"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrates_legacy_database_and_keeps_backup",
+      "callee": "query_row",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L838"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrates_legacy_database_and_keeps_backup",
+      "callee": "query_row",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L843"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_removes_stale_migrating_database_when_resolving_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L855"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_existing_new_database_is_not_overwritten_by_legacy_database",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L870"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_existing_new_database_is_not_overwritten_by_legacy_database",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L871"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_existing_new_database_is_not_overwritten_by_legacy_database",
+      "callee": "query_row",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L882"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrates_committed_legacy_wal_data",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L895"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrates_committed_legacy_wal_data",
+      "callee": "execute_batch",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L897"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrates_committed_legacy_wal_data",
+      "callee": "drop",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L916"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_migrates_committed_legacy_wal_data",
+      "callee": "query_row",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L919"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_corrupt_legacy_database_fails_without_creating_new_database",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L932"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_corrupt_legacy_database_fails_without_creating_new_database",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L933"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_database_connection_corrupt_legacy_database_fails_without_creating_new_database",
+      "callee": "expect_err",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/database/connection.rs",
+      "source_location": "L936"
+    }
+  ]
+}

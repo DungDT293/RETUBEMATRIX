@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/logo-64.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RETubeMatrix</title>
+    <style>
+      html,
+      body,
+      #root {
+        min-height: 100%;
+        margin: 0;
+        background: #ffffff;
+      }
+
+      html.dark,
+      html.dark body,
+      html.dark #root {
+        background: #09090b;
+      }
+    </style>
+    <script>
+      (() => {
+        try {
+          const savedMode = localStorage.getItem("youwee-mode");
+          const mode =
+            savedMode ||
+            (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          const theme = localStorage.getItem("youwee-theme") || "ocean";
+          document.documentElement.classList.toggle("dark", mode === "dark");
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch {
+          document.documentElement.classList.add("dark");
+          document.documentElement.setAttribute("data-theme", "ocean");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

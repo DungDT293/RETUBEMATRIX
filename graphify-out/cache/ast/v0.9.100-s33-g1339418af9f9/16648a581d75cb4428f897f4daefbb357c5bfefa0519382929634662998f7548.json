@@ -1,0 +1,994 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "label": "summary.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_manifest_summary",
+      "label": "manifest_summary()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L14"
+    },
+    {
+      "id": "pluginmanifest",
+      "label": "PluginManifest",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/summary.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "plugininstallation",
+      "label": "PluginInstallation",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/summary.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "pluginsummary",
+      "label": "PluginSummary",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/summary.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "label": "append_locale_before_extension()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L28"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_build_readme_locale_preferences",
+      "label": "build_readme_locale_preferences()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L44"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "label": "resolve_readme_path()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L74"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_load_plugin_readme_content",
+      "label": "load_plugin_readme_content()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L107"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_default_provider_for_language",
+      "label": "default_provider_for_language()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L124"
+    },
+    {
+      "id": "pluginruntimelanguage",
+      "label": "PluginRuntimeLanguage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/summary.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "pluginprovider",
+      "label": "PluginProvider",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/summary.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "label": "validate_runtime_config_value()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L131"
+    },
+    {
+      "id": "pluginconfigfield",
+      "label": "PluginConfigField",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/summary.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "value",
+      "label": "Value",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/summary.rs",
+      "_rust_use_roots": ["serde_json"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_effective_plugin_config_values",
+      "label": "resolve_effective_plugin_config_values()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L194"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "label": "build_installation_from_registry()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L223"
+    },
+    {
+      "id": "pluginregistry",
+      "label": "PluginRegistry",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/summary.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "pluginpackagesource",
+      "label": "PluginPackageSource",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/summary.rs",
+      "_rust_use_roots": ["crate"]
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "btreemap",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "pathbuf",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "value",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "pluginconfigfield",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginConfigField",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "pluginconfigfieldinputtype",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginConfigFieldInputType",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "plugininstallation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginInstallation",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "pluginmanifest",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginManifest",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "pluginpackagesource",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginPackageSource",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "pluginprovider",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginProvider",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "pluginruntimelanguage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginRuntimeLanguage",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "pluginsummary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginSummary",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "config_value_matches_field_type",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "config_value_matches_field_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "pluginregistry",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginRegistry"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_manifest_summary",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_manifest_summary",
+      "target": "pluginmanifest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_manifest_summary",
+      "target": "plugininstallation",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_manifest_summary",
+      "target": "pluginsummary",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_build_readme_locale_preferences",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "target": "pluginmanifest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L74",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_load_plugin_readme_content",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_load_plugin_readme_content",
+      "target": "pluginmanifest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L107",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_default_provider_for_language",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_default_provider_for_language",
+      "target": "pluginruntimelanguage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L124",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_default_provider_for_language",
+      "target": "pluginprovider",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L124",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "target": "pluginconfigfield",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L131",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L131",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_effective_plugin_config_values",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L194",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_effective_plugin_config_values",
+      "target": "pluginmanifest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L194",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_effective_plugin_config_values",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L194",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_effective_plugin_config_values",
+      "target": "value",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L194",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L223",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "target": "pluginregistry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L223",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "target": "pluginmanifest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L223",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "target": "pluginpackagesource",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L223",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "target": "plugininstallation",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L223",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_load_plugin_readme_content",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_build_readme_locale_preferences",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_load_plugin_readme_content",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_effective_plugin_config_values",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L207",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "callee": "to_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "callee": "rsplit_once",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L38"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_append_locale_before_extension",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_readme_locale_preferences",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_readme_locale_preferences",
+      "callee": "split_once",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_readme_locale_preferences",
+      "callee": "push_locale",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_readme_locale_preferences",
+      "callee": "push_locale",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "callee": "as_deref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L79"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "callee": "unwrap_or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "callee": "is_absolute",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "callee": "join",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L90"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "callee": "is_file",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_readme_path",
+      "callee": "is_file",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_load_plugin_readme_content",
+      "callee": "trim",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "callee": "config_value_matches_field_type",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L144"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "callee": "cloned",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "callee": "as_array",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "callee": "as_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_validate_runtime_config_value",
+      "callee": "as_f64",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L165"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_effective_plugin_config_values",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_resolve_effective_plugin_config_values",
+      "callee": "cloned",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "filter_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "cloned",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "is_some",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L254"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L256"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "or_else",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L262"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L264"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L264"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L267"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L268"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L273"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_summary_build_installation_from_registry",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/summary.rs",
+      "source_location": "L277"
+    }
+  ]
+}

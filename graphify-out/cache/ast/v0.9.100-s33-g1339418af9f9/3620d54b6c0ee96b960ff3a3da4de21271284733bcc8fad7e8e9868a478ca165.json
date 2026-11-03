@@ -1,0 +1,880 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "label": "workflow.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_registry_for_trigger",
+      "label": "workflow_registry_for_trigger()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L15"
+    },
+    {
+      "id": "pluginregistry",
+      "label": "PluginRegistry",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "plugintriggerworkflowregistry",
+      "label": "PluginTriggerWorkflowRegistry",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_get_trigger_workflow_internal",
+      "label": "get_trigger_workflow_internal()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L22"
+    },
+    {
+      "id": "apphandle",
+      "label": "AppHandle",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["tauri"]
+    },
+    {
+      "id": "plugintriggerworkflow",
+      "label": "PluginTriggerWorkflow",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_snapshot_step_from_plugin",
+      "label": "snapshot_step_from_plugin()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L35"
+    },
+    {
+      "id": "pluginsummary",
+      "label": "PluginSummary",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "pluginworkflowstepconfig",
+      "label": "PluginWorkflowStepConfig",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "pluginworkflowstepsnapshot",
+      "label": "PluginWorkflowStepSnapshot",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_resolve_workflow_step_snapshots",
+      "label": "resolve_workflow_step_snapshots()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L50"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "label": "build_legacy_workflow_snapshots()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L66"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_chain_state",
+      "label": "build_chain_state()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L95"
+    },
+    {
+      "id": "postdownloadpluginpayload",
+      "label": "PostDownloadPluginPayload",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "pluginchainstate",
+      "label": "PluginChainState",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_payload_from_chain_state",
+      "label": "payload_from_chain_state()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L117"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "label": "merge_chain_mutation()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L147"
+    },
+    {
+      "id": "pluginchainmutation",
+      "label": "PluginChainMutation",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_result_status",
+      "label": "workflow_result_status()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L196"
+    },
+    {
+      "id": "pluginexecutionresult",
+      "label": "PluginExecutionResult",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    },
+    {
+      "id": "pluginworkflowrunstatus",
+      "label": "PluginWorkflowRunStatus",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "$graphify-root$/src-tauri/src/services/plugin/workflow.rs",
+      "_rust_use_roots": ["crate"]
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "btreemap",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "value",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "apphandle",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "types",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "types",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "pluginchainmutation",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginChainMutation",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "pluginchainstate",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginChainState",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "pluginexecutionresult",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginExecutionResult",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "pluginsummary",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginSummary",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "plugintriggerworkflow",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginTriggerWorkflow",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "pluginworkflowfailurepolicy",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginWorkflowFailurePolicy",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "pluginworkflowrunstatus",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginWorkflowRunStatus",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "pluginworkflowstepconfig",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginWorkflowStepConfig",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "pluginworkflowstepsnapshot",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginWorkflowStepSnapshot",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "postdownloadpluginpayload",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PostDownloadPluginPayload",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "registry",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "registry",
+      "_rust_use_group": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "read_registry",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "read_registry",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "pluginregistry",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginRegistry",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "plugintriggerworkflowregistry",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import",
+      "_rust_use_name": "PluginTriggerWorkflowRegistry",
+      "_rust_use_binding": true
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_registry_for_trigger",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_registry_for_trigger",
+      "target": "pluginregistry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_registry_for_trigger",
+      "target": "plugintriggerworkflowregistry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_get_trigger_workflow_internal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_get_trigger_workflow_internal",
+      "target": "apphandle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_get_trigger_workflow_internal",
+      "target": "plugintriggerworkflow",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_snapshot_step_from_plugin",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_snapshot_step_from_plugin",
+      "target": "pluginsummary",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_snapshot_step_from_plugin",
+      "target": "pluginworkflowstepconfig",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_snapshot_step_from_plugin",
+      "target": "pluginworkflowstepsnapshot",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_resolve_workflow_step_snapshots",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_resolve_workflow_step_snapshots",
+      "target": "pluginsummary",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L50",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_resolve_workflow_step_snapshots",
+      "target": "plugintriggerworkflow",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L50",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_resolve_workflow_step_snapshots",
+      "target": "pluginworkflowstepsnapshot",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L50",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "target": "pluginsummary",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L66",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "target": "pluginregistry",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L66",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "target": "pluginworkflowstepsnapshot",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L66",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_chain_state",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_chain_state",
+      "target": "postdownloadpluginpayload",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L95",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_chain_state",
+      "target": "pluginchainstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L95",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_payload_from_chain_state",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_payload_from_chain_state",
+      "target": "postdownloadpluginpayload",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L117",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_payload_from_chain_state",
+      "target": "pluginchainstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L117",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_payload_from_chain_state",
+      "target": "postdownloadpluginpayload",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L117",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "target": "pluginchainstate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L147",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "target": "pluginchainmutation",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L147",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_rs",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_result_status",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L196",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_result_status",
+      "target": "pluginexecutionresult",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L196",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_result_status",
+      "target": "pluginworkflowrunstatus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L196",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_get_trigger_workflow_internal",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_registry_for_trigger",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_resolve_workflow_step_snapshots",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_snapshot_step_from_plugin",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_registry_for_trigger",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "target": "$graphify-root$_src_tauri_src_services_plugin_workflow_snapshot_step_from_plugin",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L90",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_get_trigger_workflow_internal",
+      "callee": "read_registry",
+      "is_member_call": false,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_get_trigger_workflow_internal",
+      "callee": "unwrap_or_default",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_resolve_workflow_step_snapshots",
+      "callee": "filter_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "callee": "filter_map",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L74"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "callee": "cloned",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L78"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_build_legacy_workflow_snapshots",
+      "callee": "find",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "and_then",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "file_name",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "to_str",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L154"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "parent",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L157"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "to_string_lossy",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L161"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "as_ref",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L175"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "as_mut",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L176"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_merge_chain_mutation",
+      "callee": "unwrap_or",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L191"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_services_plugin_workflow_workflow_result_status",
+      "callee": "count",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/services/plugin/workflow.rs",
+      "source_location": "L203"
+    }
+  ]
+}

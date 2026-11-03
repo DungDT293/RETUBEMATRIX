@@ -1,0 +1,697 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_md",
+      "label": "BAO_CAO_GUI_LEADER.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_qa_b\u1ea3n_reupytb_c\u1eadp_nh\u1eadt_ng\u00e0y_02_11_2026",
+      "label": "QA b\u1ea3n reupytb c\u1eadp nh\u1eadt ng\u00e0y 02/11/2026",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_b\u1ea3n_build_\u0111\u01b0\u1ee3c_\u0111o",
+      "label": "B\u1ea3n build \u0111\u01b0\u1ee3c \u0111o",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L7"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "label": "\u0110\u1ed1i chi\u1ebfu hai k\u00eanh v\u00e0 video \u0111\u00e3 \u0111\u0103ng",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L18"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "label": "L\u1ed7i c\u1ea7n s\u1eeda",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L35"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_01_p1_bkt_b\u00e1o_s\u1ea1ch_d\u00f9_kh\u00f4ng_ki\u1ec3m_tra_video_n\u00e0o",
+      "label": "RT-01 \u00b7 P1 \u00b7 BKT b\u00e1o s\u1ea1ch d\u00f9 kh\u00f4ng ki\u1ec3m tra video n\u00e0o",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L37"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_02_p1_hai_h\u1ed3_s\u01a1_kh\u00f4ng_m\u1edf_\u0111\u01b0\u1ee3c_browsermulti_runtime",
+      "label": "RT-02 \u00b7 P1 \u00b7 Hai h\u1ed3 s\u01a1 kh\u00f4ng m\u1edf \u0111\u01b0\u1ee3c BrowserMulti runtime",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L51"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_03_p1_outlier_thi\u1ebfu_\u0111\u01b0\u1eddng_d\u1eabn_yt_dlp_nh\u01b0ng_b\u00e1o_th\u00e0nh_c\u00f4ng_r\u1ed7ng",
+      "label": "RT-03 \u00b7 P1 \u00b7 Outlier thi\u1ebfu \u0111\u01b0\u1eddng d\u1eabn yt-dlp nh\u01b0ng b\u00e1o th\u00e0nh c\u00f4ng r\u1ed7ng",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L61"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_04_p1_audio_48_khz_l\u1ec7ch_th\u1eddi_l\u01b0\u1ee3ng_\u1edf_c\u1ea3_v1_v2",
+      "label": "RT-04 \u00b7 P1 \u00b7 Audio 48 kHz l\u1ec7ch th\u1eddi l\u01b0\u1ee3ng \u1edf c\u1ea3 v1/v2",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L71"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_05_p1_form_c\u00e0i_\u0111\u1eb7t_k\u00eanh_g\u1eedi_sai_t\u00ean_tham_s\u1ed1",
+      "label": "RT-05 \u00b7 P1 \u00b7 Form c\u00e0i \u0111\u1eb7t k\u00eanh g\u1eedi sai t\u00ean tham s\u1ed1",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L86"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_06_p2_x\u00f3a_h\u1ed3_s\u01a1_th\u00e0nh_c\u00f4ng_nh\u01b0ng_b\u00e1o_l\u1ed7i",
+      "label": "RT-06 \u00b7 P2 \u00b7 X\u00f3a h\u1ed3 s\u01a1 th\u00e0nh c\u00f4ng nh\u01b0ng b\u00e1o l\u1ed7i",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L92"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_07_p2_hook_b\u00e1o_kh\u00f4ng_c\u00f3_ph\u1ee5_\u0111\u1ec1_khi_th\u1ef1c_t\u1ebf_b\u1ecb_ch\u1eb7n_request",
+      "label": "RT-07 \u00b7 P2 \u00b7 Hook b\u00e1o \u201ckh\u00f4ng c\u00f3 ph\u1ee5 \u0111\u1ec1\u201d khi th\u1ef1c t\u1ebf b\u1ecb ch\u1eb7n request",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L98"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_08_p2_blacklist_kh\u00f4ng_ch\u1eb7n_\u0111\u1ee7_v\u00ed_d\u1ee5_sop",
+      "label": "RT-08 \u00b7 P2 \u00b7 Blacklist kh\u00f4ng ch\u1eb7n \u0111\u1ee7 v\u00ed d\u1ee5 SOP",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L106"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_c\u00e1c_\u0111i\u1ec3m_kh\u00f4ng_kh\u1edbp_sop_c\u1ea7n_leader_x\u00e1c_nh\u1eadn",
+      "label": "C\u00e1c \u0111i\u1ec3m kh\u00f4ng kh\u1edbp SOP c\u1ea7n leader x\u00e1c nh\u1eadn",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L112"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_ma_tr\u1eadn_14_ca_sop_sau_c\u1eadp_nh\u1eadt",
+      "label": "Ma tr\u1eadn 14 ca SOP sau c\u1eadp nh\u1eadt",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L120"
+    },
+    {
+      "id": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_b\u00e0n_giao_v\u00e0_ca_ph\u1ea3i_ch\u1ea1y_l\u1ea1i",
+      "label": "B\u00e0n giao v\u00e0 ca ph\u1ea3i ch\u1ea1y l\u1ea1i",
+      "file_type": "document",
+      "node_kind": "heading",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L139"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_md",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_qa_b\u1ea3n_reupytb_c\u1eadp_nh\u1eadt_ng\u00e0y_02_11_2026",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_qa_b\u1ea3n_reupytb_c\u1eadp_nh\u1eadt_ng\u00e0y_02_11_2026",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_b\u1ea3n_build_\u0111\u01b0\u1ee3c_\u0111o",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_qa_b\u1ea3n_reupytb_c\u1eadp_nh\u1eadt_ng\u00e0y_02_11_2026",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_md",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_results_studio_test_video_claim_details_txt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L25",
+      "weight": 1.0,
+      "target_file": "$graphify-root$/QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/results/studio-TEST-VIDEO-claim-details.txt"
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_md",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_results_studio_pride_notice_txt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L27",
+      "weight": 1.0,
+      "target_file": "$graphify-root$/QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/results/studio-PRIDE-notice.txt"
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_qa_b\u1ea3n_reupytb_c\u1eadp_nh\u1eadt_ng\u00e0y_02_11_2026",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_01_p1_bkt_b\u00e1o_s\u1ea1ch_d\u00f9_kh\u00f4ng_ki\u1ec3m_tra_video_n\u00e0o",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_md",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_results_bkt_real_ui_test_profile_txt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "target_file": "$graphify-root$/QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/results/bkt-real-ui-test-profile.txt"
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_md",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_results_bkt_stale_after_profile_change_txt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L45",
+      "weight": 1.0,
+      "target_file": "$graphify-root$/QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/results/bkt-stale-after-profile-change.txt"
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_02_p1_hai_h\u1ed3_s\u01a1_kh\u00f4ng_m\u1edf_\u0111\u01b0\u1ee3c_browsermulti_runtime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_03_p1_outlier_thi\u1ebfu_\u0111\u01b0\u1eddng_d\u1eabn_yt_dlp_nh\u01b0ng_b\u00e1o_th\u00e0nh_c\u00f4ng_r\u1ed7ng",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_04_p1_audio_48_khz_l\u1ec7ch_th\u1eddi_l\u01b0\u1ee3ng_\u1edf_c\u1ea3_v1_v2",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_05_p1_form_c\u00e0i_\u0111\u1eb7t_k\u00eanh_g\u1eedi_sai_t\u00ean_tham_s\u1ed1",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_06_p2_x\u00f3a_h\u1ed3_s\u01a1_th\u00e0nh_c\u00f4ng_nh\u01b0ng_b\u00e1o_l\u1ed7i",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_07_p2_hook_b\u00e1o_kh\u00f4ng_c\u00f3_ph\u1ee5_\u0111\u1ec1_khi_th\u1ef1c_t\u1ebf_b\u1ecb_ch\u1eb7n_request",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_l\u1ed7i_c\u1ea7n_s\u1eeda",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_08_p2_blacklist_kh\u00f4ng_ch\u1eb7n_\u0111\u1ee7_v\u00ed_d\u1ee5_sop",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_qa_b\u1ea3n_reupytb_c\u1eadp_nh\u1eadt_ng\u00e0y_02_11_2026",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_c\u00e1c_\u0111i\u1ec3m_kh\u00f4ng_kh\u1edbp_sop_c\u1ea7n_leader_x\u00e1c_nh\u1eadn",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_qa_b\u1ea3n_reupytb_c\u1eadp_nh\u1eadt_ng\u00e0y_02_11_2026",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_ma_tr\u1eadn_14_ca_sop_sau_c\u1eadp_nh\u1eadt",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_qa_b\u1ea3n_reupytb_c\u1eadp_nh\u1eadt_ng\u00e0y_02_11_2026",
+      "target": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_b\u00e0n_giao_v\u00e0_ca_ph\u1ea3i_ch\u1ea1y_l\u1ea1i",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L139",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_b\u1ea3n_build_\u0111\u01b0\u1ee3c_\u0111o",
+      "callee": "b204a0f3e6b2d6e433d7a572f900e9b3703ecefeaaaae684efde5568fa6f0e12",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "b204a0f3e6b2d6e433d7a572f900e9b3703ecefeaaaae684efde5568fa6f0e12",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L12"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_b\u1ea3n_build_\u0111\u01b0\u1ee3c_\u0111o",
+      "callee": "browser_engine",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "browser_engine",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L14"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "test",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "test",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L22"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "bd05cfd2",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "bd05cfd2",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "WeFFSCXmIAA",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "WeFFSCXmIAA",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L25"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "JgKkhP8rZGw",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "JgKkhP8rZGw",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "r9kfQSrbNyg",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "r9kfQSrbNyg",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "Sqw1Ozg1LZI",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "Sqw1Ozg1LZI",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L29"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "sXYzORYHkzo",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "sXYzORYHkzo",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "qVuUB8u7oSw",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "qVuUB8u7oSw",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "p5d_WDKKfOs",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "p5d_WDKKfOs",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "wAvEjlhPGCk",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "wAvEjlhPGCk",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_\u0111\u1ed1i_chi\u1ebfu_hai_k\u00eanh_v\u00e0_video_\u0111\u00e3_\u0111\u0103ng",
+      "callee": "W6cfkI1uLXc",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "W6cfkI1uLXc",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_01_p1_bkt_b\u00e1o_s\u1ea1ch_d\u00f9_kh\u00f4ng_ki\u1ec3m_tra_video_n\u00e0o",
+      "callee": "test",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "test",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_01_p1_bkt_b\u00e1o_s\u1ea1ch_d\u00f9_kh\u00f4ng_ki\u1ec3m_tra_video_n\u00e0o",
+      "callee": "status",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "status",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_01_p1_bkt_b\u00e1o_s\u1ea1ch_d\u00f9_kh\u00f4ng_ki\u1ec3m_tra_video_n\u00e0o",
+      "callee": "error",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "error",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_01_p1_bkt_b\u00e1o_s\u1ea1ch_d\u00f9_kh\u00f4ng_ki\u1ec3m_tra_video_n\u00e0o",
+      "callee": "green_clean",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "green_clean",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_02_p1_hai_h\u1ed3_s\u01a1_kh\u00f4ng_m\u1edf_\u0111\u01b0\u1ee3c_browsermulti_runtime",
+      "callee": "null",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "null",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_03_p1_outlier_thi\u1ebfu_\u0111\u01b0\u1eddng_d\u1eabn_yt_dlp_nh\u01b0ng_b\u00e1o_th\u00e0nh_c\u00f4ng_r\u1ed7ng",
+      "callee": "get_ytdlp_bin",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "get_ytdlp_bin()",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L65"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_03_p1_outlier_thi\u1ebfu_\u0111\u01b0\u1eddng_d\u1eabn_yt_dlp_nh\u01b0ng_b\u00e1o_th\u00e0nh_c\u00f4ng_r\u1ed7ng",
+      "callee": "YTDLP_BIN",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "YTDLP_BIN",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_05_p1_form_c\u00e0i_\u0111\u1eb7t_k\u00eanh_g\u1eedi_sai_t\u00ean_tham_s\u1ed1",
+      "callee": "check_interval",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "check_interval",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_05_p1_form_c\u00e0i_\u0111\u1eb7t_k\u00eanh_g\u1eedi_sai_t\u00ean_tham_s\u1ed1",
+      "callee": "auto_download",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "auto_download",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_05_p1_form_c\u00e0i_\u0111\u1eb7t_k\u00eanh_g\u1eedi_sai_t\u00ean_tham_s\u1ed1",
+      "callee": "update_channel_settings",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "update_channel_settings",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_05_p1_form_c\u00e0i_\u0111\u1eb7t_k\u00eanh_g\u1eedi_sai_t\u00ean_tham_s\u1ed1",
+      "callee": "checkInterval",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "checkInterval",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_05_p1_form_c\u00e0i_\u0111\u1eb7t_k\u00eanh_g\u1eedi_sai_t\u00ean_tham_s\u1ed1",
+      "callee": "lv",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "lv",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_06_p2_x\u00f3a_h\u1ed3_s\u01a1_th\u00e0nh_c\u00f4ng_nh\u01b0ng_b\u00e1o_l\u1ed7i",
+      "callee": "delete_multibrowser_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "delete_multibrowser_profile",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_06_p2_x\u00f3a_h\u1ed3_s\u01a1_th\u00e0nh_c\u00f4ng_nh\u01b0ng_b\u00e1o_l\u1ed7i",
+      "callee": "delete_profile",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "delete_profile()",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_06_p2_x\u00f3a_h\u1ed3_s\u01a1_th\u00e0nh_c\u00f4ng_nh\u01b0ng_b\u00e1o_l\u1ed7i",
+      "callee": "success",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "success",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L96"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_07_p2_hook_b\u00e1o_kh\u00f4ng_c\u00f3_ph\u1ee5_\u0111\u1ec1_khi_th\u1ef1c_t\u1ebf_b\u1ecb_ch\u1eb7n_request",
+      "callee": "youtube_transcript_api",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "youtube_transcript_api",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_07_p2_hook_b\u00e1o_kh\u00f4ng_c\u00f3_ph\u1ee5_\u0111\u1ec1_khi_th\u1ef1c_t\u1ebf_b\u1ecb_ch\u1eb7n_request",
+      "callee": "fetch",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "fetch",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_07_p2_hook_b\u00e1o_kh\u00f4ng_c\u00f3_ph\u1ee5_\u0111\u1ec1_khi_th\u1ef1c_t\u1ebf_b\u1ecb_ch\u1eb7n_request",
+      "callee": "list",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "list",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_07_p2_hook_b\u00e1o_kh\u00f4ng_c\u00f3_ph\u1ee5_\u0111\u1ec1_khi_th\u1ef1c_t\u1ebf_b\u1ecb_ch\u1eb7n_request",
+      "callee": "RequestBlocked",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "RequestBlocked",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_08_p2_blacklist_kh\u00f4ng_ch\u1eb7n_\u0111\u1ee7_v\u00ed_d\u1ee5_sop",
+      "callee": "is_reup_safe_and_valid_small_channel",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "is_reup_safe_and_valid_small_channel",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_rt_08_p2_blacklist_kh\u00f4ng_ch\u1eb7n_\u0111\u1ee7_v\u00ed_d\u1ee5_sop",
+      "callee": "kplus",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "kplus",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_c\u00e1c_\u0111i\u1ec3m_kh\u00f4ng_kh\u1edbp_sop_c\u1ea7n_leader_x\u00e1c_nh\u1eadn",
+      "callee": "outlier_videos",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "outlier_videos",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_c\u00e1c_\u0111i\u1ec3m_kh\u00f4ng_kh\u1edbp_sop_c\u1ea7n_leader_x\u00e1c_nh\u1eadn",
+      "callee": "acceleration_status",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "acceleration_status",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_c\u00e1c_\u0111i\u1ec3m_kh\u00f4ng_kh\u1edbp_sop_c\u1ea7n_leader_x\u00e1c_nh\u1eadn",
+      "callee": "view_velocity",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "view_velocity",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_c\u00e1c_\u0111i\u1ec3m_kh\u00f4ng_kh\u1edbp_sop_c\u1ea7n_leader_x\u00e1c_nh\u1eadn",
+      "callee": "opportunity_score",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "opportunity_score",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_c\u00e1c_\u0111i\u1ec3m_kh\u00f4ng_kh\u1edbp_sop_c\u1ea7n_leader_x\u00e1c_nh\u1eadn",
+      "callee": "demand_signal",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "demand_signal",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_c\u00e1c_\u0111i\u1ec3m_kh\u00f4ng_kh\u1edbp_sop_c\u1ea7n_leader_x\u00e1c_nh\u1eadn",
+      "callee": "hook_analysis",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "hook_analysis",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_c\u00e1c_\u0111i\u1ec3m_kh\u00f4ng_kh\u1edbp_sop_c\u1ea7n_leader_x\u00e1c_nh\u1eadn",
+      "callee": "safe_int",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "safe_int",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "$graphify-root$_qa_reupytb_updated_2026_11_02_evidence_bao_cao_gui_leader_b\u00e0n_giao_v\u00e0_ca_ph\u1ea3i_ch\u1ea1y_l\u1ea1i",
+      "callee": "DOWNLOAD_CANCELLED",
+      "is_member_call": false,
+      "language": "markdown",
+      "context": "DOWNLOAD_CANCELLED",
+      "source_file": "QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/BAO_CAO_GUI_LEADER.md",
+      "source_location": "L145"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "_cached_target_files": [
+    "$graphify-root$/QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/results/bkt-real-ui-test-profile.txt",
+    "$graphify-root$/QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/results/bkt-stale-after-profile-change.txt",
+    "$graphify-root$/QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/results/studio-PRIDE-notice.txt",
+    "$graphify-root$/QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE/results/studio-TEST-VIDEO-claim-details.txt"
+  ]
+}

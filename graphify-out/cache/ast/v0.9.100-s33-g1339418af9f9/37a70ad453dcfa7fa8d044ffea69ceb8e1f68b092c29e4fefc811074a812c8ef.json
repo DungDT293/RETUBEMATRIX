@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_environment_rs",
+      "label": "environment.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/environment.rs",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_src_tauri_src_commands_environment_is_flatpak_environment",
+      "label": "is_flatpak_environment()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/environment.rs",
+      "source_location": "L4"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_environment_rs",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/environment.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_src_tauri_src_commands_environment_rs",
+      "target": "$graphify-root$_src_tauri_src_commands_environment_is_flatpak_environment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/environment.rs",
+      "source_location": "L4",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_environment_is_flatpak_environment",
+      "callee": "is_some",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/environment.rs",
+      "source_location": "L6"
+    },
+    {
+      "caller_nid": "$graphify-root$_src_tauri_src_commands_environment_is_flatpak_environment",
+      "callee": "exists",
+      "is_member_call": true,
+      "source_file": "src-tauri/src/commands/environment.rs",
+      "source_location": "L6"
+    }
+  ]
+}
