@@ -13,7 +13,7 @@
 **RETubeMatrix — 专业的 YouTube 搬运自动化、爆款发掘与版权测试平台**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Release](https://img.shields.io/badge/version-v0.20.7-brightgreen.svg)](https://github.com/DungDT293/RETUBEMATRIX/releases)
+[![Release](https://img.shields.io/badge/version-v0.20.8-brightgreen.svg)](https://github.com/DungDT293/RETUBEMATRIX/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/DungDT293/RETUBEMATRIX)
 
 </div>

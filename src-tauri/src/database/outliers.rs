@@ -387,3 +387,12 @@ pub fn delete_outlier_video_db(id: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// Clear all outlier videos
+pub fn clear_all_outliers_db() -> Result<(), String> {
+    let conn = get_db()?;
+    conn.execute("DELETE FROM outlier_videos", [])
+        .map_err(|e| format!("Failed to clear all outlier videos: {e}"))?;
+
+    Ok(())
+}
+

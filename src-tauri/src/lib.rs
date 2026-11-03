@@ -185,6 +185,9 @@ pub fn run() {
             #[cfg(windows)]
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.set_decorations(false);
+                if let Some(icon) = app.default_window_icon() {
+                    let _ = window.set_icon(icon.clone());
+                }
             }
 
             for (_, window) in app.webview_windows() {
@@ -532,6 +535,8 @@ pub fn run() {
             commands::get_outlier_videos_cmd,
             commands::update_outlier_video_status_cmd,
             commands::delete_outlier_video_cmd,
+            commands::clear_all_outliers_cmd,
+            commands::analyze_competitor_channel_cmd,
             commands::trigger_outlier_scan_cmd,
             commands::trigger_outlier_ping_cmd,
             commands::find_keyword_goldmines_cmd,
@@ -623,7 +628,7 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 
     let tray_builder = TrayIconBuilder::with_id("main-tray")
         .icon(icon)
-        .tooltip("Youwee")
+        .tooltip("RETubeMatrix")
         .menu(&menu)
         .on_menu_event(move |_tray, event| {
             let id = event.id().as_ref();

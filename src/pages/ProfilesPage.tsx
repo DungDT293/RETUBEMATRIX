@@ -685,13 +685,13 @@ export function ProfilesPage() {
       )}
 
       {/* Search Input */}
-      <div className="max-w-xl relative">
-        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-        <input
+      <div className="max-w-xl relative flex items-center">
+        <Search className="w-4 h-4 absolute left-3 text-muted-foreground pointer-events-none z-10" />
+        <Input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Tìm tên hồ sơ, proxy, ID..."
-          className="input-field w-full !pl-10 pr-3 py-2 text-xs"
+          className="w-full pl-9 pr-3 text-xs bg-background/50 border-input/80 h-9"
         />
       </div>
 

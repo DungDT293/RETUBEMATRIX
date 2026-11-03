@@ -1143,6 +1143,26 @@ def action_analyze_hook(args):
         sys.stdout.flush()
 
 
+def action_analyze_competitor(args):
+    try:
+        from outlier_hunter import analyze_competitor_channel
+        raw_data = {}
+        if args.data_b64:
+            raw_data = json.loads(base64.b64decode(args.data_b64).decode("utf-8"))
+        elif args.data:
+            raw_data = json.loads(args.data)
+
+        channel_url = raw_data.get("channel_url") or ""
+        sort_by = raw_data.get("sort_by") or "popular"
+        results = analyze_competitor_channel(channel_url, sort_by=sort_by)
+        print(json.dumps({"success": True, "videos": results}, ensure_ascii=True))
+        sys.stdout.flush()
+    except Exception as e:
+        logger.error(f"Lỗi action_analyze_competitor: {e}")
+        print(json.dumps({"success": False, "error": str(e), "videos": []}, ensure_ascii=True))
+        sys.stdout.flush()
+
+
 def main():
     parser = argparse.ArgumentParser(description="reupytb Browser Engine Runner")
     parser.add_argument("--action", required=True, choices=[
@@ -1165,6 +1185,7 @@ def main():
         "ping_momentum",
         "find_goldmines",
         "analyze_hook",
+        "analyze_competitor",
     ])
     parser.add_argument("--profile-id", default="")
     parser.add_argument("--data", default="")
@@ -1210,6 +1231,8 @@ def main():
         action_find_goldmines(args)
     elif args.action == "analyze_hook":
         action_analyze_hook(args)
+    elif args.action == "analyze_competitor":
+        action_analyze_competitor(args)
 
 
 if __name__ == "__main__":

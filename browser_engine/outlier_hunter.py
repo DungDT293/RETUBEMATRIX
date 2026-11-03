@@ -430,8 +430,17 @@ def find_goldmines(seed: str) -> List[Dict]:
     except ImportError:
         requests = None
 
-    variants = [clean_seed, f"{clean_seed} "] + [f"{clean_seed} {chr(c)}" for c in range(ord('a'), ord('n')+1)]
-    variants += [f"cách {clean_seed}", f"tại sao {clean_seed}", f"hướng dẫn {clean_seed}"]
+    # 1. Hậu tố Alphabet a-z (Thanh gợi ý YouTube Alphabet)
+    alphabet_suffixes = [f"{clean_seed} {chr(c)}" for c in range(ord('a'), ord('z')+1)]
+    # 2. Tiền tố Alphabet a-z
+    alphabet_prefixes = [f"{chr(c)} {clean_seed}" for c in range(ord('a'), ord('m')+1)]
+    # 3. Mẫu câu hỏi ý định người xem (Search Intent)
+    intent_queries = [
+        f"cách {clean_seed}", f"hướng dẫn {clean_seed}", f"tại sao {clean_seed}",
+        f"review {clean_seed}", f"kinh nghiệm {clean_seed}", f"ngách {clean_seed}"
+    ]
+
+    variants = [clean_seed, f"{clean_seed} "] + alphabet_suffixes + alphabet_prefixes + intent_queries
 
     seen = set()
     results = []
@@ -464,25 +473,131 @@ def find_goldmines(seed: str) -> List[Dict]:
                     if kw_str and kw_str not in seen:
                         seen.add(kw_str)
                         word_count = len(kw_str.split())
+                        # Từ khóa càng dài thì ngách càng hẹp, ít cạnh tranh, cơ hội bứt phá càng cao
                         spec_score = min(word_count * 12, 50)
                         rank_score = max(50 - (rank * 4), 10)
                         opp_score = min(spec_score + rank_score, 100)
                         
-                        badge = "GEM" if opp_score >= 82 else ("HOT" if opp_score >= 68 else "GOOD")
+                        # Đánh giá mức độ cạnh tranh & Content Gap theo phương pháp
+                        if word_count >= 5:
+                            competition = "Rất Thấp (Ngách Siêu Nhỏ)"
+                            content_gap = "Rất Cao (Nhu cầu lớn, ít video - Khuyên làm ngay)"
+                            badge = "NGÁCH VÀNG"
+                        elif word_count >= 3:
+                            competition = "Thấp / Vừa (Ngách Tiềm Năng)"
+                            content_gap = "Cao (Đang lên xu hướng)"
+                            badge = "TIỀM NĂNG"
+                        else:
+                            competition = "Cao (Từ Khóa Rộng)"
+                            content_gap = "Trung bình / Bão hòa"
+                            badge = "PHỔ THÔNG"
+
                         results.append({
                             "keyword": kw_str,
                             "rank": rank + 1,
                             "word_count": word_count,
                             "opportunity_score": opp_score,
+                            "competition": competition,
+                            "content_gap": content_gap,
                             "badge": badge
                         })
         except Exception:
             pass
-        if len(results) >= 40:
+        if len(results) >= 60:
             break
 
-    results.sort(key=lambda x: x["opportunity_score"], reverse=True)
-    return results[:35]
+    results.sort(key=lambda x: (x["word_count"] >= 3, x["opportunity_score"]), reverse=True)
+    return results[:40]
+
+
+def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> List[Dict]:
+    """
+    Phân tích kênh đối thủ theo phương pháp thực chiến:
+    Truy cập tab video của kênh đối thủ, sắp xếp theo 'Phổ biến' (Popular) hoặc 'Mới nhất'.
+    Trích xuất: lượt xem, thời gian đăng, tính toán VPH (lượt xem theo giờ), điểm từ khóa, tags.
+    """
+    if not channel_url:
+        return []
+
+    ytdlp_bin = get_ytdlp_bin()
+    clean_url = channel_url.rstrip("/")
+    if not clean_url.endswith("/videos"):
+        target_url = clean_url + "/videos"
+    else:
+        target_url = clean_url
+
+    if sort_by == "popular":
+        target_url += "?view=0&sort=p"
+    else:
+        target_url += "?view=0&sort=dd"
+
+    cmd = [
+        ytdlp_bin,
+        "--dump-json",
+        "--flat-playlist",
+        "--playlist-end", "20",
+        "--no-warnings",
+        target_url
+    ]
+
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=30)
+    except Exception as e:
+        logger.error(f"Lỗi phân tích kênh đối thủ {channel_url}: {e}")
+        return []
+
+    now_ts = int(time.time())
+    videos = []
+
+    for line in res.stdout.splitlines():
+        line = line.strip()
+        if not (line.startswith("{") and line.endswith("}")):
+            continue
+        try:
+            raw = json.loads(line)
+        except Exception:
+            continue
+
+        vid_id = raw.get("id")
+        if not vid_id:
+            continue
+
+        views = safe_int(raw.get("view_count"), 0)
+        upload_ts = raw.get("timestamp")
+        if not upload_ts and raw.get("upload_date"):
+            try:
+                t_str = raw.get("upload_date")
+                t_struct = time.strptime(t_str, "%Y%m%d")
+                upload_ts = int(time.mktime(t_struct))
+            except Exception:
+                upload_ts = now_ts - 86400
+        upload_ts = upload_ts or (now_ts - 86400)
+        hours_published = max((now_ts - upload_ts) / 3600.0, 1.0)
+        vph = round(views / hours_published, 1)
+
+        title = raw.get("title") or "Untitled Video"
+        words = title.split()
+        keyword_score = min(len(words) * 8 + (25 if vph > 500 else 10), 100)
+
+        videos.append({
+            "id": vid_id,
+            "title": title,
+            "thumbnail_url": raw.get("thumbnail") or f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg",
+            "url": f"https://www.youtube.com/watch?v={vid_id}",
+            "views": views,
+            "duration": safe_int(raw.get("duration"), 0),
+            "hours_published": round(hours_published, 1),
+            "vph": vph,
+            "keyword_score": keyword_score,
+            "uploader": raw.get("uploader") or raw.get("channel") or "Đối thủ",
+        })
+
+    if sort_by == "popular":
+        videos.sort(key=lambda x: x["views"], reverse=True)
+    else:
+        videos.sort(key=lambda x: x["hours_published"])
+
+    return videos[:15]
 
 
 def _extract_snippet_text(s) -> str:
@@ -614,22 +729,11 @@ def hunt_niche_outliers(
 
     clean_niche = target_niche.strip()
     if not clean_niche or clean_niche.lower() in ("all", "tất cả các ngách"):
-        clean_niche = "kể chuyện bí ẩn"
+        clean_niche = "nấu ăn cho người ở 1 mình"
 
-    logger.info(f"Bắt đầu săn video đột biến cho ngách: '{clean_niche}'")
-    # Tự động nhận diện ngôn ngữ của từ khóa (Tiếng Việt vs Tiếng Anh/View Ngoại)
+    logger.info(f"Bắt đầu săn video đột biến cho ngách Ikigai: '{clean_niche}'")
     search_term = clean_niche
-    lower_term = search_term.lower()
-    is_vietnamese = any(c in lower_term for c in "àáảãạăắằẳẵặâấầẩẫậđèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵ")
-
-    if is_vietnamese:
-        if not any(k in lower_term for k in ["mới nhất", "hôm nay", "tuần này", "2026"]):
-            search_term = f"{clean_niche} mới nhất"
-    else:
-        if not any(k in lower_term for k in ["latest", "today", "this week", "2026", "new"]):
-            search_term = f"{clean_niche} latest"
-
-    query = f"ytsearch25:{search_term}"
+    query = f"ytsearch30:{search_term}"
     ytdlp_bin = get_ytdlp_bin()
     if not shutil.which(ytdlp_bin) and not os.path.exists(ytdlp_bin):
         raise FileNotFoundError(f"Không tìm thấy file thực thi yt-dlp tại '{ytdlp_bin}'. Vui lòng kiểm tra lại cấu hình hoặc bộ cài.")
@@ -637,7 +741,7 @@ def hunt_niche_outliers(
     cmd = [
         ytdlp_bin,
         "--dump-json",
-        "--playlist-end", "25",
+        "--playlist-end", "30",
         "--no-warnings",
         query
     ]
@@ -703,18 +807,6 @@ def hunt_niche_outliers(
             "comments": safe_int(raw.get("comment_count"), 0),
             "comment_count": safe_int(raw.get("comment_count"), 0),
             "duration": safe_int(raw.get("duration"), 0),
-            "upload_timestamp": upload_ts,
-            "hours_published": hours_published,
-            "is_live": bool(raw.get("is_live", False) or raw.get("was_live", False)),
-            "was_live": bool(raw.get("was_live", False)),
-        }
-            "views": int(raw.get("view_count") or 0),
-            "view_count": int(raw.get("view_count") or 0),
-            "likes": int(raw.get("like_count") or 0),
-            "like_count": int(raw.get("like_count") or 0),
-            "comments": int(raw.get("comment_count") or 0),
-            "comment_count": int(raw.get("comment_count") or 0),
-            "duration": int(raw.get("duration") or 0),
             "upload_timestamp": upload_ts,
             "hours_published": hours_published,
             "is_live": bool(raw.get("is_live", False) or raw.get("was_live", False)),

@@ -1,7 +1,7 @@
 use crate::database::{
-    delete_outlier_video_db, get_outlier_settings_db, get_outlier_videos_db,
-    update_outlier_settings_db, update_outlier_video_status_db, upsert_outlier_video_db,
-    OutlierHunterSettings, OutlierVideo,
+    clear_all_outliers_db, delete_outlier_video_db, get_outlier_settings_db,
+    get_outlier_videos_db, update_outlier_settings_db, update_outlier_video_status_db,
+    upsert_outlier_video_db, OutlierHunterSettings, OutlierVideo,
 };
 use crate::utils::CommandExt;
 use base64::Engine;
@@ -47,6 +47,58 @@ pub async fn update_outlier_video_status_cmd(
 #[tauri::command]
 pub async fn delete_outlier_video_cmd(id: String) -> Result<(), String> {
     delete_outlier_video_db(&id)
+}
+
+#[tauri::command]
+pub async fn clear_all_outliers_cmd() -> Result<(), String> {
+    clear_all_outliers_db()
+}
+
+#[tauri::command]
+pub async fn analyze_competitor_channel_cmd(
+    app: AppHandle,
+    channel_url: String,
+    sort_by: Option<String>,
+) -> Result<Value, String> {
+    let payload = serde_json::json!({
+        "channel_url": channel_url,
+        "sort_by": sort_by.unwrap_or_else(|| "popular".to_string()),
+    });
+    let b64 = base64::engine::general_purpose::STANDARD.encode(payload.to_string());
+
+    let (mut cmd, runner_path) = crate::commands::profiles::create_runner_cmd(&app);
+    if !runner_path.exists() {
+        return Err(format!(
+            "Không tìm thấy file mã nguồn browser_engine/runner.py tại '{}'. Vui lòng kiểm tra lại gói cài đặt ứng dụng.",
+            runner_path.display()
+        ));
+    }
+    cmd.arg(&runner_path)
+        .arg("--action")
+        .arg("analyze_competitor")
+        .arg("--data-b64")
+        .arg(&b64)
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped());
+
+    cmd.hide_window();
+
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("Lỗi khởi chạy Python analyze_competitor: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stdout.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with('{') && trimmed.ends_with('}') {
+            if let Ok(val) = serde_json::from_str::<Value>(trimmed) {
+                return Ok(val);
+            }
+        }
+    }
+
+    Ok(serde_json::json!({ "success": true, "videos": [] }))
 }
 
 #[tauri::command]

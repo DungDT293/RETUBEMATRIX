@@ -103,7 +103,7 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
           'border border-white/[0.08] dark:border-white/[0.05]',
           'shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.25)]',
           'relative overflow-hidden',
-          isCollapsed ? 'w-[60px]' : 'w-[224px]',
+          isCollapsed ? 'w-[60px]' : 'w-[248px]',
         )}
       >
         {/* Subtle gradient overlay */}
@@ -128,7 +128,7 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
             isCollapsed ? 'justify-center px-2' : 'justify-start px-3.5',
           )}
         >
-          <div className="flex items-center gap-2.5 overflow-hidden">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div
               className={cn(
                 'flex-shrink-0 rounded-xl overflow-hidden transition-all duration-300',
@@ -140,7 +140,7 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
             <span
               className={cn(
                 'font-bold text-lg whitespace-nowrap transition-all duration-300 gradient-text tracking-wide',
-                isCollapsed ? 'opacity-0 w-0 ml-0' : 'opacity-100',
+                isCollapsed ? 'opacity-0 w-0 ml-0 pointer-events-none' : 'opacity-100',
               )}
             >
               RETubeMatrix

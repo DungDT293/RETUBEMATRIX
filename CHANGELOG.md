@@ -7,7 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.20.7] - 2026-11-03
+## [0.20.8] - 2026-11-03
+
+### Added
+
+- **Ikigai-based Outlier Breakout Hunter** - Completely rebuilt Feature 5 around the Japanese Ikigai model (Viewer Demand, Creator Sustainability, Monetization Potential) with 3 strategic niche groups and custom niche targeting
+- **4 Real-time Niche Validation Tools** - Added YouTube Alphabet Autosuggest (a-z prefix/suffix), Google Trends YouTube Search (12-month scope), Content Gap opportunity indicator, and Competitor Channel Analyzer with Views Per Hour (VPH) velocity measurement
+- **Database outlier purge functionality** - Added one-click UI button and backend command `clear_all_outliers_cmd` to cleanly erase stale legacy outlier data
+
+### Fixed
+
+- **Sidebar title truncation** - Expanded sidebar width to 248px and removed text clipping so the full RETubeMatrix name displays cleanly without truncation
+- **Profile search input icon overlap** - Replaced raw input with standard UI Input component with 36px left padding so placeholder text never overlaps the magnifying glass icon
+- **Multi-size Windows application icon** - Built full 7-resolution `icon.ico` (16x16 to 256x256), explicitly configured NSIS `installerIcon`, and set window icon on startup so taskbar and desktop icons match the official RETubeMatrix brand
+- **Outlier search hardcoded fallback elimination** - Removed legacy hardcoded fallback keyword and guaranteed search queries reflect actual user-selected niches
 
 ### Fixed
 

@@ -57,7 +57,22 @@ export interface KeywordGoldmine {
   rank: number;
   word_count: number;
   opportunity_score: number;
-  badge: 'GEM' | 'HOT' | 'GOOD';
+  competition?: string;
+  content_gap?: string;
+  badge: 'NGÁCH VÀNG' | 'TIỀM NĂNG' | 'PHỔ THÔNG' | 'GEM' | 'HOT' | 'GOOD';
+}
+
+export interface CompetitorVideo {
+  id: string;
+  title: string;
+  thumbnail_url: string;
+  url: string;
+  views: number;
+  duration: number;
+  hours_published: number;
+  vph: number;
+  keyword_score: number;
+  uploader: string;
 }
 
 export interface HookAnatomyResult {
@@ -108,6 +123,21 @@ export async function updateOutlierVideoStatus(input: {
 
 export async function deleteOutlierVideo(id: string): Promise<void> {
   await invoke('delete_outlier_video_cmd', { id });
+}
+
+export async function clearAllOutlierVideos(): Promise<void> {
+  await invoke('clear_all_outliers_cmd');
+}
+
+export async function analyzeCompetitorChannel(
+  channelUrl: string,
+  sortBy: 'popular' | 'latest' = 'popular',
+): Promise<CompetitorVideo[]> {
+  const res = await invoke<{ success: boolean; videos: CompetitorVideo[] }>(
+    'analyze_competitor_channel_cmd',
+    { channelUrl, sortBy },
+  );
+  return res?.videos || [];
 }
 
 export async function triggerOutlierScan(niche?: string | null): Promise<OutlierVideo[]> {

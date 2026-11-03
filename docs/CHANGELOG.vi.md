@@ -7,7 +7,20 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-## [0.20.7] - 2026-11-03
+## [0.20.8] - 2026-11-03
+
+### Thêm mới
+
+- **Săn Đề Xuất chuẩn Ikigai** - Tái cấu trúc toàn bộ Chức năng 5 theo mô hình Ikigai Nhật Bản (Nhu cầu người xem, Khả năng làm đều, Đường kiếm tiền) cùng 3 phân nhóm ngách chiến lược và hỗ trợ ngách tự chọn
+- **4 Công cụ kiểm chứng ngách thực chiến** - Tích hợp YouTube Alphabet Autosuggest A-Z (tiền tố/hậu tố/câu hỏi), Google Trends YouTube Search 12 tháng, chỉ số cơ hội Content Gap, và Phân tích kênh đối thủ kèm đo vận tốc view VPH
+- **Xóa sạch dữ liệu đề xuất cũ** - Thêm nút thao tác nhanh trên UI và lệnh IPC `clear_all_outliers_cmd` để xóa hoàn toàn dữ liệu đề xuất cũ khỏi cơ sở dữ liệu SQLite
+
+### Sửa lỗi
+
+- **Mở rộng thanh điều hướng Sidebar** - Tăng chiều rộng menu bên trái lên 248px và xử lý hiển thị để tên ứng dụng RETubeMatrix không còn bị mất chữ "x"
+- **Xử lý xung đột biểu tượng kính lúp** - Đồng bộ ô tìm kiếm hồ sơ trong ProfilesPage với component Input chuẩn, giải quyết dứt điểm lỗi kính lúp đè lên chữ placeholder
+- **Bộ icon Windows đa kích thước** - Tạo file `icon.ico` chuẩn 7 kích thước (16x16 đến 256x256), khai báo `installerIcon` trong NSIS và đặt window icon lúc khởi động để taskbar và desktop hiển thị logo RETubeMatrix mới
+- **Loại bỏ từ khóa ngách gán cứng** - Xóa bỏ triệt để từ khóa gán cứng cũ ("kể chuyện bí ẩn"), đảm bảo thuật toán quét đúng ngách người dùng đã chọn
 
 ### Sửa lỗi
 
