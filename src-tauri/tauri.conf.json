@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "RETubeMatrix",
-  "version": "0.20.15",
+  "version": "0.20.16",
   "identifier": "com.retubematrix.app",
   "build": {
     "frontendDist": "../dist",

@@ -13,7 +13,7 @@
 **RETubeMatrix — Nền Tảng Tự Động Hóa Reup, Săn Đề Xuất & Kiểm Thử Bản Quyền YouTube Đỉnh Cao**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Release](https://img.shields.io/badge/version-v0.20.15-brightgreen.svg)](https://github.com/DungDT293/RETUBEMATRIX/releases)
+[![Release](https://img.shields.io/badge/version-v0.20.16-brightgreen.svg)](https://github.com/DungDT293/RETUBEMATRIX/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/DungDT293/RETUBEMATRIX)
 
 </div>

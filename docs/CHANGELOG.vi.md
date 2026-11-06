@@ -7,10 +7,16 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.20.16] - 2026-11-06
+
 ### Thay đổi
 
 - **Chuyển thương hiệu RETubeMatrix** - Updater trỏ tới `DungDT293/RETUBEMATRIX`; deep link dùng `retubematrix://` (vẫn nhận `youwee://` cũ); CLI, extension và SDK đổi tên thành `retubematrix`.
 - **Tiền tố biến môi trường plugin** - Thêm `RETUBEMATRIX_*`, giữ alias `YOUWEE_*` cho plugin cũ.
+
+### Sửa lỗi
+
+- **Kiểm tra cập nhật nền** - Tự động kiểm tra update không còn hiện dialog lỗi khi endpoint chưa có release hoặc mất mạng; chỉ báo lỗi khi người dùng kiểm tra thủ công.
 
 ### Xóa bỏ
 

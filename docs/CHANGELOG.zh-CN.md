@@ -7,10 +7,16 @@ RETubeMatrix 的所有重要更改都将记录在此文件中。
 
 ## [Unreleased]
 
+## [0.20.16] - 2026-11-06
+
 ### 变更
 
 - **RETubeMatrix 品牌迁移** - Updater 指向 `DungDT293/RETUBEMATRIX`；深度链接使用 `retubematrix://`（仍兼容 `youwee://`）；CLI、浏览器扩展和 SDK 重命名为 `retubematrix`。
 - **插件运行时环境变量前缀** - 新增 `RETUBEMATRIX_*`，并为旧插件保留 `YOUWEE_*` 别名。
+
+### 修复
+
+- **后台更新检查** - 当发布端点缺失或网络不可用时，自动检查更新不再弹出错误对话框；仅在用户手动检查时报告错误。
 
 ### 移除
 

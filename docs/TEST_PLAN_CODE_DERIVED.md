@@ -1,4 +1,4 @@
-# Test Plan — RETubeMatrix 0.20.15 (Rebrand + Dead-code cleanup)
+# Test Plan — RETubeMatrix 0.20.16 (Rebrand + Dead-code cleanup)
 
 > Tài liệu này được suy ra trực tiếp từ code (commands, services, UI pages) sau đợt rebrand P0–P4.
 > Mục tiêu: tester có thể kiểm thử đúng các luồng còn tồn tại, tránh test các trang đã xóa.
@@ -7,14 +7,14 @@
 
 ## 1. Phạm vi
 
-- App: `RETubeMatrix` 0.20.15 (identifier `com.retubematrix.app`).
+- App: `RETubeMatrix` 0.20.16 (identifier `com.retubematrix.app`).
 - 9 phân hệ còn trong menu: Dashboard, Profiles, Channels, Outliers, Reup & BKT, Library, Universal, Logs, Settings.
 - **Đã xóa, không test**: DownloadPage, GalleryPage, MetadataPage, ProcessingPage, SubtitlesPage, SummaryPage.
 - Nền tảng test chính: Windows x64 (WebView2). Linux/macOS cần build riêng.
 
 ## 2. Điều kiện tiên quyết
 
-- Cài bản `RETubeMatrix_0.20.15_x64-setup.exe` (hoặc chạy `src-tauri/target/release/RETubeMatrix.exe` cho bản portable).
+- Cài bản `RETubeMatrix_0.20.16_x64-setup.exe` (hoặc chạy `src-tauri/target/release/RETubeMatrix.exe` cho bản portable).
 - Có ít nhất 1 profile MultiBrowser đã đăng nhập YouTube Studio (cho BKT/upload).
 - Có FFmpeg/FFprobe, yt-dlp, Deno trong `src-tauri/bin` hoặc Settings → Dependencies báo xanh.
 - Có API key AI nếu test tóm tắt/tối ưu tiêu đề.
@@ -30,11 +30,11 @@
 | Rust tests      | `cargo test --lib`                                      | ✅ 234 passed                                                                                                            |
 | Frontend bundle | `vite build`                                            | ✅ build OK                                                                                                              |
 | App launch      | chạy `RETubeMatrix.exe`, chụp cửa sổ                    | ✅ cửa sổ `RETubeMatrix` 1116×839, render trang Universal; **không còn dialog lỗi update** sau khi sửa auto-check silent |
-| CLI             | `RETubeMatrix.exe --version`                            | ✅ `RETubeMatrix 0.20.15`                                                                                                |
+| CLI             | `RETubeMatrix.exe --version`                            | ✅ `RETubeMatrix 0.20.16`                                                                                                |
 | Python engine   | `python runner.py --action list_profiles`               | ✅ JSON hợp lệ                                                                                                           |
 | Extension       | `node extensions/retubematrix-webext/scripts/build.mjs` | ✅ chromium + firefox                                                                                                    |
 
-Ảnh smoke: [retubematrix-0.20.15-smoke.png](screenshots/retubematrix-0.20.15-smoke.png).
+Ảnh smoke: [retubematrix-0.20.16-smoke.png](screenshots/retubematrix-0.20.16-smoke.png).
 
 > Ghi nhận từ test thực tế: bản build đầu tiên hiện dialog **"Lỗi cập nhật — Failed to check for updates"** khi mở app, do updater trỏ repo mới nhưng chưa có release. Đã sửa: auto-check truyền `silent: true`, lỗi mạng/404 không hiện dialog; chỉ báo khi người dùng bấm kiểm tra thủ công.
 
@@ -185,7 +185,7 @@
 | DL-01 | `retubematrix://download?v=1&url=...` khi app tắt | App mở, queue nhận URL                           | `external.rs`, `lib.rs` single-instance |
 | DL-02 | `youwee://...` (legacy)                           | Vẫn mở được, tương thích                         | `external.rs`                           |
 | DL-03 | Link thiếu `v=1`/`url`                            | Bị từ chối, không crash                          | `external.rs`                           |
-| CL-01 | `retubematrix --version`                          | In `RETubeMatrix 0.20.15`                        | `main.rs`, `cli.rs`                     |
+| CL-01 | `retubematrix --version`                          | In `RETubeMatrix 0.20.16`                        | `main.rs`, `cli.rs`                     |
 | CL-02 | `retubematrix <url> --queue-only`                 | Chỉ thêm queue, không tải ngay                   | `build_cli_download_request`            |
 | CL-03 | `retubematrix <url>` khi app đang chạy            | Instance cũ nhận lệnh, không mở app thứ 2        | `single-instance`                       |
 | EX-01 | Load extension Chromium                           | Popup hiện, gửi tab sang app                     | `extensions/retubematrix-webext`        |
