@@ -828,4 +828,30 @@ mod tests {
 
         assert!(print_cli_usage_and_should_exit(&argv));
     }
+
+    #[test]
+    fn cli_argv_accepts_canonical_command_name() {
+        let argv = vec![
+            "retubematrix".to_string(),
+            "https://www.youtube.com/watch?v=abc123".to_string(),
+            "--quality".to_string(),
+            "720".to_string(),
+        ];
+
+        let request =
+            build_cli_download_request_from_argv(&argv).expect("expected CLI request from argv");
+
+        assert_eq!(request.url, "https://www.youtube.com/watch?v=abc123");
+        assert_eq!(request.quality, "720");
+    }
+
+    #[test]
+    fn cli_argv_accepts_legacy_command_name() {
+        let argv = vec![
+            "youwee".to_string(),
+            "https://www.youtube.com/watch?v=abc123".to_string(),
+        ];
+
+        assert!(build_cli_download_request_from_argv(&argv).is_some());
+    }
 }

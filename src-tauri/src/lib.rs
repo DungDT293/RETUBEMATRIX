@@ -960,3 +960,35 @@ fn rebuild_tray_menu_inner(
 
     Ok(())
 }
+
+#[cfg(test)]
+mod branding_tests {
+    use serde_json::Value;
+
+    fn config() -> Value {
+        serde_json::from_str(include_str!("../tauri.conf.json"))
+            .expect("tauri.conf.json should be valid JSON")
+    }
+
+    #[test]
+    fn updater_points_to_own_repository() {
+        let config = config();
+        let endpoint = config["plugins"]["updater"]["endpoints"][0]
+            .as_str()
+            .expect("updater endpoint should exist");
+
+        assert!(endpoint.contains("DungDT293/RETUBEMATRIX"));
+        assert!(!endpoint.contains("vanloctech/youwee"));
+    }
+
+    #[test]
+    fn deep_link_schemes_include_canonical_and_legacy() {
+        let config = config();
+        let schemes = config["plugins"]["deep-link"]["desktop"]["schemes"]
+            .as_array()
+            .expect("deep-link schemes should be an array");
+
+        assert!(schemes.iter().any(|value| value == "retubematrix"));
+        assert!(schemes.iter().any(|value| value == "youwee"));
+    }
+}

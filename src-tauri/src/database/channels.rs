@@ -1176,7 +1176,17 @@ mod tests {
                 download_preferred_fps TEXT NOT NULL DEFAULT 'original',
                 youtube_content_type TEXT NOT NULL DEFAULT 'videos',
                 total_videos INTEGER,
-                youtube_channel_id TEXT
+                youtube_channel_id TEXT,
+                reup_mod_enabled INTEGER DEFAULT 0,
+                reup_mod_speed REAL DEFAULT 1.03,
+                reup_mod_pitch REAL DEFAULT 1.02,
+                reup_mod_flip INTEGER DEFAULT 0,
+                reup_mod_crop REAL DEFAULT 0.015,
+                custom_filename_template TEXT,
+                risk_status TEXT DEFAULT 'green',
+                risk_reason TEXT,
+                bkt_test_mode INTEGER DEFAULT 0,
+                bkt_profile_id TEXT
             );
             CREATE TABLE IF NOT EXISTS channel_videos (
                 id TEXT PRIMARY KEY,
@@ -1190,7 +1200,15 @@ mod tests {
                 upload_timestamp INTEGER,
                 video_type TEXT DEFAULT 'video',
                 status TEXT NOT NULL DEFAULT 'new',
-                created_at TEXT NOT NULL
+                created_at TEXT NOT NULL,
+                view_count INTEGER,
+                risk_status TEXT DEFAULT 'green',
+                risk_reason TEXT,
+                is_bkt_test INTEGER DEFAULT 0,
+                bkt_youtube_id TEXT,
+                bkt_check_status TEXT,
+                bkt_restriction TEXT,
+                reup_pipeline_level INTEGER DEFAULT 1
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_channel_videos_unique
                 ON channel_videos(channel_id, video_id);

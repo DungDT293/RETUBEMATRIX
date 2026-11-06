@@ -1,6 +1,6 @@
 # Kế hoạch Rebrand & Dọn Dead Code — RETubeMatrix
 
-> Trạng thái: **đang thực hiện** · Lập ngày: 2026-11-06
+> Trạng thái: **Hoàn tất P0–P4** (2026-11-06) · P3.8 mới hoàn thành một phần (xem ghi chú cuối).
 > Phạm vi: `reupytb` (RETubeMatrix) sau khi hợp nhất code youwee + BrowserMulti.
 
 ---
@@ -124,16 +124,17 @@ core/window_icon_badge.py
 
 ---
 
-## 6. P4 — Docs & test — 🟡 Một phần (2026-11-06)
+## 6. P4 — Docs & test — ✅ Hoàn tất 2026-11-06
 
 - [x] Đồng bộ `README.md`, `PROJECT_CONTEXT.md`, `AGENTS.md`, `docs/CLI.md`, `docs/PLUGINS.md`, `docs/browser-extension*.md`, `PROVENANCE.md`.
 - [x] Thêm mục `Unreleased` vào 3 changelog + `sdk-js/CHANGELOG.md` (chưa bump version).
 - [x] `cargo test --lib services::plugin`: 34 passed (đã sửa test path cho cross-platform).
 - [x] Test scheme mới: `commands::external` có test `canonical_deep_link_scheme_is_accepted` (4 passed).
-- [ ] Test riêng cho CLI alias, guard updater endpoint.
-- [ ] Cập nhật `TESTER_GUIDE_RETUBEMATRIX.html`.
+- [x] Test CLI alias + guard updater: `branding_tests` (2 passed), `commands::cli` (2 passed).
+- [x] Cập nhật `TESTER_GUIDE_RETUBEMATRIX.html` (phạm vi 0.20.15, trang đã xóa, deep link mới).
 
-> Ghi chú DoD: `rg -i youwee` vẫn còn ~172 dòng, toàn bộ là legacy có chủ đích (scheme cũ, env alias, CSS class, DB migration, add-on ID Firefox, plugin upstream) — đã liệt kê trong `PROVENANCE.md` mục 6.
+> Ghi chú: `cargo test --lib` chạy đủ 234 test (sau khi bổ sung các cột mới vào schema test của `channel_videos`/`followed_channels`). Trước đó 12 test database fail vì schema test thiếu cột `view_count` và các cột risk/BKT — đã sửa.
+> `rg -i youwee` vẫn còn ~172 dòng, toàn bộ là legacy có chủ đích (scheme cũ, env alias, CSS class, DB migration, add-on ID Firefox, plugin upstream) — đã liệt kê trong `PROVENANCE.md` mục 6.
 
 ---
 
