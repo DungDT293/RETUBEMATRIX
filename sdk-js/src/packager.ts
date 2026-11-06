@@ -54,7 +54,7 @@ type SigningKeyRecord = GeneratePluginKeyPairResult;
 function getBunExecutable(): string {
   const execPath = process.execPath;
   if (!execPath) {
-    throw new Error('youwee-sdk build/pack commands require Bun runtime.');
+    throw new Error('retubematrix-sdk build/pack commands require Bun runtime.');
   }
   return execPath;
 }
@@ -282,7 +282,7 @@ function buildPackageInfo(): PackagedPluginBuildInfo {
     packageFormatVersion: PACKAGE_FORMAT_VERSION,
     packagedAt: new Date().toISOString(),
     builder: {
-      tool: 'youwee-sdk',
+      tool: 'retubematrix-sdk',
       version: SDK_VERSION,
     },
     bundle: {

@@ -1,4 +1,4 @@
-# Youwee 插件
+# RETubeMatrix 插件
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 </div>
 
-Youwee 支持已签名的 `.ywp` 插件，用于下载后的工作流。插件可以响应下载事件、请求明确权限、提供强类型配置字段，并执行通知、上传或第三方集成等自定义动作。
+RETubeMatrix 支持已签名的 `.ywp` 插件，用于下载后的工作流。插件可以响应下载事件、请求明确权限、提供强类型配置字段，并执行通知、上传或第三方集成等自定义动作。
 
 插件也可以在应用内提供多语言说明、强类型配置字段、可审批权限，以及基于触发器的工作流步骤。
 
@@ -23,13 +23,13 @@ Youwee 支持已签名的 `.ywp` 插件，用于下载后的工作流。插件�
 
 1. 打开插件仓库或最新版本页面。
 2. 下载已签名的 `.ywp` 包，以及可用的 checksum。
-3. 在 Youwee 中打开 **Settings** -> **Plugins**。
+3. 在 RETubeMatrix 中打开 **Settings** -> **Plugins**。
 4. 导入 `.ywp` 包。
 5. 在工作流中启用前，检查请求的权限和配置字段。
 
 ## 构建自己的插件
 
-开发者可以从 Youwee 创建插件 workspace，附加到应用进行实时调试，然后使用 `youwee-sdk` 构建并签名最终包。
+开发者可以从 RETubeMatrix 创建插件 workspace，附加到应用进行实时调试，然后使用 `retubematrix-sdk` 构建并签名最终包。
 
 - SDK 文档：[sdk-js/README.md](../sdk-js/README.md)
-- SDK 包：[youwee-sdk](https://www.npmjs.com/package/youwee-sdk)
+- SDK 源码：[sdk-js](../sdk-js)（尚未发布到 npm）

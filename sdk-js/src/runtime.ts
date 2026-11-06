@@ -24,12 +24,16 @@ import type {
   PluginLogger,
   PluginPayload,
   PluginResult,
+  RETubeMatrixBridge,
+  RETubeMatrixYouTubeBridge,
   ToolRunner,
   YoutubeSearchOptions,
   YoutubeSearchResponse,
-  YouweeBridge,
-  YouweeYouTubeBridge,
 } from './types';
+
+function readEnv(key: string): string | undefined {
+  return process.env[`RETUBEMATRIX_${key}`] ?? process.env[`YOUWEE_${key}`];
+}
 
 const STRIP_SUBPROCESS_ENV_KEYS = new Set([
   'DYLD_FALLBACK_LIBRARY_PATH',
@@ -197,17 +201,17 @@ function assertSafeToolArgs(toolName: string, args: string[]): void {
 }
 
 function getBridgeUrl(): string {
-  const value = process.env.YOUWEE_PLUGIN_BRIDGE_URL;
+  const value = readEnv('PLUGIN_BRIDGE_URL');
   if (!value) {
-    throw new Error('Youwee plugin bridge is not available in this runtime.');
+    throw new Error('RETubeMatrix plugin bridge is not available in this runtime.');
   }
   return value.replace(/\/+$/, '');
 }
 
 function getBridgeToken(): string {
-  const value = process.env.YOUWEE_PLUGIN_BRIDGE_TOKEN;
+  const value = readEnv('PLUGIN_BRIDGE_TOKEN');
   if (!value) {
-    throw new Error('Youwee plugin bridge token is missing.');
+    throw new Error('RETubeMatrix plugin bridge token is missing.');
   }
   return value;
 }
@@ -223,14 +227,14 @@ async function bridgeRequest<T>(operation: string, payload: unknown): Promise<T>
   });
   const body = (await response.json()) as BridgeResponse<T>;
   if (!response.ok || !body.ok) {
-    throw new Error(body.error || `Youwee plugin bridge request failed: ${operation}`);
+    throw new Error(body.error || `RETubeMatrix plugin bridge request failed: ${operation}`);
   }
   return body.result as T;
 }
 
 function getAvailableBridgeTools(): Set<string> {
   return new Set(
-    (process.env.YOUWEE_PLUGIN_BRIDGE_TOOLS || '')
+    (readEnv('PLUGIN_BRIDGE_TOOLS') || '')
       .split(',')
       .map((item) => item.trim())
       .filter(Boolean),
@@ -245,7 +249,7 @@ function createCommandRunner(toolName: string, toolKey: string): ToolRunner {
     path: null,
     async run(args = [], options = {}) {
       if (!available) {
-        throw new Error(`${toolName} is not available in this Youwee runtime.`);
+        throw new Error(`${toolName} is not available in this RETubeMatrix runtime.`);
       }
 
       assertSafeToolArgs(toolName, args);
@@ -280,7 +284,7 @@ export function spawnCommand(
   assertSafeToolArgs('command', args);
   void options;
   return Promise.reject(
-    new Error('Direct command execution is not available. Use ctx.youwee.tools instead.'),
+    new Error('Direct command execution is not available. Use ctx.retubematrix.tools instead.'),
   );
 }
 
@@ -326,7 +330,7 @@ function createFileSystemBridge(): PluginFileSystemBridge {
       }
       await bridgeRequest<null>('/fs/ensureDir', { path });
     },
-    async tempDir(prefix = 'youwee-plugin-') {
+    async tempDir(prefix = 'retubematrix-plugin-') {
       return await bridgeRequest<string>('/fs/tempDir', { prefix });
     },
   };
@@ -382,15 +386,15 @@ function createHttpBridge(): PluginHttpBridge {
   };
 }
 
-function createYouTubeBridge(): YouweeYouTubeBridge {
+function createYouTubeBridge(): RETubeMatrixYouTubeBridge {
   return {
     async searchVideos(options: YoutubeSearchOptions) {
       if (!options || typeof options !== 'object') {
-        throw new Error('ctx.youwee.youtube.searchVideos(...) expects an options object.');
+        throw new Error('ctx.retubematrix.youtube.searchVideos(...) expects an options object.');
       }
       const query = String(options.query ?? '').trim();
       if (!query && !options.continuation) {
-        throw new Error('ctx.youwee.youtube.searchVideos(...) requires a query.');
+        throw new Error('ctx.retubematrix.youtube.searchVideos(...) requires a query.');
       }
 
       return await bridgeRequest<YoutubeSearchResponse>('/youtube/searchVideos', {
@@ -482,11 +486,11 @@ function normalizeHeaders(headers: Headers): Record<string, string> {
   return output;
 }
 
-function createYouweeBridge(logger: PluginLogger): YouweeBridge {
-  const appVersion = process.env.YOUWEE_APP_VERSION || null;
-  const appLocale = process.env.YOUWEE_APP_LOCALE || null;
-  const appFallbackLocale = process.env.YOUWEE_APP_FALLBACK_LOCALE || null;
-  const appDirection = process.env.YOUWEE_APP_DIRECTION || null;
+function createRETubeMatrixBridge(logger: PluginLogger): RETubeMatrixBridge {
+  const appVersion = readEnv('APP_VERSION') || null;
+  const appLocale = readEnv('APP_LOCALE') || null;
+  const appFallbackLocale = readEnv('APP_FALLBACK_LOCALE') || null;
+  const appDirection = readEnv('APP_DIRECTION') || null;
   return {
     app: {
       version: appVersion,
@@ -496,16 +500,16 @@ function createYouweeBridge(logger: PluginLogger): YouweeBridge {
     },
     sdk: createSdkBridge(appVersion),
     plugin: {
-      id: process.env.YOUWEE_PLUGIN_ID || null,
-      slug: process.env.YOUWEE_PLUGIN_SLUG || null,
-      name: process.env.YOUWEE_PLUGIN_NAME || null,
-      version: process.env.YOUWEE_PLUGIN_VERSION || null,
+      id: readEnv('PLUGIN_ID') || null,
+      slug: readEnv('PLUGIN_SLUG') || null,
+      name: readEnv('PLUGIN_NAME') || null,
+      version: readEnv('PLUGIN_VERSION') || null,
     },
     runtime: {
-      language: process.env.YOUWEE_PLUGIN_LANGUAGE || null,
-      provider: process.env.YOUWEE_PLUGIN_PROVIDER || null,
-      providerSource: process.env.YOUWEE_PLUGIN_PROVIDER_SOURCE || null,
-      timeoutMs: parseNumber(process.env.YOUWEE_PLUGIN_TIMEOUT_MS),
+      language: readEnv('PLUGIN_LANGUAGE') || null,
+      provider: readEnv('PLUGIN_PROVIDER') || null,
+      providerSource: readEnv('PLUGIN_PROVIDER_SOURCE') || null,
+      timeoutMs: parseNumber(readEnv('PLUGIN_TIMEOUT_MS')),
     },
     tools: {
       ffmpeg: createCommandRunner('FFmpeg', 'ffmpeg'),
@@ -551,13 +555,14 @@ function loadLocaleTable(directory: string, locale: string): Record<string, stri
 }
 
 function createI18nBridge(): PluginI18nBridge {
-  const locale = process.env.YOUWEE_APP_LOCALE || 'en';
-  const fallbackLocale = process.env.YOUWEE_APP_FALLBACK_LOCALE || 'en';
-  const defaultLocale = process.env.YOUWEE_PLUGIN_I18N_DEFAULT_LOCALE || 'en';
-  const supportedLocales = process.env.YOUWEE_PLUGIN_I18N_SUPPORTED_LOCALES?.split(',')
+  const locale = readEnv('APP_LOCALE') || 'en';
+  const fallbackLocale = readEnv('APP_FALLBACK_LOCALE') || 'en';
+  const defaultLocale = readEnv('PLUGIN_I18N_DEFAULT_LOCALE') || 'en';
+  const supportedLocales = readEnv('PLUGIN_I18N_SUPPORTED_LOCALES')
+    ?.split(',')
     .map((item) => item.trim())
     .filter(Boolean) || [defaultLocale];
-  const directory = process.env.YOUWEE_PLUGIN_I18N_DIR || 'locales';
+  const directory = readEnv('PLUGIN_I18N_DIR') || 'locales';
   const cache = new Map<string, Record<string, string>>();
 
   const getTable = (candidate: string): Record<string, string> | null => {
@@ -607,7 +612,7 @@ function createI18nBridge(): PluginI18nBridge {
 }
 
 function parsePluginConfig(): Record<string, PluginConfigFieldValue> {
-  const raw = process.env.YOUWEE_PLUGIN_CONFIG_JSON;
+  const raw = readEnv('PLUGIN_CONFIG_JSON');
   if (!raw?.trim()) {
     return {};
   }
@@ -719,7 +724,8 @@ export function createContext(payload: PluginPayload): PluginContext {
     },
     log: logger,
     i18n: createI18nBridge(),
-    youwee: createYouweeBridge(logger),
+    youwee: createRETubeMatrixBridge(logger),
+    retubematrix: createRETubeMatrixBridge(logger),
     ok(
       message,
       metadata = null,

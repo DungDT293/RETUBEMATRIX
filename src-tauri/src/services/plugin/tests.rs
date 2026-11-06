@@ -67,21 +67,21 @@ fn sanitize_slug_normalizes_values() {
 #[test]
 fn classify_plugin_runtime_error_formats_env_error_for_users() {
     let err = classify_plugin_runtime_error(
-        r#"Requires env access to "YOUWEE_AI_PROXY_URL", run again with the --allow-env flag"#,
+        r#"Requires env access to "RETUBEMATRIX_AI_PROXY_URL", run again with the --allow-env flag"#,
     )
     .expect("expected runtime permission error");
 
     assert_eq!(err.kind, "env");
-    assert_eq!(err.resource.as_deref(), Some("YOUWEE_AI_PROXY_URL"));
+    assert_eq!(err.resource.as_deref(), Some("RETUBEMATRIX_AI_PROXY_URL"));
     assert_eq!(err.resource_label.as_deref(), Some("AI proxy setting"));
     assert!(err.user_message.contains("AI helpers are disabled"));
     assert!(err.user_message.contains("AI proxy setting"));
-    assert!(!err.user_message.contains("YOUWEE_AI_PROXY_URL"));
+    assert!(!err.user_message.contains("RETUBEMATRIX_AI_PROXY_URL"));
     assert!(!err.user_message.contains("--allow-env"));
     assert!(err
         .technical_details
         .contains("Deno runtime permission error"));
-    assert!(err.technical_details.contains("YOUWEE_AI_PROXY_URL"));
+    assert!(err.technical_details.contains("RETUBEMATRIX_AI_PROXY_URL"));
 }
 
 #[test]
@@ -100,14 +100,16 @@ fn classify_plugin_runtime_error_formats_run_error_for_users() {
 
 #[test]
 fn plugin_security_policy_blocks_dangerous_output_extensions() {
-    assert!(validate_plugin_output_path(Path::new("/tmp/youwee-output/video.mov")).is_ok());
-    assert!(validate_plugin_output_path(Path::new("/tmp/youwee-output/payload.sh")).is_err());
-    assert!(validate_plugin_output_path(Path::new("/tmp/youwee-output/agent.plist")).is_err());
+    let output_dir = std::env::temp_dir().join("retubematrix-output");
+    assert!(validate_plugin_output_path(&output_dir.join("video.mov")).is_ok());
+    assert!(validate_plugin_output_path(&output_dir.join("payload.sh")).is_err());
+    assert!(validate_plugin_output_path(&output_dir.join("agent.plist")).is_err());
 }
 
 #[test]
 fn plugin_security_policy_blocks_sensitive_write_scopes() {
-    assert!(validate_plugin_write_scope(Path::new("/tmp/youwee-output")).is_ok());
+    let output_dir = std::env::temp_dir().join("retubematrix-output");
+    assert!(validate_plugin_write_scope(&output_dir).is_ok());
     assert!(validate_plugin_write_scope(Path::new("/")).is_err());
 
     if let Some(home) = std::env::var_os("HOME") {
@@ -251,8 +253,8 @@ fn scaffold_readme_mentions_runtime_contract() {
     };
     let readme = build_scaffold_readme(&manifest);
     assert!(readme.contains("supportedProviders"));
-    assert!(readme.contains("ctx.youwee.tools"));
-    assert!(readme.contains("YOUWEE_PLUGIN_SIGNING_KEY"));
+    assert!(readme.contains("ctx.retubematrix.tools"));
+    assert!(readme.contains("RETUBEMATRIX_PLUGIN_SIGNING_KEY"));
 }
 
 #[test]
@@ -266,7 +268,7 @@ fn scaffold_workflows_cover_ci_and_release() {
     assert!(ci_workflow.contains("bun run test:deno"));
     assert!(release_workflow.contains("name: Plugin Release"));
     assert!(release_workflow.contains("bun run typecheck"));
-    assert!(release_workflow.contains("YOUWEE_PLUGIN_SIGNING_KEY"));
+    assert!(release_workflow.contains("RETUBEMATRIX_PLUGIN_SIGNING_KEY"));
     assert!(release_workflow.contains("release/*.ywp"));
 }
 
@@ -300,19 +302,19 @@ fn scaffold_package_json_uses_npm_sdk_dependency() {
         published_at: None,
     };
     let package_json = build_scaffold_package_json(&manifest);
-    assert!(package_json.contains(&format!("\"youwee-sdk\": \"^{}\"", current_sdk_version())));
+    assert!(package_json.contains(&format!("\"retubematrix-sdk\": \"^{}\"", current_sdk_version())));
     assert!(package_json.contains("\"type\": \"module\""));
     assert!(package_json.contains("\"main\": \"src/plugin.ts\""));
     assert!(package_json.contains("\"typescript\": \"^5.9.3\""));
     assert!(package_json.contains(
-        "\"pack\": \"bunx youwee-sdk pack --private-key ./plugin.youwee-plugin-key.json\""
+        "\"pack\": \"bunx retubematrix-sdk pack --private-key ./plugin.retubematrix-plugin-key.json\""
     ));
     assert!(package_json
-        .contains("\"keygen\": \"bunx youwee-sdk keygen ./plugin.youwee-plugin-key.json\""));
+        .contains("\"keygen\": \"bunx retubematrix-sdk keygen ./plugin.retubematrix-plugin-key.json\""));
     assert!(package_json.contains("\"typecheck\": \"tsc --noEmit -p tsconfig.json\""));
     assert!(
             package_json.contains(
-                "\"test:deno\": \"deno run --quiet --unstable-detect-cjs --allow-env --allow-read=. --node-modules-dir=manual node_modules/youwee-sdk/dist/runtime-cli.js src/plugin.ts\""
+                "\"test:deno\": \"deno run --quiet --unstable-detect-cjs --allow-env --allow-read=. --node-modules-dir=manual node_modules/retubematrix-sdk/dist/runtime-cli.js src/plugin.ts\""
             )
         );
 }
@@ -511,13 +513,13 @@ fn compatibility_issues_are_reported_for_mismatched_ranges() {
 
     let issues = collect_compatibility_issues(&manifest).unwrap();
     assert_eq!(issues.len(), 2);
-    assert!(issues[0].contains("Requires Youwee app version"));
-    assert!(issues[1].contains("Requires youwee-sdk version"));
+    assert!(issues[0].contains("Requires RETubeMatrix app version"));
+    assert!(issues[1].contains("Requires retubematrix-sdk version"));
 }
 
 #[test]
 fn app_sdk_bundle_includes_all_runtime_modules() {
-    let temp_dir = std::env::temp_dir().join(format!("youwee-sdk-bundle-{}", uuid::Uuid::new_v4()));
+    let temp_dir = std::env::temp_dir().join(format!("retubematrix-sdk-bundle-{}", uuid::Uuid::new_v4()));
     fs::create_dir_all(&temp_dir).unwrap();
 
     write_sdk_package_files(&temp_dir).unwrap();

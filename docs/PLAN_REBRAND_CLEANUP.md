@@ -109,27 +109,31 @@ core/window_icon_badge.py
 
 ---
 
-## 5. P3 — Rebrand định danh (đổi ngay)
+## 5. P3 — Rebrand định danh — ✅ Hoàn tất 2026-11-06 (3.8 một phần)
 
-| Bước | Nội dung                                                               | File chính                                                        |
-| :--- | :--------------------------------------------------------------------- | :---------------------------------------------------------------- |
-| 3.1  | Chuỗi hiển thị: tray, notification, About, lỗi, extension locales      | `lib.rs`, `polling.rs`, `SettingsPage`, `extensions/.../_locales` |
-| 3.2  | Đường dẫn dữ liệu chuẩn `%LOCALAPPDATA%\RETubeMatrix`; fallback legacy | `core/paths.py`, `browsermulti_engine.py`                         |
-| 3.3  | CLI `retubematrix` (bỏ dần `youwee`)                                   | `cli_shortcut.rs`                                                 |
-| 3.4  | Deep link: `retubematrix://` (+ giữ `youwee://` trong 1 phiên bản)     | `tauri.conf.json`, `external.rs`, `external-link.ts`              |
-| 3.5  | SDK/plugin env: `RETUBEMATRIX_*`; đổi tên package SDK                  | `sdk-js/`, `plugin/bridge.rs`                                     |
-| 3.6  | Extension: đổi thư mục/tên/manifest/deep link                          | `extensions/youwee-webext`                                        |
-| 3.7  | Updater & release (hoàn tất P0.1)                                      | `tauri.conf.json`, `.github/workflows/build.yml`                  |
-| 3.8  | Plugin store: catalog riêng, publisher riêng, validator                | `plugin-store/`, `plugin.rs`                                      |
+| Bước | Nội dung                                                               | Trạng thái                                                                                                                      |
+| :--- | :--------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| 3.1  | Chuỗi hiển thị: tray, notification, About, lỗi, extension locales      | ✅ Đã đổi `Youwee` → `RETubeMatrix` trong notification, Telegram, compatibility, catalog, locales                               |
+| 3.2  | Đường dẫn dữ liệu chuẩn `%LOCALAPPDATA%\RETubeMatrix`; fallback legacy | ✅ Đã chuẩn hoá; fallback `reupytb`/`youwee` giữ nguyên cho migration                                                           |
+| 3.3  | CLI `retubematrix`                                                     | ✅ Shim Windows/macOS/Linux đổi sang `retubematrix`; docs/CLI cập nhật                                                          |
+| 3.4  | Deep link `retubematrix://` (+ legacy `youwee://`)                     | ✅ Đăng ký cả 2 scheme; extension gửi `retubematrix://`; code vẫn nhận link cũ                                                  |
+| 3.5  | SDK/plugin env: `RETUBEMATRIX_*`; đổi tên package SDK                  | ✅ `retubematrix-sdk`; env mới + alias `YOUWEE_*`; `ctx.retubematrix` + `ctx.youwee`                                            |
+| 3.6  | Extension: đổi thư mục/tên/manifest/deep link                          | ✅ `extensions/retubematrix-webext`; build OK; giữ add-on ID Firefox cũ để không mất danh tính AMO                              |
+| 3.7  | Updater & release                                                      | ✅ Endpoint/key P0; workflow đổi tên artifact, `retubematrix-yt-dlp-*`, Flatpak ID mới                                          |
+| 3.8  | Plugin store: catalog riêng, publisher riêng, validator                | ⚠️ Catalog trỏ repo riêng + mô tả đã rebrand; publisher/validator vẫn giữ `vanloctech` vì các gói `.ywp` hiện có do upstream ký |
 
 ---
 
-## 6. P4 — Docs & test
+## 6. P4 — Docs & test — 🟡 Một phần (2026-11-06)
 
-- [ ] Đồng bộ `README.md`, `PROJECT_CONTEXT.md`, `AGENTS.md`, `docs/CLI.md`, `docs/PLUGINS.md`.
-- [ ] Cập nhật 3 changelog khi bump version.
-- [ ] Test: scheme cũ/mới, CLI alias, migration localStorage, guard updater endpoint, import closure browser_engine.
+- [x] Đồng bộ `README.md`, `PROJECT_CONTEXT.md`, `AGENTS.md`, `docs/CLI.md`, `docs/PLUGINS.md`, `docs/browser-extension*.md`, `PROVENANCE.md`.
+- [x] Thêm mục `Unreleased` vào 3 changelog + `sdk-js/CHANGELOG.md` (chưa bump version).
+- [x] `cargo test --lib services::plugin`: 34 passed (đã sửa test path cho cross-platform).
+- [x] Test scheme mới: `commands::external` có test `canonical_deep_link_scheme_is_accepted` (4 passed).
+- [ ] Test riêng cho CLI alias, guard updater endpoint.
 - [ ] Cập nhật `TESTER_GUIDE_RETUBEMATRIX.html`.
+
+> Ghi chú DoD: `rg -i youwee` vẫn còn ~172 dòng, toàn bộ là legacy có chủ đích (scheme cũ, env alias, CSS class, DB migration, add-on ID Firefox, plugin upstream) — đã liệt kê trong `PROVENANCE.md` mục 6.
 
 ---
 

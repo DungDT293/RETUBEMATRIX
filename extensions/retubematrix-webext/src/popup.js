@@ -1,5 +1,5 @@
 (() => {
-  const ext = globalThis.YouweeExt;
+  const ext = globalThis.RETubeMatrixExt;
   if (!ext) return;
 
   const api = ext.getExtensionApi();
@@ -367,10 +367,10 @@
   }
 
   function updateTexts() {
-    document.title = t('extensionName', 'Youwee Downloader');
-    titleEl.textContent = t('popupTitle', 'Download with Youwee');
+    document.title = t('extensionName', 'RETubeMatrix Downloader');
+    titleEl.textContent = t('popupTitle', 'Download with RETubeMatrix');
     versionLinkEl.textContent = `v${manifestVersion}`;
-    versionLinkEl.title = t('popupOpenRelease', 'Get / Update Youwee');
+    versionLinkEl.title = t('popupOpenRelease', 'Get / Update RETubeMatrix');
     urlLabelEl.textContent = t('popupCurrentUrl', 'Current URL');
     copyUrlIconBtn.title = t('popupCopyUrl', 'Copy URL');
     copyUrlIconBtn.setAttribute('aria-label', t('popupCopyUrl', 'Copy URL'));
@@ -382,7 +382,7 @@
     setActionButtonContent(
       downloadBtn,
       ACTION_ICONS.download,
-      t('popupPrimaryAction', 'Download now with Youwee'),
+      t('popupPrimaryAction', 'Download now with RETubeMatrix'),
     );
     setActionButtonContent(queueBtn, ACTION_ICONS.queue, t('popupQueueAction', 'Add to queue'));
     setActionButtonContent(summaryBtn, ACTION_ICONS.summary, t('popupSummaryAction', 'AI Summary'));
@@ -397,7 +397,7 @@
 
     if (!isHttp) {
       urlValueEl.textContent = t('popupUrlUnavailable', 'No valid HTTP/HTTPS URL in current tab.');
-      setStatus(t('popupStatusInvalid', 'This tab cannot be sent to Youwee.'), 'error');
+      setStatus(t('popupStatusInvalid', 'This tab cannot be sent to RETubeMatrix.'), 'error');
       downloadBtn.disabled = true;
       queueBtn.disabled = true;
       summaryBtn.disabled = true;
@@ -446,8 +446,8 @@
       }
       setStatus(
         action === 'queue_only'
-          ? t('popupStatusQueued', 'Sent to queue in Youwee.')
-          : t('popupStatusOpening', 'Opening Youwee...'),
+          ? t('popupStatusQueued', 'Sent to queue in RETubeMatrix.')
+          : t('popupStatusOpening', 'Opening RETubeMatrix...'),
         'ok',
       );
     } catch {
@@ -455,12 +455,12 @@
         ext.openDeepLink(currentUrl, undefined, options);
         setStatus(
           action === 'queue_only'
-            ? t('popupStatusQueued', 'Sent to queue in Youwee.')
-            : t('popupStatusOpening', 'Opening Youwee...'),
+            ? t('popupStatusQueued', 'Sent to queue in RETubeMatrix.')
+            : t('popupStatusOpening', 'Opening RETubeMatrix...'),
           'ok',
         );
       } catch {
-        setStatus(t('popupStatusOpenFailed', 'Failed to open Youwee.'), 'error');
+        setStatus(t('popupStatusOpenFailed', 'Failed to open RETubeMatrix.'), 'error');
       }
     }
   }
@@ -478,13 +478,13 @@
       } else {
         ext.openSummaryDeepLink(currentUrl);
       }
-      setStatus(t('popupStatusSummaryOpening', 'Opening AI Summary in Youwee...'), 'ok');
+      setStatus(t('popupStatusSummaryOpening', 'Opening AI Summary in RETubeMatrix...'), 'ok');
     } catch {
       try {
         ext.openSummaryDeepLink(currentUrl);
-        setStatus(t('popupStatusSummaryOpening', 'Opening AI Summary in Youwee...'), 'ok');
+        setStatus(t('popupStatusSummaryOpening', 'Opening AI Summary in RETubeMatrix...'), 'ok');
       } catch {
-        setStatus(t('popupStatusOpenFailed', 'Failed to open Youwee.'), 'error');
+        setStatus(t('popupStatusOpenFailed', 'Failed to open RETubeMatrix.'), 'error');
       }
     }
   }

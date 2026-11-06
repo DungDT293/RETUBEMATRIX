@@ -1,16 +1,26 @@
 # Changelog
 
-All notable changes to `youwee-sdk` should be documented in this file.
+All notable changes to `retubematrix-sdk` should be documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Package rename** - The SDK is now published as `retubematrix-sdk` (was `youwee-sdk`).
+- **Environment prefix** - Runtime reads `RETUBEMATRIX_*` variables first and falls back to `YOUWEE_*`; the runtime CLI mirrors new variables to legacy names for older plugins.
+- **Context alias** - `ctx.retubematrix` is available alongside `ctx.youwee`.
+
+### Deprecated
+
+- `YouweeBridge` and `YouweeYouTubeBridge` type aliases are kept for compatibility with existing plugin source.
+
 ## [2.3.0] - 2026-06-29
 
 ### Added
 
-- **Recovered download mutation** - Added a `recovered` mutation flag so `download.failed` plugins can ask Youwee to mark a successfully recovered file as completed.
+- **Recovered download mutation** - Added a `recovered` mutation flag so `download.failed` plugins can ask RETubeMatrix to mark a successfully recovered file as completed.
 
 ## [2.2.0] - 2026-06-07
 
@@ -22,33 +32,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- **Binary and directory filesystem bridge APIs** - Added `ctx.youwee.fs.readBytes(...)`, `readBase64(...)`, `writeBytes(...)`, `writeBase64(...)`, and `readDir(...)` so approved read/write permissions work for binary payloads and directory listings through Youwee's app-mediated runtime bridge.
+- **Binary and directory filesystem bridge APIs** - Added `ctx.youwee.fs.readBytes(...)`, `readBase64(...)`, `writeBytes(...)`, `writeBase64(...)`, and `readDir(...)` so approved read/write permissions work for binary payloads and directory listings through RETubeMatrix's app-mediated runtime bridge.
 
 ## [2.1.0] - 2026-05-27
 
 ### Added
 
-- **Safe plugin cleanup API** - Added `ctx.youwee.fs.removeFile(...)` for deleting files created during the current plugin run or files inside Youwee-managed plugin temp directories.
+- **Safe plugin cleanup API** - Added `ctx.youwee.fs.removeFile(...)` for deleting files created during the current plugin run or files inside RETubeMatrix-managed plugin temp directories.
 
 ### Changed
 
-- **Filesystem cleanup policy** - Documented that plugin cleanup still goes through Youwee's runtime bridge and cannot delete pre-existing user files, directories, symlinks, or unsafe output paths.
-- **Compatibility baseline** - Updated SDK examples to target Youwee `>=0.15.0`, because `removeFile(...)` requires the newer runtime bridge.
+- **Filesystem cleanup policy** - Documented that plugin cleanup still goes through RETubeMatrix's runtime bridge and cannot delete pre-existing user files, directories, symlinks, or unsafe output paths.
+- **Compatibility baseline** - Updated SDK examples to target RETubeMatrix `>=0.15.0`, because `removeFile(...)` requires the newer runtime bridge.
 - **Stable package filename** - Changed the default `pack` output from `release/<slug>-<version>.ywp` to `release/<slug>.ywp` while keeping the plugin version inside package metadata.
 
 ## [2.0.0] - 2026-05-27
 
 ### Changed
 
-- **App-mediated runtime permissions** - Reworked filesystem and tool access so installed plugins must use Youwee's runtime bridge through `ctx.youwee.fs` and `ctx.youwee.tools` instead of receiving direct Deno write/run permissions.
-- **Tool execution contract** - `ctx.youwee.tools.ffmpeg.run(...)` and `ctx.youwee.tools.ytdlp.run(...)` now delegate to Youwee, which runs approved tool binaries without a shell and validates tool arguments against approved read/write scopes.
+- **App-mediated runtime permissions** - Reworked filesystem and tool access so installed plugins must use RETubeMatrix's runtime bridge through `ctx.youwee.fs` and `ctx.youwee.tools` instead of receiving direct Deno write/run permissions.
+- **Tool execution contract** - `ctx.youwee.tools.ffmpeg.run(...)` and `ctx.youwee.tools.ytdlp.run(...)` now delegate to RETubeMatrix, which runs approved tool binaries without a shell and validates tool arguments against approved read/write scopes.
 - **TypeScript-first plugin workspaces** - Changed generated plugin workspaces to use `src/plugin.ts`, ESM exports, `tsconfig.json`, and a `typecheck` script by default.
 - **Workspace test script** - Updated generated `test:deno` scripts to avoid direct `--allow-write`, making local checks better match the installed runtime security model.
-- **Compatibility baseline** - Updated SDK examples to target Youwee `>=0.14.1 <0.15.0`, because SDK 2.x expects the app-mediated plugin bridge.
+- **Compatibility baseline** - Updated SDK examples to target RETubeMatrix `>=0.14.1 <0.15.0`, because SDK 2.x expects the app-mediated plugin bridge.
 
 ### Added
 
-- **Plugin output safety policy** - Documented the SDK 2.x policy that Youwee blocks dangerous write scopes, executable output extensions, unsafe command-like tool arguments, and unsafe result mutation paths.
+- **Plugin output safety policy** - Documented the SDK 2.x policy that RETubeMatrix blocks dangerous write scopes, executable output extensions, unsafe command-like tool arguments, and unsafe result mutation paths.
 
 ### Removed
 
@@ -59,7 +69,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- **Plugin icon resolution** - Relaxed plugin icon handling so manifests can declare any Lucide icon name, with Youwee resolving both PascalCase and kebab-case names and falling back safely to `Puzzle`.
+- **Plugin icon resolution** - Relaxed plugin icon handling so manifests can declare any Lucide icon name, with RETubeMatrix resolving both PascalCase and kebab-case names and falling back safely to `Puzzle`.
 
 ### Fixed
 
@@ -76,18 +86,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- **Localized plugin guides in packages** - Updated the `.ywp` packager to include localized README files such as `README.vi.md` and `README.zh-CN.md` so Youwee can show the correct guide for the current app language after installation.
+- **Localized plugin guides in packages** - Updated the `.ywp` packager to include localized README files such as `README.vi.md` and `README.zh-CN.md` so RETubeMatrix can show the correct guide for the current app language after installation.
 
 ## [1.0.2] - 2026-05-23
 
 ### Added
 
-- **Plugin icon manifest support** - Added optional `icon` metadata for plugins so Youwee can render a declared plugin icon and fall back cleanly to the default icon when none is provided.
+- **Plugin icon manifest support** - Added optional `icon` metadata for plugins so RETubeMatrix can render a declared plugin icon and fall back cleanly to the default icon when none is provided.
 
 ### Fixed
 
 - **Workspace package helper** - Updated `createPluginPackageJson()` so generated plugin workspaces include the same `build`, `pack`, `keygen`, and `test:deno` scripts as the app scaffold.
-- **Workspace CLI pack flow** - Fixed the SDK CLI argument parsing so `youwee-sdk pack --private-key ...` no longer treats the private key path as the plugin root.
+- **Workspace CLI pack flow** - Fixed the SDK CLI argument parsing so `retubematrix-sdk pack --private-key ...` no longer treats the private key path as the plugin root.
 
 ## [1.0.1] - 2026-05-23
 
@@ -109,6 +119,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - **Runtime bootstrap** - Added `runtime-cli` so plugin packages do not need per-plugin runner files.
 - **Hook contract** - Added typed trigger contracts for download and processing lifecycle hooks.
-- **Capability bridge** - Added accessors for Youwee runtime metadata, tool paths, AI configuration, filesystem helpers, and HTTP helpers.
+- **Capability bridge** - Added accessors for RETubeMatrix runtime metadata, tool paths, AI configuration, filesystem helpers, and HTTP helpers.
 - **Manifest helpers** - Added manifest validation and package template helpers for plugin authoring workflows.
 - **Compatibility policy** - Added app-version and SDK-version compatibility helpers and enforcement-ready manifest fields.

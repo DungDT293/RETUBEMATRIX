@@ -362,7 +362,7 @@ async fn handle_bridge_request(
             let request: FsTempDirRequest = parse_body(&body)?;
             let prefix = request
                 .prefix
-                .unwrap_or_else(|| "youwee-plugin-".to_string());
+                .unwrap_or_else(|| "retubematrix-plugin-".to_string());
             let path = plugin_temp_dir_path(&prefix);
             validate_write_scope_path(&policy, &path)?;
             tokio::fs::create_dir_all(&path)
@@ -649,7 +649,7 @@ async fn validate_remove_file_path(
     }
     if !is_removable_plugin_file(state, path).await {
         return Err(
-            "This plugin can only delete files it created during this run or files inside its Youwee-managed temp directory."
+            "This plugin can only delete files it created during this run or files inside its RETubeMatrix-managed temp directory."
                 .to_string(),
         );
     }
@@ -759,7 +759,7 @@ mod tests {
 
     fn test_dir(name: &str) -> PathBuf {
         let path = std::env::temp_dir().join(format!(
-            "youwee-plugin-bridge-test-{name}-{}",
+            "retubematrix-plugin-bridge-test-{name}-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&path).expect("create test dir");

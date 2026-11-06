@@ -1,18 +1,18 @@
 {
   "extensionName": {
-    "message": "Youwee Downloader Bridge"
+    "message": "RETubeMatrix Downloader Bridge"
   },
   "extensionDescription": {
-    "message": "Gửi trang video hiện tại sang ứng dụng Youwee desktop và tải nhanh."
+    "message": "Gửi trang video hiện tại sang ứng dụng RETubeMatrix desktop và tải nhanh."
   },
   "floatingButton": {
-    "message": "Tải với Youwee"
+    "message": "Tải với RETubeMatrix"
   },
   "floatingLauncher": {
-    "message": "Youwee"
+    "message": "RETubeMatrix"
   },
   "floatingMenuTitle": {
-    "message": "Tải với Youwee"
+    "message": "Tải với RETubeMatrix"
   },
   "floatingMedia": {
     "message": "Loại"
@@ -45,7 +45,7 @@
     "message": "Tóm tắt AI"
   },
   "floatingButtonOpening": {
-    "message": "Đang mở Youwee..."
+    "message": "Đang mở RETubeMatrix..."
   },
   "floatingButtonSummaryOpening": {
     "message": "Đang mở tóm tắt..."
@@ -57,7 +57,7 @@
     "message": "Đã thêm vào queue"
   },
   "floatingButtonFailed": {
-    "message": "Không thể mở Youwee"
+    "message": "Không thể mở RETubeMatrix"
   },
   "floatingCollapse": {
     "message": "Thu gọn"
@@ -75,10 +75,10 @@
     "message": "Tắt nút nổi"
   },
   "popupTitle": {
-    "message": "Tải với Youwee"
+    "message": "Tải với RETubeMatrix"
   },
   "popupDescription": {
-    "message": "Mở Youwee và bắt đầu tải trang video hiện tại chỉ với một lần bấm."
+    "message": "Mở RETubeMatrix và bắt đầu tải trang video hiện tại chỉ với một lần bấm."
   },
   "popupCurrentUrl": {
     "message": "URL hiện tại"
@@ -96,7 +96,7 @@
     "message": "Sao chép URL"
   },
   "popupOpenRelease": {
-    "message": "Tải / Cập nhật Youwee"
+    "message": "Tải / Cập nhật RETubeMatrix"
   },
   "popupFloatingLabel": {
     "message": "Nút nổi"
@@ -117,13 +117,13 @@
     "message": "by"
   },
   "popupHint": {
-    "message": "Lần đầu, trình duyệt có thể hỏi \"Open Youwee?\". Chọn \"Always allow\" để dùng mượt hơn."
+    "message": "Lần đầu, trình duyệt có thể hỏi \"Open RETubeMatrix?\". Chọn \"Always allow\" để dùng mượt hơn."
   },
   "popupUrlUnavailable": {
     "message": "Tab hiện tại không có URL HTTP/HTTPS hợp lệ."
   },
   "popupStatusInvalid": {
-    "message": "Không thể gửi tab này sang Youwee."
+    "message": "Không thể gửi tab này sang RETubeMatrix."
   },
   "popupStatusSupported": {
     "message": "Trang được hỗ trợ. Nút nổi đã sẵn sàng."
@@ -132,16 +132,16 @@
     "message": "Trang này không hiện nút nổi, nhưng vẫn có thể gửi bằng popup."
   },
   "popupStatusOpening": {
-    "message": "Đang mở Youwee..."
+    "message": "Đang mở RETubeMatrix..."
   },
   "popupStatusQueued": {
-    "message": "Đã gửi vào queue của Youwee."
+    "message": "Đã gửi vào queue của RETubeMatrix."
   },
   "popupStatusSummaryOpening": {
-    "message": "Đang mở AI Summary trong Youwee..."
+    "message": "Đang mở AI Summary trong RETubeMatrix..."
   },
   "popupStatusOpenFailed": {
-    "message": "Mở Youwee thất bại."
+    "message": "Mở RETubeMatrix thất bại."
   },
   "popupCopied": {
     "message": "Đã sao chép URL."

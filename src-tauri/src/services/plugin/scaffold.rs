@@ -19,7 +19,7 @@ pub(super) fn build_scaffold_plugin_module(manifest: &PluginManifest) -> String 
         .map(|trigger| sdk_trigger_identifier(trigger))
         .unwrap_or("triggers.downloadCompleted");
     format!(
-        r#"import {{ definePlugin, triggers, type PluginDefinition }} from "youwee-sdk";
+        r#"import {{ definePlugin, triggers, type PluginDefinition }} from "retubematrix-sdk";
 
 const plugin = definePlugin({{
   meta: {{
@@ -33,14 +33,14 @@ const plugin = definePlugin({{
       ctx.log.info(ctx.i18n.t("log.hookStarted"), {{
         filename: ctx.file.name,
         trigger: ctx.trigger,
-        ffmpegAvailable: ctx.youwee.tools.ffmpeg.available,
+        ffmpegAvailable: ctx.retubematrix.tools.ffmpeg.available,
       }});
 
       // Start editing here:
       // 1. Read the downloaded file info from ctx.file
       // 2. Read extra metadata from ctx.media or ctx.download
       // 3. Read plugin config from ctx.config.require("yourConfigKey")
-      // 4. Use approved app capabilities from ctx.youwee.fs, ctx.youwee.tools, or ctx.youwee.youtube
+      // 4. Use approved app capabilities from ctx.retubematrix.fs, ctx.retubematrix.tools, or ctx.retubematrix.youtube
       // 5. Return ctx.ok(...) or ctx.fail(...)
 
       return ctx.ok(ctx.i18n.t("result.success"), {{
@@ -85,14 +85,14 @@ pub(super) fn build_scaffold_package_json(manifest: &PluginManifest) -> String {
   "type": "module",
   "main": "src/plugin.ts",
   "scripts": {{
-    "build": "bunx youwee-sdk build",
-    "pack": "bunx youwee-sdk pack --private-key ./plugin.youwee-plugin-key.json",
-    "keygen": "bunx youwee-sdk keygen ./plugin.youwee-plugin-key.json",
+    "build": "bunx retubematrix-sdk build",
+    "pack": "bunx retubematrix-sdk pack --private-key ./plugin.retubematrix-plugin-key.json",
+    "keygen": "bunx retubematrix-sdk keygen ./plugin.retubematrix-plugin-key.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test:deno": "deno run --quiet --unstable-detect-cjs --allow-env --allow-read=. --node-modules-dir=manual node_modules/youwee-sdk/dist/runtime-cli.js src/plugin.ts"
+    "test:deno": "deno run --quiet --unstable-detect-cjs --allow-env --allow-read=. --node-modules-dir=manual node_modules/retubematrix-sdk/dist/runtime-cli.js src/plugin.ts"
   }},
   "dependencies": {{
-    "youwee-sdk": "^{sdk_version}"
+    "retubematrix-sdk": "^{sdk_version}"
   }},
   "devDependencies": {{
     "typescript": "^5.9.3"
@@ -105,7 +105,7 @@ pub(super) fn build_scaffold_package_json(manifest: &PluginManifest) -> String {
         description = manifest
             .description
             .as_deref()
-            .unwrap_or("Youwee plugin scaffold")
+            .unwrap_or("RETubeMatrix plugin scaffold")
             .replace('"', "\\\"")
     )
 }
@@ -208,13 +208,13 @@ jobs:
 
       - name: Restore signing key
         env:
-          YOUWEE_PLUGIN_SIGNING_KEY: ${{ secrets.YOUWEE_PLUGIN_SIGNING_KEY }}
+          RETUBEMATRIX_PLUGIN_SIGNING_KEY: ${{ secrets.RETUBEMATRIX_PLUGIN_SIGNING_KEY }}
         run: |
-          if [ -z "$YOUWEE_PLUGIN_SIGNING_KEY" ]; then
-            echo "Missing YOUWEE_PLUGIN_SIGNING_KEY secret."
+          if [ -z "$RETUBEMATRIX_PLUGIN_SIGNING_KEY" ]; then
+            echo "Missing RETUBEMATRIX_PLUGIN_SIGNING_KEY secret."
             exit 1
           fi
-          printf '%s' "$YOUWEE_PLUGIN_SIGNING_KEY" > plugin.youwee-plugin-key.json
+          printf '%s' "$RETUBEMATRIX_PLUGIN_SIGNING_KEY" > plugin.retubematrix-plugin-key.json
 
       - name: Typecheck plugin
         run: bun run typecheck
@@ -255,10 +255,10 @@ pub(super) fn build_scaffold_readme(manifest: &PluginManifest) -> String {
 
 ## Overview
 
-This plugin scaffold targets the Youwee JavaScript plugin runtime.
+This plugin scaffold targets the RETubeMatrix JavaScript plugin runtime.
 
 For JavaScript plugins:
-- `Deno` is the runtime used by Youwee to execute the plugin
+- `Deno` is the runtime used by RETubeMatrix to execute the plugin
 - `Bun` is only the local authoring toolchain for install/build/pack commands in this workspace
 
 Identity:
@@ -268,16 +268,16 @@ Identity:
 - `language`: `{language}`
 - `supportedProviders`: `{providers}`
 - `preferredProvider`: `{preferred}`
-- `compatibility.appVersion`: use this to declare the minimum compatible Youwee app range
+- `compatibility.appVersion`: use this to declare the minimum compatible RETubeMatrix app range
 - `compatibility.sdkVersion`: use this to declare the minimum compatible SDK range
 
 Package layout:
-- `plugin.json`: plugin manifest consumed by Youwee
+- `plugin.json`: plugin manifest consumed by RETubeMatrix
 - `package.json`: package metadata and local test scripts
 - `tsconfig.json`: TypeScript compiler settings for editor and CI checks
 - `src/plugin.ts`: TypeScript plugin module and hook implementations
 - `locales/en.json`: default translation file for plugin messages
-- `README.md`: default documentation shown inside Youwee
+- `README.md`: default documentation shown inside RETubeMatrix
 - `README.vi.md` / `README.zh-CN.md`: optional localized plugin guides shown when the app language matches
 - `dist/`: bundled runtime output generated by the build command
 - `release/`: packaged `.ywp` output generated by the pack command
@@ -287,15 +287,15 @@ Package layout:
 
 The plugin entrypoint is `src/plugin.ts`.
 
-You do not need a per-plugin runner file. Youwee launches the shared bootstrap from
-`youwee-sdk` and passes your plugin entry module through the runtime bridge.
+You do not need a per-plugin runner file. RETubeMatrix launches the shared bootstrap from
+`retubematrix-sdk` and passes your plugin entry module through the runtime bridge.
 
 The installed plugin runtime is intentionally constrained:
 - Deno does not receive direct `--allow-write` or `--allow-run`
-- filesystem access must use `ctx.youwee.fs`
-- FFmpeg and yt-dlp must use `ctx.youwee.tools`
-- YouTube keyword search should use `ctx.youwee.youtube.searchVideos(...)` with approved network permission
-- tool execution is mediated by Youwee and does not use a shell
+- filesystem access must use `ctx.retubematrix.fs`
+- FFmpeg and yt-dlp must use `ctx.retubematrix.tools`
+- YouTube keyword search should use `ctx.retubematrix.youtube.searchVideos(...)` with approved network permission
+- tool execution is mediated by RETubeMatrix and does not use a shell
 - output files must stay inside approved write scopes and cannot use dangerous executable extensions
 
 ## Trigger naming
@@ -323,7 +323,7 @@ Do not write values like `"triggers.downloadCompleted"` in `plugin.json`.
 ## Execution model
 
 Execution flow:
-1. Youwee dispatches a trigger such as `download.completed`
+1. RETubeMatrix dispatches a trigger such as `download.completed`
 2. The shared SDK bootstrap loads `src/plugin.ts`
 3. The SDK reads the payload JSON from `stdin`
 4. The SDK creates `ctx`
@@ -352,19 +352,19 @@ Available high-level APIs:
 - `ctx.config.require(...)`
 - `ctx.log.info(...)`
 - `ctx.i18n.t(...)`
-- `ctx.youwee.runtime`
-- `ctx.youwee.app.version`
-- `ctx.youwee.app.locale`
-- `ctx.youwee.sdk.assertAppVersion(...)`
-- `ctx.youwee.tools.ffmpeg`
-- `ctx.youwee.tools.ytdlp`
-- `ctx.youwee.fs.readText(...)`
-- `ctx.youwee.fs.readDir(...)`
-- `ctx.youwee.fs.readBytes(...)`
-- `ctx.youwee.fs.writeText(...)`
-- `ctx.youwee.fs.writeBytes(...)`
-- `ctx.youwee.fs.removeFile(...)`
-- `ctx.youwee.http.getJson(...)`
+- `ctx.retubematrix.runtime`
+- `ctx.retubematrix.app.version`
+- `ctx.retubematrix.app.locale`
+- `ctx.retubematrix.sdk.assertAppVersion(...)`
+- `ctx.retubematrix.tools.ffmpeg`
+- `ctx.retubematrix.tools.ytdlp`
+- `ctx.retubematrix.fs.readText(...)`
+- `ctx.retubematrix.fs.readDir(...)`
+- `ctx.retubematrix.fs.readBytes(...)`
+- `ctx.retubematrix.fs.writeText(...)`
+- `ctx.retubematrix.fs.writeBytes(...)`
+- `ctx.retubematrix.fs.removeFile(...)`
+- `ctx.retubematrix.http.getJson(...)`
 - `ctx.ok(...)`
 - `ctx.fail(...)`
 
@@ -435,31 +435,31 @@ Do not use `permissions.env` for plugin-defined configuration. It is obsolete.
 
 Use filesystem capabilities instead of hardcoding user-specific absolute paths.
 For example, `fs.user-selected.*` should be paired with `file` or `directory`
-config fields so Youwee can resolve the actual path on each machine.
+config fields so RETubeMatrix can resolve the actual path on each machine.
 
 Runtime permission mapping:
-- `fs.plugin.read` allows reading files from this workspace/package through `ctx.youwee.fs`
-- `fs.plugin.write` allows writing inside this workspace/package only when Youwee approves it
+- `fs.plugin.read` allows reading files from this workspace/package through `ctx.retubematrix.fs`
+- `fs.plugin.write` allows writing inside this workspace/package only when RETubeMatrix approves it
 - `fs.payload-file.read` allows reading the current downloaded file
 - `fs.payload-directory.read` allows reading and listing the current download directory
 - `fs.payload-directory.write` allows writing beside the current downloaded file
 - `fs.temp.read` and `fs.temp.write` allow app-managed temporary work files
 - `fs.user-selected.read` and `fs.user-selected.write` use user-selected `file` or `directory` config fields
-- `tool.ffmpeg.run` allows `ctx.youwee.tools.ffmpeg.run(...)`
-- `tool.ytdlp.run` allows `ctx.youwee.tools.ytdlp.run(...)`
+- `tool.ffmpeg.run` allows `ctx.retubematrix.tools.ffmpeg.run(...)`
+- `tool.ytdlp.run` allows `ctx.retubematrix.tools.ytdlp.run(...)`
 
-Use `ctx.youwee.fs.readText(...)` / `ctx.youwee.fs.writeText(...)` for UTF-8 text files.
-Use `ctx.youwee.fs.readBytes(...)`, `ctx.youwee.fs.readBase64(...)`, `ctx.youwee.fs.writeBytes(...)`, or
-`ctx.youwee.fs.writeBase64(...)` for binary files such as media, thumbnails, archives, and upload payloads.
-Use `ctx.youwee.fs.readDir(...)` when the plugin has directory read permission and needs to list files.
+Use `ctx.retubematrix.fs.readText(...)` / `ctx.retubematrix.fs.writeText(...)` for UTF-8 text files.
+Use `ctx.retubematrix.fs.readBytes(...)`, `ctx.retubematrix.fs.readBase64(...)`, `ctx.retubematrix.fs.writeBytes(...)`, or
+`ctx.retubematrix.fs.writeBase64(...)` for binary files such as media, thumbnails, archives, and upload payloads.
+Use `ctx.retubematrix.fs.readDir(...)` when the plugin has directory read permission and needs to list files.
 
 Do not call `Deno.Command(...)`, `child_process`, shell wrappers, or direct filesystem write APIs
 for plugin capabilities. They are blocked in the installed runtime. Use the SDK context APIs so
-Youwee can enforce the user's approved permissions.
+RETubeMatrix can enforce the user's approved permissions.
 
-For cleanup, use `ctx.youwee.fs.removeFile(path)`. It can only remove regular files created during
-the current plugin run or files inside a Youwee-managed temp directory returned by
-`ctx.youwee.fs.tempDir(...)`. It cannot remove directories, symlinks, dangerous output paths, or
+For cleanup, use `ctx.retubematrix.fs.removeFile(path)`. It can only remove regular files created during
+the current plugin run or files inside a RETubeMatrix-managed temp directory returned by
+`ctx.retubematrix.fs.tempDir(...)`. It cannot remove directories, symlinks, dangerous output paths, or
 user files that existed before the plugin run started.
 
 This scaffold is optimized for:
@@ -485,14 +485,14 @@ bun run typecheck
 Build a bundled runtime artifact with the Bun toolchain:
 
 ```bash
-bunx youwee-sdk build
+bunx retubematrix-sdk build
 ```
 
 Create a distributable package with the Bun toolchain:
 
 ```bash
-bunx youwee-sdk keygen ./plugin.youwee-plugin-key.json
-bunx youwee-sdk pack --private-key ./plugin.youwee-plugin-key.json
+bunx retubematrix-sdk keygen ./plugin.retubematrix-plugin-key.json
+bunx retubematrix-sdk pack --private-key ./plugin.retubematrix-plugin-key.json
 ```
 
 ## GitHub Actions
@@ -505,15 +505,15 @@ This scaffold includes:
 Recommended setup:
 
 1. Push the workspace to a GitHub repository
-2. Add the secret `YOUWEE_PLUGIN_SIGNING_KEY`
-3. Store the full JSON contents of `plugin.youwee-plugin-key.json` in that secret
+2. Add the secret `RETUBEMATRIX_PLUGIN_SIGNING_KEY`
+3. Store the full JSON contents of `plugin.retubematrix-plugin-key.json` in that secret
 4. Create a tag like `v0.1.0` to trigger the release workflow
 
 The CI workflow uses Bun for dependency installation, TypeScript checking, and packaging, then runs a Deno runtime check.
 
 The release workflow:
 
-1. restores the signing key from `YOUWEE_PLUGIN_SIGNING_KEY`
+1. restores the signing key from `RETUBEMATRIX_PLUGIN_SIGNING_KEY`
 2. typechecks the plugin
 3. builds the plugin with the Bun toolchain
 4. packs a signed `.ywp`
@@ -526,18 +526,18 @@ bun run test:deno < examples/payload.download.completed.json
 ```
 
 The local Deno check validates the plugin module and hook contract without granting direct write/run
-permissions. Full testing for `ctx.youwee.fs` and `ctx.youwee.tools` should be done by attaching the
-workspace in Youwee, because those APIs need the app-mediated runtime bridge.
+permissions. Full testing for `ctx.retubematrix.fs` and `ctx.retubematrix.tools` should be done by attaching the
+workspace in RETubeMatrix, because those APIs need the app-mediated runtime bridge.
 
 ## Packaging
 
 To share this plugin:
-1. Run `bunx youwee-sdk keygen ./plugin.youwee-plugin-key.json` if you do not already have a signing key
-2. Run `bunx youwee-sdk pack --private-key ./plugin.youwee-plugin-key.json`
+1. Run `bunx retubematrix-sdk keygen ./plugin.retubematrix-plugin-key.json` if you do not already have a signing key
+2. Run `bunx retubematrix-sdk pack --private-key ./plugin.retubematrix-plugin-key.json`
 3. Find the generated `.ywp` file in `release/`
-4. Import the `.ywp` package into Youwee
+4. Import the `.ywp` package into RETubeMatrix
 
-Youwee imports signed `.ywp` files only.
+RETubeMatrix imports signed `.ywp` files only.
 The source workspace is for development and packaging, not direct end-user installation.
 
 ## Next step

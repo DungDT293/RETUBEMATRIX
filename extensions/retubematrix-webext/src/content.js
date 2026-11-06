@@ -1,5 +1,5 @@
 (() => {
-  const ext = globalThis.YouweeExt;
+  const ext = globalThis.RETubeMatrixExt;
   if (!ext) return;
 
   const api = ext.getExtensionApi();
@@ -278,7 +278,7 @@
   function onActionClick(action) {
     const result = openDeepLink(action, location.href);
     if (!result.ok) {
-      setFeedback(ext.t('floatingButtonFailed', 'Failed to open Youwee'), 'error');
+      setFeedback(ext.t('floatingButtonFailed', 'Failed to open RETubeMatrix'), 'error');
       return;
     }
 
@@ -292,7 +292,7 @@
       return;
     }
 
-    setFeedback(ext.t('floatingButtonOpening', 'Opening Youwee...'), 'ok');
+    setFeedback(ext.t('floatingButtonOpening', 'Opening RETubeMatrix...'), 'ok');
   }
 
   function disconnectWidget() {
@@ -336,7 +336,7 @@
 
   function createLogoMarkup(logoUrl) {
     if (logoUrl) {
-      return `<img class="youwee-floating__logo-img" src="${logoUrl}" alt="Youwee" />`;
+      return `<img class="youwee-floating__logo-img" src="${logoUrl}" alt="RETubeMatrix" />`;
     }
 
     return '<span class="youwee-floating__logo-fallback" aria-hidden="true">Y</span>';
@@ -365,12 +365,12 @@
     const launch = document.createElement('button');
     launch.type = 'button';
     launch.className = 'youwee-floating__launcher';
-    launch.title = ext.t('floatingLauncher', 'Youwee');
+    launch.title = ext.t('floatingLauncher', 'RETubeMatrix');
     launch.innerHTML = `
       <span class="youwee-floating__logo">
         ${logoMarkup}
       </span>
-      <span class="youwee-floating__text">${ext.t('floatingLauncher', 'Youwee')}</span>
+      <span class="youwee-floating__text">${ext.t('floatingLauncher', 'RETubeMatrix')}</span>
       <span class="youwee-floating__chevron">▾</span>
     `;
     launch.addEventListener('click', (event) => {
@@ -384,7 +384,7 @@
 
     dropdown.innerHTML = `
       <div class="youwee-floating__title-row">
-        <div class="youwee-floating__title">${ext.t('floatingMenuTitle', 'Download with Youwee')}</div>
+        <div class="youwee-floating__title">${ext.t('floatingMenuTitle', 'Download with RETubeMatrix')}</div>
         <div class="youwee-floating__title-actions">
           <button
             type="button"

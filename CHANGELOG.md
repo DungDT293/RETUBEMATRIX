@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **RETubeMatrix brand migration** - Updater now targets `DungDT293/RETUBEMATRIX`; deep links use `retubematrix://` (legacy `youwee://` still accepted); CLI shim, browser extension and SDK renamed to `retubematrix`.
+- **Plugin runtime env prefix** - Added `RETUBEMATRIX_*` environment variables with `YOUWEE_*` compatibility aliases for existing plugins.
+
+### Removed
+
+- **Dead feature cleanup** - Removed unreachable Download, Gallery, Metadata, Processing, Subtitles and Summary pages, the gallery/metadata/processing Rust modules, and 32 unused `browser_engine` Python modules.
+
 ## [0.20.15] - 2026-11-05
 
 ### Added

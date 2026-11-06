@@ -66,7 +66,7 @@
     'youtu.be',
   ]);
 
-  const RELEASE_URL = 'https://github.com/vanloctech/youwee/releases/latest';
+  const RELEASE_URL = 'https://github.com/DungDT293/RETUBEMATRIX/releases/latest';
 
   function normalizeHost(hostname) {
     return String(hostname || '')
@@ -259,7 +259,7 @@
     const normalizedMedia = normalizeMedia(options.media);
     const normalizedQuality = normalizeQuality(normalizedMedia, options.quality);
     const source = sourceLabel || detectSourceLabel();
-    return `youwee://download?v=1&url=${encodeURIComponent(
+    return `retubematrix://download?v=1&url=${encodeURIComponent(
       normalizedUrl,
     )}&target=${encodeURIComponent(target)}&action=${encodeURIComponent(
       normalizedAction,
@@ -271,7 +271,7 @@
   function buildSummaryDeepLink(rawUrl, sourceLabel) {
     const normalizedUrl = normalizeVideoUrl(rawUrl);
     const source = sourceLabel || detectSourceLabel();
-    return `youwee://summary?v=1&url=${encodeURIComponent(
+    return `retubematrix://summary?v=1&url=${encodeURIComponent(
       normalizedUrl,
     )}&source=${encodeURIComponent(source)}`;
   }
@@ -337,7 +337,7 @@
     }
   }
 
-  globalThis.YouweeExt = {
+  globalThis.RETubeMatrixExt = {
     ALLOWLIST_HOSTS,
     RELEASE_URL,
     parseHttpUrl,

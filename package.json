@@ -14,8 +14,8 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build --ignore-version-mismatches",
     "plugin-store:validate": "bun run scripts/validate-plugin-store.mjs",
-    "ext:build": "bun run extensions/youwee-webext/scripts/build.mjs",
-    "ext:package": "bun run ext:build && bun run extensions/youwee-webext/scripts/package.mjs"
+    "ext:build": "bun run extensions/retubematrix-webext/scripts/build.mjs",
+    "ext:package": "bun run ext:build && bun run extensions/retubematrix-webext/scripts/package.mjs"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.3.0",

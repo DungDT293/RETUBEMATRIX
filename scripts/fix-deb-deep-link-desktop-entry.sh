@@ -22,17 +22,25 @@ for deb_file in "$DEB_DIR"/*.deb; do
 
   dpkg-deb -R "$deb_file" "$package_dir"
 
-  desktop_file="$package_dir/usr/share/applications/Youwee.desktop"
+  applications_dir="$package_dir/usr/share/applications"
+  desktop_file="$(find "$applications_dir" -maxdepth 1 -name '*.desktop' | head -n 1)"
+  test -n "$desktop_file"
   test -f "$desktop_file"
-  sed -i 's|^Exec=.*|Exec=youwee %U|' "$desktop_file"
-  if grep -q '^MimeType=' "$desktop_file"; then
-    sed -i 's|^MimeType=.*|MimeType=x-scheme-handler/youwee;|' "$desktop_file"
-  else
-    printf '\nMimeType=x-scheme-handler/youwee;\n' >> "$desktop_file"
+
+  # Keep the packaged binary path, only ensure the URI placeholder is present.
+  if ! grep -Eq '^Exec=.*%U' "$desktop_file"; then
+    sed -i -E 's|^Exec=(.*)$|Exec=\1 %U|' "$desktop_file"
   fi
 
-  grep -Fx 'Exec=youwee %U' "$desktop_file"
-  grep -Fqx 'MimeType=x-scheme-handler/youwee;' "$desktop_file"
+  # Register both the new canonical scheme and the legacy one for migration.
+  if grep -q '^MimeType=' "$desktop_file"; then
+    sed -i 's|^MimeType=.*|MimeType=x-scheme-handler/retubematrix;x-scheme-handler/youwee;|' "$desktop_file"
+  else
+    printf '\nMimeType=x-scheme-handler/retubematrix;x-scheme-handler/youwee;\n' >> "$desktop_file"
+  fi
+
+  grep -Eq '^Exec=.*%U' "$desktop_file"
+  grep -Fqx 'MimeType=x-scheme-handler/retubematrix;x-scheme-handler/youwee;' "$desktop_file"
 
   dpkg-deb --build "$package_dir" "$deb_file"
   trap - RETURN

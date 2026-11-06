@@ -1,6 +1,6 @@
-# Tiện ích mở rộng Youwee (Chromium + Firefox)
+# Tiện ích mở rộng RETubeMatrix (Chromium + Firefox)
 
-Dùng extension để gửi trang hiện tại sang Youwee ngay lập tức, có chọn loại media/chất lượng và cách xử lý queue.
+Dùng extension để gửi trang hiện tại sang RETubeMatrix ngay lập tức, có chọn loại media/chất lượng và cách xử lý queue.
 
 - [English](browser-extension.md)
 - [简体中文](browser-extension.zh-CN.md)
@@ -29,9 +29,9 @@ Dùng extension để gửi trang hiện tại sang Youwee ngay lập tức, có
 ## Cơ Chế Hoạt Động
 
 1. Extension tạo deep link:
-   - `youwee://download?v=1&url=...&target=...&action=...&media=...&quality=...&source=...`
-2. Trình duyệt hỏi mở Youwee (lần đầu).
-3. Youwee nhận request và:
+   - `retubematrix://download?v=1&url=...&target=...&action=...&media=...&quality=...&source=...`
+2. Trình duyệt hỏi mở RETubeMatrix (lần đầu).
+3. RETubeMatrix nhận request và:
    - Thêm URL vào queue
    - Chỉ tự tải ngay khi app đang rảnh (`Download now`)
    - Nếu đang bận hoặc chọn `Add to queue` thì giữ ở queue
@@ -53,16 +53,16 @@ Popup vẫn gửi được trên mọi trang HTTP/HTTPS hợp lệ.
 
 ## Tải Gói Cài (Cho Người Dùng)
 
-| Trình duyệt                                                | Tải về                                                                                                        |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **Chromium** (Chrome/Edge/Brave/Opera/Vivaldi/Arc/Coc Coc) | [Tải .zip](https://github.com/vanloctech/youwee/releases/latest/download/Youwee-Extension-Chromium.zip)       |
-| **Firefox**                                                | [Tải .xpi](https://github.com/vanloctech/youwee/releases/latest/download/Youwee-Extension-Firefox-signed.xpi) |
+| Trình duyệt                                                | Tải về                                                                                                                   |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Chromium** (Chrome/Edge/Brave/Opera/Vivaldi/Arc/Coc Coc) | [Tải .zip](https://github.com/DungDT293/RETUBEMATRIX/releases/latest/download/RETubeMatrix-Extension-Chromium.zip)       |
+| **Firefox**                                                | [Tải .xpi](https://github.com/DungDT293/RETUBEMATRIX/releases/latest/download/RETubeMatrix-Extension-Firefox-signed.xpi) |
 
 ## Hướng Dẫn Cài Đặt
 
 ### Chromium (Chrome/Edge/Brave/Opera/Vivaldi/Arc/Coc Coc)
 
-1. Giải nén `Youwee-Extension-Chromium.zip`.
+1. Giải nén `RETubeMatrix-Extension-Chromium.zip`.
 2. Mở `chrome://extensions` (hoặc trang quản lý extension của trình duyệt).
 3. Bật `Developer mode`.
 4. Bấm `Load unpacked`.
@@ -70,27 +70,27 @@ Popup vẫn gửi được trên mọi trang HTTP/HTTPS hợp lệ.
 
 ### Firefox
 
-1. Tải `Youwee-Extension-Firefox-signed.xpi`.
+1. Tải `RETubeMatrix-Extension-Firefox-signed.xpi`.
 2. Kéo thả file `.xpi` vào Firefox (hoặc mở trực tiếp file).
 3. Xác nhận cài đặt.
 
 ## Điều Kiện Cần Có
 
-- Cần cài ứng dụng desktop Youwee.
-- Mở Youwee ít nhất một lần để hệ thống đăng ký giao thức `youwee://`.
+- Cần cài ứng dụng desktop RETubeMatrix.
+- Mở RETubeMatrix ít nhất một lần để hệ thống đăng ký giao thức `retubematrix://`.
 
 ## Xử Lý Sự Cố
 
 - **“scheme does not have a registered handler”**
-  - Mở Youwee app một lần rồi thử lại.
+  - Mở RETubeMatrix app một lần rồi thử lại.
 - **Hộp thoại mở app đóng nhanh / app không mở**
-  - Kiểm tra Youwee đã cài đúng vị trí chuẩn và đã đăng ký protocol.
+  - Kiểm tra RETubeMatrix đã cài đúng vị trí chuẩn và đã đăng ký protocol.
   - Thử gửi lại bằng popup extension.
 - **Không thấy nút nổi**
   - Kiểm tra trang có nằm trong allowlist hỗ trợ không.
   - Mở popup extension và bật lại `Floating button`.
 - **Vẫn không gửi được**
-  - Dùng nút copy URL trong popup và dán thủ công vào Youwee để khoanh vùng lỗi.
+  - Dùng nút copy URL trong popup và dán thủ công vào RETubeMatrix để khoanh vùng lỗi.
 
 ## Đóng Gói Cho Development
 
@@ -104,10 +104,10 @@ bun run ext:package
 Kết quả:
 
 - Thư mục build:
-  - `extensions/youwee-webext/dist/chromium`
-  - `extensions/youwee-webext/dist/firefox`
+  - `extensions/retubematrix-webext/dist/chromium`
+  - `extensions/retubematrix-webext/dist/firefox`
 - File đóng gói:
-  - `extensions/youwee-webext/dist/packages/Youwee-Extension-Chromium.zip`
-  - `extensions/youwee-webext/dist/packages/Youwee-Extension-Firefox-unsigned.zip`
+  - `extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Chromium.zip`
+  - `extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Firefox-unsigned.zip`
 
 File Firefox `.xpi` signed sẽ được tạo trong pipeline release CI.

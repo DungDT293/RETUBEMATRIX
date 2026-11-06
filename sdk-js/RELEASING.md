@@ -1,10 +1,10 @@
-# Releasing `youwee-sdk`
+# Releasing `retubematrix-sdk`
 
-This document defines the release and compatibility policy for `youwee-sdk`.
+This document defines the release and compatibility policy for `retubematrix-sdk`.
 
 ## Scope
 
-`youwee-sdk` is versioned independently as a package, but it is developed inside the main Youwee repository.
+`retubematrix-sdk` is versioned independently as a package, but it is developed inside the main RETubeMatrix repository.
 
 For now, this is intentional:
 
@@ -40,7 +40,7 @@ Do not edit `dist/` by hand. Rebuild it from the TypeScript source before releas
 6. Verify backend compatibility enforcement still matches the SDK compatibility helpers.
 7. Pack and publish from the `sdk-js/` directory, not from the repository root:
    - `cd sdk-js`
-   - `bun pm pack --destination /tmp/youwee-sdk-pack`
+   - `bun pm pack --destination /tmp/retubematrix-sdk-pack`
    - `bun publish --dry-run`
 
 ## Versioning Policy
@@ -60,7 +60,7 @@ Two compatibility layers matter:
 
 Recommended rules:
 
-- bump `appVersion` constraints when the plugin depends on new Youwee runtime capabilities
+- bump `appVersion` constraints when the plugin depends on new RETubeMatrix runtime capabilities
 - bump `sdkVersion` constraints when the plugin depends on new SDK helpers or changed SDK behavior
 - prefer bounded ranges like `>=1.0.0 <2.0.0`
 
@@ -70,7 +70,7 @@ The backend should reject execution and installation when a declared range is in
 
 When the package is eventually published externally:
 
-- keep the package name `youwee-sdk`
+- keep the package name `retubematrix-sdk`
 - publish only built artifacts and package docs
 - ensure `README.md`, `CHANGELOG.md`, and `RELEASING.md` remain included in the package
 - keep CommonJS output unless the runtime policy formally adopts dual CJS/ESM support

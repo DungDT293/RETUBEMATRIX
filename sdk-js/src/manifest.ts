@@ -383,19 +383,19 @@ export function createPluginPackageDefinition(
     name: input.name,
     version: input.version,
     private: true,
-    description: input.description || 'Youwee plugin package',
+    description: input.description || 'RETubeMatrix plugin package',
     type: 'module',
     main,
     scripts: {
-      build: 'bunx youwee-sdk build',
-      pack: 'bunx youwee-sdk pack --private-key ./plugin.youwee-plugin-key.json',
-      keygen: 'bunx youwee-sdk keygen ./plugin.youwee-plugin-key.json',
+      build: 'bunx retubematrix-sdk build',
+      pack: 'bunx retubematrix-sdk pack --private-key ./plugin.retubematrix-plugin-key.json',
+      keygen: 'bunx retubematrix-sdk keygen ./plugin.retubematrix-plugin-key.json',
       typecheck: 'tsc --noEmit -p tsconfig.json',
       'test:deno':
-        'deno run --quiet --unstable-detect-cjs --allow-env --allow-read=. --node-modules-dir=manual node_modules/youwee-sdk/dist/runtime-cli.js src/plugin.ts',
+        'deno run --quiet --unstable-detect-cjs --allow-env --allow-read=. --node-modules-dir=manual node_modules/retubematrix-sdk/dist/runtime-cli.js src/plugin.ts',
     },
     dependencies: {
-      'youwee-sdk': sdkVersion,
+      'retubematrix-sdk': sdkVersion,
     },
     devDependencies: {
       typescript: '^5.9.3',

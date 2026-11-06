@@ -8,7 +8,7 @@ on:
         required: false
         type: string
       deb_url:
-        description: "Direct URL to Youwee-Linux.deb. Use this for old/test artifacts not attached to a release."
+        description: "Direct URL to RETubeMatrix-Linux.deb. Use this for old/test artifacts not attached to a release."
         required: false
         type: string
       channel:
@@ -44,7 +44,7 @@ jobs:
       - name: Download deb from URL
         if: inputs.deb_url != ''
         run: |
-          curl -L --fail --show-error --output snap/input/Youwee-Linux.deb "${{ inputs.deb_url }}"
+          curl -L --fail --show-error --output snap/input/RETubeMatrix-Linux.deb "${{ inputs.deb_url }}"
 
       - name: Download deb from GitHub release
         if: inputs.deb_url == ''
@@ -60,7 +60,7 @@ jobs:
 
           gh release download "$RELEASE_TAG" \
             --repo "${{ github.repository }}" \
-            --pattern "Youwee-Linux.deb" \
+            --pattern "RETubeMatrix-Linux.deb" \
             --dir snap/input
 
       - name: Inspect deb package
@@ -82,7 +82,7 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Using $DEB_FILE"
           echo "Detected version: $VERSION"
-          dpkg-deb -c "$DEB_FILE" | grep -E 'usr/bin/youwee$|usr/bin/youwee-yt-dlp$|usr/share/applications/Youwee.desktop|usr/share/icons/hicolor/32x32/apps/youwee.png'
+          dpkg-deb -c "$DEB_FILE" | grep -E 'usr/bin/retubematrix$|usr/bin/retubematrix-yt-dlp$|usr/share/applications/RETubeMatrix.desktop|usr/share/icons/hicolor/32x32/apps/retubematrix.png'
 
       - name: Set snap version from deb
         run: |
@@ -96,7 +96,7 @@ jobs:
       - name: Upload snap artifact
         uses: actions/upload-artifact@v6
         with:
-          name: youwee-snap-${{ steps.deb.outputs.version }}
+          name: retubematrix-snap-${{ steps.deb.outputs.version }}
           path: ${{ steps.build.outputs.snap }}
           if-no-files-found: error
 

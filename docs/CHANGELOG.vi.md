@@ -7,6 +7,15 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Thay đổi
+
+- **Chuyển thương hiệu RETubeMatrix** - Updater trỏ tới `DungDT293/RETUBEMATRIX`; deep link dùng `retubematrix://` (vẫn nhận `youwee://` cũ); CLI, extension và SDK đổi tên thành `retubematrix`.
+- **Tiền tố biến môi trường plugin** - Thêm `RETUBEMATRIX_*`, giữ alias `YOUWEE_*` cho plugin cũ.
+
+### Xóa bỏ
+
+- **Dọn tính năng không dùng** - Xóa các trang Download, Gallery, Metadata, Processing, Subtitles, Summary không còn truy cập được; xóa module Rust gallery/metadata/processing và 32 module Python không dùng trong `browser_engine`.
+
 ## [0.20.15] - 2026-11-05
 
 ### Thêm mới

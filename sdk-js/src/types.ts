@@ -286,7 +286,7 @@ export interface YoutubeSearchOptions {
   filters?: YoutubeSearchFilters;
 }
 
-export interface YouweeYouTubeBridge {
+export interface RETubeMatrixYouTubeBridge {
   searchVideos(options: YoutubeSearchOptions): Promise<YoutubeSearchResponse>;
 }
 
@@ -370,7 +370,7 @@ export interface PluginConfigBridge {
   all(): Record<string, PluginConfigFieldValue>;
 }
 
-export interface YouweeBridge {
+export interface RETubeMatrixBridge {
   app: {
     version: string | null;
     locale: string | null;
@@ -396,7 +396,7 @@ export interface YouweeBridge {
   };
   fs: PluginFileSystemBridge;
   http: PluginHttpBridge;
-  youtube: YouweeYouTubeBridge;
+  youtube: RETubeMatrixYouTubeBridge;
   ai: AIBridge;
 }
 
@@ -439,7 +439,8 @@ export interface PluginContext<TPayload extends PluginPayload = PluginPayload> {
   };
   log: PluginLogger;
   i18n: PluginI18nBridge;
-  youwee: YouweeBridge;
+  youwee: RETubeMatrixBridge;
+  retubematrix: RETubeMatrixBridge;
   ok(
     message: string,
     metadata?: unknown,
@@ -622,3 +623,9 @@ export interface PackPluginPackageResult {
   buildInfo: PackagedPluginBuildInfo;
   signature: PackagedPluginSignature;
 }
+
+/** @deprecated Use RETubeMatrixBridge. Kept for plugin source compatibility. */
+export type YouweeBridge = RETubeMatrixBridge;
+
+/** @deprecated Use RETubeMatrixYouTubeBridge. Kept for plugin source compatibility. */
+export type YouweeYouTubeBridge = RETubeMatrixYouTubeBridge;

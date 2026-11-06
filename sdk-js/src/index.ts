@@ -127,6 +127,8 @@ export type {
   PluginRuntimeSpec,
   PluginSignaturePayload,
   PluginTrigger,
+  RETubeMatrixBridge,
+  RETubeMatrixYouTubeBridge,
   ToolRunner,
   TriggerPayloadMap,
   VerifyPluginPackageResult,

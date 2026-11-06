@@ -54,8 +54,8 @@ jobs:
       - name: Create placeholder yt-dlp binary for check
         run: |
           mkdir -p src-tauri/bin
-          touch src-tauri/bin/youwee-yt-dlp-x86_64-unknown-linux-gnu
-          chmod +x src-tauri/bin/youwee-yt-dlp-x86_64-unknown-linux-gnu
+          touch src-tauri/bin/retubematrix-yt-dlp-x86_64-unknown-linux-gnu
+          chmod +x src-tauri/bin/retubematrix-yt-dlp-x86_64-unknown-linux-gnu
 
       - name: Check frontend (Biome)
         run: bun run lint
@@ -81,12 +81,12 @@ jobs:
         include:
           - platform: macos-latest
             target: aarch64-apple-darwin
-            yt_dlp_name: youwee-yt-dlp-aarch64-apple-darwin
+            yt_dlp_name: retubematrix-yt-dlp-aarch64-apple-darwin
             yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
 
           - platform: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
-            yt_dlp_name: youwee-yt-dlp-x86_64-unknown-linux-gnu
+            yt_dlp_name: retubematrix-yt-dlp-x86_64-unknown-linux-gnu
             yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux
 
     steps:
@@ -161,9 +161,9 @@ jobs:
           trap 'rm -rf "$PACKAGE_DIR"' EXIT
           dpkg-deb -x "$DEB_FILE" "$PACKAGE_DIR"
 
-          DESKTOP_FILE="$PACKAGE_DIR/usr/share/applications/Youwee.desktop"
-          grep -Fx 'Exec=youwee %U' "$DESKTOP_FILE"
-          grep -Fqx 'MimeType=x-scheme-handler/youwee;' "$DESKTOP_FILE"
+          DESKTOP_FILE="$PACKAGE_DIR/usr/share/applications/RETubeMatrix.desktop"
+          grep -Fx 'Exec=retubematrix %U' "$DESKTOP_FILE"
+          grep -Fqx 'MimeType=x-scheme-handler/retubematrix;' "$DESKTOP_FILE"
 
       - name: Validate repaired Linux AppImage runtime
         if: matrix.platform == 'ubuntu-22.04'
@@ -173,7 +173,7 @@ jobs:
           APPIMAGE="$(find "$APPIMAGE_DIR" -maxdepth 1 -type f -name '*.AppImage' | sort | head -n 1)"
           test -n "$APPIMAGE"
           APPIMAGE="$(cd "$(dirname "$APPIMAGE")" && pwd)/$(basename "$APPIMAGE")"
-          bash scripts/repair-appimage-runtime.sh "$APPIMAGE" "youwee"
+          bash scripts/repair-appimage-runtime.sh "$APPIMAGE" "retubematrix"
 
           INSPECT_DIR="$(mktemp -d)"
           trap 'rm -rf "$INSPECT_DIR"' EXIT

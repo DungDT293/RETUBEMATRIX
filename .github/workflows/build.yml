@@ -31,7 +31,7 @@ jobs:
             arch: aarch64
             friendly_name: Mac-Apple-Silicon
             yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
-            yt_dlp_name: youwee-yt-dlp-aarch64-apple-darwin
+            yt_dlp_name: retubematrix-yt-dlp-aarch64-apple-darwin
 
           # macOS Intel (yt-dlp_macos is Universal Binary for both Intel and Apple Silicon)
           - platform: macos-15
@@ -40,7 +40,7 @@ jobs:
             arch: x86_64
             friendly_name: Mac-Intel
             yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
-            yt_dlp_name: youwee-yt-dlp-x86_64-apple-darwin
+            yt_dlp_name: retubematrix-yt-dlp-x86_64-apple-darwin
 
           # Linux x86_64
           - platform: ubuntu-22.04
@@ -49,7 +49,7 @@ jobs:
             arch: x86_64
             friendly_name: Linux
             yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux
-            yt_dlp_name: youwee-yt-dlp-x86_64-unknown-linux-gnu
+            yt_dlp_name: retubematrix-yt-dlp-x86_64-unknown-linux-gnu
 
           # Windows x86_64
           - platform: windows-latest
@@ -58,7 +58,7 @@ jobs:
             arch: x86_64
             friendly_name: Windows
             yt_dlp_url: https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
-            yt_dlp_name: youwee-yt-dlp-x86_64-pc-windows-msvc.exe
+            yt_dlp_name: retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe
 
     runs-on: ${{ matrix.platform }}
 
@@ -139,7 +139,7 @@ jobs:
           APPIMAGE_DIR="src-tauri/target/${{ matrix.target }}/release/bundle/appimage"
           APPIMAGE=$(find "$APPIMAGE_DIR" -maxdepth 1 -type f -name "*.AppImage" | head -n 1)
           test -n "$APPIMAGE"
-          bash scripts/repair-appimage-runtime.sh "$APPIMAGE" "youwee"
+          bash scripts/repair-appimage-runtime.sh "$APPIMAGE" "retubematrix"
 
           # The AppImage payload changed after Tauri produced updater artifacts.
           # Regenerate its signature so latest.json always matches the release file.
@@ -153,16 +153,16 @@ jobs:
           # Rename .dmg
           cd dmg
           for f in *.dmg; do
-            mv "$f" "Youwee-${{ matrix.friendly_name }}.dmg"
+            mv "$f" "RETubeMatrix-${{ matrix.friendly_name }}.dmg"
           done
           cd ..
           # Rename .app.tar.gz and .app.tar.gz.sig for updater (must be unique per arch)
           cd macos
           for f in *.app.tar.gz; do
-            mv "$f" "Youwee-${{ matrix.arch }}.app.tar.gz"
+            mv "$f" "RETubeMatrix-${{ matrix.arch }}.app.tar.gz"
           done
           for f in *.app.tar.gz.sig; do
-            mv "$f" "Youwee-${{ matrix.arch }}.app.tar.gz.sig"
+            mv "$f" "RETubeMatrix-${{ matrix.arch }}.app.tar.gz.sig"
           done
           cd ..
           ls -laR
@@ -175,7 +175,7 @@ jobs:
           if [ -d "deb" ]; then
             cd deb
             for f in *.deb; do
-              mv "$f" "Youwee-${{ matrix.friendly_name }}.deb"
+              mv "$f" "RETubeMatrix-${{ matrix.friendly_name }}.deb"
             done
             cd ..
           fi
@@ -183,7 +183,7 @@ jobs:
           if [ -d "appimage" ]; then
             cd appimage
             for f in *.AppImage; do
-              mv "$f" "Youwee-${{ matrix.friendly_name }}.AppImage"
+              mv "$f" "RETubeMatrix-${{ matrix.friendly_name }}.AppImage"
             done
             cd ..
           fi
@@ -198,7 +198,7 @@ jobs:
           if (Test-Path "msi") {
             cd msi
             Get-ChildItem *.msi | ForEach-Object { 
-              Rename-Item $_.Name "Youwee-${{ matrix.friendly_name }}.msi"
+              Rename-Item $_.Name "RETubeMatrix-${{ matrix.friendly_name }}.msi"
             }
             cd ..
           }
@@ -206,7 +206,7 @@ jobs:
           if (Test-Path "nsis") {
             cd nsis
             Get-ChildItem *.exe | ForEach-Object {
-              Rename-Item $_.Name "Youwee-${{ matrix.friendly_name }}-Setup.exe"
+              Rename-Item $_.Name "RETubeMatrix-${{ matrix.friendly_name }}-Setup.exe"
             }
             cd ..
           }
@@ -215,7 +215,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: youwee-${{ matrix.os_name }}-${{ matrix.arch }}
+          name: retubematrix-${{ matrix.os_name }}-${{ matrix.arch }}
           path: |
             src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
             src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app.tar.gz
@@ -247,7 +247,7 @@ jobs:
       - name: Download Linux deb artifact
         uses: actions/download-artifact@v7
         with:
-          name: youwee-linux-x86_64
+          name: retubematrix-linux-x86_64
           path: flatpak/input
 
       - name: Prepare Flatpak input
@@ -261,7 +261,7 @@ jobs:
           fi
           rm -rf flatpak/payload
           mkdir -p flatpak/payload
-          cp "$DEB_FILE" flatpak/input/Youwee-Linux.deb
+          cp "$DEB_FILE" flatpak/input/RETubeMatrix-Linux.deb
           dpkg-deb -x "$DEB_FILE" flatpak/payload
           ls -la flatpak/input
           find flatpak/payload -maxdepth 3 -type f | head -50
@@ -274,27 +274,27 @@ jobs:
             --install-deps-from=flathub \
             --repo=flatpak/repo \
             flatpak/build-dir \
-            flatpak/com.vanloctech.youwee.yml
-          flatpak build-bundle flatpak/repo flatpak/Youwee-Linux.flatpak com.vanloctech.youwee
-          ls -lh flatpak/Youwee-Linux.flatpak
+            flatpak/com.retubematrix.app.yml
+          flatpak build-bundle flatpak/repo flatpak/RETubeMatrix-Linux.flatpak com.retubematrix.app
+          ls -lh flatpak/RETubeMatrix-Linux.flatpak
 
       - name: Validate Flatpak bundle
         run: |
           set -eu
-          flatpak install --user --noninteractive -y flatpak/Youwee-Linux.flatpak
-          dbus-run-session -- flatpak run --command=sh com.vanloctech.youwee -c '
+          flatpak install --user --noninteractive -y flatpak/RETubeMatrix-Linux.flatpak
+          dbus-run-session -- flatpak run --command=sh com.retubematrix.app -c '
             set -eu
-            test -x /app/bin/youwee
-            test -x /app/bin/youwee-yt-dlp
-            test -f /app/share/applications/com.vanloctech.youwee.desktop
-            ldd /app/bin/youwee | tee /tmp/youwee-ldd.txt
-            if grep -q "not found" /tmp/youwee-ldd.txt; then
+            test -x /app/bin/retubematrix
+            test -x /app/bin/retubematrix-yt-dlp
+            test -f /app/share/applications/com.retubematrix.app.desktop
+            ldd /app/bin/retubematrix | tee /tmp/retubematrix-ldd.txt
+            if grep -q "not found" /tmp/retubematrix-ldd.txt; then
               echo "Missing runtime libraries in Flatpak bundle:"
-              cat /tmp/youwee-ldd.txt
+              cat /tmp/retubematrix-ldd.txt
               exit 1
             fi
-            /app/bin/youwee-yt-dlp --version >/tmp/youwee-ytdlp-version.txt
-            cat /tmp/youwee-ytdlp-version.txt
+            /app/bin/retubematrix-yt-dlp --version >/tmp/retubematrix-ytdlp-version.txt
+            cat /tmp/retubematrix-ytdlp-version.txt
           '
 
       - name: Smoke test Flatpak launch
@@ -302,21 +302,21 @@ jobs:
           set -eu
           set +e
           xvfb-run -a dbus-run-session -- \
-            timeout --foreground 10s flatpak run com.vanloctech.youwee \
-            >/tmp/youwee-flatpak-launch.log 2>&1
+            timeout --foreground 10s flatpak run com.retubematrix.app \
+            >/tmp/retubematrix-flatpak-launch.log 2>&1
           STATUS=$?
           set -e
-          cat /tmp/youwee-flatpak-launch.log
+          cat /tmp/retubematrix-flatpak-launch.log
           if [ "$STATUS" -ne 124 ]; then
-            echo "Youwee Flatpak exited before the launch smoke-test timeout (status $STATUS)."
+            echo "RETubeMatrix Flatpak exited before the launch smoke-test timeout (status $STATUS)."
             exit "$STATUS"
           fi
 
       - name: Upload Flatpak artifact
         uses: actions/upload-artifact@v6
         with:
-          name: youwee-linux-flatpak
-          path: flatpak/Youwee-Linux.flatpak
+          name: retubematrix-linux-flatpak
+          path: flatpak/RETubeMatrix-Linux.flatpak
           if-no-files-found: error
 
   extension:
@@ -351,29 +351,29 @@ jobs:
       - name: Sign Firefox extension (AMO unlisted)
         run: |
           bunx web-ext sign \
-            --source-dir extensions/youwee-webext/dist/firefox \
-            --artifacts-dir extensions/youwee-webext/dist/packages \
+            --source-dir extensions/retubematrix-webext/dist/firefox \
+            --artifacts-dir extensions/retubematrix-webext/dist/packages \
             --channel unlisted \
             --api-key "${{ secrets.FIREFOX_AMO_JWT_ISSUER }}" \
             --api-secret "${{ secrets.FIREFOX_AMO_JWT_SECRET }}"
 
       - name: Rename signed Firefox XPI
         run: |
-          SIGNED_XPI=$(find extensions/youwee-webext/dist/packages -name "*.xpi" | head -1)
+          SIGNED_XPI=$(find extensions/retubematrix-webext/dist/packages -name "*.xpi" | head -1)
           if [ -z "$SIGNED_XPI" ]; then
             echo "Signed Firefox XPI not found."
             exit 1
           fi
-          mv "$SIGNED_XPI" "extensions/youwee-webext/dist/packages/Youwee-Extension-Firefox-signed.xpi"
-          ls -la extensions/youwee-webext/dist/packages
+          mv "$SIGNED_XPI" "extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Firefox-signed.xpi"
+          ls -la extensions/retubematrix-webext/dist/packages
 
       - name: Upload extension artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: youwee-extension-packages
+          name: retubematrix-extension-packages
           path: |
-            extensions/youwee-webext/dist/packages/Youwee-Extension-Chromium.zip
-            extensions/youwee-webext/dist/packages/Youwee-Extension-Firefox-signed.xpi
+            extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Chromium.zip
+            extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Firefox-signed.xpi
           if-no-files-found: error
 
   # Create release after all builds complete
@@ -475,7 +475,7 @@ jobs:
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
           # Read the JSON-safe changelogs
-          NOTES=$(cat CHANGELOG_JSON.txt 2>/dev/null || echo "Youwee $GITHUB_REF_NAME - Check release notes for details")
+          NOTES=$(cat CHANGELOG_JSON.txt 2>/dev/null || echo "RETubeMatrix $GITHUB_REF_NAME - Check release notes for details")
           NOTES_VI=$(cat CHANGELOG_VI_JSON.txt 2>/dev/null || echo "")
           NOTES_ZH=$(cat CHANGELOG_ZH_JSON.txt 2>/dev/null || echo "")
           NOTES_FR=$(cat CHANGELOG_FR_JSON.txt 2>/dev/null || echo "")
@@ -512,7 +512,7 @@ jobs:
           FIRST=true
 
           # macOS Apple Silicon
-          AARCH64_SIG=$(find artifacts -name "Youwee-aarch64.app.tar.gz.sig" 2>/dev/null | head -1)
+          AARCH64_SIG=$(find artifacts -name "RETubeMatrix-aarch64.app.tar.gz.sig" 2>/dev/null | head -1)
           if [ -n "$AARCH64_SIG" ] && [ -f "$AARCH64_SIG" ]; then
             SIG=$(cat "$AARCH64_SIG")
             if [ "$FIRST" = false ]; then echo "," >> latest.json; fi
@@ -520,13 +520,13 @@ jobs:
             cat >> latest.json << PLATFORM
             "darwin-aarch64": {
               "signature": "$SIG",
-              "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Youwee-aarch64.app.tar.gz"
+              "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/RETubeMatrix-aarch64.app.tar.gz"
             }
           PLATFORM
           fi
 
           # macOS Intel
-          X86_64_SIG=$(find artifacts -name "Youwee-x86_64.app.tar.gz.sig" 2>/dev/null | head -1)
+          X86_64_SIG=$(find artifacts -name "RETubeMatrix-x86_64.app.tar.gz.sig" 2>/dev/null | head -1)
           if [ -n "$X86_64_SIG" ] && [ -f "$X86_64_SIG" ]; then
             SIG=$(cat "$X86_64_SIG")
             if [ "$FIRST" = false ]; then echo "," >> latest.json; fi
@@ -534,7 +534,7 @@ jobs:
             cat >> latest.json << PLATFORM
             "darwin-x86_64": {
               "signature": "$SIG",
-              "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Youwee-x86_64.app.tar.gz"
+              "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/RETubeMatrix-x86_64.app.tar.gz"
             }
           PLATFORM
           fi
@@ -548,7 +548,7 @@ jobs:
             cat >> latest.json << PLATFORM
               "linux-x86_64": {
                 "signature": "$SIG",
-                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Youwee-Linux.AppImage"
+                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/RETubeMatrix-Linux.AppImage"
               }
           PLATFORM
           fi
@@ -562,7 +562,7 @@ jobs:
             cat >> latest.json << PLATFORM
               "windows-x86_64": {
                 "signature": "$SIG",
-                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Youwee-Windows-Setup.exe"
+                "url": "https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/RETubeMatrix-Windows-Setup.exe"
               }
           PLATFORM
           fi
@@ -581,7 +581,7 @@ jobs:
           cd artifacts
 
           # Create SHA256SUMS.txt with proper format
-          echo "# SHA256 Checksums for Youwee $GITHUB_REF_NAME" > ../SHA256SUMS.txt
+          echo "# SHA256 Checksums for RETubeMatrix $GITHUB_REF_NAME" > ../SHA256SUMS.txt
           echo "# Generated: $(date -u)" >> ../SHA256SUMS.txt
           echo "" >> ../SHA256SUMS.txt
 
@@ -595,7 +595,7 @@ jobs:
             -name "*.AppImage" -o \
             -name "*.app.tar.gz" -o \
             -name "*.xpi" -o \
-            -name "Youwee-Extension-*.zip" \
+            -name "RETubeMatrix-Extension-*.zip" \
           \) ! -name "*.sig" | sort | while read file; do
             filename=$(basename "$file")
             hash=$(sha256sum "$file" | cut -d' ' -f1)
@@ -612,7 +612,7 @@ jobs:
 
           # Start with header
           cat > RELEASE_BODY.md << 'HEADER'
-          # Youwee ${{ github.ref_name }}
+          # RETubeMatrix ${{ github.ref_name }}
 
           Beautiful and Ultimate yt-dlp GUI & Video Downloader - Processing - Free & Open Source
 
@@ -630,15 +630,15 @@ jobs:
 
           | Platform | File | Description |
           |----------|------|-------------|
-          | 🍎 **Mac (M1/M2/M3/M4)** | `Youwee-Mac-Apple-Silicon.dmg` | For Apple Silicon Macs |
-          | 🍎 **Mac (Intel)** | `Youwee-Mac-Intel.dmg` | For Intel-based Macs |
-          | 🪟 **Windows** | `Youwee-Windows.msi` | MSI Installer |
-          | 🪟 **Windows** | `Youwee-Windows-Setup.exe` | EXE Installer |
-          | 🐧 **Linux** | `Youwee-Linux.deb` | Debian/Ubuntu |
-          | 🐧 **Linux** | `Youwee-Linux.flatpak` | Flatpak bundle for modern distros |
-          | 🐧 **Linux** | `Youwee-Linux.AppImage` | Portable fallback, may require FUSE |
-          | 🌐 **Extension (Chromium)** | `Youwee-Extension-Chromium.zip` | Unzip and load unpacked on Chrome/Edge/Brave |
-          | 🦊 **Extension (Firefox)** | `Youwee-Extension-Firefox-signed.xpi` | Signed unlisted add-on for Firefox stable |
+          | 🍎 **Mac (M1/M2/M3/M4)** | `RETubeMatrix-Mac-Apple-Silicon.dmg` | For Apple Silicon Macs |
+          | 🍎 **Mac (Intel)** | `RETubeMatrix-Mac-Intel.dmg` | For Intel-based Macs |
+          | 🪟 **Windows** | `RETubeMatrix-Windows.msi` | MSI Installer |
+          | 🪟 **Windows** | `RETubeMatrix-Windows-Setup.exe` | EXE Installer |
+          | 🐧 **Linux** | `RETubeMatrix-Linux.deb` | Debian/Ubuntu |
+          | 🐧 **Linux** | `RETubeMatrix-Linux.flatpak` | Flatpak bundle for modern distros |
+          | 🐧 **Linux** | `RETubeMatrix-Linux.AppImage` | Portable fallback, may require FUSE |
+          | 🌐 **Extension (Chromium)** | `RETubeMatrix-Extension-Chromium.zip` | Unzip and load unpacked on Chrome/Edge/Brave |
+          | 🦊 **Extension (Firefox)** | `RETubeMatrix-Extension-Firefox-signed.xpi` | Signed unlisted add-on for Firefox stable |
 
           ## 📋 Requirements
           - **Windows**: Windows 10 or later
@@ -650,8 +650,8 @@ jobs:
           - **Gallery-dl** - for download images from supported sites (self-setup required)
 
           ## Browser Extension Install
-          - Chromium: download `Youwee-Extension-Chromium.zip` -> extract -> open `chrome://extensions` -> enable Developer mode -> **Load unpacked**.
-          - Firefox: download `Youwee-Extension-Firefox-signed.xpi` and open it directly to install.
+          - Chromium: download `RETubeMatrix-Extension-Chromium.zip` -> extract -> open `chrome://extensions` -> enable Developer mode -> **Load unpacked**.
+          - Firefox: download `RETubeMatrix-Extension-Firefox-signed.xpi` and open it directly to install.
 
           ## Verify Downloads
 
@@ -667,7 +667,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
-          name: Youwee ${{ github.ref_name }}
+          name: RETubeMatrix ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
@@ -686,6 +686,6 @@ jobs:
             artifacts/**/*.app.tar.gz
             artifacts/**/*.app.tar.gz.sig
             artifacts/**/*.xpi
-            artifacts/**/Youwee-Extension-*.zip
+            artifacts/**/RETubeMatrix-Extension-*.zip
             latest.json
             SHA256SUMS.txt

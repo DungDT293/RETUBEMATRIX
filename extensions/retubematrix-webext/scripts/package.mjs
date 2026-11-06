@@ -35,7 +35,7 @@ async function run() {
   await rm(packagesDir, { recursive: true, force: true });
   await mkdir(packagesDir, { recursive: true });
 
-  const chromiumZip = path.join(packagesDir, 'Youwee-Extension-Chromium.zip');
+  const chromiumZip = path.join(packagesDir, 'RETubeMatrix-Extension-Chromium.zip');
 
   await zipDirectory(chromiumDir, chromiumZip);
 

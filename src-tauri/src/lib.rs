@@ -148,14 +148,14 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
-            // Protocol-handler style links (youwee://download?...) embedded in argv.
+            // Protocol-handler style links (retubematrix://download?...) embedded in argv.
             let links = commands::extract_external_links_from_argv(&argv);
             let has_links = !links.is_empty();
             if has_links {
                 dispatch_external_links(app, links);
             }
 
-            // CLI style invocation (youwee <url> [--quality ...]) while the app
+            // CLI style invocation (retubematrix <url> [--quality ...]) while the app
             // is already running.
             if let Some(cli_request) = commands::build_cli_download_request_from_argv(&argv) {
                 let requests = vec![cli_request];
@@ -217,7 +217,7 @@ pub fn run() {
                 dispatch_external_links(&app_handle, links);
             });
 
-            // CLI invocation (youwee <url> [--quality ...]) on cold start.
+            // CLI invocation (retubematrix <url> [--quality ...]) on cold start.
             // Use the declared CLI schema when available, falling back to a
             // raw argv parse otherwise.
             {

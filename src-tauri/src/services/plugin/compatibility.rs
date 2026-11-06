@@ -108,7 +108,7 @@ pub(super) fn collect_compatibility_issues(
     if let Some(range) = compatibility.app_version.as_ref() {
         if !satisfies_version_range(env!("CARGO_PKG_VERSION"), range)? {
             issues.push(format!(
-                "Requires Youwee app version {} but current app version is {}",
+                "Requires RETubeMatrix app version {} but current app version is {}",
                 range,
                 env!("CARGO_PKG_VERSION")
             ));
@@ -119,7 +119,7 @@ pub(super) fn collect_compatibility_issues(
         let sdk_version = current_sdk_version();
         if !satisfies_version_range(&sdk_version, range)? {
             issues.push(format!(
-                "Requires youwee-sdk version {} but bundled SDK version is {}",
+                "Requires retubematrix-sdk version {} but bundled SDK version is {}",
                 range, sdk_version
             ));
         }
@@ -135,7 +135,7 @@ pub(super) fn validate_install_compatibility(manifest: &PluginManifest) -> Resul
     }
 
     Err(format!(
-        "Plugin is not compatible with this Youwee build:\n- {}",
+        "Plugin is not compatible with this RETubeMatrix build:\n- {}",
         issues.join("\n- ")
     ))
 }

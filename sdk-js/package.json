@@ -1,12 +1,12 @@
 {
-  "name": "youwee-sdk",
+  "name": "retubematrix-sdk",
   "version": "2.3.0",
-  "description": "Youwee plugin SDK for JavaScript runtimes.",
+  "description": "RETubeMatrix plugin SDK for JavaScript runtimes.",
   "type": "commonjs",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "youwee-sdk": "./dist/cli.js"
+    "retubematrix-sdk": "./dist/cli.js"
   },
   "repository": {
     "type": "git",

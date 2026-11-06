@@ -281,14 +281,14 @@ pub(super) fn classify_plugin_runtime_error(stderr: &str) -> Option<PluginRuntim
         extract_quoted_resource(line, "Requires env access to ")
     {
         let resource_label = friendly_env_resource_label(&resource);
-        let user_message = if resource.starts_with("YOUWEE_AI_") {
+        let user_message = if resource.starts_with("RETUBEMATRIX_AI_") {
             format!(
-                    "Plugin AI helpers are disabled for security. The plugin tried to read Youwee's {} directly.",
+                    "Plugin AI helpers are disabled for security. The plugin tried to read RETubeMatrix's {} directly.",
                     resource_label.as_deref().unwrap_or("AI setting")
                 )
         } else {
             format!(
-                "This plugin tried to read {}, but Youwee did not allow that access.",
+                "This plugin tried to read {}, but RETubeMatrix did not allow that access.",
                 resource_label
                     .as_deref()
                     .unwrap_or("an environment setting")
@@ -350,17 +350,17 @@ pub(super) fn classify_plugin_runtime_error(stderr: &str) -> Option<PluginRuntim
 
 fn friendly_env_resource_label(resource: &str) -> Option<String> {
     let label = match resource {
-        "YOUWEE_AI_PROXY_URL" => "AI proxy setting",
-        "YOUWEE_AI_OLLAMA_URL" => "Ollama AI endpoint",
-        "YOUWEE_AI_LMSTUDIO_URL" => "LM Studio AI endpoint",
-        "YOUWEE_AI_WHISPER_ENDPOINT_URL" => "Whisper endpoint",
-        "YOUWEE_FFMPEG_PATH" => "FFmpeg tool path",
-        "YOUWEE_YTDLP_PATH" => "yt-dlp tool path",
-        "YOUWEE_PLUGIN_CONFIG_JSON" => "plugin configuration",
-        "YOUWEE_PLUGIN_PROVIDER_SOURCE" => "plugin runtime provider source",
-        "YOUWEE_APP_LOCALE" => "app language setting",
-        "YOUWEE_APP_FALLBACK_LOCALE" => "app fallback language setting",
-        "YOUWEE_APP_DIRECTION" => "app text direction setting",
+        "RETUBEMATRIX_AI_PROXY_URL" => "AI proxy setting",
+        "RETUBEMATRIX_AI_OLLAMA_URL" => "Ollama AI endpoint",
+        "RETUBEMATRIX_AI_LMSTUDIO_URL" => "LM Studio AI endpoint",
+        "RETUBEMATRIX_AI_WHISPER_ENDPOINT_URL" => "Whisper endpoint",
+        "RETUBEMATRIX_FFMPEG_PATH" => "FFmpeg tool path",
+        "RETUBEMATRIX_YTDLP_PATH" => "yt-dlp tool path",
+        "RETUBEMATRIX_PLUGIN_CONFIG_JSON" => "plugin configuration",
+        "RETUBEMATRIX_PLUGIN_PROVIDER_SOURCE" => "plugin runtime provider source",
+        "RETUBEMATRIX_APP_LOCALE" => "app language setting",
+        "RETUBEMATRIX_APP_FALLBACK_LOCALE" => "app fallback language setting",
+        "RETUBEMATRIX_APP_DIRECTION" => "app text direction setting",
         _ => return None,
     };
     Some(label.to_string())

@@ -13,6 +13,16 @@ const nativeDynamicImport = new Function('specifier', 'return import(specifier)'
   specifier: string,
 ) => Promise<unknown>;
 
+function mirrorLegacyEnvironment(): void {
+  for (const key of Object.keys(process.env)) {
+    if (!key.startsWith('RETUBEMATRIX_')) continue;
+    const legacy = `YOUWEE_${key.slice('RETUBEMATRIX_'.length)}`;
+    if (!process.env[legacy]) {
+      process.env[legacy] = process.env[key];
+    }
+  }
+}
+
 function sanitizeRuntimeEnvironment(): void {
   for (const key of STRIP_RUNTIME_ENV_KEYS) {
     try {
@@ -46,11 +56,12 @@ function sanitizeRuntimeEnvironment(): void {
 }
 
 async function loadPluginModule(): Promise<PluginDefinition | { default?: PluginDefinition }> {
-  const pluginMain = process.argv[2] || process.env.YOUWEE_PLUGIN_MAIN;
+  const pluginMain =
+    process.argv[2] || process.env.RETUBEMATRIX_PLUGIN_MAIN || process.env.YOUWEE_PLUGIN_MAIN;
 
   if (!pluginMain) {
     throw new Error(
-      'Plugin entrypoint is not set. Pass it as the first argument or set YOUWEE_PLUGIN_MAIN.',
+      'Plugin entrypoint is not set. Pass it as the first argument or set RETUBEMATRIX_PLUGIN_MAIN.',
     );
   }
 
@@ -65,6 +76,7 @@ async function loadPluginModule(): Promise<PluginDefinition | { default?: Plugin
 }
 
 async function main(): Promise<void> {
+  mirrorLegacyEnvironment();
   sanitizeRuntimeEnvironment();
   const plugin = await loadPluginModule();
   await runPluginModule(plugin);

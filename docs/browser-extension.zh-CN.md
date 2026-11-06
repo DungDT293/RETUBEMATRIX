@@ -1,6 +1,6 @@
-# Youwee 浏览器扩展（Chromium + Firefox）
+# RETubeMatrix 浏览器扩展（Chromium + Firefox）
 
-使用扩展可将当前页面一键发送到 Youwee，并可选择媒体类型、清晰度和队列行为。
+使用扩展可将当前页面一键发送到 RETubeMatrix，并可选择媒体类型、清晰度和队列行为。
 
 - [English](browser-extension.md)
 - [Tiếng Việt](browser-extension.vi.md)
@@ -29,9 +29,9 @@
 ## 工作流程
 
 1. 扩展构建 deep link：
-   - `youwee://download?v=1&url=...&target=...&action=...&media=...&quality=...&source=...`
-2. 浏览器首次会提示是否打开 Youwee。
-3. Youwee 接收请求后：
+   - `retubematrix://download?v=1&url=...&target=...&action=...&media=...&quality=...&source=...`
+2. 浏览器首次会提示是否打开 RETubeMatrix。
+3. RETubeMatrix 接收请求后：
    - 将链接加入队列
    - 仅在空闲时执行 `Download now` 自动开始
    - 忙碌或 `Add to queue` 时仅入队不抢占
@@ -53,16 +53,16 @@
 
 ## 用户下载包
 
-| 浏览器                                                      | 下载                                                                                                           |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **Chromium**（Chrome/Edge/Brave/Opera/Vivaldi/Arc/Coc Coc） | [下载 .zip](https://github.com/vanloctech/youwee/releases/latest/download/Youwee-Extension-Chromium.zip)       |
-| **Firefox**                                                 | [下载 .xpi](https://github.com/vanloctech/youwee/releases/latest/download/Youwee-Extension-Firefox-signed.xpi) |
+| 浏览器                                                      | 下载                                                                                                                      |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Chromium**（Chrome/Edge/Brave/Opera/Vivaldi/Arc/Coc Coc） | [下载 .zip](https://github.com/DungDT293/RETUBEMATRIX/releases/latest/download/RETubeMatrix-Extension-Chromium.zip)       |
+| **Firefox**                                                 | [下载 .xpi](https://github.com/DungDT293/RETUBEMATRIX/releases/latest/download/RETubeMatrix-Extension-Firefox-signed.xpi) |
 
 ## 安装说明
 
 ### Chromium（Chrome/Edge/Brave/Opera/Vivaldi/Arc/Coc Coc）
 
-1. 解压 `Youwee-Extension-Chromium.zip`。
+1. 解压 `RETubeMatrix-Extension-Chromium.zip`。
 2. 打开 `chrome://extensions`（或浏览器扩展管理页）。
 3. 开启 `Developer mode`。
 4. 点击 `Load unpacked`。
@@ -70,27 +70,27 @@
 
 ### Firefox
 
-1. 下载 `Youwee-Extension-Firefox-signed.xpi`。
+1. 下载 `RETubeMatrix-Extension-Firefox-signed.xpi`。
 2. 将 `.xpi` 拖放到 Firefox（或直接打开该文件）。
 3. 确认安装。
 
 ## 前置条件
 
-- 需先安装 Youwee 桌面应用。
-- 至少启动一次 Youwee，以注册 `youwee://` 协议处理器。
+- 需先安装 RETubeMatrix 桌面应用。
+- 至少启动一次 RETubeMatrix，以注册 `retubematrix://` 协议处理器。
 
 ## 故障排查
 
 - **“scheme does not have a registered handler”**
-  - 先打开一次 Youwee，再重试扩展。
+  - 先打开一次 RETubeMatrix，再重试扩展。
 - **浏览器弹窗很快关闭 / 应用未打开**
-  - 检查 Youwee 是否已正确安装并注册协议。
+  - 检查 RETubeMatrix 是否已正确安装并注册协议。
   - 在扩展弹窗中再次点击发送。
 - **看不到悬浮按钮**
   - 确认当前站点在支持列表中。
   - 在扩展弹窗中重新开启 `Floating button`。
 - **仍无法发送**
-  - 用弹窗复制 URL，手动粘贴到 Youwee 以定位问题。
+  - 用弹窗复制 URL，手动粘贴到 RETubeMatrix 以定位问题。
 
 ## 开发打包
 
@@ -104,10 +104,10 @@ bun run ext:package
 输出：
 
 - 构建目录：
-  - `extensions/youwee-webext/dist/chromium`
-  - `extensions/youwee-webext/dist/firefox`
+  - `extensions/retubematrix-webext/dist/chromium`
+  - `extensions/retubematrix-webext/dist/firefox`
 - 打包文件：
-  - `extensions/youwee-webext/dist/packages/Youwee-Extension-Chromium.zip`
-  - `extensions/youwee-webext/dist/packages/Youwee-Extension-Firefox-unsigned.zip`
+  - `extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Chromium.zip`
+  - `extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Firefox-unsigned.zip`
 
 已签名 Firefox `.xpi` 由 CI 发布流程生成。

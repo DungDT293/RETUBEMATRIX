@@ -1,18 +1,18 @@
 {
   "extensionName": {
-    "message": "Youwee 下载桥接扩展"
+    "message": "RETubeMatrix 下载桥接扩展"
   },
   "extensionDescription": {
-    "message": "将当前视频页面发送到 Youwee 桌面应用并快速开始下载。"
+    "message": "将当前视频页面发送到 RETubeMatrix 桌面应用并快速开始下载。"
   },
   "floatingButton": {
-    "message": "使用 Youwee 下载"
+    "message": "使用 RETubeMatrix 下载"
   },
   "floatingLauncher": {
-    "message": "Youwee"
+    "message": "RETubeMatrix"
   },
   "floatingMenuTitle": {
-    "message": "使用 Youwee 下载"
+    "message": "使用 RETubeMatrix 下载"
   },
   "floatingMedia": {
     "message": "类型"
@@ -45,7 +45,7 @@
     "message": "AI 摘要"
   },
   "floatingButtonOpening": {
-    "message": "正在打开 Youwee..."
+    "message": "正在打开 RETubeMatrix..."
   },
   "floatingButtonSummaryOpening": {
     "message": "正在打开摘要..."
@@ -57,7 +57,7 @@
     "message": "已加入队列"
   },
   "floatingButtonFailed": {
-    "message": "无法打开 Youwee"
+    "message": "无法打开 RETubeMatrix"
   },
   "floatingCollapse": {
     "message": "收起"
@@ -75,10 +75,10 @@
     "message": "关闭悬浮按钮"
   },
   "popupTitle": {
-    "message": "使用 Youwee 下载"
+    "message": "使用 RETubeMatrix 下载"
   },
   "popupDescription": {
-    "message": "一键打开 Youwee 并开始下载当前视频页面。"
+    "message": "一键打开 RETubeMatrix 并开始下载当前视频页面。"
   },
   "popupCurrentUrl": {
     "message": "当前链接"
@@ -96,7 +96,7 @@
     "message": "复制链接"
   },
   "popupOpenRelease": {
-    "message": "获取 / 更新 Youwee"
+    "message": "获取 / 更新 RETubeMatrix"
   },
   "popupFloatingLabel": {
     "message": "悬浮按钮"
@@ -117,13 +117,13 @@
     "message": "by"
   },
   "popupHint": {
-    "message": "浏览器首次可能会提示“Open Youwee?”。建议选择“Always allow”以获得更流畅体验。"
+    "message": "浏览器首次可能会提示“Open RETubeMatrix?”。建议选择“Always allow”以获得更流畅体验。"
   },
   "popupUrlUnavailable": {
     "message": "当前标签页没有有效的 HTTP/HTTPS 链接。"
   },
   "popupStatusInvalid": {
-    "message": "此标签页无法发送到 Youwee。"
+    "message": "此标签页无法发送到 RETubeMatrix。"
   },
   "popupStatusSupported": {
     "message": "该站点受支持，悬浮按钮可用。"
@@ -132,16 +132,16 @@
     "message": "该站点不显示悬浮按钮，但仍可通过扩展弹窗发送。"
   },
   "popupStatusOpening": {
-    "message": "正在打开 Youwee..."
+    "message": "正在打开 RETubeMatrix..."
   },
   "popupStatusQueued": {
-    "message": "已发送到 Youwee 队列。"
+    "message": "已发送到 RETubeMatrix 队列。"
   },
   "popupStatusSummaryOpening": {
-    "message": "正在 Youwee 中打开 AI 摘要..."
+    "message": "正在 RETubeMatrix 中打开 AI 摘要..."
   },
   "popupStatusOpenFailed": {
-    "message": "打开 Youwee 失败。"
+    "message": "打开 RETubeMatrix 失败。"
   },
   "popupCopied": {
     "message": "链接已复制。"

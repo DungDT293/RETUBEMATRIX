@@ -9,13 +9,13 @@ import {
 } from './packager';
 
 function printHelp() {
-  console.log(`youwee-sdk
+  console.log(`retubematrix-sdk
 
 Usage:
-  bunx youwee-sdk build [plugin-root]
-  bunx youwee-sdk pack [plugin-root] --private-key <path>
-  bunx youwee-sdk keygen [output-path]
-  bunx youwee-sdk verify <plugin-file.ywp>
+  bunx retubematrix-sdk build [plugin-root]
+  bunx retubematrix-sdk pack [plugin-root] --private-key <path>
+  bunx retubematrix-sdk keygen [output-path]
+  bunx retubematrix-sdk verify <plugin-file.ywp>
 
 Commands:
   build   Validate and bundle the plugin into dist/plugin.cjs
@@ -50,7 +50,7 @@ async function main() {
   if (command === 'keygen') {
     const outputPath = rest[0]
       ? resolve(rest[0])
-      : resolve(process.cwd(), 'youwee-plugin-key.json');
+      : resolve(process.cwd(), 'retubematrix-plugin-key.json');
     const result = generatePluginKeyPair(outputPath);
     console.log(`Wrote signing key: ${outputPath}`);
     console.log(`Key ID: ${result.keyId}`);

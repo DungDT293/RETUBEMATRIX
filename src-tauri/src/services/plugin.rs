@@ -174,7 +174,7 @@ fn validate_plugin_result_outputs(result: &PluginExecutionResult) -> Option<Plug
         let output_path = Path::new(trimmed);
         if let Err(reason) = validate_plugin_output_path(output_path) {
             return Some(PluginExecutionError {
-                message: format!("Plugin output was blocked by Youwee safety policy: {trimmed}"),
+                message: format!("Plugin output was blocked by RETubeMatrix safety policy: {trimmed}"),
                 details: Some(reason),
                 error_kind: Some("output".to_string()),
                 error_resource: Some(trimmed.to_string()),
@@ -356,6 +356,29 @@ const REGISTRY_FILE_NAME: &str = "registry.json";
 static PLUGIN_WORKFLOW_QUEUE: OnceLock<tokio::sync::Mutex<()>> = OnceLock::new();
 
 const PLUGIN_BASE_ENV_KEYS: &[&str] = &[
+    "RETUBEMATRIX_PLUGIN_TIMEOUT_MS",
+    "RETUBEMATRIX_PLUGIN_ID",
+    "RETUBEMATRIX_PLUGIN_SLUG",
+    "RETUBEMATRIX_PLUGIN_NAME",
+    "RETUBEMATRIX_PLUGIN_VERSION",
+    "RETUBEMATRIX_PLUGIN_CONFIG_JSON",
+    "RETUBEMATRIX_APP_VERSION",
+    "RETUBEMATRIX_APP_LOCALE",
+    "RETUBEMATRIX_APP_FALLBACK_LOCALE",
+    "RETUBEMATRIX_APP_DIRECTION",
+    "RETUBEMATRIX_PLUGIN_LANGUAGE",
+    "RETUBEMATRIX_PLUGIN_PROVIDER",
+    "RETUBEMATRIX_PLUGIN_MAIN",
+    "RETUBEMATRIX_PLUGIN_I18N_DEFAULT_LOCALE",
+    "RETUBEMATRIX_PLUGIN_I18N_SUPPORTED_LOCALES",
+    "RETUBEMATRIX_PLUGIN_I18N_DIR",
+    "RETUBEMATRIX_PLUGIN_PROVIDER_SOURCE",
+    "RETUBEMATRIX_PLUGIN_BRIDGE_URL",
+    "RETUBEMATRIX_PLUGIN_BRIDGE_TOKEN",
+    "RETUBEMATRIX_PLUGIN_BRIDGE_TOOLS",
+];
+
+const LEGACY_PLUGIN_ENV_KEYS: &[&str] = &[
     "YOUWEE_PLUGIN_TIMEOUT_MS",
     "YOUWEE_PLUGIN_ID",
     "YOUWEE_PLUGIN_SLUG",
@@ -1503,6 +1526,7 @@ async fn execute_plugin(
         .iter()
         .map(|key| key.to_string())
         .collect::<Vec<_>>();
+    plugin_env_keys.extend(LEGACY_PLUGIN_ENV_KEYS.iter().map(|key| key.to_string()));
     plugin_env_keys.extend(resolved_config_values.keys().cloned());
     plugin_env_keys.sort();
     plugin_env_keys.dedup();
@@ -1620,33 +1644,33 @@ async fn execute_plugin(
         cmd.env_remove("LD_LIBRARY_PATH");
     }
     cmd.env(
-        "YOUWEE_PLUGIN_TIMEOUT_MS",
+        "RETUBEMATRIX_PLUGIN_TIMEOUT_MS",
         timeout_sec.saturating_mul(1000).to_string(),
     );
-    cmd.env("YOUWEE_PLUGIN_ID", &plugin.manifest.plugin_id);
-    cmd.env("YOUWEE_PLUGIN_SLUG", &plugin.manifest.slug);
-    cmd.env("YOUWEE_PLUGIN_NAME", &plugin.manifest.name);
-    cmd.env("YOUWEE_PLUGIN_VERSION", &plugin.manifest.version);
+    cmd.env("RETUBEMATRIX_PLUGIN_ID", &plugin.manifest.plugin_id);
+    cmd.env("RETUBEMATRIX_PLUGIN_SLUG", &plugin.manifest.slug);
+    cmd.env("RETUBEMATRIX_PLUGIN_NAME", &plugin.manifest.name);
+    cmd.env("RETUBEMATRIX_PLUGIN_VERSION", &plugin.manifest.version);
     cmd.env(
-        "YOUWEE_PLUGIN_CONFIG_JSON",
+        "RETUBEMATRIX_PLUGIN_CONFIG_JSON",
         serde_json::to_string(&resolved_config_values)
             .map_err(|e| format!("Failed to serialize plugin config values: {}", e))?,
     );
-    cmd.env("YOUWEE_APP_VERSION", env!("CARGO_PKG_VERSION"));
-    cmd.env("YOUWEE_APP_LOCALE", &app_locale);
-    cmd.env("YOUWEE_APP_FALLBACK_LOCALE", &app_fallback_locale);
-    cmd.env("YOUWEE_APP_DIRECTION", &app_direction);
+    cmd.env("RETUBEMATRIX_APP_VERSION", env!("CARGO_PKG_VERSION"));
+    cmd.env("RETUBEMATRIX_APP_LOCALE", &app_locale);
+    cmd.env("RETUBEMATRIX_APP_FALLBACK_LOCALE", &app_fallback_locale);
+    cmd.env("RETUBEMATRIX_APP_DIRECTION", &app_direction);
     cmd.env(
-        "YOUWEE_PLUGIN_LANGUAGE",
+        "RETUBEMATRIX_PLUGIN_LANGUAGE",
         plugin.manifest.runtime.language.as_str(),
     );
-    cmd.env("YOUWEE_PLUGIN_PROVIDER", selected_provider.as_str());
+    cmd.env("RETUBEMATRIX_PLUGIN_PROVIDER", selected_provider.as_str());
     cmd.env(
-        "YOUWEE_PLUGIN_MAIN",
+        "RETUBEMATRIX_PLUGIN_MAIN",
         entrypoint.to_string_lossy().to_string(),
     );
     cmd.env(
-        "YOUWEE_PLUGIN_I18N_DEFAULT_LOCALE",
+        "RETUBEMATRIX_PLUGIN_I18N_DEFAULT_LOCALE",
         plugin
             .manifest
             .i18n
@@ -1655,7 +1679,7 @@ async fn execute_plugin(
             .unwrap_or_else(|| "en".to_string()),
     );
     cmd.env(
-        "YOUWEE_PLUGIN_I18N_SUPPORTED_LOCALES",
+        "RETUBEMATRIX_PLUGIN_I18N_SUPPORTED_LOCALES",
         plugin
             .manifest
             .i18n
@@ -1665,7 +1689,7 @@ async fn execute_plugin(
             .unwrap_or_else(|| "en".to_string()),
     );
     cmd.env(
-        "YOUWEE_PLUGIN_I18N_DIR",
+        "RETUBEMATRIX_PLUGIN_I18N_DIR",
         plugin
             .manifest
             .i18n
@@ -1674,11 +1698,11 @@ async fn execute_plugin(
             .unwrap_or_else(|| "locales".to_string()),
     );
     if let Some(source) = resolved_source.as_ref() {
-        cmd.env("YOUWEE_PLUGIN_PROVIDER_SOURCE", source);
+        cmd.env("RETUBEMATRIX_PLUGIN_PROVIDER_SOURCE", source);
     }
-    cmd.env("YOUWEE_PLUGIN_BRIDGE_URL", bridge.url());
-    cmd.env("YOUWEE_PLUGIN_BRIDGE_TOKEN", bridge.token());
-    cmd.env("YOUWEE_PLUGIN_BRIDGE_TOOLS", bridge.tools_csv());
+    cmd.env("RETUBEMATRIX_PLUGIN_BRIDGE_URL", bridge.url());
+    cmd.env("RETUBEMATRIX_PLUGIN_BRIDGE_TOKEN", bridge.token());
+    cmd.env("RETUBEMATRIX_PLUGIN_BRIDGE_TOOLS", bridge.tools_csv());
     for (key, value) in &resolved_config_values {
         let serialized = match value {
             Value::String(text) => text.clone(),

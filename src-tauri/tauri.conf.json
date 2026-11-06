@@ -162,7 +162,7 @@
     },
     "deep-link": {
       "desktop": {
-        "schemes": ["youwee"]
+        "schemes": ["retubematrix", "youwee"]
       }
     },
     "updater": {

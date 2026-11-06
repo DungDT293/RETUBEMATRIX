@@ -1,4 +1,4 @@
-# Plugin Youwee
+# Plugin RETubeMatrix
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 </div>
 
-Youwee hỗ trợ plugin `.ywp` đã ký cho workflow sau khi tải xong. Plugin có thể phản hồi theo sự kiện tải xuống, yêu cầu quyền rõ ràng, cung cấp field cấu hình có kiểu dữ liệu và chạy các tác vụ tùy chỉnh như gửi thông báo, upload file hoặc tích hợp dịch vụ bên thứ ba.
+RETubeMatrix hỗ trợ plugin `.ywp` đã ký cho workflow sau khi tải xong. Plugin có thể phản hồi theo sự kiện tải xuống, yêu cầu quyền rõ ràng, cung cấp field cấu hình có kiểu dữ liệu và chạy các tác vụ tùy chỉnh như gửi thông báo, upload file hoặc tích hợp dịch vụ bên thứ ba.
 
 Plugin cũng có thể cung cấp hướng dẫn đa ngôn ngữ, field cấu hình có kiểu dữ liệu rõ ràng, quyền truy cập cần duyệt và các bước workflow theo trigger ngay trong ứng dụng.
 
@@ -23,13 +23,13 @@ Plugin cũng có thể cung cấp hướng dẫn đa ngôn ngữ, field cấu h�
 
 1. Mở repository plugin hoặc trang bản phát hành mới nhất.
 2. Tải gói `.ywp` đã ký và checksum nếu có.
-3. Trong Youwee, mở **Settings** -> **Plugins**.
+3. Trong RETubeMatrix, mở **Settings** -> **Plugins**.
 4. Import gói `.ywp`.
 5. Kiểm tra quyền được yêu cầu và các field cấu hình trước khi bật plugin trong workflow.
 
 ## Tự viết plugin
 
-Developer có thể tạo plugin workspace từ Youwee, attach để debug trực tiếp, rồi build và ký gói cuối cùng bằng `youwee-sdk`.
+Developer có thể tạo plugin workspace từ RETubeMatrix, attach để debug trực tiếp, rồi build và ký gói cuối cùng bằng `retubematrix-sdk`.
 
 - Hướng dẫn SDK: [sdk-js/README.md](../sdk-js/README.md)
-- Gói SDK: [youwee-sdk](https://www.npmjs.com/package/youwee-sdk)
+- Mã nguồn SDK: [sdk-js](../sdk-js) (chưa publish lên npm)

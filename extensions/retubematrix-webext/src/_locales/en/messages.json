@@ -1,18 +1,18 @@
 {
   "extensionName": {
-    "message": "Youwee Downloader Bridge"
+    "message": "RETubeMatrix Downloader Bridge"
   },
   "extensionDescription": {
-    "message": "Send current video page to Youwee desktop app and start download quickly."
+    "message": "Send current video page to RETubeMatrix desktop app and start download quickly."
   },
   "floatingButton": {
-    "message": "Download with Youwee"
+    "message": "Download with RETubeMatrix"
   },
   "floatingLauncher": {
-    "message": "Youwee"
+    "message": "RETubeMatrix"
   },
   "floatingMenuTitle": {
-    "message": "Download with Youwee"
+    "message": "Download with RETubeMatrix"
   },
   "floatingMedia": {
     "message": "Media"
@@ -45,7 +45,7 @@
     "message": "AI Summary"
   },
   "floatingButtonOpening": {
-    "message": "Opening Youwee..."
+    "message": "Opening RETubeMatrix..."
   },
   "floatingButtonSummaryOpening": {
     "message": "Opening summary..."
@@ -57,7 +57,7 @@
     "message": "Sent to queue"
   },
   "floatingButtonFailed": {
-    "message": "Failed to open Youwee"
+    "message": "Failed to open RETubeMatrix"
   },
   "floatingCollapse": {
     "message": "Collapse"
@@ -75,10 +75,10 @@
     "message": "Turn off floating button"
   },
   "popupTitle": {
-    "message": "Download with Youwee"
+    "message": "Download with RETubeMatrix"
   },
   "popupDescription": {
-    "message": "Open Youwee and start downloading the current video page in one click."
+    "message": "Open RETubeMatrix and start downloading the current video page in one click."
   },
   "popupCurrentUrl": {
     "message": "Current URL"
@@ -96,7 +96,7 @@
     "message": "Copy URL"
   },
   "popupOpenRelease": {
-    "message": "Get / Update Youwee"
+    "message": "Get / Update RETubeMatrix"
   },
   "popupFloatingLabel": {
     "message": "Floating button"
@@ -117,13 +117,13 @@
     "message": "by"
   },
   "popupHint": {
-    "message": "Browser may show \"Open Youwee?\" prompt the first time. Choose \"Always allow\" for smoother use."
+    "message": "Browser may show \"Open RETubeMatrix?\" prompt the first time. Choose \"Always allow\" for smoother use."
   },
   "popupUrlUnavailable": {
     "message": "No valid HTTP/HTTPS URL in current tab."
   },
   "popupStatusInvalid": {
-    "message": "This tab cannot be sent to Youwee."
+    "message": "This tab cannot be sent to RETubeMatrix."
   },
   "popupStatusSupported": {
     "message": "Supported site. Floating button is available."
@@ -132,16 +132,16 @@
     "message": "Floating button is hidden on this site, but popup action still works."
   },
   "popupStatusOpening": {
-    "message": "Opening Youwee..."
+    "message": "Opening RETubeMatrix..."
   },
   "popupStatusQueued": {
-    "message": "Sent to queue in Youwee."
+    "message": "Sent to queue in RETubeMatrix."
   },
   "popupStatusSummaryOpening": {
-    "message": "Opening AI Summary in Youwee..."
+    "message": "Opening AI Summary in RETubeMatrix..."
   },
   "popupStatusOpenFailed": {
-    "message": "Failed to open Youwee."
+    "message": "Failed to open RETubeMatrix."
   },
   "popupCopied": {
     "message": "URL copied to clipboard."

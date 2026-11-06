@@ -6,6 +6,10 @@ import type {
   AITextOptions,
 } from './types';
 
+function readEnv(key: string): string | undefined {
+  return process.env[`RETUBEMATRIX_${key}`] ?? process.env[`YOUWEE_${key}`];
+}
+
 interface InternalAIConfig extends AIConfigSnapshot {
   proxyUrl: string | null;
   ollamaUrl: string | null;
@@ -27,21 +31,19 @@ function trimTrailingSlash(value: string | null): string | null {
 }
 
 export function readAIConfigFromEnv(): InternalAIConfig {
-  const env = process.env;
-
   return {
-    enabled: parseBool(env.YOUWEE_AI_ENABLED),
-    provider: env.YOUWEE_AI_PROVIDER || null,
-    model: env.YOUWEE_AI_MODEL || null,
-    proxyUrl: trimTrailingSlash(env.YOUWEE_AI_PROXY_URL || null),
-    ollamaUrl: trimTrailingSlash(env.YOUWEE_AI_OLLAMA_URL || null),
-    lmstudioUrl: trimTrailingSlash(env.YOUWEE_AI_LMSTUDIO_URL || null),
-    timeoutSeconds: Number(env.YOUWEE_AI_TIMEOUT_SECONDS || '120'),
-    summaryStyle: env.YOUWEE_AI_SUMMARY_STYLE || 'concise',
-    summaryLanguage: env.YOUWEE_AI_SUMMARY_LANGUAGE || 'auto',
-    whisperEnabled: parseBool(env.YOUWEE_AI_WHISPER_ENABLED),
-    whisperEndpointUrl: trimTrailingSlash(env.YOUWEE_AI_WHISPER_ENDPOINT_URL || null),
-    whisperModel: env.YOUWEE_AI_WHISPER_MODEL || null,
+    enabled: parseBool(readEnv('AI_ENABLED')),
+    provider: readEnv('AI_PROVIDER') || null,
+    model: readEnv('AI_MODEL') || null,
+    proxyUrl: trimTrailingSlash(readEnv('AI_PROXY_URL') || null),
+    ollamaUrl: trimTrailingSlash(readEnv('AI_OLLAMA_URL') || null),
+    lmstudioUrl: trimTrailingSlash(readEnv('AI_LMSTUDIO_URL') || null),
+    timeoutSeconds: Number(readEnv('AI_TIMEOUT_SECONDS') || '120'),
+    summaryStyle: readEnv('AI_SUMMARY_STYLE') || 'concise',
+    summaryLanguage: readEnv('AI_SUMMARY_LANGUAGE') || 'auto',
+    whisperEnabled: parseBool(readEnv('AI_WHISPER_ENABLED')),
+    whisperEndpointUrl: trimTrailingSlash(readEnv('AI_WHISPER_ENDPOINT_URL') || null),
+    whisperModel: readEnv('AI_WHISPER_MODEL') || null,
     hasApiKey: false,
     hasWhisperApiKey: false,
   };
@@ -70,7 +72,7 @@ export function createAIBridge(logger?: LoggerLike): AIBridge {
     async generateText(_options) {
       logger?.info?.('Blocked plugin AI helper without delegated app bridge');
       throw new Error(
-        'Plugin AI helpers are disabled until Youwee provides a delegated AI bridge without exposing API keys.',
+        'Plugin AI helpers are disabled until RETubeMatrix provides a delegated AI bridge without exposing API keys.',
       );
     },
 

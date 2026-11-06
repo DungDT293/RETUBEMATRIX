@@ -18,7 +18,7 @@ permissions:
 env:
   CARGO_TERM_COLOR: always
   LINUX_TARGET: x86_64-unknown-linux-gnu
-  YTDLP_BINARY: youwee-yt-dlp-x86_64-unknown-linux-gnu
+  YTDLP_BINARY: retubematrix-yt-dlp-x86_64-unknown-linux-gnu
 
 jobs:
   flatpak-test:
@@ -96,15 +96,15 @@ jobs:
 
           rm -rf flatpak/input flatpak/payload flatpak/build-dir flatpak/repo
           mkdir -p flatpak/input flatpak/payload
-          cp "$DEB_FILE" flatpak/input/Youwee-Linux.deb
+          cp "$DEB_FILE" flatpak/input/RETubeMatrix-Linux.deb
           dpkg-deb -x "$DEB_FILE" flatpak/payload
 
-          test -x flatpak/payload/usr/bin/youwee
-          test -x flatpak/payload/usr/bin/youwee-yt-dlp
-          test -f flatpak/payload/usr/share/applications/Youwee.desktop
-          test -f flatpak/payload/usr/share/icons/hicolor/32x32/apps/youwee.png
-          grep -Fx 'Exec=youwee %U' flatpak/payload/usr/share/applications/Youwee.desktop
-          grep -Fqx 'MimeType=x-scheme-handler/youwee;' flatpak/payload/usr/share/applications/Youwee.desktop
+          test -x flatpak/payload/usr/bin/retubematrix
+          test -x flatpak/payload/usr/bin/retubematrix-yt-dlp
+          test -f flatpak/payload/usr/share/applications/RETubeMatrix.desktop
+          test -f flatpak/payload/usr/share/icons/hicolor/32x32/apps/retubematrix.png
+          grep -Fx 'Exec=retubematrix %U' flatpak/payload/usr/share/applications/RETubeMatrix.desktop
+          grep -Fqx 'MimeType=x-scheme-handler/retubematrix;' flatpak/payload/usr/share/applications/RETubeMatrix.desktop
 
       - name: Build Flatpak bundle
         run: |
@@ -114,27 +114,27 @@ jobs:
             --install-deps-from=flathub \
             --repo=flatpak/repo \
             flatpak/build-dir \
-            flatpak/com.vanloctech.youwee.yml
-          flatpak build-bundle flatpak/repo flatpak/Youwee-Linux.flatpak com.vanloctech.youwee
-          ls -lh flatpak/Youwee-Linux.flatpak
+            flatpak/com.retubematrix.app.yml
+          flatpak build-bundle flatpak/repo flatpak/RETubeMatrix-Linux.flatpak com.retubematrix.app
+          ls -lh flatpak/RETubeMatrix-Linux.flatpak
 
       - name: Validate Flatpak bundle
         run: |
           set -eu
-          flatpak install --user --noninteractive -y flatpak/Youwee-Linux.flatpak
-          dbus-run-session -- flatpak run --command=sh com.vanloctech.youwee -c '
+          flatpak install --user --noninteractive -y flatpak/RETubeMatrix-Linux.flatpak
+          dbus-run-session -- flatpak run --command=sh com.retubematrix.app -c '
             set -eu
-            test -x /app/bin/youwee
-            test -x /app/bin/youwee-yt-dlp
-            test -f /app/share/applications/com.vanloctech.youwee.desktop
-            ldd /app/bin/youwee | tee /tmp/youwee-ldd.txt
-            if grep -q "not found" /tmp/youwee-ldd.txt; then
+            test -x /app/bin/retubematrix
+            test -x /app/bin/retubematrix-yt-dlp
+            test -f /app/share/applications/com.retubematrix.app.desktop
+            ldd /app/bin/retubematrix | tee /tmp/retubematrix-ldd.txt
+            if grep -q "not found" /tmp/retubematrix-ldd.txt; then
               echo "Missing runtime libraries in Flatpak bundle:"
-              cat /tmp/youwee-ldd.txt
+              cat /tmp/retubematrix-ldd.txt
               exit 1
             fi
-            /app/bin/youwee-yt-dlp --version >/tmp/youwee-ytdlp-version.txt
-            cat /tmp/youwee-ytdlp-version.txt
+            /app/bin/retubematrix-yt-dlp --version >/tmp/retubematrix-ytdlp-version.txt
+            cat /tmp/retubematrix-ytdlp-version.txt
           '
 
       - name: Smoke test Flatpak launch
@@ -142,21 +142,21 @@ jobs:
           set -eu
           set +e
           xvfb-run -a dbus-run-session -- \
-            timeout --foreground 10s flatpak run com.vanloctech.youwee \
-            >/tmp/youwee-flatpak-launch.log 2>&1
+            timeout --foreground 10s flatpak run com.retubematrix.app \
+            >/tmp/retubematrix-flatpak-launch.log 2>&1
           STATUS=$?
           set -e
-          cat /tmp/youwee-flatpak-launch.log
+          cat /tmp/retubematrix-flatpak-launch.log
           if [ "$STATUS" -ne 124 ]; then
-            echo "Youwee Flatpak exited before the launch smoke-test timeout (status $STATUS)."
+            echo "RETubeMatrix Flatpak exited before the launch smoke-test timeout (status $STATUS)."
             exit "$STATUS"
           fi
 
       - name: Upload Linux test artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: youwee-linux-flatpak-test
+          name: retubematrix-linux-flatpak-test
           path: |
-            flatpak/input/Youwee-Linux.deb
-            flatpak/Youwee-Linux.flatpak
+            flatpak/input/RETubeMatrix-Linux.deb
+            flatpak/RETubeMatrix-Linux.flatpak
           if-no-files-found: error

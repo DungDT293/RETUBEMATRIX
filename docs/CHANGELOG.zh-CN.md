@@ -7,6 +7,15 @@ RETubeMatrix 的所有重要更改都将记录在此文件中。
 
 ## [Unreleased]
 
+### 变更
+
+- **RETubeMatrix 品牌迁移** - Updater 指向 `DungDT293/RETUBEMATRIX`；深度链接使用 `retubematrix://`（仍兼容 `youwee://`）；CLI、浏览器扩展和 SDK 重命名为 `retubematrix`。
+- **插件运行时环境变量前缀** - 新增 `RETUBEMATRIX_*`，并为旧插件保留 `YOUWEE_*` 别名。
+
+### 移除
+
+- **清理无用功能** - 移除无法访问的 Download、Gallery、Metadata、Processing、Subtitles、Summary 页面，gallery/metadata/processing Rust 模块，以及 32 个未使用的 `browser_engine` Python 模块。
+
 ## [0.20.15] - 2026-11-05
 
 ### 新增

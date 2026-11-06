@@ -101,7 +101,7 @@ pub(super) fn validate_plugin_output_path(path: &Path) -> Result<(), String> {
     validate_plugin_write_scope(path)?;
     if is_dangerous_output_filename(path) {
         return Err(format!(
-            "Plugin output file type is blocked by Youwee safety policy: {}",
+            "Plugin output file type is blocked by RETubeMatrix safety policy: {}",
             path.display()
         ));
     }

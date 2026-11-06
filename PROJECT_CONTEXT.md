@@ -8,8 +8,8 @@
 
 ## 1. TỔNG QUAN DỰ ÁN & MỤC ĐÍCH
 
-- **Tên ứng dụng**: **RETubeMatrix** (Tên mã kỹ thuật: `reupytb`, Tên gói: `youwee`)
-- **Phiên bản hiện tại**: `v0.20.11` (Phát hành: 2026-11-03)
+- **Tên ứng dụng**: **RETubeMatrix** (Tên mã kỹ thuật: `reupytb`, Tên gói: `retubematrix`)
+- **Phiên bản hiện tại**: `v0.20.15` (Phát hành: 2026-11-03)
 - **Mục đích**: Nền tảng Desktop All-in-One chuyên nghiệp dành cho việc săn đón video đề xuất ngách (Outlier Hunter theo mô hình Ikigai), tải video sạch đa luồng, theo dõi tự động kênh đối thủ (đối chiếu 1-1 không nhầm lẫn kênh), xử lý lách bản quyền đa cấp độ (Reup Pipeline Lv.1 & Lv.2 đổi Checksum MD5/SHA256, Dynamic Audio Resampling, xóa sạch EXIF gốc), kiểm tra bản quyền trực tiếp với YouTube Studio qua Kênh Test BKT độc lập (Quota 15 video/24h, Traffic Light Xanh/Vàng/Đỏ), AI tối ưu Tiêu đề (Quy tắc 95%-5%) & Thumbnail (bảo toàn 95% nhân vật/chữ), quản lý hồ sơ trình duyệt Anti-Detect độc lập (MultiBrowser Cloak Chromium 155), chẩn đoán lỗi chuyên biệt 6 file log và hệ sinh thái Plugin mở rộng (`.ywp`).
 
 - **Công nghệ cốt lõi (Tech Stack)**:
@@ -18,7 +18,7 @@
   - **Database**: SQLite (`rusqlite`) ở chế độ WAL Mode kết hợp Virtual Table FTS5 tìm kiếm toàn văn bản tiếng Việt không dấu (`unicode61 remove_diacritics 2`)
   - **External Bundled Engines**: Bundled `yt-dlp`, Bundled `FFmpeg`/`FFprobe`, Bundled `gallery-dl`, Bundled `Deno runtime`, Bundled `Python 3 Embed`
   - **Browser Automation Core**: Python 3 (Playwright / Chromium Cloak Engine) cô lập tại `%LOCALAPPDATA%\reupytb\browser_engine\`
-  - **Plugin Engine**: Kiến trúc sandbox chạy các gói `.ywp` có chữ ký, hỗ trợ JavaScript/TypeScript SDK (`youwee-sdk`) chạy trên Deno hoặc Node.js runtime
+  - **Plugin Engine**: Kiến trúc sandbox chạy các gói `.ywp` có chữ ký, hỗ trợ JavaScript/TypeScript SDK (`retubematrix-sdk`) chạy trên Deno hoặc Node.js runtime
 
 - **Môi trường & Công cụ phát triển**:
   - Package manager: `bun` (tuyệt đối không dùng npm/npx theo quy chuẩn `AGENTS.md`)
@@ -38,7 +38,7 @@ flowchart TD
     UI[Frontend: React 19 + TypeScript + Tailwind CSS] -- invoke / IPC Events --> Rust[Tauri 2.0 Rust Core Engine]
     
     subgraph RustServices [Tauri 2.0 Core Services]
-        Rust -- rusqlite WAL --> DB[(youwee.db + FTS5)]
+        Rust -- rusqlite WAL --> DB[(retubematrix.db + FTS5)]
         Rust -- Stdio Process --> YTDLP[Bundled yt-dlp]
         Rust -- Stdio Process --> FFMPEG[Bundled FFmpeg & FFprobe]
         Rust -- Stdio Process --> GALLERY[Bundled gallery-dl]
@@ -247,8 +247,8 @@ Tất cả các command được đăng ký trong `src-tauri/src/lib.rs` và gia
 
 | Command Name                                       | Tham số  | Ý nghĩa                                                            |
 | :------------------------------------------------- | :------- | :----------------------------------------------------------------- |
-| `get_cli_shortcut_status` / `install_cli_shortcut` | -        | Quản lý shim dòng lệnh `youwee` trong WindowsApps / PATH           |
-| `consume_pending_external_links`                   | -        | Xử lý các link được mở từ ngoài (Deep link `youwee://`)            |
+| `get_cli_shortcut_status` / `install_cli_shortcut` | -        | Quản lý shim dòng lệnh `retubematrix` trong WindowsApps / PATH     |
+| `consume_pending_external_links`                   | -        | Xử lý các link được mở từ ngoài (Deep link `retubematrix://`)      |
 | `consume_pending_cli_download_requests`            | -        | Xử lý yêu cầu tải nhận từ CLI command line                         |
 | `bring_main_window_to_front`                       | -        | Đưa cửa sổ ứng dụng lên trên cùng khi người dùng tương tác         |
 | `set_hide_dock_on_close`                           | `hide`   | Cấu hình ẩn cửa sổ vào khay hệ thống (Tray) thay vì thoát ứng dụng |
@@ -285,10 +285,10 @@ Giao tiếp qua tiến trình độc lập với mã hóa UTF-8 chuẩn (`python
 
 ---
 
-## 4. DOCS CHO DATABASE SCHEMA (SQLite `youwee.db`)
+## 4. DOCS CHO DATABASE SCHEMA (SQLite `retubematrix.db`)
 
-Dữ liệu cục bộ được lưu trữ tại `%APPDATA%\com.vanloctech.youwee\youwee.db`.
-Hệ thống tự động thực hiện migration an toàn từ file di sản `logs.db` sang `youwee.db` (dùng `VACUUM INTO` và `PRAGMA quick_check`).
+Dữ liệu cục bộ được lưu trữ tại `%APPDATA%\com.retubematrix.app\retubematrix.db`.
+Hệ thống tự động thực hiện migration an toàn từ file di sản `logs.db` sang `retubematrix.db` (dùng `VACUUM INTO` và `PRAGMA quick_check`).
 
 ```mermaid
 erDiagram
@@ -681,7 +681,7 @@ flowchart TD
 
 ### 5.5. Hệ Sinh Thái Plugin & Workflow Automation (`services/plugin/`)
 
-1. **Định dạng gói `.ywp` (Youwee Plugin)**: Là tệp nén ZIP chứa:
+1. **Định dạng gói `.ywp` (RETubeMatrix Plugin)**: Là tệp nén ZIP chứa:
    - `manifest.json`: Tên, định danh, phiên bản, entrypoint, quyền hạn yêu cầu (`permissions: ["network", "filesystem", "notifications"]`), các trường cấu hình tùy biến (`configFields`).
    - `index.ts` / `index.js`: Mã nguồn thực thi logic plugin.
    - Icon và tài liệu hướng dẫn cục bộ (`README.md`).
@@ -730,7 +730,7 @@ flowchart TD
 
 ---
 
-## 6. MA TRẬN 9 CHỨC NĂNG CỐT LÕI CỦA RETUBEMATRIX (v0.20.11)
+## 6. MA TRẬN 9 CHỨC NĂNG CỐT LÕI CỦA RETUBEMATRIX (v0.20.15)
 
 Hệ thống được chuẩn hóa toàn diện theo 9 phân hệ chức năng tương ứng trực tiếp với bộ kiểm thử nghiệm thu:
 
@@ -805,5 +805,5 @@ Hệ thống được chuẩn hóa toàn diện theo 9 phân hệ chức năng t
 ### 6.9. Chức năng 9: Cài Đặt & Rebranding
 
 - Đồng bộ thương hiệu **RETubeMatrix** trên toàn bộ thanh tiêu đề, menu điều hướng và trang Giới thiệu.
-- Loại bỏ triệt để các UI và liên kết ngoài của Youwee cũ (ProductHunt badge, BuyMeACoffee, subreddit cũ). Thay bằng Core Engines Architecture Card.
+- Loại bỏ triệt để các UI và liên kết ngoài của RETubeMatrix cũ (ProductHunt badge, BuyMeACoffee, subreddit cũ). Thay bằng Core Engines Architecture Card.
 - Bảo toàn 100% các phân hệ kỹ thuật: Cài đặt chung, Mạng & Proxy, Tải xuống, Quản lý phụ thuộc (FFmpeg, yt-dlp, Deno, Chromium).

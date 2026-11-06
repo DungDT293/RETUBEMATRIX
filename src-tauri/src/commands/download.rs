@@ -1501,7 +1501,7 @@ pub async fn download_video(
         add_log_internal(
             "info",
             &format!(
-                "Skipped yt-dlp advanced option(s) for Bilibili because Youwee uses app-managed headers: {}",
+                "Skipped yt-dlp advanced option(s) for Bilibili because RETubeMatrix uses app-managed headers: {}",
                 advanced_args.skipped_options.join(", ")
             ),
             None,

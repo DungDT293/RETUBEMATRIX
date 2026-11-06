@@ -180,6 +180,21 @@ mod tests {
     }
 
     #[test]
+    fn canonical_deep_link_scheme_is_accepted() {
+        let argv = vec![
+            "RETubeMatrix".to_string(),
+            "retubematrix://download?v=1&url=https%3A%2F%2Fexample.com%2Fvideo".to_string(),
+        ];
+
+        let links = extract_external_links_from_argv(&argv);
+
+        assert_eq!(
+            links,
+            vec!["retubematrix://download?v=1&url=https%3A%2F%2Fexample.com%2Fvideo"]
+        );
+    }
+
+    #[test]
     fn pending_external_links_are_deduped_and_drained() {
         let _ = take_pending_external_links();
         let link = "youwee://download?v=1&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dabc123"

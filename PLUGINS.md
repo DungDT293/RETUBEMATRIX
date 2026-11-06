@@ -1,4 +1,4 @@
-# Youwee Plugins
+# RETubeMatrix Plugins
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 </div>
 
-Youwee supports signed `.ywp` plugins for post-download workflows. Plugins can react to download events, ask for explicit permissions, expose typed configuration fields, and run custom actions such as notifications, uploads, or third-party integrations.
+RETubeMatrix supports signed `.ywp` plugins for post-download workflows. Plugins can react to download events, ask for explicit permissions, expose typed configuration fields, and run custom actions such as notifications, uploads, or third-party integrations.
 
 Plugins can also provide localized guides, typed configuration fields, requested permissions, and trigger-based workflow steps inside the app.
 
@@ -23,13 +23,13 @@ Plugins can also provide localized guides, typed configuration fields, requested
 
 1. Open the plugin repository or its latest release page.
 2. Download the signed `.ywp` package and its checksum if provided.
-3. In Youwee, open **Settings** -> **Plugins**.
+3. In RETubeMatrix, open **Settings** -> **Plugins**.
 4. Import the `.ywp` package.
 5. Review the requested permissions and configuration fields before enabling it in a workflow.
 
 ## Build Your Own
 
-Developers can create a plugin workspace from Youwee, attach it for live debugging, then build and sign a final package with `youwee-sdk`.
+Developers can create a plugin workspace from RETubeMatrix, attach it for live debugging, then build and sign a final package with `retubematrix-sdk`.
 
 - SDK guide: [sdk-js/README.md](sdk-js/README.md)
-- SDK package: [youwee-sdk](https://www.npmjs.com/package/youwee-sdk)
+- SDK source: [sdk-js](sdk-js) (not published to npm yet)

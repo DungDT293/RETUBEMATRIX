@@ -5,7 +5,7 @@ This file is read automatically at the start of every session. Follow these rule
 ## Project Info
 
 - **App name**: reupytb
-- **Repo**: `github.com/vanloctech/youwee`
+- **Repo**: `github.com/DungDT293/RETUBEMATRIX`
 - **Stack**: Tauri 2.0 (Rust backend) + React 19 + TypeScript + Tailwind CSS
 - **Runtime**: Use `bun` (not npm/npx)
 - **Linting**: `bun run biome check --write .`
@@ -73,7 +73,7 @@ All must pass before a commit succeeds.
 
 ## i18n
 
-- Namespaces: `common`, `settings`, `pages`, `channels`, `download`, `universal`, `gallery`, `metadata`, `subtitles`, plus any future feature-specific namespaces already present in `src/i18n/locales/{lang}/`
+- Namespaces: `common`, `settings`, `pages`, `channels`, `download`, `universal`, plus any future feature-specific namespaces already present in `src/i18n/locales/{lang}/`
 - Primary locales: `en`, `vi`, `zh-CN`
 - Supported locale directories currently live in `src/i18n/locales/{lang}/`
 - When adding new UI text, add keys to **every existing locale directory**, not only the 3 primary locales
@@ -89,7 +89,7 @@ All must pass before a commit succeeds.
 
 ## Browser Extension Rules
 
-- Extension source lives in `extensions/youwee-webext/`
+- Extension source lives in `extensions/retubematrix-webext/`
 - When changing extension behavior, run `bun run ext:build`
 - Keep extension user-facing text and icons consistent with the app's current UI language and visual style
 - Browser extension deep links must preserve the URL payload when opening the desktop app from a closed state
@@ -104,8 +104,8 @@ All must pass before a commit succeeds.
 ## Architecture Patterns
 
 - Per-item settings are **snapshotted** at add-time from global settings, stored as `item.settings`
-- App data is stored in SQLite (`youwee.db`), initialized in `src-tauri/src/database/connection.rs`
-- `logs.db` is the legacy database filename; keep automatic migration to `youwee.db` and preserve the legacy file as a backup
+- App data is stored in SQLite (`retubematrix.db`), initialized in `src-tauri/src/database/connection.rs`
+- `logs.db` and `youwee.db` are legacy database filenames; keep automatic migration to `retubematrix.db` and preserve the legacy files as backups
 - DB migrations use `ALTER TABLE ... ADD COLUMN` with `.ok()` to ignore "already exists" errors
 - FFmpeg is bundled (not system) on macOS — rebuilt with `--enable-securetransport` for TLS support
 - `download_sections` format: `"*MM:SS-MM:SS"` (with `*` prefix for yt-dlp). Strip `*` before storing in history.

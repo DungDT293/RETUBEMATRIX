@@ -95,3 +95,21 @@ Các định danh sau **vẫn giữ để tương thích** và sẽ được đ�
 
 Khi sync lại từ BrowserMulti, chỉ copy các module còn nằm trong danh sách reachable; không khôi phục
 các module đã trim trừ khi thêm tính năng mới cần chúng.
+
+## 6. Định danh sau rebrand (P3)
+
+**Canonical hiện tại**
+
+- Tên hiển thị: `RETubeMatrix`; package/binary: `retubematrix`; identifier: `com.retubematrix.app`.
+- Database: `retubematrix.db`; app data: `%APPDATA%\com.retubematrix.app`.
+- Deep link: `retubematrix://`; CLI: `retubematrix`; SDK: `retubematrix-sdk`.
+- Plugin env: `RETUBEMATRIX_*`; extension: `extensions/retubematrix-webext`.
+
+**Legacy vẫn được giữ có chủ đích (chưa xóa)**
+
+- `youwee://` vẫn được parse song song để link cũ không gãy.
+- `YOUWEE_*`: runtime CLI mirror từ `RETUBEMATRIX_*` cho plugin build bằng SDK cũ.
+- `ctx.youwee` và type `YouweeBridge`/`YouweeYouTubeBridge` vẫn tồn tại dưới dạng alias.
+- localStorage key `youwee-*`, appdata `com.vanloctech.youwee`, DB `youwee.db`, binary `youwee-yt-dlp*`.
+- Firefox add-on ID `youwee@vanloctech.com` (giữ để không mất danh tính AMO đã phát hành).
+- Các plugin upstream `github.com/vanloctech/youwee-plugin-*` (gói `.ywp` do upstream ký).
