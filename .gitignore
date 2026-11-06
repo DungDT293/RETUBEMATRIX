@@ -56,3 +56,10 @@ venv/
 build/
 *.dmg
 *.app
+
+# Generated knowledge graph (graphify)
+graphify-out/
+
+# Local QA reports
+QA_*.html
+BAO_CAO_KIEM_THU_*.html
