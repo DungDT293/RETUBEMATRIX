@@ -268,21 +268,8 @@
     )}&source=${encodeURIComponent(source)}`;
   }
 
-  function buildSummaryDeepLink(rawUrl, sourceLabel) {
-    const normalizedUrl = normalizeVideoUrl(rawUrl);
-    const source = sourceLabel || detectSourceLabel();
-    return `retubematrix://summary?v=1&url=${encodeURIComponent(
-      normalizedUrl,
-    )}&source=${encodeURIComponent(source)}`;
-  }
-
   function openDeepLink(rawUrl, sourceLabel, options = {}) {
     const deepLink = buildDeepLink(rawUrl, sourceLabel, options);
-    return openProtocolLink(deepLink);
-  }
-
-  function openSummaryDeepLink(rawUrl, sourceLabel) {
-    const deepLink = buildSummaryDeepLink(rawUrl, sourceLabel);
     return openProtocolLink(deepLink);
   }
 
@@ -353,9 +340,7 @@
     resolvePlayerElement,
     computePlayerDockPosition,
     buildDeepLink,
-    buildSummaryDeepLink,
     openDeepLink,
-    openSummaryDeepLink,
     copyToClipboard,
     getExtensionApi,
     t,

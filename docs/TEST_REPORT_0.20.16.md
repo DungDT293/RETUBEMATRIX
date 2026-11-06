@@ -10,9 +10,9 @@
 | Loại                             | Số lượng | Ghi chú                                                              |
 | :------------------------------- | -------: | :------------------------------------------------------------------- |
 | PASS (tự động + smoke thật)      |       20 | Build, unit test, launch, CLI, Python, DB, static audit              |
-| FIXED trong quá trình test       |        1 | Dialog lỗi auto-update khi chưa có release                           |
+| FIXED trong quá trình test       |        2 | Dialog lỗi auto-update; summary deep link/AI Summary chết            |
 | BLOCKED (cần người/tài khoản)    |        6 | Click UI, Studio login/upload, Content ID, tải thật, proxy, Telegram |
-| KNOWN ISSUE (ghi nhận, chưa sửa) |        3 | Summary deep link chết, identifier `.app`, lệch version Tauri        |
+| KNOWN ISSUE (ghi nhận, chưa sửa) |        2 | Identifier `.app`, lệch version Tauri                                |
 
 Bằng chứng smoke: [retubematrix-0.20.16-smoke.png](screenshots/retubematrix-0.20.16-smoke.png).
 
@@ -92,17 +92,15 @@ DB: `%APPDATA%\com.retubematrix.app\retubematrix.db`
 
 ## 8. KNOWN ISSUE ghi nhận
 
-1. **Summary deep link / AI Summary trên extension không còn đích đến**
-   - `retubematrix://summary` vẫn được parser chấp nhận, extension vẫn có nút "AI Summary", nhưng `SummaryPage` đã bị xóa → bấm vào không có tác dụng.
-   - Đề xuất: xóa nút summary khỏi extension + bỏ hỗ trợ `summary` deep link, hoặc khôi phục một trang tóm tắt tối giản.
-2. **Identifier `com.retubematrix.app` kết thúc bằng `.app`**
+1. **Identifier `com.retubematrix.app` kết thúc bằng `.app`**
    - Tauri cảnh báo xung đột với bundle macOS. Cần đổi (ví dụ `com.retubematrix.desktop`) trước khi phát hành macOS; đổi identifier kéo theo migration appdata.
-3. **Lệch version Tauri npm ↔ Rust**
+2. **Lệch version Tauri npm ↔ Rust**
    - `@tauri-apps/api` 2.12.4 vs `tauri` 2.11.5; nhiều plugin lệch minor. Build phải dùng `--ignore-version-mismatches`; nên đồng bộ trước release.
 
 ## 9. Đã sửa trong quá trình test
 
 - **Auto-update dialog**: bản build đầu tiên hiện "Lỗi cập nhật — Failed to check for updates" khi mở app vì endpoint mới chưa có release. Đã chuyển auto-check sang `silent: true`; rebuild và xác nhận không còn dialog.
+- **Summary dead path**: đã bỏ nút AI Summary + floating action khỏi extension, bỏ `retubematrix://summary` khỏi parser Rust/TS; thêm test `summary_deep_link_is_rejected`.
 
 ## 10. Kết luận
 

@@ -283,12 +283,6 @@
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-.youwee-floating__action--summary {
-  background: rgba(168, 85, 247, 0.12);
-  border-color: rgba(168, 85, 247, 0.32);
-  color: #e9d5ff;
-}
-
 .youwee-floating__action:disabled {
   opacity: 0.48;
   cursor: not-allowed;

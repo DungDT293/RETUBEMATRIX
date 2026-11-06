@@ -185,6 +185,7 @@
 | DL-01 | `retubematrix://download?v=1&url=...` khi app tắt | App mở, queue nhận URL                           | `external.rs`, `lib.rs` single-instance |
 | DL-02 | `youwee://...` (legacy)                           | Vẫn mở được, tương thích                         | `external.rs`                           |
 | DL-03 | Link thiếu `v=1`/`url`                            | Bị từ chối, không crash                          | `external.rs`                           |
+| DL-04 | `retubematrix://summary?...`                      | Bị từ chối (Summary page đã xóa)                 | `external.rs`, extension                |
 | CL-01 | `retubematrix --version`                          | In `RETubeMatrix 0.20.16`                        | `main.rs`, `cli.rs`                     |
 | CL-02 | `retubematrix <url> --queue-only`                 | Chỉ thêm queue, không tải ngay                   | `build_cli_download_request`            |
 | CL-03 | `retubematrix <url>` khi app đang chạy            | Instance cũ nhận lệnh, không mở app thứ 2        | `single-instance`                       |

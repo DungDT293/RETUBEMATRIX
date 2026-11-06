@@ -36,9 +36,7 @@ fn is_valid_external_link(link: &str) -> bool {
         return false;
     }
     let is_valid_prefix = trimmed.starts_with("retubematrix://download")
-        || trimmed.starts_with("retubematrix://summary")
-        || trimmed.starts_with("youwee://download")
-        || trimmed.starts_with("youwee://summary");
+        || trimmed.starts_with("youwee://download");
     if !is_valid_prefix {
         return false;
     }
@@ -164,19 +162,14 @@ mod tests {
     }
 
     #[test]
-    fn summary_deep_link_extraction_uses_same_pending_queue() {
+    fn summary_deep_link_is_rejected() {
         let argv = vec![
-            "youwee".to_string(),
-            "youwee://summary?v=1&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dabc123"
+            "RETubeMatrix".to_string(),
+            "retubematrix://summary?v=1&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dabc123"
                 .to_string(),
         ];
 
-        let links = extract_external_links_from_argv(&argv);
-
-        assert_eq!(
-            links,
-            vec!["youwee://summary?v=1&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dabc123"]
-        );
+        assert!(extract_external_links_from_argv(&argv).is_empty());
     }
 
     #[test]

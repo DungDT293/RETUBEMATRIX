@@ -31,8 +31,6 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>',
     queue:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h10"></path><path d="M4 12h10"></path><path d="M4 17h7"></path><path d="M18 10v8"></path><path d="M14 14h8"></path></svg>',
-    summary:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3Z"></path><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"></path></svg>',
   };
   const CONTROL_ICONS = {
     collapse:
@@ -256,15 +254,6 @@
   }
 
   function openDeepLink(action, sourceUrl) {
-    if (action === 'summary') {
-      try {
-        ext.openSummaryDeepLink(sourceUrl || location.href);
-        return { ok: true, options: { action } };
-      } catch (error) {
-        return { ok: false, error };
-      }
-    }
-
     const options = getCurrentOptions(action);
 
     try {
@@ -284,11 +273,6 @@
 
     if (action === 'queue_only') {
       setFeedback(ext.t('floatingButtonQueueSent', 'Sent to queue'), 'ok');
-      return;
-    }
-
-    if (action === 'summary') {
-      setFeedback(ext.t('floatingButtonSummaryOpening', 'Opening summary...'), 'ok');
       return;
     }
 
@@ -344,8 +328,6 @@
 
   function buildWidget() {
     const logoMarkup = createLogoMarkup(getRuntimeAssetUrl('icons/logo-64.png'));
-    const canSummarize = ext.isYouTubeUrl(location.href);
-
     const container = document.createElement('div');
     container.id = ROOT_ID;
     container.className = 'youwee-floating';
@@ -420,15 +402,6 @@
         <button type="button" class="youwee-floating__action youwee-floating__action--secondary" data-action="queue_only">
           ${ACTION_ICONS.queue}<span>${ext.t('floatingButtonAddQueue', 'Add to queue')}</span>
         </button>
-        <button
-          type="button"
-          class="youwee-floating__action youwee-floating__action--summary"
-          data-action="summary"
-          ${canSummarize ? '' : 'disabled'}
-          title="${canSummarize ? '' : ext.t('floatingSummaryUnavailable', 'Summary is available for YouTube videos')}"
-        >
-          ${ACTION_ICONS.summary}<span>${ext.t('floatingButtonSummary', 'AI Summary')}</span>
-        </button>
       </div>
       <div class="youwee-floating__feedback" aria-live="polite"></div>
     `;
@@ -469,11 +442,6 @@
     dropdown.querySelector('[data-action="queue_only"]')?.addEventListener('click', (event) => {
       if (!isTrustedUserEvent(event)) return;
       onActionClick('queue_only');
-    });
-
-    dropdown.querySelector('[data-action="summary"]')?.addEventListener('click', (event) => {
-      if (!isTrustedUserEvent(event)) return;
-      onActionClick('summary');
     });
 
     dropdown.querySelector('[data-action="collapse"]')?.addEventListener('click', (event) => {
@@ -574,23 +542,6 @@
       }
 
       if (message?.type !== 'youwee:open-deep-link') return false;
-
-      if (message.action === 'summary') {
-        try {
-          const targetUrl =
-            typeof message.url === 'string' && message.url ? message.url : location.href;
-          if (!ext.parseHttpUrl(targetUrl)) {
-            sendResponse?.({ ok: false, error: 'Invalid URL' });
-            return false;
-          }
-          ext.openSummaryDeepLink(targetUrl);
-          sendResponse?.({ ok: true });
-        } catch (error) {
-          sendResponse?.({ ok: false, error: String(error) });
-        }
-
-        return false;
-      }
 
       const options = {
         action: ext.normalizeAction(message.action),

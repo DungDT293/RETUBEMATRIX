@@ -12,7 +12,6 @@ import {
   isTrustedExternalSource,
   normalizeExternalVideoUrl,
   parseExternalDeepLink,
-  parseExternalSummaryDeepLink,
 } from '@/lib/external-link';
 import type { ExternalEnqueueOptions, Quality, SubtitleFormat, SubtitleMode } from '@/lib/types';
 
@@ -171,7 +170,6 @@ function normalizeCliDownloadRequest(
 export function useExternalDownloadLinks(
   setCurrentPage: (page: Page) => void,
   startLockRef: StartLockRef,
-  handleExternalSummaryUrl?: (url: string) => void,
 ) {
   const download = useDownload();
   const universal = useUniversal();
@@ -276,10 +274,6 @@ export function useExternalDownloadLinks(
     async (rawLink: string) => {
       const parsed = parseExternalDeepLink(rawLink);
       if (!parsed) {
-        const summary = parseExternalSummaryDeepLink(rawLink);
-        if (summary) {
-          handleExternalSummaryUrl?.(summary.url);
-        }
         return;
       }
 
@@ -292,7 +286,7 @@ export function useExternalDownloadLinks(
         trustedLocal: false,
       });
     },
-    [handleExternalDownloadRequest, handleExternalSummaryUrl],
+    [handleExternalDownloadRequest],
   );
 
   const handleCliDownloadRequest = useCallback(

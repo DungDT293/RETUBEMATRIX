@@ -41,17 +41,8 @@
   "floatingButtonAddQueue": {
     "message": "Add to queue"
   },
-  "floatingButtonSummary": {
-    "message": "AI Summary"
-  },
   "floatingButtonOpening": {
     "message": "Opening RETubeMatrix..."
-  },
-  "floatingButtonSummaryOpening": {
-    "message": "Opening summary..."
-  },
-  "floatingSummaryUnavailable": {
-    "message": "Summary is available for YouTube videos"
   },
   "floatingButtonQueueSent": {
     "message": "Sent to queue"
@@ -88,9 +79,6 @@
   },
   "popupQueueAction": {
     "message": "Add to queue"
-  },
-  "popupSummaryAction": {
-    "message": "AI Summary"
   },
   "popupCopyUrl": {
     "message": "Copy URL"
@@ -136,9 +124,6 @@
   },
   "popupStatusQueued": {
     "message": "Sent to queue in RETubeMatrix."
-  },
-  "popupStatusSummaryOpening": {
-    "message": "Opening AI Summary in RETubeMatrix..."
   },
   "popupStatusOpenFailed": {
     "message": "Failed to open RETubeMatrix."

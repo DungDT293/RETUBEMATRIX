@@ -21,6 +21,7 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Xóa bỏ
 
 - **Dọn tính năng không dùng** - Xóa các trang Download, Gallery, Metadata, Processing, Subtitles, Summary không còn truy cập được; xóa module Rust gallery/metadata/processing và 32 module Python không dùng trong `browser_engine`.
+- **Bỏ AI Summary trên extension** - Xóa nút/hành động AI Summary và deep link `retubematrix://summary` vì trang Summary không còn tồn tại.
 
 ## [0.20.15] - 2026-11-05
 

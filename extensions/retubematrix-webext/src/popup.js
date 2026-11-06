@@ -28,7 +28,6 @@
   const madeWithByEl = document.getElementById('madeWithBy');
   const downloadBtn = document.getElementById('downloadBtn');
   const queueBtn = document.getElementById('queueBtn');
-  const summaryBtn = document.getElementById('summaryBtn');
   let mediaMode = 'video';
 
   const ACTION_ICONS = {
@@ -36,8 +35,6 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>',
     queue:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h10"></path><path d="M4 12h10"></path><path d="M4 17h7"></path><path d="M18 10v8"></path><path d="M14 14h8"></path></svg>',
-    summary:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3Z"></path><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"></path></svg>',
   };
 
   function queryTabs(query) {
@@ -385,7 +382,6 @@
       t('popupPrimaryAction', 'Download now with RETubeMatrix'),
     );
     setActionButtonContent(queueBtn, ACTION_ICONS.queue, t('popupQueueAction', 'Add to queue'));
-    setActionButtonContent(summaryBtn, ACTION_ICONS.summary, t('popupSummaryAction', 'AI Summary'));
     madeWithPrefixEl.textContent = t('popupMadeWith', 'Made with');
     madeWithByEl.textContent = t('popupBy', 'by');
     updateFloatingToggleUi();
@@ -400,8 +396,6 @@
       setStatus(t('popupStatusInvalid', 'This tab cannot be sent to RETubeMatrix.'), 'error');
       downloadBtn.disabled = true;
       queueBtn.disabled = true;
-      summaryBtn.disabled = true;
-      summaryBtn.title = '';
       copyUrlIconBtn.disabled = true;
       if (mediaVideoBtn) mediaVideoBtn.disabled = true;
       if (mediaAudioBtn) mediaAudioBtn.disabled = true;
@@ -410,14 +404,9 @@
     }
 
     currentUrl = ext.normalizeVideoUrl(url);
-    const canSummarize = ext.isYouTubeUrl(currentUrl);
     urlValueEl.textContent = currentUrl;
     downloadBtn.disabled = false;
     queueBtn.disabled = false;
-    summaryBtn.disabled = !canSummarize;
-    summaryBtn.title = canSummarize
-      ? ''
-      : t('floatingSummaryUnavailable', 'Summary is available for YouTube videos');
     copyUrlIconBtn.disabled = false;
     if (mediaVideoBtn) mediaVideoBtn.disabled = false;
     if (mediaAudioBtn) mediaAudioBtn.disabled = false;
@@ -465,30 +454,6 @@
     }
   }
 
-  async function handleSummaryClick() {
-    if (!currentUrl) return;
-
-    try {
-      if (Number.isInteger(activeTabId)) {
-        await sendMessageToTab(activeTabId, {
-          type: 'youwee:open-deep-link',
-          url: currentUrl,
-          action: 'summary',
-        });
-      } else {
-        ext.openSummaryDeepLink(currentUrl);
-      }
-      setStatus(t('popupStatusSummaryOpening', 'Opening AI Summary in RETubeMatrix...'), 'ok');
-    } catch {
-      try {
-        ext.openSummaryDeepLink(currentUrl);
-        setStatus(t('popupStatusSummaryOpening', 'Opening AI Summary in RETubeMatrix...'), 'ok');
-      } catch {
-        setStatus(t('popupStatusOpenFailed', 'Failed to open RETubeMatrix.'), 'error');
-      }
-    }
-  }
-
   async function handleCopyClick() {
     if (!currentUrl) return;
     try {
@@ -505,9 +470,6 @@
     });
     queueBtn.addEventListener('click', () => {
       void handleDownloadClick('queue_only');
-    });
-    summaryBtn.addEventListener('click', () => {
-      void handleSummaryClick();
     });
     copyUrlIconBtn.addEventListener('click', () => {
       void handleCopyClick();

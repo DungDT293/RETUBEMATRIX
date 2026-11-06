@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - **Dead feature cleanup** - Removed unreachable Download, Gallery, Metadata, Processing, Subtitles and Summary pages, the gallery/metadata/processing Rust modules, and 32 unused `browser_engine` Python modules.
+- **Extension AI Summary removal** - Removed the AI Summary button/floating action and the `retubematrix://summary` deep link because the Summary page no longer exists.
 
 ## [0.20.15] - 2026-11-05
 

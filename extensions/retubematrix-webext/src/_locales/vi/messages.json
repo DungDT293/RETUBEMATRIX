@@ -41,17 +41,8 @@
   "floatingButtonAddQueue": {
     "message": "Thêm vào queue"
   },
-  "floatingButtonSummary": {
-    "message": "Tóm tắt AI"
-  },
   "floatingButtonOpening": {
     "message": "Đang mở RETubeMatrix..."
-  },
-  "floatingButtonSummaryOpening": {
-    "message": "Đang mở tóm tắt..."
-  },
-  "floatingSummaryUnavailable": {
-    "message": "Tóm tắt chỉ hỗ trợ video YouTube"
   },
   "floatingButtonQueueSent": {
     "message": "Đã thêm vào queue"
@@ -88,9 +79,6 @@
   },
   "popupQueueAction": {
     "message": "Thêm vào queue"
-  },
-  "popupSummaryAction": {
-    "message": "Tóm tắt AI"
   },
   "popupCopyUrl": {
     "message": "Sao chép URL"
@@ -136,9 +124,6 @@
   },
   "popupStatusQueued": {
     "message": "Đã gửi vào queue của RETubeMatrix."
-  },
-  "popupStatusSummaryOpening": {
-    "message": "Đang mở AI Summary trong RETubeMatrix..."
   },
   "popupStatusOpenFailed": {
     "message": "Mở RETubeMatrix thất bại."

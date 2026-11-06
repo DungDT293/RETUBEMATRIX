@@ -21,6 +21,7 @@ RETubeMatrix 的所有重要更改都将记录在此文件中。
 ### 移除
 
 - **清理无用功能** - 移除无法访问的 Download、Gallery、Metadata、Processing、Subtitles、Summary 页面，gallery/metadata/processing Rust 模块，以及 32 个未使用的 `browser_engine` Python 模块。
+- **移除扩展 AI 摘要** - 由于 Summary 页面已不存在，移除 AI Summary 按钮/浮动操作和 `retubematrix://summary` 深度链接。
 
 ## [0.20.15] - 2026-11-05
 
