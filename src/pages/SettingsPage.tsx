@@ -291,7 +291,7 @@ function AboutSettingsContent({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={updater.checkForUpdate}
+                  onClick={() => void updater.checkForUpdate()}
                   disabled={isAppChecking}
                   title={t('about.checkForUpdates')}
                   className="h-9 w-9"

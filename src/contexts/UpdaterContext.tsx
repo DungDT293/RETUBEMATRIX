@@ -11,7 +11,7 @@ interface UpdaterContextType {
   updateInfo: UpdateInfo | null;
   progress: UpdateProgress | null;
   error: string | null;
-  checkForUpdate: () => Promise<boolean>;
+  checkForUpdate: (options?: { silent?: boolean }) => Promise<boolean>;
   downloadAndInstall: () => Promise<void>;
   restartApp: () => Promise<void>;
   dismissUpdate: () => void;
@@ -32,7 +32,7 @@ export function UpdaterProvider({ children, autoCheck }: UpdaterProviderProps) {
     if (!autoCheck) return;
 
     const timer = setTimeout(() => {
-      updater.checkForUpdate();
+      updater.checkForUpdate({ silent: true });
     }, 2000); // Wait 2s after app start
 
     return () => clearTimeout(timer);

@@ -132,6 +132,8 @@ core/window_icon_badge.py
 - [x] Test scheme mới: `commands::external` có test `canonical_deep_link_scheme_is_accepted` (4 passed).
 - [x] Test CLI alias + guard updater: `branding_tests` (2 passed), `commands::cli` (2 passed).
 - [x] Cập nhật `TESTER_GUIDE_RETUBEMATRIX.html` (phạm vi 0.20.15, trang đã xóa, deep link mới).
+- [x] Thêm `docs/TEST_PLAN_CODE_DERIVED.md` (test case suy ra từ commands/services/UI) + smoke launch thực tế.
+- [x] Fix auto-update: lỗi check nền không còn hiện dialog (silent mode).
 
 > Ghi chú: `cargo test --lib` chạy đủ 234 test (sau khi bổ sung các cột mới vào schema test của `channel_videos`/`followed_channels`). Trước đó 12 test database fail vì schema test thiếu cột `view_count` và các cột risk/BKT — đã sửa.
 > `rg -i youwee` vẫn còn ~172 dòng, toàn bộ là legacy có chủ đích (scheme cũ, env alias, CSS class, DB migration, add-on ID Firefox, plugin upstream) — đã liệt kê trong `PROVENANCE.md` mục 6.

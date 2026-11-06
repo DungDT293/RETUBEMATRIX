@@ -198,7 +198,7 @@ function AppContent() {
         onDownload={updater.downloadAndInstall}
         onRestart={updater.restartApp}
         onDismiss={updater.dismissUpdate}
-        onRetry={updater.checkForUpdate}
+        onRetry={() => void updater.checkForUpdate()}
       />
 
       {showFfmpegDialog && <FFmpegDialog onDismiss={() => setShowFfmpegDialog(false)} />}
