@@ -61,7 +61,7 @@ const TELEGRAM_SETUP_STEPS = [
   'allowChatId',
 ] as const;
 
-const REMOTE_DOWNLOAD_DOCS_URL = 'https://youwee.app/docs/remote-download';
+const REMOTE_DOWNLOAD_DOCS_URL = 'https://github.com/DungDT293/RETUBEMATRIX';
 
 export function RemoteDownloadSection({ highlightId }: RemoteDownloadSectionProps) {
   const { t } = useTranslation('settings');

@@ -1,4 +1,3 @@
-import { openUrl } from '@tauri-apps/plugin-opener';
 import {
   Compass,
   Copy,
@@ -49,6 +48,7 @@ import {
   triggerOutlierScan,
 } from '@/contexts/outliers/outliers-client';
 import { cn } from '@/lib/utils';
+import { openExternalUrl } from '@/utils/open-url';
 
 // Mô hình IKIGAI: 3 Nhóm ngách lớn theo chỉ dẫn chiến lược
 export const IKIGAI_CATEGORIES = [
@@ -103,6 +103,65 @@ export const IKIGAI_CATEGORIES = [
   },
 ];
 
+/**
+ * Định dạng thời gian đăng video tự nhiên chuẩn YouTube (ngày, tuần, tháng, năm trước)
+ * Tránh hiển thị số giờ khổng lồ (ví dụ 48940h trước) gây khó hiểu cho người dùng.
+ */
+function formatPublishedTime(hours?: number, uploadTs?: number): string {
+  // Ưu tiên dùng upload_timestamp (epoch seconds) để tính chính xác đến từng phút
+  if (uploadTs && uploadTs > 0) {
+    const nowSec = Math.floor(Date.now() / 1000);
+    const diffSec = Math.max(0, nowSec - uploadTs);
+    const mins = Math.floor(diffSec / 60);
+    const hrs = Math.floor(diffSec / 3600);
+    const days = Math.floor(diffSec / 86400);
+
+    if (mins < 60) {
+      return mins <= 1 ? 'Vừa xong' : `${mins} phút trước`;
+    }
+    if (hrs < 24) {
+      return `${hrs} giờ trước`;
+    }
+    if (days < 7) {
+      return `${days} ngày trước`;
+    }
+    if (days < 30) {
+      const weeks = Math.floor(days / 7);
+      return `${weeks} tuần trước`;
+    }
+    if (days < 365) {
+      const months = Math.floor(days / 30);
+      return `${months} tháng trước`;
+    }
+    const years = Math.floor(days / 365);
+    return `${years} năm trước`;
+  }
+
+  // Fallback nếu chỉ có hours_published
+  if (!hours || hours <= 0) return 'Mới đăng';
+  if (hours < 1) {
+    const mins = Math.max(1, Math.round(hours * 60));
+    return `${mins} phút trước`;
+  }
+  if (hours < 24) {
+    return `${Math.round(hours)} giờ trước`;
+  }
+  const days = Math.floor(hours / 24);
+  if (days < 7) {
+    return `${days} ngày trước`;
+  }
+  if (days < 30) {
+    const weeks = Math.floor(days / 7);
+    return `${weeks} tuần trước`;
+  }
+  if (days < 365) {
+    const months = Math.floor(days / 30);
+    return `${months} tháng trước`;
+  }
+  const years = Math.floor(days / 365);
+  return `${years} năm trước`;
+}
+
 interface OutlierHunterPageProps {
   onNavigate?: (page: Page) => void;
 }
@@ -120,6 +179,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
   // Từ khóa ngách đang chọn (Mặc định: ngách mẫu của người dùng)
   const [currentNiche, setCurrentNiche] = useState<string>('nấu ăn cho người ở 1 mình');
   const [nicheInput, setNicheInput] = useState<string>('nấu ăn cho người ở 1 mình');
+  const [selectedFilterNiche, setSelectedFilterNiche] = useState<string>('all');
 
   // 4 Công cụ kiểm chứng
   const [activeTool, setActiveTool] = useState<
@@ -188,9 +248,10 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     }
   };
 
-  // Quét video đề xuất theo ngách
+  // Quét video đề xuất theo ngách (Hỗ trợ cả ngách đơn & Quét toàn bộ ngách Ikigai)
   const handleScanNiche = async (targetNiche?: string) => {
-    const nicheToScan = (targetNiche || currentNiche).trim();
+    const isScanAll = targetNiche === 'toàn bộ ngách ngon' || targetNiche === 'all';
+    const nicheToScan = isScanAll ? 'toàn bộ ngách ngon' : (targetNiche || currentNiche).trim();
     if (!nicheToScan) {
       toast.warning({
         title: 'Chưa nhập từ khóa ngách',
@@ -201,17 +262,24 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
 
     setIsScanning(true);
     toast.info({
-      title: 'Đang quét đề xuất YouTube...',
-      description: `Hệ thống đang truy quét các video bứt phá trong ngách: "${nicheToScan}".`,
+      title: isScanAll
+        ? '⚡ Đang quét TOÀN BỘ ngách ngon Ikigai...'
+        : 'Đang quét đề xuất YouTube...',
+      description: isScanAll
+        ? 'Hệ thống đang rà soát đồng loạt 7 ngách vàng Ikigai: Nấu ăn 1 mình, Món sinh viên, Tài chính, AI, Lofi, ASMR...'
+        : `Hệ thống đang truy quét các video bứt phá trong ngách: "${nicheToScan}".`,
     });
 
     try {
       const updated = await triggerOutlierScan(nicheToScan);
       setVideos(updated);
+      setSelectedFilterNiche('all');
       if (updated.length > 0) {
         toast.success({
           title: 'Quét hoàn tất!',
-          description: `Tìm thấy ${updated.length} video tiềm năng trong ngách "${nicheToScan}".`,
+          description: isScanAll
+            ? `Đã săn thành công ${updated.length} video đột biến cực phẩm từ các ngách vàng Ikigai!`
+            : `Tìm thấy ${updated.length} video tiềm năng trong ngách "${nicheToScan}".`,
         });
       } else {
         toast.info({
@@ -261,11 +329,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     const geo = trendsGeo === 'GLOBAL' ? '' : `&geo=${trendsGeo}`;
     const url = `https://trends.google.com/trends/explore?date=today%2012-m&gprop=youtube${geo}&q=${queryPart}`;
 
-    try {
-      await openUrl(url);
-    } catch {
-      window.open(url, '_blank');
-    }
+    await openExternalUrl(url);
     toast.info({
       title: 'Đã mở Google Trends',
       description: 'Xem xu hướng tìm kiếm YouTube 12 tháng qua để đánh giá nhu cầu khán giả.',
@@ -315,14 +379,10 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     }
   };
 
-  // Mở video trên YouTube
+  // Mở video trên YouTube (luôn mở trên trình duyệt hệ thống Chrome/Edge)
   const handleOpenYouTube = async (id: string) => {
     const url = `https://www.youtube.com/watch?v=${id}`;
-    try {
-      await openUrl(url);
-    } catch {
-      window.open(url, '_blank');
-    }
+    await openExternalUrl(url);
   };
 
   // Chuyển video sang Tải video sạch
@@ -344,14 +404,31 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
 
   // Chuyển video sang Test BKT
   const handleSendToBkt = (vid: OutlierVideo) => {
+    const videoUrl = vid.id?.startsWith('http')
+      ? vid.id
+      : vid.id
+        ? `https://www.youtube.com/watch?v=${vid.id}`
+        : '';
+    sessionStorage.setItem('reup_input_video_title', vid.title);
+    if (videoUrl) {
+      sessionStorage.setItem('reup_input_video_path', videoUrl);
+    }
     toast.info({
       title: 'Chuyển sang luồng Test BKT',
-      description: `Chuẩn bị kênh test bản quyền (Quota 15 video/24h) cho video: "${vid.title.slice(0, 40)}...".`,
+      description: `Đã đưa thông tin video "${vid.title.slice(0, 40)}..." sang Reup & Test BKT.`,
     });
     if (onNavigate) {
       onNavigate('reup');
     }
   };
+
+  // Lọc video theo ngách đã chọn
+  const filteredVideos =
+    selectedFilterNiche === 'all'
+      ? videos
+      : videos.filter(
+          (v) => v.niche && v.niche.toLowerCase() === selectedFilterNiche.toLowerCase(),
+        );
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
@@ -374,7 +451,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -387,14 +464,25 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
           </Button>
 
           <Button
-            variant="default"
+            variant="outline"
             size="sm"
             onClick={() => handleScanNiche(currentNiche)}
             disabled={isScanning}
-            className="text-xs gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium shadow-sm shadow-orange-500/20"
+            className="text-xs gap-1.5 border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-medium"
           >
             <Flame className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />
-            {isScanning ? 'Đang Quét...' : 'Quét Video Đề Xuất'}
+            Quét Ngách Này
+          </Button>
+
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => handleScanNiche('toàn bộ ngách ngon')}
+            disabled={isScanning}
+            className="text-xs gap-1.5 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-amber-500 hover:from-violet-700 hover:to-amber-600 text-white font-bold shadow-md shadow-violet-500/20 px-3.5"
+          >
+            <Zap className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />
+            {isScanning ? 'Đang Quét Toàn Bộ...' : '⚡ Quét Toàn Bộ Ngách Ngon'}
           </Button>
         </div>
       </header>
@@ -1058,13 +1146,12 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
 
         {/* KHỐI 3: DANH SÁCH VIDEO ĐỀ XUẤT ĐỘT BIẾN TRONG NGÁCH */}
         <div className="space-y-3.5">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-bold text-foreground">
-                Danh Sách Video Đột Biến Trong Ngách:
-              </h2>
+              <h2 className="text-sm font-bold text-foreground">Danh Sách Video Đột Biến:</h2>
               <Badge variant="outline" className="text-xs border-amber-500/40 text-amber-400">
-                {currentNiche} ({videos.length} video)
+                {selectedFilterNiche === 'all' ? 'Tất cả các ngách' : selectedFilterNiche} (
+                {filteredVideos.length} video)
               </Badge>
             </div>
 
@@ -1073,30 +1160,80 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
             </span>
           </div>
 
+          {/* Thanh phân loại ngách (Filter Pills) khi có nhiều ngách */}
+          {videos.length > 0 && (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+              <button
+                type="button"
+                onClick={() => setSelectedFilterNiche('all')}
+                className={cn(
+                  'px-3 py-1 rounded-full border transition-all text-xs font-medium whitespace-nowrap',
+                  selectedFilterNiche === 'all'
+                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                    : 'border-border/60 bg-background/50 hover:bg-muted text-muted-foreground hover:text-foreground',
+                )}
+              >
+                Tất cả ({videos.length})
+              </button>
+              {Array.from(new Set(videos.map((v) => v.niche).filter(Boolean))).map((niche) => {
+                const count = videos.filter((v) => v.niche === niche).length;
+                const isSelected = selectedFilterNiche.toLowerCase() === niche.toLowerCase();
+                return (
+                  <button
+                    key={niche}
+                    type="button"
+                    onClick={() => setSelectedFilterNiche(niche)}
+                    className={cn(
+                      'px-3 py-1 rounded-full border transition-all text-xs font-medium whitespace-nowrap',
+                      isSelected
+                        ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
+                        : 'border-border/60 bg-background/50 hover:bg-muted text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    {niche} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {videos.length === 0 ? (
             <Card className="p-12 text-center border-dashed border-border/60 bg-card/30 flex flex-col items-center justify-center">
               <Compass className="w-10 h-10 text-muted-foreground/40 mb-3" />
               <h3 className="text-sm font-semibold text-foreground mb-1">
                 Chưa có dữ liệu video đề xuất cho ngách này
               </h3>
-              <p className="text-xs text-muted-foreground max-w-md mb-4 leading-relaxed">
-                Dữ liệu cũ đã được xóa sạch. Hãy chọn một ngách theo mô hình Ikigai hoặc nhập từ
-                khóa ngách bé ở trên, sau đó bấm <strong>"Quét Video Đề Xuất"</strong> để hệ thống
-                tiến hành cào dữ liệu mới 100%.
+              <p className="text-xs text-muted-foreground max-w-md mb-5 leading-relaxed">
+                Hệ thống đã sẵn sàng tìm kiếm video đột biến theo thuật toán Outlier Kép. Bạn có thể
+                quét riêng ngách <strong>"{currentNiche}"</strong> hoặc bấm{' '}
+                <strong>"Quét Toàn Bộ Ngách Ngon"</strong> để hệ thống tự động rà soát qua 7 ngách
+                vàng Ikigai.
               </p>
-              <Button
-                size="sm"
-                onClick={() => handleScanNiche(currentNiche)}
-                disabled={isScanning}
-                className="text-xs gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white"
-              >
-                <Flame className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />
-                Quét Ngay: "{currentNiche}"
-              </Button>
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                <Button
+                  size="sm"
+                  onClick={() => handleScanNiche('toàn bộ ngách ngon')}
+                  disabled={isScanning}
+                  className="text-xs gap-1.5 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-amber-500 hover:from-violet-700 hover:to-amber-600 text-white font-bold shadow-md shadow-violet-500/20 px-4"
+                >
+                  <Zap className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />⚡ Quét Toàn Bộ
+                  Ngách Ngon (Khuyên Dùng)
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleScanNiche(currentNiche)}
+                  disabled={isScanning}
+                  className="text-xs gap-1.5 border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-medium"
+                >
+                  <Flame className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />
+                  Quét riêng: "{currentNiche}"
+                </Button>
+              </div>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {videos.map((vid) => {
+              {filteredVideos.map((vid) => {
                 const subRatio =
                   vid.sub_outlier_ratio || (vid.subscribers > 0 ? vid.views / vid.subscribers : 1);
                 const vph =
@@ -1152,12 +1289,16 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                                 {vid.views.toLocaleString()}
                               </strong>
                             </span>
-                            <span>
+                            <span
+                              title={
+                                vid.upload_timestamp
+                                  ? new Date(vid.upload_timestamp * 1000).toLocaleString('vi-VN')
+                                  : undefined
+                              }
+                            >
                               Đăng:{' '}
                               <strong className="text-foreground">
-                                {vid.hours_published
-                                  ? `${Math.round(vid.hours_published)}h trước`
-                                  : 'Mới'}
+                                {formatPublishedTime(vid.hours_published, vid.upload_timestamp)}
                               </strong>
                             </span>
                           </div>

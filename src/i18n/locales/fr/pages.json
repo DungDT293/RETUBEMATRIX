@@ -67,7 +67,7 @@
     "title": "Traitement",
     "history": "Historique",
     "chat": {
-      "title": "Youwee",
+      "title": "RETubeMatrix",
       "subtitle": "Décrivez votre modification",
       "promptTemplates": "Modèles de prompt",
       "emptyTitle": "Que souhaitez-vous faire ?",
@@ -219,7 +219,10 @@
       "proxyError": "Vérifiez vos paramètres proxy dans Paramètres → Réseau",
       "networkError": "Vérifiez votre connexion internet puis réessayez",
       "cookieLocked": "Fermez complètement votre navigateur avant de télécharger, ou utilisez le mode fichier cookie",
-      "cookieDpapi": "Chrome 127+ bloque l'accès aux cookies sous Windows. Utilisez Firefox ou le mode fichier cookie"
+      "cookieDpapi": "Chrome 127+ bloque l'accès aux cookies sous Windows. Utilisez Firefox ou le mode fichier cookie",
+      "bktLoginRequired": "Profile is not logged into YouTube Studio: Open Profile Management or click the browser icon to sign in first",
+      "bktTimeout": "Timed out waiting for YouTube Studio response: Check network speed or ensure no captcha is blocking the browser",
+      "bktQuotaExceeded": "BKT test quota reached for today (15 videos/channel): Add a new Test Channel or wait until 00:00 for automatic reset"
     }
   },
   "library": {

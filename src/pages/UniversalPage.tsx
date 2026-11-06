@@ -51,6 +51,10 @@ export function UniversalPage({ onNavigateToSettings }: UniversalPageProps) {
     updateConcurrentDownloads,
     updateLiveFromStart,
     updateSkipLive,
+    updateSubtitleMode,
+    updateSubtitleLangs,
+    updateSubtitleEmbed,
+    updateSubtitleFormat,
     cookieError,
     clearCookieError,
     retryFailedDownload,
@@ -64,7 +68,7 @@ export function UniversalPage({ onNavigateToSettings }: UniversalPageProps) {
   const [showFfmpegDialog, setShowFfmpegDialog] = useState(false);
 
   const schedule = useSchedule({
-    storageKey: 'youwee-schedule-universal',
+    storageKey: 'retubematrix-schedule-universal',
     onStart: startDownload,
     onStop: stopDownload,
     isDownloading,
@@ -134,6 +138,10 @@ export function UniversalPage({ onNavigateToSettings }: UniversalPageProps) {
             onSelectFolder={selectOutputFolder}
             onLiveFromStartChange={updateLiveFromStart}
             onSkipLiveChange={updateSkipLive}
+            onSubtitleModeChange={updateSubtitleMode}
+            onSubtitleLangsChange={updateSubtitleLangs}
+            onSubtitleEmbedChange={updateSubtitleEmbed}
+            onSubtitleFormatChange={updateSubtitleFormat}
           />
         </div>
 

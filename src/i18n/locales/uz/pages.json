@@ -67,7 +67,7 @@
     "title": "Qayta ishlash",
     "history": "Tarix",
     "chat": {
-      "title": "Youwee",
+      "title": "RETubeMatrix",
       "subtitle": "Tahriringizni tavsiflang",
       "promptTemplates": "Tezkor shablonlar",
       "emptyTitle": "Nima qilishni xohlaysiz?",
@@ -219,7 +219,10 @@
       "proxyError": "Proksi sozlamalarini Sozlamalar → Tarmoq orqali tekshiring",
       "networkError": "Internet aloqangizni tekshiring va qayta urinib koʻring",
       "cookieLocked": "Yuklab olishdan oldin brauzeringizni butunlay yoping yoki o'rniga Cookie fayli rejimidan foydalaning",
-      "cookieDpapi": "Chrome 127+ Windows-da cookie-fayllarga kirishni bloklaydi. Buning o'rniga Firefox yoki Cookie fayl rejimidan foydalaning"
+      "cookieDpapi": "Chrome 127+ Windows-da cookie-fayllarga kirishni bloklaydi. Buning o'rniga Firefox yoki Cookie fayl rejimidan foydalaning",
+      "bktLoginRequired": "Profile is not logged into YouTube Studio: Open Profile Management or click the browser icon to sign in first",
+      "bktTimeout": "Timed out waiting for YouTube Studio response: Check network speed or ensure no captcha is blocking the browser",
+      "bktQuotaExceeded": "BKT test quota reached for today (15 videos/channel): Add a new Test Channel or wait until 00:00 for automatic reset"
     }
   },
   "library": {

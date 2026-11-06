@@ -20,20 +20,28 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_KEY = 'youwee-theme';
-const MODE_KEY = 'youwee-mode';
+const THEME_KEY = 'retubematrix-theme';
+const LEGACY_THEME_KEY = 'youwee-theme';
+const MODE_KEY = 'retubematrix-mode';
+const LEGACY_MODE_KEY = 'youwee-mode';
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeName>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem(THEME_KEY) as ThemeName) || 'rose';
+      return (
+        (localStorage.getItem(THEME_KEY) as ThemeName) ||
+        (localStorage.getItem(LEGACY_THEME_KEY) as ThemeName) ||
+        'rose'
+      );
     }
     return 'rose';
   });
 
   const [mode, setModeState] = useState<ThemeMode>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(MODE_KEY) as ThemeMode;
+      const saved =
+        (localStorage.getItem(MODE_KEY) as ThemeMode) ||
+        (localStorage.getItem(LEGACY_MODE_KEY) as ThemeMode);
       if (saved) return saved;
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }

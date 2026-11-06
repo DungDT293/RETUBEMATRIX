@@ -4,26 +4,31 @@ import {
   AlertTriangle,
   ArrowRight,
   CheckCircle2,
+  Download,
   ExternalLink,
   FileVideo,
   FlaskConical,
   FolderOpen,
   Globe,
   Hash,
+  Image as ImageIcon,
   Layers,
   Loader2,
   Play,
   RefreshCw,
+  Rocket,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
   Tv,
   UploadCloud,
   Wand2,
+  Zap,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { AiTitleThumbnailTab } from '@/components/bkt/AiTitleThumbnailTab';
 import { BktChannelManagerTab } from '@/components/bkt/BktChannelManagerTab';
+import type { Page } from '@/components/layout';
 import { ThemePicker } from '@/components/settings/ThemePicker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,6 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
@@ -45,11 +51,18 @@ import {
   getBktTestChannels,
   getMultibrowserProfiles,
 } from '@/contexts/channels/channels-client';
+import { useDownload } from '@/contexts/download-context';
 import type { BktTestChannel, MultiBrowserProfile, ReupPipelineResult } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import {
+  buildAutoPilotDescription,
+  getBestAutoPilotTitle,
+  getCompanionThumbnailPath,
+} from '@/utils/reup-auto-pilot';
 
-export function ReupBktPage() {
+export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void } = {}) {
   const toast = useToast();
+  const { enqueueExternalUrl } = useDownload();
   const [activeTab, setActiveTab] = useState<
     'pipeline' | 'bkt_upload' | 'bkt_channels' | 'ai_optimization'
   >('pipeline');
@@ -64,8 +77,15 @@ export function ReupBktPage() {
   // ================= BKT UPLOAD STATE =================
   const [profiles, setProfiles] = useState<MultiBrowserProfile[]>([]);
   const [bktChannels, setBktChannels] = useState<BktTestChannel[]>([]);
-  const [selectedProfileId, setSelectedProfileId] = useState<string>('');
+  const [selectedProfileId, setSelectedProfileId] = useState<string>(() => {
+    try {
+      return localStorage.getItem('rtm_reup_selected_bkt_profile_id') || '';
+    } catch {
+      return '';
+    }
+  });
   const [uploadVideoPath, setUploadVideoPath] = useState<string>('');
+  const [uploadThumbnailPath, setUploadThumbnailPath] = useState<string>('');
   const [uploadTitle, setUploadTitle] = useState<string>('');
   const [uploadDescription, setUploadDescription] = useState<string>(
     'Test copyright check on BKT shadow channel (Unlisted mode)',
@@ -77,6 +97,71 @@ export function ReupBktPage() {
     youtube_video_id?: string;
     error?: string;
   } | null>(null);
+
+  // ================= AUTO-PUBLISH KÊNH CHÍNH & AUTO-PILOT STATE (PERSISTED) =================
+  const [autoPublishMain, setAutoPublishMain] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('rtm_reup_auto_publish_main');
+      return saved !== null ? saved === 'true' : false; // Mặc định an toàn: false
+    } catch {
+      return false;
+    }
+  });
+  const [mainProfileId, setMainProfileId] = useState<string>(() => {
+    try {
+      return localStorage.getItem('rtm_reup_main_profile_id') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [mainVisibility, setMainVisibility] = useState<'public' | 'schedule' | 'unlisted'>(() => {
+    try {
+      const saved = localStorage.getItem('rtm_reup_main_visibility');
+      return (saved as 'public' | 'schedule' | 'unlisted') || 'unlisted'; // Mặc định an toàn: unlisted
+    } catch {
+      return 'unlisted';
+    }
+  });
+  const [isPublishingMain, setIsPublishingMain] = useState<boolean>(false);
+  const [mainPublishResult, setMainPublishResult] = useState<{
+    success: boolean;
+    video_url?: string;
+    youtube_video_id?: string;
+    error?: string;
+  } | null>(null);
+
+  // Handlers lưu cài đặt vào localStorage
+  const handleToggleAutoPublish = (checked: boolean) => {
+    setAutoPublishMain(checked);
+    try {
+      localStorage.setItem('rtm_reup_auto_publish_main', String(checked));
+    } catch {}
+  };
+
+  const handleChangeMainProfileId = (id: string) => {
+    setMainProfileId(id);
+    try {
+      localStorage.setItem('rtm_reup_main_profile_id', id);
+    } catch {}
+  };
+
+  const handleChangeMainVisibility = (v: 'public' | 'schedule' | 'unlisted') => {
+    setMainVisibility(v);
+    try {
+      localStorage.setItem('rtm_reup_main_visibility', v);
+    } catch {}
+  };
+
+  const handleChangeBktProfileId = (id: string) => {
+    setSelectedProfileId(id);
+    try {
+      localStorage.setItem('rtm_reup_selected_bkt_profile_id', id);
+    } catch {}
+  };
+
+  // Auto-Pilot Whole Flow State
+  const [isAutoPilotRunning, setIsAutoPilotRunning] = useState<boolean>(false);
+  const [autoPilotStep, setAutoPilotStep] = useState<number>(0);
 
   // ================= BKT MONITOR STATE =================
   const [isCheckingStudio, setIsCheckingStudio] = useState<boolean>(false);
@@ -97,17 +182,34 @@ export function ReupBktPage() {
       ]);
       if (Array.isArray(profData)) {
         setProfiles(profData);
+        setMainProfileId((prev) => {
+          try {
+            const stored = localStorage.getItem('rtm_reup_main_profile_id');
+            if (stored && profData.some((p) => p.id === stored)) return stored;
+          } catch {}
+          return prev || (profData.length > 0 ? profData[0].id : '');
+        });
       }
       if (Array.isArray(bktData)) {
         setBktChannels(bktData);
-        if (bktData.length > 0 && !selectedProfileId) {
+        setSelectedProfileId((prev) => {
+          try {
+            const stored = localStorage.getItem('rtm_reup_selected_bkt_profile_id');
+            if (
+              stored &&
+              (bktData.some((c) => c.profileId === stored) || profData.some((p) => p.id === stored))
+            ) {
+              return stored;
+            }
+          } catch {}
+          if (prev) return prev;
           const firstAvailable = bktData.find((c) => c.isActive && c.remainingQuota > 0);
-          if (firstAvailable) {
-            setSelectedProfileId(firstAvailable.profileId);
-          } else if (profData.length > 0) {
-            setSelectedProfileId(profData[0].id);
-          }
-        }
+          return firstAvailable
+            ? firstAvailable.profileId
+            : profData.length > 0
+              ? profData[0].id
+              : '';
+        });
       } else if (profData.length > 0 && !selectedProfileId) {
         setSelectedProfileId(profData[0].id);
       }
@@ -116,18 +218,54 @@ export function ReupBktPage() {
     }
   }, [selectedProfileId]);
 
+  // Tự động nhận diện file thumbnail (.jpg) đi kèm khi có video
+  useEffect(() => {
+    const target = uploadVideoPath || inputVideoPath;
+    if (target) {
+      const comp = getCompanionThumbnailPath(target);
+      if (comp && !uploadThumbnailPath) {
+        setUploadThumbnailPath(comp);
+      }
+    }
+  }, [uploadVideoPath, inputVideoPath, uploadThumbnailPath]);
+
   // Check candidate from Outlier Hunter
   useEffect(() => {
     const candidateTitle = sessionStorage.getItem('reup_input_video_title');
+    const candidatePath = sessionStorage.getItem('reup_input_video_path');
     if (candidateTitle) {
       setUploadTitle(candidateTitle);
       sessionStorage.removeItem('reup_input_video_title');
+    }
+    if (candidatePath) {
+      setInputVideoPath(candidatePath);
+      setUploadVideoPath(candidatePath);
+      sessionStorage.removeItem('reup_input_video_path');
     }
   }, []);
 
   useEffect(() => {
     loadProfiles();
   }, [loadProfiles]);
+
+  const handleQuickDownloadUrl = async (url: string) => {
+    try {
+      await enqueueExternalUrl(url, { mediaType: 'video' });
+      toast.success({
+        title: 'Đã thêm vào hàng đợi tải xuống!',
+        description:
+          'Video và thumbnail .jpg đang được tải về máy. Sau khi tải xong, bạn có thể chọn từ Thư viện để đưa vào Reup.',
+      });
+      if (onNavigate) {
+        onNavigate('library');
+      }
+    } catch (err) {
+      toast.error({
+        title: 'Lỗi tải video',
+        description: String(err),
+      });
+    }
+  };
 
   // Pick file video from local computer
   const handlePickInputVideo = async () => {
@@ -184,6 +322,14 @@ export function ReupBktPage() {
       toast.warning({
         title: 'Chưa chọn video',
         description: 'Vui lòng bấm "Chọn file từ máy tính" để chọn một tệp video trước.',
+      });
+      return;
+    }
+    if (inputVideoPath.startsWith('http://') || inputVideoPath.startsWith('https://')) {
+      toast.warning({
+        title: 'Đầu vào là liên kết Web / YouTube',
+        description:
+          'Vui lòng bấm nút "Tải về máy" bên cạnh để tải file về ổ đĩa trước khi xử lý Reup.',
       });
       return;
     }
@@ -257,6 +403,7 @@ export function ReupBktPage() {
           video_path: uploadVideoPath,
           title: uploadTitle.trim() || 'Test Video Reup',
           description: uploadDescription,
+          thumbnail_path: uploadThumbnailPath.trim() || undefined,
           visibility: 'unlisted', // Cố định Unlisted để an toàn
         },
       });
@@ -298,6 +445,94 @@ export function ReupBktPage() {
     }
   };
 
+  // Publish video to Official Channel (Kênh Chính)
+  const executePublishToMainChannel = useCallback(
+    async (
+      overrideVideoPath?: string,
+      overrideTitle?: string,
+      overrideDesc?: string,
+      overrideThumb?: string,
+    ) => {
+      const targetVideo = (overrideVideoPath || uploadVideoPath).trim();
+      const targetTitle = (overrideTitle || uploadTitle).trim() || 'Video Reup Official';
+      const targetDesc = overrideDesc || uploadDescription;
+      const targetThumb = (overrideThumb || uploadThumbnailPath).trim() || undefined;
+
+      if (!mainProfileId) {
+        toast.warning({
+          title: 'Chưa chọn Kênh Chính',
+          description: 'Vui lòng chọn Hồ sơ Kênh Chính đích để hệ thống tiến hành xuất bản.',
+        });
+        return;
+      }
+      if (!targetVideo) {
+        toast.warning({
+          title: 'Chưa có video cần tải',
+          description: 'Vui lòng chuẩn bị file video đã qua xử lý Reup.',
+        });
+        return;
+      }
+
+      setIsPublishingMain(true);
+      setMainPublishResult(null);
+
+      toast.info({
+        title: 'Đang tải lên Kênh Chính...',
+        description: 'Video đã sạch bản quyền! Playwright đang mở Kênh Chính để đăng tải tự động.',
+      });
+
+      try {
+        const res = await invoke<{
+          success: boolean;
+          video_url?: string;
+          youtube_video_id?: string;
+          error?: string;
+        }>('upload_video_multibrowser', {
+          params: {
+            profile_id: mainProfileId,
+            video_path: targetVideo,
+            title: targetTitle,
+            description: targetDesc,
+            thumbnail_path: targetThumb,
+            visibility: mainVisibility,
+          },
+        });
+
+        setMainPublishResult(res);
+        if (res.success) {
+          toast.success({
+            title: 'Xuất bản Kênh Chính thành công!',
+            description: `Video đã được đăng lên Kênh Chính (${mainVisibility}). URL: ${res.video_url || 'YouTube Studio'}`,
+          });
+        } else {
+          toast.error({
+            title: 'Lỗi đăng tải Kênh Chính',
+            description:
+              res.error || 'Trình duyệt Playwright gặp lỗi trong quá trình tải lên Kênh Chính.',
+          });
+        }
+      } catch (err) {
+        const errStr = String(err);
+        setMainPublishResult({ success: false, error: errStr });
+        toast.error({
+          title: 'Lỗi tiến trình tải Kênh Chính',
+          description: errStr,
+        });
+      } finally {
+        setIsPublishingMain(false);
+      }
+    },
+    [
+      mainProfileId,
+      uploadVideoPath,
+      uploadTitle,
+      uploadDescription,
+      uploadThumbnailPath,
+      mainVisibility,
+      toast,
+    ],
+  );
+
   // Check copyright status on YouTube Studio
   const handleCheckStudioStatus = useCallback(async () => {
     if (!selectedProfileId) {
@@ -330,6 +565,11 @@ export function ReupBktPage() {
             title: 'Sạch Bản Quyền (Clean)',
             description: 'YouTube Studio xác nhận không có bất kỳ hạn chế bản quyền nào.',
           });
+
+          // TỰ ĐỘNG BẮN LỆNH SANG KÊNH CHÍNH NẾU BẬT AUTO-PUBLISH
+          if (autoPublishMain && mainProfileId) {
+            void executePublishToMainChannel();
+          }
         } else if (res.status === 'red_matched') {
           setAutoPollSeconds(null);
           setPollRetryCount(0);
@@ -339,16 +579,32 @@ export function ReupBktPage() {
               res.restriction || 'YouTube phát hiện bản quyền trên kênh BKT. Khuyên dùng Cấp độ 2.',
           });
         } else {
-          // Vẫn pending -> Tự động thử lại tối đa 4 lần nếu đang trong chu kỳ
-          if (pollRetryCount < 4) {
+          // Vẫn pending (Processing SD/HD hoặc Checks...) -> Tự động lặp lại liên tục tối đa 25 lần (~10-12 phút)
+          const MAX_POLLS = 25;
+          if (pollRetryCount < MAX_POLLS) {
             setPollRetryCount((prev) => prev + 1);
             setAutoPollSeconds(25);
+            setStudioStatus((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    restriction: `${res.restriction || 'YouTube đang phân tích video & âm thanh'} [Lần ${pollRetryCount + 1}/${MAX_POLLS}]`,
+                  }
+                : null,
+            );
           } else {
             setAutoPollSeconds(null);
+            toast.warning({
+              title: 'YouTube kiểm tra lâu hơn bình thường (>10 phút)',
+              description:
+                'Video dung lượng lớn vẫn đang được YouTube phân tích ngầm. Bấm "Quét kết quả" để kiểm tra tiếp khi hoàn tất.',
+            });
           }
           toast.info({
-            title: 'Đang kiểm tra...',
-            description: 'YouTube Studio vẫn đang phân tích âm thanh & video ngầm.',
+            title: `Đang chờ YouTube quét... [${pollRetryCount + 1}/${MAX_POLLS}]`,
+            description:
+              res.restriction ||
+              'YouTube Studio đang xử lý định dạng & chạy thuật toán Content ID.',
           });
         }
       } else if (res?.error) {
@@ -379,7 +635,147 @@ export function ReupBktPage() {
     } finally {
       setIsCheckingStudio(false);
     }
-  }, [selectedProfileId, uploadResult?.youtube_video_id, pollRetryCount, toast]);
+  }, [
+    selectedProfileId,
+    uploadResult?.youtube_video_id,
+    pollRetryCount,
+    autoPublishMain,
+    mainProfileId,
+    executePublishToMainChannel,
+    toast,
+  ]);
+
+  // 100% Zero-Touch Auto-Pilot Pipeline
+  const handleRunAutoPilot = async () => {
+    if (!inputVideoPath.trim()) {
+      toast.warning({
+        title: 'Chưa chọn video',
+        description: 'Vui lòng chọn video gốc hoặc lấy video từ Outlier Hunter trước.',
+      });
+      return;
+    }
+    if (inputVideoPath.startsWith('http://') || inputVideoPath.startsWith('https://')) {
+      toast.warning({
+        title: 'Đầu vào là liên kết Web / YouTube',
+        description:
+          'Vui lòng bấm nút "Tải về máy" bên cạnh video gốc để tải về máy trước khi chạy Auto-Pilot.',
+      });
+      return;
+    }
+    if (!selectedProfileId) {
+      toast.warning({
+        title: 'Chưa chọn Kênh BKT',
+        description: 'Vui lòng chọn Kênh BKT để kiểm tra bản quyền ngầm.',
+      });
+      return;
+    }
+    if (autoPublishMain && !mainProfileId) {
+      toast.warning({
+        title: 'Chưa chọn Kênh Chính',
+        description: 'Vui lòng chọn Hồ sơ Kênh Chính đích để tự động xuất bản.',
+      });
+      return;
+    }
+
+    setIsAutoPilotRunning(true);
+    setAutoPilotStep(1);
+
+    try {
+      // 1. REUP PIPELINE (LV1)
+      toast.info({
+        title: 'Auto-Pilot [1/4]: Xử lý Reup Cấp 1...',
+        description: 'Đang biến đổi MD5/SHA256, Speed 1.03x, Pitch 1.02x, xóa EXIF...',
+      });
+      const ext = inputVideoPath.split('.').pop() || 'mp4';
+      const base = inputVideoPath.slice(0, inputVideoPath.lastIndexOf('.'));
+      const outputPath = `${base}_reup_${pipelineLevel}_${Date.now()}.${ext}`;
+
+      const reupRes = await invoke<ReupPipelineResult>('run_reup_pipeline_v1_cmd', {
+        inputPath: inputVideoPath,
+        outputPath,
+      });
+      setPipelineResult(reupRes);
+      setUploadVideoPath(reupRes.output_path);
+
+      // 2. AI TỐI ƯU TIÊU ĐỀ 95/5 & MÔ TẢ
+      setAutoPilotStep(2);
+      toast.info({
+        title: 'Auto-Pilot [2/4]: Tối ưu Tiêu đề 95/5 & Mô tả...',
+        description: 'Bóc tách 95% từ khóa gốc và ghép Hook CTR cao...',
+      });
+      const filename = inputVideoPath.split(/[\\/]/).pop() || 'Video';
+      const rawTitle = uploadTitle.trim() || filename.replace(/\.[^/.]+$/, '');
+      const optTitle = getBestAutoPilotTitle(rawTitle);
+      setUploadTitle(optTitle);
+
+      const optDesc = buildAutoPilotDescription({
+        videoTitle: optTitle,
+        originalDescription: uploadDescription.includes('Test copyright') ? '' : uploadDescription,
+        includeDisclaimer: true,
+      });
+      setUploadDescription(optDesc);
+
+      // 3. DÒ TÌM THUMBNAIL ĐI KÈM
+      setAutoPilotStep(3);
+      const compThumb = getCompanionThumbnailPath(inputVideoPath);
+      if (compThumb) {
+        setUploadThumbnailPath(compThumb);
+      }
+
+      // 4. TỰ ĐỘNG ĐĂNG KÊNH BKT UNLISTED ĐỂ TEST
+      setAutoPilotStep(4);
+      toast.info({
+        title: 'Auto-Pilot [3/4]: Tải lên Kênh BKT (Unlisted)...',
+        description: 'Đang tải video ẩn lên YouTube Studio để quét bản quyền...',
+      });
+
+      const bktRes = await invoke<{
+        success: boolean;
+        video_url?: string;
+        youtube_video_id?: string;
+        error?: string;
+      }>('upload_video_multibrowser', {
+        params: {
+          profile_id: selectedProfileId,
+          video_path: reupRes.output_path,
+          title: optTitle,
+          description: optDesc,
+          thumbnail_path: compThumb || undefined,
+          visibility: 'unlisted',
+        },
+      });
+
+      setUploadResult(bktRes);
+      if (!bktRes.success) {
+        throw new Error(bktRes.error || 'Lỗi khi tải video lên kênh BKT');
+      }
+
+      // 5. BẮT ĐẦU CHU KỲ QUÉT STUDIO THÔNG MINH (POLLING)
+      setAutoPilotStep(5);
+      setPollRetryCount(0);
+      setAutoPollSeconds(35); // 35s khởi đầu cho YouTube khởi tạo hàng xử lý
+      setStudioStatus({
+        status: 'pending',
+        restriction:
+          'Đã tải lên! YouTube đang xử lý SD/HD & chuẩn bị chạy thuật toán quét bản quyền Content ID (Checks)...',
+        checked_at: new Date().toLocaleTimeString('vi-VN'),
+      });
+
+      toast.success({
+        title: 'Auto-Pilot: Đã lên kênh BKT!',
+        description:
+          'Đang bắt đầu chu kỳ theo dõi YouTube xử lý & quét Content ID liên tục cho đến khi có kết luận!',
+      });
+    } catch (err) {
+      const errStr = String(err);
+      toast.error({
+        title: 'Lỗi quy trình Auto-Pilot',
+        description: errStr,
+      });
+    } finally {
+      setIsAutoPilotRunning(false);
+    }
+  };
 
   // Auto-poll countdown effect
   useEffect(() => {
@@ -425,6 +821,47 @@ export function ReupBktPage() {
 
       {/* Main Tab Switcher */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* ================= 100% ZERO-TOUCH AUTO-PILOT BANNER ================= */}
+        <Card className="p-4 sm:p-5 border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-background to-emerald-500/10 backdrop-blur-md space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="space-y-1 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-amber-500" />
+                <h2 className="text-sm font-bold text-foreground">
+                  Quy Trình Tự Động Hóa 100% (Zero-Touch Auto-Pilot)
+                </h2>
+                <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[10px]">
+                  A → Z Khép Kín
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Tự động từ đầu đến cuối: Lách Reup (Đổi MD5/Audio) ➔ AI Tiêu Đề 95/5 &amp; Mô Tả ➔
+                Tự Nhận Thumbnail ➔ Đăng Test BKT (Unlisted) ➔ Tự Quét Studio ➔ Tự Đăng Kênh Chính
+                khi Xanh!
+              </p>
+            </div>
+
+            <Button
+              size="default"
+              onClick={handleRunAutoPilot}
+              disabled={!inputVideoPath || isAutoPilotRunning || isProcessing || isUploading}
+              className="gap-2 bg-gradient-to-r from-amber-500 to-emerald-600 hover:from-amber-600 hover:to-emerald-700 text-white font-semibold shadow-md shadow-emerald-500/20 text-xs px-5 h-9"
+            >
+              {isAutoPilotRunning ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Đang chạy Auto-Pilot (Bước {autoPilotStep}/4)...</span>
+                </>
+              ) : (
+                <>
+                  <Rocket className="w-4 h-4" />
+                  <span>Bắt Đầu Auto-Pilot 100% (1-Click)</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </Card>
+
         <Tabs
           value={activeTab}
           onValueChange={(v) =>
@@ -463,23 +900,49 @@ export function ReupBktPage() {
                       <FileVideo className="w-4 h-4 text-primary" />
                       Video gốc cần xử lý Reup
                     </Label>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handlePickInputVideo}
-                      className="h-8 text-xs gap-1.5 border-primary/30 hover:border-primary text-primary"
-                    >
-                      <FolderOpen className="w-3.5 h-3.5" />
-                      <span>Chọn file từ máy tính</span>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      {inputVideoPath &&
+                        (inputVideoPath.startsWith('http://') ||
+                          inputVideoPath.startsWith('https://')) && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleQuickDownloadUrl(inputVideoPath)}
+                            className="h-8 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>Tải về máy</span>
+                          </Button>
+                        )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePickInputVideo}
+                        className="h-8 text-xs gap-1.5 border-primary/30 hover:border-primary text-primary"
+                      >
+                        <FolderOpen className="w-3.5 h-3.5" />
+                        <span>Chọn file từ máy tính</span>
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="p-3 rounded-lg border border-border/50 bg-muted/30">
                     {inputVideoPath ? (
-                      <div className="space-y-1">
-                        <span className="text-[11px] text-muted-foreground block">
-                          Đường dẫn tệp:
-                        </span>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground block">
+                            Đường dẫn tệp:
+                          </span>
+                          {(inputVideoPath.startsWith('http://') ||
+                            inputVideoPath.startsWith('https://')) && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] text-amber-500 border-amber-500/30 bg-amber-500/10"
+                            >
+                              URL Web/YouTube (Cần tải về)
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-xs font-mono font-medium text-foreground break-all">
                           {inputVideoPath}
                         </p>
@@ -740,7 +1203,7 @@ export function ReupBktPage() {
                     <Select
                       value={selectedProfileId}
                       onValueChange={(val) => {
-                        setSelectedProfileId(val);
+                        handleChangeBktProfileId(val);
                         setStudioStatus(null);
                         setAutoPollSeconds(null);
                         setPollRetryCount(0);
@@ -828,7 +1291,45 @@ export function ReupBktPage() {
                     />
                   </div>
 
-                  {/* 3. Tiêu đề & Mô tả */}
+                  {/* 3. File Ảnh Thumbnail */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-medium flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5 text-primary" />
+                        Ảnh Thumbnail (.jpg / .png):
+                      </Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={async () => {
+                          const selected = await open({
+                            multiple: false,
+                            filters: [
+                              {
+                                name: 'Image Files',
+                                extensions: ['jpg', 'jpeg', 'png', 'webp'],
+                              },
+                            ],
+                          });
+                          if (typeof selected === 'string') {
+                            setUploadThumbnailPath(selected);
+                          }
+                        }}
+                        className="h-6 px-2 text-[11px] text-primary hover:bg-primary/10 gap-1"
+                      >
+                        <FolderOpen className="w-3 h-3" />
+                        <span>Chọn ảnh khác</span>
+                      </Button>
+                    </div>
+                    <Input
+                      value={uploadThumbnailPath}
+                      onChange={(e) => setUploadThumbnailPath(e.target.value)}
+                      placeholder="Tự động nhận diện file ảnh cùng tên trong thư mục video"
+                      className="h-8 text-xs font-mono bg-muted/40"
+                    />
+                  </div>
+
+                  {/* 4. Tiêu đề & Mô tả */}
                   <div className="grid grid-cols-1 gap-3 pt-1">
                     <div className="space-y-1">
                       <Label className="text-xs font-medium">Tiêu đề video test:</Label>
@@ -878,6 +1379,129 @@ export function ReupBktPage() {
                     <div className="p-3.5 rounded-lg border border-red-500/30 bg-red-500/10 text-xs text-red-400 flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                       <span>Lỗi đăng video: {uploadResult.error}</span>
+                    </div>
+                  )}
+                </Card>
+
+                {/* ================= THIẾT LẬP AUTO-PUBLISH KÊNH CHÍNH ================= */}
+                <Card className="p-4 sm:p-5 border-border/60 bg-card/60 backdrop-blur-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label className="text-xs font-semibold flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-emerald-400" />
+                        Tự Động Đăng Kênh Chính (Auto-Publish)
+                      </Label>
+                      <p className="text-[11px] text-muted-foreground">
+                        Tự động đẩy video + thumbnail + metadata sang Kênh Chính khi BKT Xanh
+                      </p>
+                    </div>
+                    <Switch checked={autoPublishMain} onCheckedChange={handleToggleAutoPublish} />
+                  </div>
+
+                  {autoPublishMain && (
+                    <div className="space-y-3 pt-2 text-xs border-t border-border/40">
+                      {/* Chọn Hồ Sơ Kênh Chính */}
+                      <div className="space-y-1">
+                        <Label className="text-[11px] text-muted-foreground">
+                          Hồ sơ Kênh Chính đích:
+                        </Label>
+                        <Select value={mainProfileId} onValueChange={handleChangeMainProfileId}>
+                          <SelectTrigger className="h-8 text-xs bg-muted/40 border-border/50">
+                            <SelectValue placeholder="Chọn Hồ sơ Kênh Chính..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {profiles.map((p) => (
+                              <SelectItem key={`main-${p.id}`} value={p.id} className="text-xs">
+                                <span className="font-medium text-foreground">
+                                  {p.profile_name}
+                                </span>
+                                {p.proxy && (
+                                  <span className="text-[10px] text-muted-foreground ml-2">
+                                    (Proxy: {p.proxy})
+                                  </span>
+                                )}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Chế độ hiển thị */}
+                      <div className="space-y-1">
+                        <Label className="text-[11px] text-muted-foreground">
+                          Chế độ xuất bản:
+                        </Label>
+                        <Select
+                          value={mainVisibility}
+                          onValueChange={(v: 'public' | 'schedule' | 'unlisted') =>
+                            handleChangeMainVisibility(v)
+                          }
+                        >
+                          <SelectTrigger className="h-8 text-xs bg-muted/40 border-border/50">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="public">Công khai (Public)</SelectItem>
+                            <SelectItem value="schedule">Lên lịch (Schedule)</SelectItem>
+                            <SelectItem value="unlisted">Không công khai (Unlisted)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Nút bấm thủ công hoặc cưỡng chế */}
+                      <Button
+                        size="sm"
+                        onClick={() => executePublishToMainChannel()}
+                        disabled={!mainProfileId || !uploadVideoPath || isPublishingMain}
+                        className={cn(
+                          'w-full text-xs gap-1.5 mt-2',
+                          studioStatus?.status === 'green_clean'
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                        )}
+                      >
+                        {isPublishingMain ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Đang đăng Kênh Chính...</span>
+                          </>
+                        ) : (
+                          <>
+                            <UploadCloud className="w-3.5 h-3.5" />
+                            <span>
+                              {studioStatus?.status === 'green_clean'
+                                ? 'Đăng Kênh Chính Ngay (Đã Sạch Bản Quyền)'
+                                : 'Đăng Kênh Chính Ngay'}
+                            </span>
+                          </>
+                        )}
+                      </Button>
+
+                      {mainPublishResult?.success && (
+                        <div className="p-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-400 flex items-center justify-between gap-1">
+                          <span className="flex items-center gap-1.5 font-medium">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Đã đăng Kênh Chính thành công!
+                          </span>
+                          {mainPublishResult.video_url && (
+                            <a
+                              href={mainPublishResult.video_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[11px] underline flex items-center gap-0.5"
+                            >
+                              <span>Xem</span>
+                              <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      {mainPublishResult?.error && (
+                        <div className="p-2.5 rounded-lg border border-red-500/30 bg-red-500/10 text-xs text-red-400 flex items-start gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                          <span>Lỗi: {mainPublishResult.error}</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </Card>
@@ -1015,7 +1639,35 @@ export function ReupBktPage() {
 
           {/* ================= TAB 4: AI TỐI ƯU TIÊU ĐỀ & THUMBNAIL ================= */}
           <TabsContent value="ai_optimization" className="space-y-5">
-            <AiTitleThumbnailTab />
+            <AiTitleThumbnailTab
+              activeVideoTitle={
+                uploadTitle ||
+                (inputVideoPath
+                  ? inputVideoPath
+                      .split(/[\\/]/)
+                      .pop()
+                      ?.replace(/\.[^/.]+$/, '')
+                  : '')
+              }
+              activeThumbnailPath={uploadThumbnailPath}
+              onApplyTitle={(title) => {
+                setUploadTitle(title);
+                toast.success({
+                  title: 'Đã cập nhật tiêu đề',
+                  description: 'Tiêu đề đã được đồng bộ sang BKT Upload & Auto-Publish.',
+                });
+              }}
+              onApplyThumbnail={(thumbPath) => {
+                setUploadThumbnailPath(thumbPath);
+                toast.success({
+                  title: 'Đã cập nhật thumbnail',
+                  description: 'Ảnh bìa đã được gắn vào quy trình BKT Upload & Auto-Publish.',
+                });
+              }}
+              onNavigateToBkt={() => {
+                setActiveTab('bkt_upload');
+              }}
+            />
           </TabsContent>
         </Tabs>
       </div>

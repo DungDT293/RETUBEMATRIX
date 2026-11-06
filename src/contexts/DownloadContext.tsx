@@ -89,7 +89,8 @@ import type {
 import { extractYouTubeVideoId } from '@/lib/youtube-url';
 import { DownloadContext } from './download-context';
 
-const STORAGE_KEY = 'youwee-settings';
+const STORAGE_KEY = 'retubematrix-settings';
+const LEGACY_STORAGE_KEY = 'youwee-settings';
 const DOWNLOAD_QUEUE_IDLE_GRACE_MS = 1000;
 
 // Check if path is absolute (cross-platform)
@@ -128,7 +129,7 @@ async function resolveDefaultOutputPath(): Promise<string> {
 // Load settings from localStorage
 function loadSavedSettings(): Partial<DownloadSettings> {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     if (saved) {
       return JSON.parse(saved);
     }
@@ -1337,7 +1338,9 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
       // Use item's saved settings (snapshot from when it was added)
       // Fallback to current global settings if not available
       const itemSettings = item.settings as ItemDownloadSettings | undefined;
-      const logStderr = localStorage.getItem('youwee_log_stderr') !== 'false';
+      const logStderr =
+        (localStorage.getItem('retubematrix_log_stderr') ??
+          localStorage.getItem('youwee_log_stderr')) !== 'false';
       const sponsorBlockArgs = buildSponsorBlockArgs(settings);
 
       const autoRetryEnabled = itemSettings?.autoRetryEnabled ?? settings.autoRetryEnabled;

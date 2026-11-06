@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-pub const BACKEND_ERROR_PREFIX: &str = "__YOUWEE_ERR__";
+pub const BACKEND_ERROR_PREFIX: &str = "__RETUBEMATRIX_ERR__";
 
 pub mod code {
     pub const BACKEND_UNKNOWN: &str = "BACKEND_UNKNOWN";

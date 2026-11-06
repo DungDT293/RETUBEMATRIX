@@ -7,8 +7,10 @@ import {
   Music,
   Radio,
   Settings2,
+  Subtitles,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { SubtitlePopoverContent } from '@/components/shared/SubtitlePopoverContent';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -23,7 +25,15 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { AudioBitrate, Format, PreferredFps, Quality, VideoCodec } from '@/lib/types';
+import type {
+  AudioBitrate,
+  Format,
+  PreferredFps,
+  Quality,
+  SubtitleFormat,
+  SubtitleMode,
+  VideoCodec,
+} from '@/lib/types';
 import type { UniversalSettings } from '@/lib/universal-settings';
 import { cn } from '@/lib/utils';
 
@@ -74,6 +84,10 @@ interface UniversalSettingsPanelProps {
   onSelectFolder: () => void;
   onLiveFromStartChange: (enabled: boolean) => void;
   onSkipLiveChange: (enabled: boolean) => void;
+  onSubtitleModeChange: (mode: SubtitleMode) => void;
+  onSubtitleLangsChange: (langs: string[]) => void;
+  onSubtitleEmbedChange: (embed: boolean) => void;
+  onSubtitleFormatChange: (format: SubtitleFormat) => void;
 }
 
 export function UniversalSettingsPanel({
@@ -89,6 +103,10 @@ export function UniversalSettingsPanel({
   onSelectFolder,
   onLiveFromStartChange,
   onSkipLiveChange,
+  onSubtitleModeChange,
+  onSubtitleLangsChange,
+  onSubtitleEmbedChange,
+  onSubtitleFormatChange,
 }: UniversalSettingsPanelProps) {
   const { t } = useTranslation('universal');
   const toast = useToast();
@@ -233,6 +251,82 @@ export function UniversalSettingsPanel({
           ))}
         </SelectContent>
       </Select>
+
+      {/* Subtitles (CC) Popover */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            disabled={disabled || isAudioOnly}
+            title={t('settings.subtitles', { defaultValue: 'Phụ đề (CC)' })}
+            className={cn(
+              'h-9 px-2.5 rounded-lg border text-xs font-medium transition-all flex items-center gap-1.5 focus:outline-none focus:ring-1 focus:ring-primary',
+              settings.subtitleMode !== 'off'
+                ? 'bg-primary/10 border-primary/40 text-primary'
+                : 'bg-card/50 border-border/50 text-muted-foreground hover:text-foreground',
+            )}
+          >
+            <Subtitles className="w-3.5 h-3.5" />
+            <span className="hidden xs:inline">CC</span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-72 p-0" align="start" side="bottom" sideOffset={8}>
+          <SubtitlePopoverContent
+            title={t('settings.subtitles', { defaultValue: 'Phụ đề' })}
+            mode={{
+              label: t('settings.subtitleMode', { defaultValue: 'Chế độ phụ đề' }),
+              value: settings.subtitleMode,
+              options: [
+                { value: 'off', label: 'Tắt', title: 'Không tải phụ đề' },
+                { value: 'auto', label: 'Tự động', title: 'Phụ đề tạo tự động của YouTube' },
+                { value: 'manual', label: 'Thủ công', title: 'Chọn ngôn ngữ chỉ định' },
+              ],
+              onChange: onSubtitleModeChange,
+            }}
+            showDetails={settings.subtitleMode !== 'off'}
+            languageLabel={t('settings.languages', { defaultValue: 'Ngôn ngữ' })}
+            languageCodes={['vi', 'en', 'zh', 'ja', 'ko', 'es', 'fr', 'de', 'ru']}
+            selectedLanguages={settings.subtitleLangs}
+            onToggleLanguage={(code) => {
+              if (settings.subtitleLangs.includes(code)) {
+                onSubtitleLangsChange(settings.subtitleLangs.filter((l) => l !== code));
+              } else {
+                onSubtitleLangsChange([...settings.subtitleLangs, code]);
+              }
+            }}
+            getLanguageLabel={(code) => {
+              const map: Record<string, string> = {
+                vi: 'Tiếng Việt',
+                en: 'English',
+                zh: '中文',
+                ja: '日本語',
+                ko: '한국어',
+                es: 'Español',
+                fr: 'Français',
+                de: 'Deutsch',
+                ru: 'Русский',
+              };
+              return map[code] || code;
+            }}
+            emptyLanguageText="Chọn ít nhất 1 ngôn ngữ"
+            selectedLanguagesText={`Đã chọn: ${settings.subtitleLangs.join(', ').toUpperCase()}`}
+            formatLabel="Định dạng phụ đề"
+            formatValue={settings.subtitleFormat}
+            formatOptions={[
+              { value: 'srt', label: 'SRT' },
+              { value: 'vtt', label: 'VTT' },
+              { value: 'ass', label: 'ASS' },
+            ]}
+            onFormatChange={onSubtitleFormatChange}
+            embed={{
+              label: 'Nhúng vào video',
+              valueLabel: 'Nhúng trực tiếp vào container MP4/MKV',
+              checked: settings.subtitleEmbed,
+              onChange: onSubtitleEmbedChange,
+            }}
+          />
+        </PopoverContent>
+      </Popover>
 
       {/* Advanced Settings Popover */}
       <Popover>

@@ -1,7 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useMemo } from 'react';
 import { useDownload } from '@/contexts/download-context';
-import { useGalleryDl } from '@/contexts/gallerydl-context';
 import { useUniversal } from '@/contexts/universal-context';
 import type { DownloadItem } from '@/lib/types';
 
@@ -29,29 +28,19 @@ function summarizeItems(items: DownloadItem[]) {
 export function useTrayDownloadStatus() {
   const download = useDownload();
   const universal = useUniversal();
-  const gallery = useGalleryDl();
 
   const status = useMemo<TrayDownloadStatus>(() => {
     const youtube = summarizeItems(download.items);
     const universalDownloads = summarizeItems(universal.items);
-    const galleryDownloads = summarizeItems(gallery.items);
 
     return {
-      pending: youtube.pending + universalDownloads.pending + galleryDownloads.pending,
-      downloading:
-        youtube.downloading + universalDownloads.downloading + galleryDownloads.downloading,
-      completed: youtube.completed + universalDownloads.completed + galleryDownloads.completed,
-      error: youtube.error + universalDownloads.error + galleryDownloads.error,
-      active: download.isDownloading || universal.isDownloading || gallery.isDownloading,
+      pending: youtube.pending + universalDownloads.pending,
+      downloading: youtube.downloading + universalDownloads.downloading,
+      completed: youtube.completed + universalDownloads.completed,
+      error: youtube.error + universalDownloads.error,
+      active: download.isDownloading || universal.isDownloading,
     };
-  }, [
-    download.items,
-    download.isDownloading,
-    universal.items,
-    universal.isDownloading,
-    gallery.items,
-    gallery.isDownloading,
-  ]);
+  }, [download.items, download.isDownloading, universal.items, universal.isDownloading]);
 
   const { active, completed, downloading, error, pending } = status;
 

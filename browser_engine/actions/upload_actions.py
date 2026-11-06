@@ -48,183 +48,48 @@ def _resolve_path(raw: str) -> str:
 
 async def studio_warmup(page, preferred_channel: str = ""):
     """
-    Flow: YouTube homepage → set Display Language English →
-    avatar → YouTube Studio → Content → Analytics (Overview, Content, Audience).
+    Đi vào YouTube Studio chuẩn bị upload.
+    Đi thẳng vào YouTube Studio, xác nhận login và kênh ưu tiên,
+    sau đó sẵn sàng bấm Tạo/Upload trực tiếp không đi vòng qua Analytics/Content (Tối ưu tốc độ theo TC-MOD5-03).
     """
-    logger.info("Warmup: mở YouTube homepage")
-    await page.goto("https://www.youtube.com/")
-    await page.wait_for_load_state("domcontentloaded", timeout=20000)
-    await random_delay(3.0, 5.0)
+    preferred_channel = str(preferred_channel or "").strip()
+
+    # Nếu đã ở trong studio.youtube.com thì giữ nguyên
+    if "studio.youtube.com" not in page.url:
+        logger.info("Mở trực tiếp YouTube Studio")
+        await page.goto("https://studio.youtube.com/")
+        await page.wait_for_load_state("domcontentloaded", timeout=20000)
+        await random_delay(1.5, 3.0)
 
     health = await check_page_health(page)
     if health == "login":
-        logger.error(
-            "Profile chưa đăng nhập YouTube. Vui lòng mở Hồ sơ trình duyệt (Profile) → "
-            "đăng nhập Google/YouTube Studio trước, sau đó thử lại."
-        )
-        raise RuntimeError(
-            "Profile chưa đăng nhập YouTube. Vui lòng mở Hồ sơ trình duyệt (Profile) → "
-            "đăng nhập Google/YouTube Studio trước khi quét/tải lên."
-        )
-    preferred_channel = str(preferred_channel or "").strip()
+        # Fallback thử kiểm tra trên youtube.com xem đã đăng nhập chưa
+        logger.warning("Studio báo chưa đăng nhập, kiểm tra trạng thái tài khoản")
+        await page.goto("https://www.youtube.com/")
+        await page.wait_for_load_state("domcontentloaded", timeout=15000)
+        await random_delay(2.0, 3.5)
+        health_yt = await check_page_health(page)
+        if health_yt == "login":
+            logger.error(
+                "Profile chưa đăng nhập Google/YouTube Studio. Vui lòng mở Hồ sơ trình duyệt (Profile) → "
+                "đăng nhập Google/YouTube Studio trước khi tải lên."
+            )
+            raise RuntimeError(
+                "Profile chưa đăng nhập YouTube Studio. Vui lòng mở Hồ sơ trình duyệt (Profile) → "
+                "đăng nhập Google/YouTube Studio trước khi tải lên."
+            )
+        # Nếu trên youtube.com đã login, quay lại studio
+        await page.goto("https://studio.youtube.com/")
+        await page.wait_for_load_state("domcontentloaded", timeout=20000)
+        await random_delay(1.5, 2.5)
+
     if preferred_channel and not await ensure_preferred_youtube_channel(page, preferred_channel):
         logger.error("Không tìm thấy kênh YouTube ưu tiên — hủy warmup/upload: %s", preferred_channel)
         raise PreferredYouTubeChannelError(
             f"Preferred YouTube channel not found: {preferred_channel}"
         )
 
-    # Scroll trang chủ
-    for _ in range(random.randint(2, 4)):
-        await page.mouse.wheel(0, random.randint(300, 600))
-        await random_delay(1.0, 2.5)
-
-    # Bước 1: Kiểm tra Display Language trang chủ YouTube
-    is_english = False
-    try:
-        is_english = await page.evaluate("""() => {
-            // 1. Kiểm tra lang attribute của thẻ html
-            const htmlLang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
-            if (htmlLang.startsWith('en')) return true;
-
-            // 2. Kiểm tra text điều hướng sidebar / menu YouTube
-            const guide = document.querySelector('ytd-guide-renderer, #guide-content, ytd-mini-guide-renderer');
-            const text = guide ? (guide.innerText || '').toLowerCase() : (document.body.innerText || '').toLowerCase();
-            if (text.includes('home') && (text.includes('subscriptions') || text.includes('explore') || text.includes('history') || text.includes('shorts'))) {
-                return true;
-            }
-            return false;
-        }""")
-    except Exception:
-        pass
-
-    if is_english:
-        logger.info("YouTube đã hiển thị Tiếng Anh (English) — bỏ qua, không chỉnh lại ngôn ngữ để tránh Google đánh dấu")
-    else:
-        logger.info("YouTube chưa phải Tiếng Anh — tiến hành đổi Display Language → English(US)")
-        try:
-            avatar = page.locator("#avatar-btn").first
-            await avatar.wait_for(state="visible", timeout=20000)
-            await avatar.click()
-            await random_delay(1.5, 2.5)  # chờ dropdown render đầy đủ
-
-            # Tìm item chứa "language" hoặc "ngôn ngữ" (case-insensitive)
-            items = await page.locator("ytd-compact-link-renderer").all()
-            lang_item = None
-            for item in items:
-                try:
-                    txt = (await item.inner_text()).lower()
-                    if "language" in txt or "ngôn ngữ" in txt:
-                        lang_item = item
-                        logger.info("Warmup: tìm thấy language item: %r", txt.strip()[:60])
-                        break
-                except Exception:
-                    pass
-
-            if lang_item is not None:
-                await lang_item.click()
-                await random_delay(1.0, 2.0)
-
-                # Chọn English(US)
-                english_option = page.locator("ytd-compact-link-renderer").filter(
-                    has_text="English (US)"
-                ).first
-                await english_option.wait_for(state="visible", timeout=8000)
-                await english_option.click()
-                await random_delay(2.0, 3.0)
-                await page.wait_for_load_state("domcontentloaded", timeout=15000)
-                await random_delay(1.5, 2.5)
-                logger.info("Warmup: đã chuyển Display Language sang English(US)")
-            else:
-                logger.warning("Không tìm thấy Display language menu item")
-                await page.keyboard.press("Escape")
-        except Exception as exc:
-            logger.warning("Warmup set language: %s — tiếp tục", exc)
-            try:
-                await page.keyboard.press("Escape")
-                await random_delay(0.5, 1.0)
-            except Exception:
-                pass
-
-    # Bước 2: Vào YouTube Studio qua avatar
-    logger.info("Warmup: vào YouTube Studio qua avatar")
-    try:
-        avatar = page.locator("#avatar-btn").first
-        await avatar.wait_for(state="visible", timeout=20000)
-        await avatar.click()
-        await random_delay(1.0, 1.5)
-
-        studio_item = page.locator("tp-yt-paper-item, ytd-compact-link-renderer").filter(
-            has_text="YouTube Studio"
-        ).first
-        await studio_item.wait_for(state="visible", timeout=5000)
-        await studio_item.click()
-        await page.wait_for_load_state("domcontentloaded", timeout=20000)
-        await random_delay(3.0, 5.0)
-    except Exception as exc:
-        logger.warning("Warmup vào Studio qua avatar thất bại: %s — fallback direct", exc)
-        try:
-            await page.keyboard.press("Escape")
-        except Exception:
-            pass
-        await page.goto("https://studio.youtube.com/")
-        await page.wait_for_load_state("domcontentloaded", timeout=20000)
-        await random_delay(3.0, 5.0)
-
-    # Bước 3: Click Content trong sidebar
-    logger.info("Warmup: xem Content")
-    try:
-        content_link = page.locator("#menu-item-1, a[href*='/videos']").first
-        await content_link.wait_for(state="visible", timeout=8000)
-        await content_link.click()
-        await page.wait_for_load_state("domcontentloaded", timeout=15000)
-        await random_delay(3.0, 5.0)
-        for _ in range(random.randint(2, 4)):
-            await page.mouse.wheel(0, random.randint(200, 500))
-            await random_delay(1.5, 3.0)
-    except Exception as exc:
-        logger.warning("Warmup Content: %s", exc)
-
-    # Bước 4: Click Analytics trong sidebar
-    logger.info("Warmup: xem Analytics Overview")
-    try:
-        analytics_link = page.locator("#menu-item-3, a[href*='/analytics']").first
-        await analytics_link.wait_for(state="visible", timeout=8000)
-        await analytics_link.click()
-        await page.wait_for_load_state("domcontentloaded", timeout=15000)
-        await random_delay(3.0, 5.0)
-        for _ in range(random.randint(2, 3)):
-            await page.mouse.wheel(0, random.randint(200, 400))
-            await random_delay(2.0, 4.0)
-    except Exception as exc:
-        logger.warning("Warmup Analytics: %s", exc)
-
-    # Bước 5: Analytics → Content tab
-    logger.info("Warmup: Analytics Content tab")
-    try:
-        content_tab = page.get_by_role("tab", name="Content").first
-        await content_tab.wait_for(state="visible", timeout=8000)
-        await content_tab.click()
-        await random_delay(3.0, 5.0)
-        for _ in range(random.randint(2, 3)):
-            await page.mouse.wheel(0, random.randint(200, 400))
-            await random_delay(2.0, 4.0)
-    except Exception as exc:
-        logger.warning("Warmup Analytics Content tab: %s", exc)
-
-    # Bước 6: Analytics → Audience tab
-    logger.info("Warmup: Analytics Audience tab")
-    try:
-        audience_tab = page.get_by_role("tab", name="Audience").first
-        await audience_tab.wait_for(state="visible", timeout=8000)
-        await audience_tab.click()
-        await random_delay(3.0, 5.0)
-        for _ in range(random.randint(2, 3)):
-            await page.mouse.wheel(0, random.randint(200, 400))
-            await random_delay(2.0, 4.0)
-    except Exception as exc:
-        logger.warning("Warmup Analytics Audience tab: %s", exc)
-
-    logger.info("Warmup hoàn tất")
+    logger.info("Đã vào YouTube Studio sẵn sàng upload trực tiếp")
     return True
 
 
@@ -276,18 +141,31 @@ class YouTubeUpload:
             )
 
         logger.info("Click Create → Upload videos")
+        opened = False
         try:
-            create_btn = page.get_by_role("button", name="Create").first
-            await create_btn.wait_for(state="visible", timeout=10000)
-            await create_btn.click()
-            await random_delay(0.8, 1.5)
-            upload_item = page.get_by_role("menuitem", name="Upload videos").first
-            await upload_item.wait_for(state="visible", timeout=8000)
-            await upload_item.click()
-        except Exception:
+            create_btn = page.locator(
+                "#create-icon, button:has-text('Create'), button:has-text('Tạo'), "
+                "[aria-label*='Create' i], [aria-label*='Tạo' i]"
+            ).first
+            if await create_btn.is_visible(timeout=5000):
+                await create_btn.click()
+                await random_delay(0.8, 1.5)
+                upload_item = page.locator(
+                    "tp-yt-paper-item:has-text('Upload videos'), tp-yt-paper-item:has-text('Tải video lên'), "
+                    "[role='menuitem']:has-text('Upload'), [role='menuitem']:has-text('Tải video')"
+                ).first
+                if await upload_item.is_visible(timeout=5000):
+                    await upload_item.click()
+                    opened = True
+        except Exception as exc:
+            logger.debug("Create menu click failed: %s", exc)
+
+        if not opened:
             # Fallback: icon upload trực tiếp
             try:
-                upload_btn = page.locator("#upload-icon, [aria-label='Upload videos']").first
+                upload_btn = page.locator(
+                    "#upload-icon, #upload-button, [aria-label*='Upload' i], [aria-label*='Tải video' i]"
+                ).first
                 await upload_btn.wait_for(state="visible", timeout=8000)
                 await upload_btn.click()
             except Exception as exc:
@@ -722,6 +600,10 @@ class YouTubeUpload:
         try:
             await page.wait_for_selector("ytcp-video-share-dialog", timeout=30000)
             logger.info("Video đã được đăng / lên lịch thành công")
+            if not video_url:
+                video_url = await _extract_video_url(page)
+                if video_url:
+                    logger.info("URL video trích xuất từ hộp thoại xác nhận: %s", video_url)
             for c_name in ["Close", "Đóng"]:
                 try:
                     close_btn = page.get_by_role("button", name=c_name).first
@@ -732,6 +614,12 @@ class YouTubeUpload:
                     pass
         except Exception:
             logger.warning("Không phát hiện hộp thoại xác nhận")
+
+        if not video_url:
+            await random_delay(1.5, 2.5)
+            video_url = await _extract_video_url(page)
+            if video_url:
+                logger.info("URL video trích xuất sau khi đóng dialog: %s", video_url)
 
         if pinned_comment and video_url:
             if vis == "public":
@@ -905,13 +793,57 @@ def _format_time(time_str: str) -> str:
 
 
 async def _extract_video_url(page) -> str:
+    # 1. Thử locator trực tiếp trên các link youtu.be / youtube.com/watch
     try:
-        link = page.locator("a[href*='youtu.be'], a[href*='youtube.com/watch']").first
-        href = await link.get_attribute("href", timeout=5000)
-        if href:
-            return href
+        links = page.locator("a[href*='youtu.be'], a[href*='youtube.com/watch']")
+        count = await links.count()
+        for i in range(count):
+            href = await links.nth(i).get_attribute("href", timeout=1500)
+            if href and ("youtu.be" in href or "watch?v=" in href):
+                return href.strip()
     except Exception:
         pass
+
+    # 2. Quét DOM & Shadow DOM bằng JavaScript evaluation (hỗ trợ ytcp-video-share-dialog, metadata panel, link text)
+    try:
+        url = await page.evaluate("""() => {
+            // Check direct anchors
+            const anchors = Array.from(document.querySelectorAll('a[href*="youtu.be"], a[href*="youtube.com/watch"]'));
+            for (const a of anchors) {
+                if (a.href) return a.href;
+            }
+            // Check ytcp-video-share-dialog
+            const shareDialog = document.querySelector('ytcp-video-share-dialog');
+            if (shareDialog) {
+                const link = shareDialog.querySelector('a[href*="youtu.be"], a[href*="youtube.com/watch"]');
+                if (link && link.href) return link.href;
+                const input = shareDialog.querySelector('input, [id*="share-url"], [class*="share-url"]');
+                if (input && input.value && (input.value.includes('youtu.be') || input.value.includes('youtube.com'))) {
+                    return input.value;
+                }
+            }
+            // Check metadata preview panel
+            const metaPanel = document.querySelector('ytcp-video-metadata-editor-side-panel');
+            if (metaPanel) {
+                const link = metaPanel.querySelector('a[href*="youtu.be"], a[href*="youtube.com/watch"]');
+                if (link && link.href) return link.href;
+            }
+            // Regex match over visible elements
+            const elements = document.querySelectorAll('span, div, a, input, textarea');
+            for (const el of elements) {
+                const text = el.value || el.textContent || '';
+                if (text.includes('youtu.be') || text.includes('youtube.com/watch')) {
+                    const match = text.match(/https?:\\/\\/(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/watch\\?v=)[a-zA-Z0-9_-]{11}/);
+                    if (match) return match[0];
+                }
+            }
+            return '';
+        }""")
+        if url:
+            return url.strip()
+    except Exception:
+        pass
+
     return ""
 
 

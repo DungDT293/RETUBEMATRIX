@@ -155,7 +155,9 @@ export function ProfilesPage() {
   // Column visibility
   const [columnVisibility, setColumnVisibility] = useState<ProfileColumnVisibility>(() => {
     try {
-      const raw = localStorage.getItem('youwee.profile.columnVisibility');
+      const raw =
+        localStorage.getItem('retubematrix.profile.columnVisibility') ||
+        localStorage.getItem('youwee.profile.columnVisibility');
       if (raw) return { ...DEFAULT_PROFILE_COLUMN_VISIBILITY, ...JSON.parse(raw) };
     } catch {}
     return DEFAULT_PROFILE_COLUMN_VISIBILITY;
@@ -164,19 +166,22 @@ export function ProfilesPage() {
   const toggleColumnVisible = (id: ProfileOptionalColumnId, visible: boolean) => {
     setColumnVisibility((prev) => {
       const next = { ...prev, [id]: visible };
-      localStorage.setItem('youwee.profile.columnVisibility', JSON.stringify(next));
+      localStorage.setItem('retubematrix.profile.columnVisibility', JSON.stringify(next));
       return next;
     });
   };
 
   // Mute audio toggle
   const [manualMuteAudio, setManualMuteAudio] = useState<boolean>(() => {
-    return localStorage.getItem('youwee.profile.manualOpenMuteAudio') === 'true';
+    return (
+      (localStorage.getItem('retubematrix.profile.manualOpenMuteAudio') ??
+        localStorage.getItem('youwee.profile.manualOpenMuteAudio')) === 'true'
+    );
   });
 
   const handleToggleMute = (checked: boolean) => {
     setManualMuteAudio(checked);
-    localStorage.setItem('youwee.profile.manualOpenMuteAudio', String(checked));
+    localStorage.setItem('retubematrix.profile.manualOpenMuteAudio', String(checked));
   };
 
   // Dialog State: Create / Edit
@@ -236,9 +241,10 @@ export function ProfilesPage() {
   const [metaWorking, setMetaWorking] = useState(false);
 
   // Fetch profiles
-  const fetchProfiles = useCallback(async () => {
+  const fetchProfiles = useCallback(async (opts?: { silent?: boolean }) => {
+    const silent = opts?.silent ?? false;
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError('');
       const data = await invoke<MultiBrowserProfile[]>('get_multibrowser_profiles');
       setProfiles(data || []);
@@ -246,13 +252,28 @@ export function ProfilesPage() {
       console.error('Lỗi khi tải profiles:', err);
       setError(String(err));
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     fetchProfiles();
   }, [fetchProfiles]);
+
+  // Tự động đối soát trạng thái profile ngầm mỗi 4 giây khi có profile đang chạy/mở
+  // Giúp UI tự nhảy về "Đã dừng" ngay khi tắt cửa sổ Chrome bên ngoài mà không cần bấm "Tải lại" thủ công
+  useEffect(() => {
+    const hasRunning = profiles.some(
+      (p) => p.last_run_status === 'running' || p.last_run_status === 'opening',
+    );
+    if (!hasRunning) return;
+
+    const interval = setInterval(() => {
+      fetchProfiles({ silent: true });
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [profiles, fetchProfiles]);
 
   // Extract distinct groups
   const groups = useMemo(() => {
@@ -264,7 +285,9 @@ export function ProfilesPage() {
     }
     // Also include saved custom groups
     try {
-      const raw = localStorage.getItem('youwee.profile.customGroups');
+      const raw =
+        localStorage.getItem('retubematrix.profile.customGroups') ||
+        localStorage.getItem('youwee.profile.customGroups');
       if (raw) {
         const custom = JSON.parse(raw);
         if (Array.isArray(custom)) {
@@ -403,7 +426,12 @@ export function ProfilesPage() {
     try {
       setActionLoadingId(p.id);
       setMessage(`Đang mở trình duyệt cho hồ sơ "${p.profile_name}"...`);
-      await invoke('launch_multibrowser_profile', { profileId: p.id });
+      await invoke('launch_multibrowser_profile', {
+        profileId: p.id,
+        profile_id: p.id,
+        targetUrl: 'https://www.google.com/',
+        target_url: 'https://www.google.com/',
+      });
       setTimeout(() => {
         fetchProfiles();
       }, 1500);
@@ -522,7 +550,12 @@ export function ProfilesPage() {
   const handleBulkRun = async () => {
     if (selectedIds.length === 0) return;
     for (const id of selectedIds) {
-      invoke('launch_multibrowser_profile', { profileId: id }).catch(() => {});
+      invoke('launch_multibrowser_profile', {
+        profileId: id,
+        profile_id: id,
+        targetUrl: 'https://www.google.com/',
+        target_url: 'https://www.google.com/',
+      }).catch(() => {});
     }
     setMessage(`Đang mở ${selectedIds.length} hồ sơ...`);
     setTimeout(fetchProfiles, 1500);
@@ -604,7 +637,7 @@ export function ProfilesPage() {
   // Recovery modal prompt
   const handleOpenRecovery = () => {
     setMessage(
-      'Hệ thống đang hoạt động với kho hồ sơ độc lập reupytb tại %LOCALAPPDATA%\\reupytb\\browser_engine.',
+      'Hệ thống đang hoạt động với kho hồ sơ độc lập RETubeMatrix tại %LOCALAPPDATA%\\RETubeMatrix\\browser_engine.',
     );
   };
 
@@ -657,7 +690,9 @@ export function ProfilesPage() {
           </button>
           <button
             type="button"
-            onClick={fetchProfiles}
+            onClick={() => {
+              fetchProfiles();
+            }}
             className="btn-ghost flex items-center gap-1.5 px-3 py-2 text-xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -1187,7 +1222,7 @@ export function ProfilesPage() {
               {editingProfile ? 'Chỉnh sửa hồ sơ' : 'Tạo hồ sơ trình duyệt mới'}
             </DialogTitle>
             <DialogDescription>
-              Hồ sơ lưu trữ riêng biệt trong kho dữ liệu cục bộ reupytb.
+              Hồ sơ lưu trữ riêng biệt trong kho dữ liệu cục bộ RETubeMatrix.
             </DialogDescription>
           </DialogHeader>
 
@@ -1339,11 +1374,16 @@ export function ProfilesPage() {
                 const name = newGroupName.trim();
                 if (name) {
                   try {
-                    const raw = localStorage.getItem('youwee.profile.customGroups');
+                    const raw =
+                      localStorage.getItem('retubematrix.profile.customGroups') ||
+                      localStorage.getItem('youwee.profile.customGroups');
                     const arr = raw ? JSON.parse(raw) : [];
                     if (!arr.includes(name)) {
                       arr.push(name);
-                      localStorage.setItem('youwee.profile.customGroups', JSON.stringify(arr));
+                      localStorage.setItem(
+                        'retubematrix.profile.customGroups',
+                        JSON.stringify(arr),
+                      );
                     }
                   } catch {}
                   setMessage(`Đã tạo nhóm "${name}"`);

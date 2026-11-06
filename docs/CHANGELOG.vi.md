@@ -1,11 +1,106 @@
 # Nhật ký thay đổi
 
-Tất cả thay đổi đáng chú ý của Youwee sẽ được ghi lại trong file này.
+Tất cả thay đổi đáng chú ý của RETubeMatrix sẽ được ghi lại trong file này.
 
 Định dạng dựa trên [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.20.15] - 2026-11-05
+
+### Thêm mới
+
+- **Quy trình Tự Động Hóa 100% Zero-Touch Auto-Pilot** - Triển khai luồng tự động 1-Click khép kín từ Reup Lv1 -> AI Tiêu đề (95/5 word boundary) & Mô tả 3 tầng -> Tự nạp companion thumbnail -> Upload kênh BKT (unlisted) -> Adaptive Studio Restrictions Polling (tối đa 25 lần / 10-12 phút) -> Tự động Publish sang Kênh Chính khi xác nhận `green_clean`
+- **Tự động xuất Thumbnail .jpg độc lập đi kèm video** - Bổ sung `--write-thumbnail --convert-thumbnails jpg` trong `download.rs` giúp yt-dlp luôn lưu giữ ảnh `.jpg` rời bên cạnh video để đưa vào tham số upload YouTube Studio
+- **Chu kỳ giám sát Studio thông minh (Adaptive Polling)** - Nâng cấp toàn diện cơ chế quét bản quyền hỗ trợ tối đa 25 chu kỳ (mỗi 25s, tổng 10-12 phút) bám sát các khâu xử lý thực tế của YouTube ("Processing SD/HD..." -> "Checks in progress..." -> "None / Copyright claim"), không bao giờ báo sạch ảo hay timeout quá sớm
+- **Nút 'Đưa vào Reup & Test BKT' từ Thư viện** - Thêm nút thao tác nhanh trong menu 3 chấm của video đã tải, tự động nạp video và thumbnail vào trang Reup
+- **Bảo vệ chống crash URL mạng trong Reup** - Nhận diện URL YouTube trong Reup, chặn FFmpeg crash và cung cấp nút "Tải về máy" 1-Click
+
+### Sửa lỗi
+
+- **AI Tiêu Đề 95/5 Chuẩn Tiếng Việt & Điểm CTR Động (TC-25)** - Thay thế thuật toán cắt ký tự thô bằng ngắt ranh giới từ (word boundary) an toàn cho âm tiết tiếng Việt, tích hợp kho 25+ mẫu hook qua 5 phong cách (tò mò, bí mật, khẩn cấp, giá trị, CTA), tính điểm CTR động (+15% đến +49%), xoay vòng seed và nút 1-click Áp dụng vào video BKT/Kênh Chính
+- **Cấu hình tải Phụ đề (CC) trong Clean Downloader (TC-29)** - Thêm nút CC, popover chọn chế độ (tắt/tự động/thủ công), ngôn ngữ, nhúng phụ đề và định dạng trong Downloader, chuyển tiếp vào `download_video`
+- **Chuẩn hóa tên kênh @Handle & Gradient Initials Avatar (TC-09)** - Tự động làm đẹp tên kênh từ `@Handle` và URL; tạo avatar chữ cái đầu gradient chuyên nghiệp khi kênh chưa có ảnh đại diện
+- **Đa ngôn ngữ BKT Error Keys (TC-36)** - Bổ sung đầy đủ `bktLoginRequired`, `bktTimeout`, `bktQuotaExceeded` cho 10 ngôn ngữ còn thiếu
+- **Trợ năng nút Refresh yt-dlp (TC-34)** - Thêm `aria-label` và `title` cho nút refresh trong `DependenciesSection.tsx`
+- **Khắc phục lỗi đơ click trong Tester Guide & Mở rộng 44 kịch bản** - Sửa lỗi đệ quy trong `safeStorage` của `TESTER_GUIDE_RETUBEMATRIX.html` và mở rộng bộ test case lên 44 ca
+
+## [0.20.14] - 2026-11-04
+
+### Sửa lỗi
+
+- **Tự động giới hạn chiều cao lưới sắp xếp cửa sổ (TC-06)** - Khắc phục triệt để lỗi tràn đáy màn hình khi sắp xếp profile theo lưới nhiều hàng (như preset "2 cột"). Chiều cao và chiều rộng cửa sổ được tự động co giãn (`max_h = (screen_h - (rows - 1) * gap) // rows`), đảm bảo 100% cửa sổ luôn nằm gọn trong vùng làm việc màn hình, không bị chìm xuống dưới thanh taskbar. Truyền đầy đủ tham số `columns` và `gap` từ `runner.py`
+- **Đồng bộ dữ liệu từ Săn Đề Xuất sang Reup & Test BKT (TC-17)** - Khắc phục tình trạng bấm "Test BKT" chỉ chuyển trang mà không điền thông tin video. Cả tiêu đề và URL video đề xuất đều được lưu qua `sessionStorage` và tự động điền vào Tab 1 (`inputVideoPath`) cùng Tab 2 (`uploadVideoPath` và `uploadTitle`)
+- **Xuất ảnh bìa Thumbnail Canvas và Tải file về máy (TC-26)** - Triển khai thuật toán vẽ HTML5 Canvas off-screen với đầy đủ bộ lọc biến đổi hình ảnh (độ tương phản, độ sáng, độ bão hòa, zoom dời pixel chống quét hash, tone màu). Tạo blob PNG chuẩn và tự động tải file ảnh về máy tính (`optimized_thumbnail_<timestamp>.png`)
+- **Tự động tải trước thông tin video sau 500ms debounce (TC-27)** - Tích hợp bộ đệm 500ms trong `UniversalUrlInput.tsx` tự động gọi lệnh lấy thông tin video và hiển thị thẻ xem trước `VideoPreview` (tiêu đề, ảnh bìa, thời lượng, độ phân giải) ngay khi dán link trước khi bấm Thêm
+- **Bộ cài NSIS tự động đóng tiến trình con & Nâng cấp an toàn** - Nâng cấp `template.nsi` tự động đóng sạch toàn bộ các tiến trình phụ (`RETubeMatrix.exe`, `retubematrix-yt-dlp.exe`, `browsermulti.exe`, `python.exe`, `msedgewebview2.exe`) và thực thi gỡ cài đặt ngầm yên lặng, chấm dứt hoàn toàn hiện tượng báo lỗi "Unable to uninstall!" khi cài đè
+- **Khắc phục chặn LocalStorage trên file:// trong Tester Guide** - Tích hợp lớp bọc `safeStorage` trong `TESTER_GUIDE_RETUBEMATRIX.html` tự động chuyển sang bộ nhớ đệm khi trình duyệt chặn `localStorage` dưới giao thức `file:///`, đảm bảo tất cả nút bấm, bộ lọc và ghi chú luôn hoạt động 100%
+
+## [0.20.13] - 2026-11-04
+
+### Sửa lỗi
+
+- **Sắp xếp cửa sổ thuần ctypes & Phân giải đường dẫn hồ sơ** - Xóa bỏ hoàn toàn phụ thuộc vào `win32gui` / `win32process` (`pywin32`) bằng cách triển khai thuật toán tìm cửa sổ thuần `ctypes` qua Windows API (`EnumWindows` kết hợp `OpenInputDesktop`). Tự động phân giải đường dẫn tuyệt đối `profile_data_dir`, khắc phục triệt để lỗi "Không tìm thấy cửa sổ Chromium đúng hồ sơ để sắp xếp"
+- **Xác thực và chọn kênh YouTube ưu tiên trong BKT** - Nâng cấp toàn diện `ensure_preferred_youtube_channel` với bộ chuẩn hóa linh hoạt (`_normalize_clean`), hỗ trợ so khớp chính xác cả khi handle thiếu ký tự `@`, tên kênh, URL hoặc định dạng viết hoa thường. Bổ sung cơ chế đọc trực tiếp header tài khoản đang hoạt động (`ytd-active-account-header-renderer`) giúp nhận diện tức thì ngay cả trên các tài khoản Google chỉ có duy nhất 1 kênh
+- **Loại bỏ tiến trình Zombie & Polling ngầm trạng thái Profile** - Lọc bỏ các tiến trình phụ có tham số `--type=` khỏi `chrome_pids_by_user_data_dir` để chỉ tiến trình trình duyệt gốc quyết định trạng thái hoạt động. Bổ sung bộ đếm polling ngầm 4 giây trên `ProfilesPage.tsx` giúp UI tự động đồng bộ về "Đã dừng" ngay khi tắt cửa sổ Chrome bên ngoài
+- **Hỗ trợ đa ngôn ngữ giao diện YouTube Studio** - Bổ sung selector song ngữ Anh - Việt ("Create" / "Tạo", "Upload videos" / "Tải video lên", icon upload) trong `upload_actions.py` đảm bảo thao tác tải video luôn mượt mà
+
+## [0.20.12] - 2026-11-04
+
+### Sửa lỗi
+
+- **Tự động đóng tiến trình khi cài đặt/nâng cấp NSIS** - Khắc phục triệt để hộp thoại lỗi `[!] Unable to uninstall!` khi người dùng cài đè phiên bản mới trong khi app hoặc tiến trình con đang chạy. Tích hợp lệnh đóng tự động an toàn cho `RETubeMatrix.exe`, `retubematrix-yt-dlp.exe`, và `browsermulti.exe` trong `template.nsi` trước khi thực thi bộ gỡ hoặc chép đè tệp
+- **Khắc phục lỗi khởi tạo file Tester Guide** - Xử lý dứt điểm tình trạng click không ăn trên file `TESTER_GUIDE_RETUBEMATRIX.html` bằng cách kiểm tra trạng thái `document.readyState`, đảm bảo giao diện luôn nạp mượt mà 100% khi mở trực tiếp qua giao thức `file://` hoàn toàn offline
+
+### Thêm mới
+
+- **Bộ kiểm thử toàn diện chi tiết từng nút bấm** - Mở rộng bảng kiểm thử trong `TESTER_GUIDE_RETUBEMATRIX.html` bao quát từ tổng quan đến chi tiết từng nút bấm, trường nhập liệu, thanh trượt, modal và edge-case của toàn bộ 9 phân hệ chức năng
+
+## [0.20.11] - 2026-11-04
+
+### Sửa lỗi
+
+- **Khắc phục triệt để Deadlock mở Kênh Test & Quản lý Profile** - Xóa bỏ hoàn toàn race condition khi hàm truy vấn danh sách hồ sơ `action_list_profiles` tự ý kill trình duyệt đang khởi động khi cửa sổ chưa kịp hiển thị. Chuyển đổi sang cơ chế kiểm tra an toàn theo PID (`psutil.pid_exists`) không can thiệp tiến trình
+- **Dọn dẹp cây tiến trình đệ quy** - Nâng cấp `_clean_profile_locks` để kill sạch toàn bộ cây tiến trình con (`proc.children(recursive=True)`), chấm dứt hoàn toàn tình trạng để lại các tiến trình mồ côi `BrowserMulti` treo ngầm trong Task Manager
+- **Tự động phục hồi phiên khởi chạy Chromium** - Bổ sung cơ chế tự dọn dẹp các tiến trình ngầm không có cửa sổ trong `session.start` thay vì ném lỗi `RuntimeError` gây kẹt trạng thái "Đang chạy" ảo
+- **Quét tiến trình an toàn** - Bắt ngoại lệ `psutil.AccessDenied` và `psutil.NoSuchProcess` trong `chrome_pids_by_user_data_dir` và bổ sung nhận diện tên tiến trình `browsermulti`
+- **Kế thừa dữ liệu từ cơ sở dữ liệu cũ** - Tự động đồng bộ và nạp dữ liệu các kênh test, kênh theo dõi và video từ `youwee.db` cũ sang `retubematrix.db` mới
+
+### Thêm mới
+
+- **Bảng Kiểm Thử Toàn Diện Cho Tester** - Cập nhật hoàn chỉnh `TESTER_GUIDE_RETUBEMATRIX.html` với 40 ca kiểm thử chi tiết từ bao quát đến từng nút bấm, kèm trường mục cần test (`targetElement`), nút 1-click copy dữ liệu mẫu (`samplePayload`), và cảnh báo lỗi tiềm ẩn
+
+## [0.20.10] - 2026-11-04
+
+### Thêm mới
+
+- **Kiểm định cửa sổ hiển thị thực tế** - Tích hợp hàm Win32 `has_profile_windows` (`EnumWindows`, `IsWindowVisible`) để phát hiện chính xác cửa sổ Chromium thực sự của người dùng thay vì chỉ dựa vào PID tiến trình chạy ngầm
+
+### Sửa lỗi
+
+- **Khắc phục trạng thái hồ sơ hiển thị sai "Đang chạy"** - Sửa lỗi hồ sơ vẫn báo "Đang chạy" dù người dùng đã đóng trình duyệt do các tiến trình phụ của Chromium (crashpad, utility, gpu) còn treo ngầm. Hệ thống giờ đây tự động dọn dẹp khóa (`SingletonLock`, `lockfile`, `browsermulti_session.pid`) và ngắt tiến trình zombie khi liệt kê hồ sơ, đưa về trạng thái "Đã dừng" chuẩn xác
+- **Tối ưu khởi chạy đồng thời Kênh Test và Quản lý Profile** - Ngăn chặn xung đột file khóa khi mở liên tiếp kênh test BKT và hồ sơ trình duyệt, đảm bảo Chromium mở mượt mà và tự động đưa lên trước màn hình
+
+### Thay đổi
+
+- **Đồng bộ nhận diện thương hiệu RETubeMatrix 100%** - Hoàn tất chuyển đổi tên file thực thi (`RETubeMatrix.exe`), công cụ tải (`retubematrix-yt-dlp.exe`), giao thức (`retubematrix://`), storage key và toàn bộ 13 bộ ngôn ngữ i18n
+
+
+## [0.20.9] - 2026-11-04
+
+### Thêm mới
+
+- **Quét Toàn Bộ Ngách Ngon 1-Click** - Bổ sung nút "⚡ Quét Toàn Bộ Ngách Ngon" giúp quét đồng loạt 7 cụm ngách vàng Ikigai chỉ với một thao tác
+- **Phân loại ngách bằng Filter Pills** - Thêm thanh lọc ngách trực quan trên giao diện Săn Đề Xuất giúp xem video theo từng ngách hoặc toàn bộ
+- **Động cơ mở trình duyệt hệ thống** - Bổ sung lệnh Tauri `open_external_url` gọi trực tiếp Windows ShellExecute (`rundll32 url.dll,FileProtocolHandler`), đảm bảo mọi liên kết luôn mở trên Google Chrome/Edge/Firefox của máy tính
+- **Bộ chặn liên kết toàn diện (Global Interceptor)** - Bắt mọi thao tác click link ngoài và thẻ `target="_blank"` trên toàn ứng dụng để chuyển hướng ra trình duyệt ngoài, không mở tab WebView nội bộ
+
+### Sửa lỗi
+
+- **Định dạng thời gian đăng chuẩn YouTube** - Chuyển đổi hiển thị số giờ khổng lồ (như `48940h trước`) thành thời gian tự nhiên (ngày, tuần, tháng, năm trước) kèm tooltip ngày giờ chính xác khi rê chuột
+- **Khắc phục nút "Xem" video** - Sửa toàn diện các nút "Xem" trong Săn Đề Xuất, Phân tích đối thủ và Mở Google Trends không còn bị kẹt tab nội bộ
+- **Tối ưu bộ lọc ngách trường tồn** - Nới lỏng các điều kiện lọc trong cơ sở dữ liệu SQLite và động cơ Python giúp các ngách nhạc nền vlog, thư giãn, học bài tìm kiếm ra kết quả bứt phá thực tế
 
 ## [0.20.8] - 2026-11-03
 

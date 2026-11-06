@@ -12,6 +12,8 @@ import type {
   PluginWorkflowStepSnapshot,
   PreferredFps,
   Quality,
+  SubtitleFormat,
+  SubtitleMode,
   VideoCodec,
   YtdlpAdvancedOption,
 } from '@/lib/types';
@@ -33,6 +35,10 @@ export interface UniversalSettings {
   autoRetryEnabled: boolean;
   autoRetryMaxAttempts: number;
   autoRetryDelaySeconds: number;
+  subtitleMode: SubtitleMode;
+  subtitleLangs: string[];
+  subtitleEmbed: boolean;
+  subtitleFormat: SubtitleFormat;
 }
 
 interface UniversalSnapshotOptions {
@@ -85,6 +91,10 @@ export function createDefaultUniversalSettings(
     autoRetryDelaySeconds: clampAutoRetryDelaySeconds(
       saved.autoRetryDelaySeconds || AUTO_RETRY_LIMITS.delaySeconds.default,
     ),
+    subtitleMode: saved.subtitleMode || 'off',
+    subtitleLangs: saved.subtitleLangs || ['en', 'vi'],
+    subtitleEmbed: saved.subtitleEmbed === true,
+    subtitleFormat: saved.subtitleFormat || 'srt',
   };
 }
 
@@ -107,6 +117,10 @@ export function serializeUniversalSettings(
     autoRetryEnabled: settings.autoRetryEnabled,
     autoRetryMaxAttempts: settings.autoRetryMaxAttempts,
     autoRetryDelaySeconds: settings.autoRetryDelaySeconds,
+    subtitleMode: settings.subtitleMode,
+    subtitleLangs: settings.subtitleLangs,
+    subtitleEmbed: settings.subtitleEmbed,
+    subtitleFormat: settings.subtitleFormat,
   };
 }
 

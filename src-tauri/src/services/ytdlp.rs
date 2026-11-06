@@ -15,9 +15,9 @@ use tokio::process::Command;
 const CHANNEL_CONFIG_FILE: &str = "ytdlp-channel.txt";
 const SOURCE_CONFIG_FILE: &str = "ytdlp-source.txt";
 #[cfg(windows)]
-const BUNDLED_YTDLP_BINARY_NAME: &str = "youwee-yt-dlp.exe";
+const BUNDLED_YTDLP_BINARY_NAME: &str = "retubematrix-yt-dlp.exe";
 #[cfg(not(windows))]
-const BUNDLED_YTDLP_BINARY_NAME: &str = "youwee-yt-dlp";
+const BUNDLED_YTDLP_BINARY_NAME: &str = "retubematrix-yt-dlp";
 #[cfg(windows)]
 const LEGACY_BUNDLED_YTDLP_BINARY_NAME: &str = "yt-dlp.exe";
 #[cfg(not(windows))]
@@ -194,7 +194,7 @@ fn get_bundled_ytdlp_path() -> Option<PathBuf> {
     // Check next to executable first
     if let Ok(exe_path) = std::env::current_exe() {
         if let Some(exe_dir) = exe_path.parent() {
-            for binary_name in [BUNDLED_YTDLP_BINARY_NAME, LEGACY_BUNDLED_YTDLP_BINARY_NAME] {
+            for binary_name in [BUNDLED_YTDLP_BINARY_NAME, LEGACY_BUNDLED_YTDLP_BINARY_NAME, "youwee-yt-dlp.exe", "youwee-yt-dlp"] {
                 let bundled = exe_dir.join(binary_name);
                 if bundled.exists() {
                     return Some(bundled);

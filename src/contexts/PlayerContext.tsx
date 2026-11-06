@@ -74,16 +74,23 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolumeState] = useState(() => {
-    const saved = localStorage.getItem('youwee_player_volume');
+    const saved =
+      localStorage.getItem('retubematrix_player_volume') ??
+      localStorage.getItem('youwee_player_volume');
     return saved ? parseFloat(saved) : 1;
   });
   const [playbackRate, setPlaybackRateState] = useState(() => {
-    const saved = localStorage.getItem('youwee_player_playback_rate');
+    const saved =
+      localStorage.getItem('retubematrix_player_playback_rate') ??
+      localStorage.getItem('youwee_player_playback_rate');
     const parsed = saved ? parseFloat(saved) : 1;
     return Number.isFinite(parsed) ? parsed : 1;
   });
   const [mode, setModeState] = useState<PlayMode>(() => {
-    return (localStorage.getItem('youwee_player_mode') as PlayMode) ?? 'sequence';
+    return (
+      ((localStorage.getItem('retubematrix_player_mode') ??
+        localStorage.getItem('youwee_player_mode')) as PlayMode) ?? 'sequence'
+    );
   });
 
   const getNextIndex = useCallback((current: number, total: number, m: PlayMode): number => {
@@ -309,20 +316,20 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const setVolume = useCallback((vol: number) => {
     const clamped = Math.max(0, Math.min(1, vol));
     setVolumeState(clamped);
-    localStorage.setItem('youwee_player_volume', String(clamped));
+    localStorage.setItem('retubematrix_player_volume', String(clamped));
     if (audioRef.current) audioRef.current.volume = clamped;
   }, []);
 
   const setPlaybackRate = useCallback((rate: number) => {
     const clamped = Math.max(0.5, Math.min(2, rate));
     setPlaybackRateState(clamped);
-    localStorage.setItem('youwee_player_playback_rate', String(clamped));
+    localStorage.setItem('retubematrix_player_playback_rate', String(clamped));
     if (audioRef.current) audioRef.current.playbackRate = clamped;
   }, []);
 
   const setMode = useCallback((m: PlayMode) => {
     setModeState(m);
-    localStorage.setItem('youwee_player_mode', m);
+    localStorage.setItem('retubematrix_player_mode', m);
   }, []);
 
   // Keep a ref of the latest queue/currentIndex for effects that shouldn't

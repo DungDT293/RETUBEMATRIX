@@ -98,7 +98,13 @@ pub async fn analyze_competitor_channel_cmd(
         }
     }
 
-    Ok(serde_json::json!({ "success": true, "videos": [] }))
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let err_msg = if !stderr.trim().is_empty() {
+        format!("Lỗi phân tích kênh đối thủ từ Python: {}", stderr.trim())
+    } else {
+        "Không nhận được dữ liệu phản hồi từ bộ phân tích kênh đối thủ.".to_string()
+    };
+    Ok(serde_json::json!({ "success": false, "error": err_msg, "videos": [] }))
 }
 
 #[tauri::command]

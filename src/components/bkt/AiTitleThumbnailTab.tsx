@@ -1,5 +1,5 @@
 import { Check, Copy, Download, Palette, RefreshCw, Sparkles, Type } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -15,23 +15,40 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
+import { generateAllHookTitles } from '@/utils/reup-auto-pilot';
 
-export function AiTitleThumbnailTab() {
+export interface AiTitleThumbnailTabProps {
+  activeVideoTitle?: string;
+  activeThumbnailPath?: string;
+  onApplyTitle?: (title: string) => void;
+  onApplyThumbnail?: (thumbPath: string) => void;
+  onNavigateToBkt?: () => void;
+}
+
+export function AiTitleThumbnailTab({
+  activeVideoTitle,
+  activeThumbnailPath,
+  onApplyTitle,
+  onApplyThumbnail,
+  onNavigateToBkt,
+}: AiTitleThumbnailTabProps = {}) {
   const toast = useToast();
 
   // ================= STATE TIÊU ĐỀ =================
   const [originalTitle, setOriginalTitle] = useState(
-    'Cách nấu ăn cho người ở một mình cực nhanh gọn',
+    activeVideoTitle || 'Cách nấu ăn cho người ở một mình cực nhanh gọn',
   );
-  const [hookStyle, setHookStyle] = useState<'curiosity' | 'secret' | 'urgency' | 'value'>(
-    'curiosity',
-  );
+  const [hookStyle, setHookStyle] = useState<
+    'all' | 'curiosity' | 'secret' | 'urgency' | 'value' | 'cta'
+  >('all');
+  const [refreshSeed, setRefreshSeed] = useState(0);
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
   const [copiedTitleIndex, setCopiedTitleIndex] = useState<number | null>(null);
 
   // ================= STATE THUMBNAIL =================
   const [thumbnailUrl, setThumbnailUrl] = useState(
-    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=640&auto=format&fit=crop&q=80',
+    activeThumbnailPath ||
+      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=640&auto=format&fit=crop&q=80',
   );
   const [contrastBoost, setContrastBoost] = useState(110);
   const [brightness] = useState(105);
@@ -39,54 +56,22 @@ export function AiTitleThumbnailTab() {
   const [zoomShift, setZoomShift] = useState(102);
   const [tintMode, setTintMode] = useState<'none' | 'warm' | 'cinematic' | 'vivid'>('vivid');
 
-  // Generate 95% Core + 5% Hook Variations
+  useEffect(() => {
+    if (activeVideoTitle?.trim()) {
+      setOriginalTitle(activeVideoTitle.trim());
+    }
+  }, [activeVideoTitle]);
+
+  useEffect(() => {
+    if (activeThumbnailPath?.trim()) {
+      setThumbnailUrl(activeThumbnailPath.trim());
+    }
+  }, [activeThumbnailPath]);
+
+  // Generate 95% Core + 5% Hook Variations (Word Boundary & Dynamic CTR)
   const generatedTitles = useMemo(() => {
-    const raw = originalTitle.trim();
-    if (!raw) return [];
-
-    // Tách 95% cốt lõi và thay 5% đuôi
-    const words = raw.split(/\s+/);
-    const coreSlice =
-      words.length > 3 ? words.slice(0, Math.ceil(words.length * 0.9)).join(' ') : raw;
-
-    return [
-      {
-        title: `${coreSlice} | Bất ngờ ở phút cuối!`,
-        core: coreSlice,
-        hook: '| Bất ngờ ở phút cuối!',
-        type: 'Tò mò cao độ (Curiosity Hook)',
-        score: 'CTR +38%',
-      },
-      {
-        title: `${coreSlice} — Sự thật chưa ai kể`,
-        core: coreSlice,
-        hook: '— Sự thật chưa ai kể',
-        type: 'Tiết lộ bí mật (Insight Hook)',
-        score: 'CTR +42%',
-      },
-      {
-        title: `${coreSlice} (Xem ngay kẻo lỡ!)`,
-        core: coreSlice,
-        hook: '(Xem ngay kẻo lỡ!)',
-        type: 'Thúc giục hành động (Urgency)',
-        score: 'CTR +31%',
-      },
-      {
-        title: `${coreSlice} | Đơn giản đến không ngờ 🔥`,
-        core: coreSlice,
-        hook: '| Đơn giản đến không ngờ 🔥',
-        type: 'Giá trị cao (Value Hook)',
-        score: 'CTR +45%',
-      },
-      {
-        title: `${coreSlice} 👉 Bạn nhất định phải thử!`,
-        core: coreSlice,
-        hook: '👉 Bạn nhất định phải thử!',
-        type: 'Kêu gọi tương tác (Call to Action)',
-        score: 'CTR +29%',
-      },
-    ];
-  }, [originalTitle]);
+    return generateAllHookTitles(originalTitle, hookStyle, refreshSeed);
+  }, [originalTitle, hookStyle, refreshSeed]);
 
   const handleCopyTitle = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
@@ -98,12 +83,95 @@ export function AiTitleThumbnailTab() {
     setTimeout(() => setCopiedTitleIndex(null), 2000);
   };
 
-  const handleDownloadOptimizedThumbnail = () => {
-    toast.success({
-      title: 'Đã xuất ảnh bìa tối ưu AI',
-      message:
-        'Ảnh đã được điều chỉnh sắc độ, dời pixel nhẹ để vượt thuật toán quét ảnh trùng lặp.',
-    });
+  const handleDownloadOptimizedThumbnail = async () => {
+    try {
+      if (!thumbnailUrl) {
+        toast.error({
+          title: 'Lỗi xuất ảnh bìa',
+          message: 'Chưa có URL ảnh bìa để xử lý.',
+        });
+        return;
+      }
+
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      // Load image promise
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => {
+          // If direct load fails (e.g. CORS), try fetching as blob
+          fetch(thumbnailUrl)
+            .then((r) => r.blob())
+            .then((blob) => {
+              const objUrl = URL.createObjectURL(blob);
+              img.onload = () => {
+                URL.revokeObjectURL(objUrl);
+                resolve();
+              };
+              img.onerror = () => reject(new Error('Không tải được ảnh từ URL đã cho'));
+              img.src = objUrl;
+            })
+            .catch(() => reject(new Error('Không tải được ảnh từ URL đã cho')));
+        };
+        img.src = thumbnailUrl;
+      });
+
+      const canvas = document.createElement('canvas');
+      const targetW = img.naturalWidth || 1280;
+      const targetH = img.naturalHeight || 720;
+      canvas.width = targetW;
+      canvas.height = targetH;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Không khởi tạo được bộ vẽ Canvas 2D');
+      }
+
+      let filterStr = `contrast(${contrastBoost}%) brightness(${brightness}%) saturate(${saturation}%)`;
+      if (tintMode === 'warm') filterStr += ' sepia(15%)';
+      else if (tintMode === 'cinematic') filterStr += ' hue-rotate(5deg)';
+      else if (tintMode === 'vivid') filterStr += ' saturate(130%)';
+
+      ctx.filter = filterStr;
+
+      const scale = zoomShift / 100;
+      const drawW = targetW * scale;
+      const drawH = targetH * scale;
+      const dx = (targetW - drawW) / 2;
+      const dy = (targetH - drawH) / 2;
+
+      ctx.drawImage(img, dx, dy, drawW, drawH);
+
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          toast.error({
+            title: 'Lỗi xuất ảnh',
+            message: 'Không thể tạo file ảnh từ canvas.',
+          });
+          return;
+        }
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `optimized_thumbnail_${Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+
+        toast.success({
+          title: 'Đã tải về ảnh bìa tối ưu AI!',
+          message:
+            'File ảnh PNG đã được lưu vào máy với bộ lọc chống quét trùng lặp MD5 & Visual AI.',
+        });
+      }, 'image/png');
+    } catch (err) {
+      toast.error({
+        title: 'Lỗi xuất ảnh bìa',
+        message: String(err),
+      });
+    }
   };
 
   return (
@@ -162,14 +230,17 @@ export function AiTitleThumbnailTab() {
                 </Label>
                 <Select
                   value={hookStyle}
-                  onValueChange={(val: 'curiosity' | 'secret' | 'urgency' | 'value') =>
-                    setHookStyle(val)
-                  }
+                  onValueChange={(
+                    val: 'all' | 'curiosity' | 'secret' | 'urgency' | 'value' | 'cta',
+                  ) => setHookStyle(val)}
                 >
                   <SelectTrigger className="h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="all" className="text-xs">
+                      Tổng hợp tất cả
+                    </SelectItem>
                     <SelectItem value="curiosity" className="text-xs">
                       Tò mò cao độ
                     </SelectItem>
@@ -182,6 +253,9 @@ export function AiTitleThumbnailTab() {
                     <SelectItem value="value" className="text-xs">
                       Giá trị vượt trội
                     </SelectItem>
+                    <SelectItem value="cta" className="text-xs">
+                      Kêu gọi hành động
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -192,13 +266,14 @@ export function AiTitleThumbnailTab() {
                   variant="outline"
                   onClick={() => {
                     setIsGeneratingTitle(true);
+                    setRefreshSeed((s) => s + 1);
                     setTimeout(() => {
                       setIsGeneratingTitle(false);
                       toast.success({
                         title: 'Đã tạo xong các biến thể tiêu đề!',
                         message: '5 gợi ý tiêu đề tối ưu theo quy chuẩn 95%-5% đã sẵn sàng.',
                       });
-                    }, 400);
+                    }, 300);
                   }}
                   className="w-full h-8 text-xs gap-1.5 border-purple-500/40 text-purple-400 hover:bg-purple-500/10"
                 >
@@ -239,24 +314,42 @@ export function AiTitleThumbnailTab() {
                     <span className="text-[10px] text-muted-foreground">
                       95% cốt lõi + 5% hook đuôi
                     </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleCopyTitle(item.title, index)}
-                      className="h-6 px-2 text-[10px] gap-1 text-primary hover:text-primary"
-                    >
-                      {copiedTitleIndex === index ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-400" />
-                          <span className="text-emerald-400 font-bold">Đã chép</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3" />
-                          <span>Sao chép</span>
-                        </>
+                    <div className="flex items-center gap-1.5">
+                      {onApplyTitle && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            onApplyTitle(item.title);
+                            if (onNavigateToBkt) {
+                              onNavigateToBkt();
+                            }
+                          }}
+                          className="h-6 px-2 text-[10px] gap-1 text-primary border-primary/30 hover:bg-primary/10"
+                        >
+                          <Sparkles className="w-3 h-3 text-primary" />
+                          <span>Áp dụng</span>
+                        </Button>
                       )}
-                    </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleCopyTitle(item.title, index)}
+                        className="h-6 px-2 text-[10px] gap-1 text-muted-foreground hover:text-foreground"
+                      >
+                        {copiedTitleIndex === index ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-400" />
+                            <span className="text-emerald-400 font-bold">Đã chép</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>Sao chép</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -393,7 +486,7 @@ export function AiTitleThumbnailTab() {
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 space-y-2">
               <Button
                 onClick={handleDownloadOptimizedThumbnail}
                 className="w-full text-xs gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium"
@@ -401,6 +494,23 @@ export function AiTitleThumbnailTab() {
                 <Download className="w-3.5 h-3.5" />
                 <span>Xuất Thumbnail Tối Ưu (Sạch Bản Quyền Ảnh)</span>
               </Button>
+              {onApplyThumbnail && (
+                <Button
+                  onClick={() => {
+                    if (thumbnailUrl) {
+                      onApplyThumbnail(thumbnailUrl);
+                      if (onNavigateToBkt) {
+                        onNavigateToBkt();
+                      }
+                    }
+                  }}
+                  variant="outline"
+                  className="w-full text-xs gap-2 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-medium"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Gán Thumbnail Này Vào Kênh BKT & Kênh Chính</span>
+                </Button>
+              )}
             </div>
           </div>
         </Card>

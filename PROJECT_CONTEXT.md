@@ -9,7 +9,7 @@
 ## 1. TỔNG QUAN DỰ ÁN & MỤC ĐÍCH
 
 - **Tên ứng dụng**: **RETubeMatrix** (Tên mã kỹ thuật: `reupytb`, Tên gói: `youwee`)
-- **Phiên bản hiện tại**: `v0.20.6` (Phát hành: 2026-11-03)
+- **Phiên bản hiện tại**: `v0.20.11` (Phát hành: 2026-11-03)
 - **Mục đích**: Nền tảng Desktop All-in-One chuyên nghiệp dành cho việc săn đón video đề xuất ngách (Outlier Hunter theo mô hình Ikigai), tải video sạch đa luồng, theo dõi tự động kênh đối thủ (đối chiếu 1-1 không nhầm lẫn kênh), xử lý lách bản quyền đa cấp độ (Reup Pipeline Lv.1 & Lv.2 đổi Checksum MD5/SHA256, Dynamic Audio Resampling, xóa sạch EXIF gốc), kiểm tra bản quyền trực tiếp với YouTube Studio qua Kênh Test BKT độc lập (Quota 15 video/24h, Traffic Light Xanh/Vàng/Đỏ), AI tối ưu Tiêu đề (Quy tắc 95%-5%) & Thumbnail (bảo toàn 95% nhân vật/chữ), quản lý hồ sơ trình duyệt Anti-Detect độc lập (MultiBrowser Cloak Chromium 155), chẩn đoán lỗi chuyên biệt 6 file log và hệ sinh thái Plugin mở rộng (`.ywp`).
 
 - **Công nghệ cốt lõi (Tech Stack)**:
@@ -728,34 +728,37 @@ flowchart TD
      2. `bun run tsc -b` (Kiểm tra kiểu dữ liệu TypeScript)
      3. `cargo check` (Chạy trong thư mục `src-tauri/` để kiểm tra Rust backend)
 
-
 ---
 
-## 6. MA TRẬN 9 CHỨC NĂNG CỐT LÕI CỦA RETUBEMATRIX (v0.20.6)
+## 6. MA TRẬN 9 CHỨC NĂNG CỐT LÕI CỦA RETUBEMATRIX (v0.20.11)
 
 Hệ thống được chuẩn hóa toàn diện theo 9 phân hệ chức năng tương ứng trực tiếp với bộ kiểm thử nghiệm thu:
 
 ### 6.1. Chức năng 1: Tổng Quan Hệ Thống (Dashboard)
+
 - **Thống kê 6 thẻ KPI**: Tổng hồ sơ, Sẵn sàng chạy, Đang chạy, Lỗi hôm nay, Thời gian hôm nay, Trạng thái hệ thống.
 - **Bảng đối chiếu 1-1**: Kênh đối thủ ↔ Kênh hệ thống (Profile đích), hiển thị số video cào được, số video đã tải, số video đã test BKT và từ khóa lọc.
 - **Cảnh báo chống nhầm kênh**: Tự động nhận diện và gắn cảnh báo màu hổ phách `⚠️ Chưa gán (Dễ nhầm lẫn)` kèm nút "Gán ngay →" để ngăn chặn triệt để việc lấy video kênh đối thủ này mà đăng nhầm sang kênh khác.
 - **Tính toàn vẹn dữ liệu**: Số lượng từ khóa và kênh đối chiếu trùng khớp 100% với cơ sở dữ liệu SQLite.
 
 ### 6.2. Chức năng 2: Quản Lý Profile (MultiBrowser Anti-detect)
+
 - Khởi chạy trình duyệt Chromium 155 cô lập hoàn toàn với User Data Dir riêng biệt.
 - Che giấu và giả lập vân tay trình duyệt độc lập (Canvas, WebGL, AudioContext, User-Agent, Client Rects, WebRTC).
 - Giữ nguyên vẹn 100% phiên đăng nhập Google/YouTube Studio và Cookie bền vững sau khi đóng/mở.
 - Định tuyến Proxy độc lập trên từng hồ sơ (HTTP/SOCKS5), chống xung đột IP giữa các tài khoản nuôi.
 
 ### 6.3. Chức năng 3: Theo Dõi Kênh & Phân Tích Video
+
 - **Sắp xếp đa chiều**: Mới nhất, Phổ biến nhất (Viral), Cũ nhất, Thời lượng dài/ngắn, Tiêu đề A-Z.
 - **Bộ lọc thời gian**: Tất cả, 3 ngày qua, 7 ngày qua theo trường `upload_date`.
 - **Bộ chọn nhanh số lượng**: Nút chọn Top 5, Top 10, Top 20 video đang hiển thị.
 - **Tác vụ hàng loạt**:
-  - Nút *Tải video sạch (N)*: Đẩy hàng loạt video đã chọn vào hàng đợi tải xuống.
-  - Nút *Test BKT (N)*: Điều phối hàng loạt video sang Kênh Test Bản Quyền để thử nghiệm Content ID.
+  - Nút _Tải video sạch (N)_: Đẩy hàng loạt video đã chọn vào hàng đợi tải xuống.
+  - Nút _Test BKT (N)_: Điều phối hàng loạt video sang Kênh Test Bản Quyền để thử nghiệm Content ID.
 
 ### 6.4. Chức năng 4: Reup & Test Bản Quyền (Copyright Shield)
+
 - **Mặc định xóa sạch metadata gốc**: Toàn bộ video tải về đều áp dụng `--no-add-metadata` và `-map_metadata -1`, xóa sạch EXIF, uploader title, tags và comments gốc.
 - **Reup Pipeline Lv.1**: Đổi mã băm container MD5/SHA256 và Dynamic Resampling âm thanh theo tần số gốc của file `{sr}` (`asetrate={sr}*pitch,aresample={sr},atempo={speed/pitch}`), triệt tiêu hoàn toàn hiện tượng lệch tiếng/hình.
 - **Hệ thống nhãn rủi ro Traffic Light**:
@@ -767,24 +770,28 @@ Hệ thống được chuẩn hóa toàn diện theo 9 phân hệ chức năng t
   - Quota nghiêm ngặt: 15 video / 24 giờ. Khi kênh hết quota, tự động khóa đăng và luân chuyển sang kênh test khác còn lượt.
 
 ### 6.5. Chức năng 5: Săn Đề Xuất (Outlier Hunter & Mô hình Ikigai)
+
 - **Ứng dụng mô hình Ikigai Nhật Bản**: Phân tích ngách tại giao điểm 3 trụ cột: (1) Nhu cầu người xem, (2) Khả năng làm lâu dài, (3) Tiềm năng kiếm tiền (CPM/Affiliate).
 - **4 công cụ kiểm tra ngách tích hợp**:
-  1. *YouTube Alphabet Autosuggest (a, b, c...)*: Đào từ khóa đuôi dài ít cạnh tranh.
-  2. *Google Trends YouTube Search 12 tháng*: Mở trực tiếp link phân tích xu hướng tìm kiếm YouTube 12 tháng.
-  3. *Chỉ số Content Gap*: Phát hiện chủ đề người xem tìm kiếm nhiều nhưng thiếu hụt video chất lượng.
-  4. *VPH & Đo vận tốc đối thủ*: Đo lượng view mỗi giờ ($VPH = views / hours\_published$), gán nhãn Đang bứt tốc / Đang giảm nhiệt.
+  1. _YouTube Alphabet Autosuggest (a, b, c...)_: Đào từ khóa đuôi dài ít cạnh tranh.
+  2. _Google Trends YouTube Search 12 tháng_: Mở trực tiếp link phân tích xu hướng tìm kiếm YouTube 12 tháng.
+  3. _Chỉ số Content Gap_: Phát hiện chủ đề người xem tìm kiếm nhiều nhưng thiếu hụt video chất lượng.
+  4. _VPH & Đo vận tốc đối thủ_: Đo lượng view mỗi giờ ($VPH = views / hours\_published$), gán nhãn Đang bứt tốc / Đang giảm nhiệt.
 
 ### 6.6. Chức năng 6: AI Tối Ưu Tiêu Đề & Thumbnail
+
 - **Tiêu đề (Quy tắc 95% - 5%)**: Giữ nguyên 95% ngữ cảnh & từ khóa SEO chính, chỉ biến đổi 5% hook cuối (kích thích tò mò, kịch tính) để tăng CTR mà không mất từ khóa tìm kiếm.
 - **Thumbnail**: Giữ nguyên vẹn 95% chữ và nhân vật gốc, tinh chỉnh nhẹ contrast (+4%), zoom 102%, dời pixel nhẹ để đổi mã băm ảnh mà không làm biến dạng nội dung.
 - **Lựa chọn Backend AI**: Hỗ trợ linh hoạt Local Stable Diffusion, AI Horde và Pillow Server.
 - **So sánh trực quan**: Hiển thị ảnh gốc vs ảnh tối ưu cạnh nhau kèm mã hash SHA256 trước khi xuất.
 
 ### 6.7. Chức năng 7: Tải Video Sạch URL
+
 - Tải đơn qua liên kết URL từ YouTube và 1800+ nền tảng độ phân giải cao (1080p, 2K, 4K).
 - Tải toàn bộ Playlist đa luồng song song mà không làm đơ lag giao diện.
 
 ### 6.8. Chức năng 8: Nhật Ký & Kiểm Tra Lỗi (Diagnostics)
+
 - **Thông báo lỗi tiếng Việt có dấu**: Kèm hộp gợi ý (Tip) hướng dẫn khắc phục cụ thể cho từng loại lỗi.
 - **Xuất file log chuẩn tên**: `retubematrix-logs-YYYY-MM-DD.json`.
 - **Phân tách 6 file log riêng biệt**:
@@ -796,6 +803,7 @@ Hệ thống được chuẩn hóa toàn diện theo 9 phân hệ chức năng t
   - `ai.log`: Tạo tiêu đề AI 95%-5%, xử lý thumbnail, Whisper transcription.
 
 ### 6.9. Chức năng 9: Cài Đặt & Rebranding
+
 - Đồng bộ thương hiệu **RETubeMatrix** trên toàn bộ thanh tiêu đề, menu điều hướng và trang Giới thiệu.
 - Loại bỏ triệt để các UI và liên kết ngoài của Youwee cũ (ProductHunt badge, BuyMeACoffee, subreddit cũ). Thay bằng Core Engines Architecture Card.
 - Bảo toàn 100% các phân hệ kỹ thuật: Cài đặt chung, Mạng & Proxy, Tải xuống, Quản lý phụ thuộc (FFmpeg, yt-dlp, Deno, Chromium).

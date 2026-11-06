@@ -284,7 +284,7 @@ export const SEARCHABLE_SETTINGS: SearchableSetting[] = [
     id: 'extension-download',
     labelKey: 'extension.title',
     descriptionKey: 'extension.description',
-    keywords: ['extension', 'browser', 'chromium', 'firefox', 'deep-link', 'youwee://'],
+    keywords: ['extension', 'browser', 'chromium', 'firefox', 'deep-link', 'retubematrix://'],
     section: 'extension',
   },
   {
@@ -418,7 +418,7 @@ export const SEARCHABLE_SETTINGS: SearchableSetting[] = [
     id: 'app-version',
     labelKey: 'about.website',
     descriptionKey: 'about.docs',
-    keywords: ['website', 'docs', 'documentation', 'guide', 'help', 'youwee.app'],
+    keywords: ['website', 'docs', 'documentation', 'guide', 'help', 'retubematrix'],
     section: 'about',
   },
 

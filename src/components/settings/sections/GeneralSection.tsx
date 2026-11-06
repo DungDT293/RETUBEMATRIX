@@ -40,8 +40,8 @@ import { cn } from '@/lib/utils';
 import { SettingsCard, SettingsDivider, SettingsRow, SettingsSection } from '../SettingsSection';
 
 const isMacOS = navigator.platform.includes('Mac');
-const LANGUAGE_REQUEST_DISCUSSION_URL = 'https://github.com/vanloctech/youwee/discussions/18';
-const CLI_GUIDE_URL = 'https://github.com/vanloctech/youwee/blob/develop/docs/CLI.md';
+const LANGUAGE_REQUEST_DISCUSSION_URL = 'https://github.com/DungDT293/RETUBEMATRIX';
+const CLI_GUIDE_URL = 'https://github.com/DungDT293/RETUBEMATRIX';
 
 interface CliShortcutStatus {
   platform: 'macos' | 'windows' | 'linux' | 'unknown';
@@ -85,12 +85,15 @@ export function GeneralSection({ highlightId }: GeneralSectionProps) {
     useState<LibraryDeleteFileBehavior>(() => loadLibraryDeleteFileBehavior());
 
   const [hideDockOnClose, setHideDockOnClose] = useState(() => {
-    return localStorage.getItem('youwee_hide_dock_on_close') === 'true';
+    return (
+      (localStorage.getItem('retubematrix_hide_dock_on_close') ??
+        localStorage.getItem('youwee_hide_dock_on_close')) === 'true'
+    );
   });
 
   const handleToggleHideDock = useCallback((checked: boolean) => {
     setHideDockOnClose(checked);
-    localStorage.setItem('youwee_hide_dock_on_close', String(checked));
+    localStorage.setItem('retubematrix_hide_dock_on_close', String(checked));
     invoke('set_hide_dock_on_close', { hide: checked }).catch(() => {});
   }, []);
 
@@ -550,7 +553,7 @@ export function GeneralSection({ highlightId }: GeneralSectionProps) {
 
               <div className="rounded-lg border border-border/60 bg-background/70 px-3 py-2">
                 <code className="block truncate font-mono text-xs text-muted-foreground">
-                  youwee &lt;url&gt; --quality 720 --skip-live
+                  retubematrix &lt;url&gt; --quality 720 --skip-live
                 </code>
               </div>
 

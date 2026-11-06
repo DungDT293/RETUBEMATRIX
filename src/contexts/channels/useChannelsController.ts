@@ -339,7 +339,8 @@ export function useChannelsController(): ChannelsContextType {
   // Output folder
   const [outputPath, setOutputPath] = useState(() => {
     try {
-      const saved = localStorage.getItem('youwee-settings');
+      const saved =
+        localStorage.getItem('retubematrix-settings') || localStorage.getItem('youwee-settings');
       if (saved) return JSON.parse(saved).outputPath || '';
     } catch {
       /* ignore */
@@ -377,12 +378,14 @@ export function useChannelsController(): ChannelsContextType {
 
       if (folder) {
         setOutputPath(folder);
-        // Save to youwee-settings in localStorage
+        // Save to retubematrix-settings in localStorage
         try {
-          const saved = localStorage.getItem('youwee-settings');
+          const saved =
+            localStorage.getItem('retubematrix-settings') ||
+            localStorage.getItem('youwee-settings');
           const settings = saved ? JSON.parse(saved) : {};
           settings.outputPath = folder;
-          localStorage.setItem('youwee-settings', JSON.stringify(settings));
+          localStorage.setItem('retubematrix-settings', JSON.stringify(settings));
         } catch {
           /* ignore */
         }
@@ -866,7 +869,8 @@ export function useChannelsController(): ChannelsContextType {
       let sponsorBlockArgs = { remove: null as string | null, mark: null as string | null };
 
       try {
-        const saved = localStorage.getItem('youwee-settings');
+        const saved =
+          localStorage.getItem('retubematrix-settings') || localStorage.getItem('youwee-settings');
         if (saved) {
           const parsed = JSON.parse(saved) as Partial<DownloadSettings>;
           currentOutputPath = currentOutputPath || parsed.outputPath || '';
@@ -898,7 +902,9 @@ export function useChannelsController(): ChannelsContextType {
           }
           sponsorBlockArgs = buildSponsorBlockArgs(parsed);
         }
-        logStderr = localStorage.getItem('youwee_log_stderr') !== 'false';
+        logStderr =
+          (localStorage.getItem('retubematrix_log_stderr') ??
+            localStorage.getItem('youwee_log_stderr')) !== 'false';
       } catch (_e) {
         /* ignore */
       }
@@ -1350,7 +1356,9 @@ export function useChannelsController(): ChannelsContextType {
         let filenameMetadataFields: DownloadSettings['filenameMetadataFields'] = [];
 
         try {
-          const saved = localStorage.getItem('youwee-settings');
+          const saved =
+            localStorage.getItem('retubematrix-settings') ||
+            localStorage.getItem('youwee-settings');
           if (saved) {
             const parsed = JSON.parse(saved) as Partial<DownloadSettings>;
             autoOutputPath = parsed.outputPath || '';
@@ -1364,7 +1372,9 @@ export function useChannelsController(): ChannelsContextType {
             filenameMetadataEnabled = parsed.filenameMetadataEnabled === true;
             filenameMetadataFields = sanitizeFilenameMetadataFields(parsed.filenameMetadataFields);
           }
-          logStderr = localStorage.getItem('youwee_log_stderr') !== 'false';
+          logStderr =
+            (localStorage.getItem('retubematrix_log_stderr') ??
+              localStorage.getItem('youwee_log_stderr')) !== 'false';
         } catch (_e) {
           /* ignore */
         }

@@ -940,10 +940,40 @@ class CloakSession:
             ) from exc
         if saved_pid_live or live_pids:
             active_pids = sorted(set(live_pids) | ({saved_pid} if saved_pid_live and saved_pid is not None else set()))
-            raise RuntimeError(
-                "Hồ sơ đang mở trong Chromium; hãy đóng trước khi chạy automation "
-                f"(PID: {', '.join(str(pid) for pid in active_pids)})."
-            )
+            has_win = False
+            try:
+                from core.window_arranger import has_profile_windows
+                has_win = has_profile_windows(user_data_dir, active_pids)
+            except Exception:
+                has_win = False
+
+            if has_win:
+                raise RuntimeError(
+                    "Hồ sơ đang mở trong Chromium; hãy đóng trước khi chạy automation "
+                    f"(PID: {', '.join(str(pid) for pid in active_pids)})."
+                )
+            else:
+                logger.info(
+                    "Phát hiện tiến trình Chromium treo ngầm không có cửa sổ (PIDs: %s). Đang tự động dọn dẹp để khởi động lại sạch sẽ.",
+                    active_pids,
+                )
+                try:
+                    import psutil
+                    for pid in active_pids:
+                        try:
+                            if psutil.pid_exists(pid):
+                                p = psutil.Process(pid)
+                                for child in p.children(recursive=True):
+                                    try:
+                                        child.kill()
+                                    except Exception:
+                                        pass
+                                p.kill()
+                        except Exception:
+                            pass
+                    time.sleep(0.5)
+                except Exception:
+                    pass
 
         # Chỉ xóa marker/locks stale khi process scan xác nhận không có owner.
         _remove_profile_runtime_markers(user_data_dir)

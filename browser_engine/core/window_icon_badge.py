@@ -79,6 +79,27 @@ def apply_browser_icon_badge_for_user_data_dir(user_data_dir: Any, number: Any) 
 
 
 def _set_window_icons(chrome_windows: list[int], icon_path: Path) -> list[int]:
+    if hasattr(ctypes, "windll"):
+        try:
+            user32 = ctypes.windll.user32
+            IMAGE_ICON = 1
+            LR_LOADFROMFILE = 0x0010
+            LR_DEFAULTSIZE = 0x0040
+            WM_SETICON = 0x0080
+            ICON_SMALL = 0
+            ICON_BIG = 1
+            big_icon = user32.LoadImageW(0, str(icon_path), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE)
+            small_icon = user32.LoadImageW(0, str(icon_path), IMAGE_ICON, 16, 16, LR_LOADFROMFILE)
+            applied: list[int] = []
+            for target_hwnd in chrome_windows:
+                user32.SendMessageW(target_hwnd, WM_SETICON, ICON_BIG, big_icon)
+                user32.SendMessageW(target_hwnd, WM_SETICON, ICON_SMALL, small_icon)
+                applied.append(int(target_hwnd))
+            if applied:
+                return applied
+        except Exception as exc:
+            logger.debug("ctypes _set_window_icons error: %s", exc)
+
     try:
         import win32con  # type: ignore[import-not-found]
         import win32gui  # type: ignore[import-not-found]
@@ -94,7 +115,7 @@ def _set_window_icons(chrome_windows: list[int], icon_path: Path) -> list[int]:
         win32con.LR_LOADFROMFILE | win32con.LR_DEFAULTSIZE,
     )
     small_icon = win32gui.LoadImage(0, str(icon_path), win32con.IMAGE_ICON, 16, 16, win32con.LR_LOADFROMFILE)
-    applied: list[int] = []
+    applied = []
     for target_hwnd in chrome_windows:
         win32gui.SendMessage(target_hwnd, win32con.WM_SETICON, win32con.ICON_BIG, big_icon)
         win32gui.SendMessage(target_hwnd, win32con.WM_SETICON, win32con.ICON_SMALL, small_icon)
@@ -228,12 +249,15 @@ def chrome_pids_by_user_data_dir() -> dict[str, list[int]]:
                 name = (proc.info.get("name") or "").lower()
             except Exception:
                 continue
-            if "chrome" not in name and "chromium" not in name:
+            if "chrome" not in name and "chromium" not in name and "browsermulti" not in name:
                 continue
             if proc.info.get("status") == getattr(psutil, "STATUS_ZOMBIE", "zombie"):
                 continue
             try:
                 cmdline = proc.info.get("cmdline") or []
+                # Only root browser processes (not child renderer/gpu/crashpad processes) define whether the profile is truly running
+                if any(arg.startswith("--type=") for arg in cmdline):
+                    continue
                 data_dir = _user_data_dir_from_cmdline(cmdline)
                 if not data_dir:
                     continue
@@ -242,14 +266,12 @@ def chrome_pids_by_user_data_dir() -> dict[str, list[int]]:
                 except Exception:
                     norm = os.path.normcase(data_dir)
                 result.setdefault(norm, []).append(int(proc.info["pid"]))
-            except Exception as exc:
-                raise ChromiumProcessInspectionError(
-                    "Cannot inspect a Chromium process command line"
-                ) from exc
-    except ChromiumProcessInspectionError:
-        raise
+            except (psutil.AccessDenied, psutil.NoSuchProcess):
+                continue
+            except Exception:
+                continue
     except Exception as exc:
-        raise ChromiumProcessInspectionError("Cannot enumerate Chromium processes") from exc
+        logger.debug("Cannot enumerate Chromium processes: %s", exc)
     return result
 
 
@@ -274,12 +296,34 @@ def batch_chromium_process_cache():
 def chrome_pids_for_user_data_dir(user_data_dir: str) -> list[int]:
     """Return exact profile PIDs; raise when process state is unknown."""
     try:
-        target = os.path.normcase(os.path.abspath(user_data_dir))
+        from core.paths import profile_data_dir
+        resolved = profile_data_dir(user_data_dir)
+        target = os.path.normcase(os.path.abspath(str(resolved)))
     except Exception:
-        target = os.path.normcase(user_data_dir)
+        try:
+            target = os.path.normcase(os.path.abspath(user_data_dir))
+        except Exception:
+            target = os.path.normcase(user_data_dir)
+
+    target_base = os.path.basename(target)
+
     if _PROCESS_CACHE is not None:
-        return _PROCESS_CACHE.get(target, [])
-    return chrome_pids_by_user_data_dir().get(target, [])
+        pids = _PROCESS_CACHE.get(target, [])
+        if pids:
+            return pids
+        for k, v in _PROCESS_CACHE.items():
+            if os.path.basename(k) == target_base:
+                return v
+        return []
+
+    pids_map = chrome_pids_by_user_data_dir()
+    pids = pids_map.get(target, [])
+    if pids:
+        return pids
+    for k, v in pids_map.items():
+        if os.path.basename(k) == target_base:
+            return v
+    return []
 
 
 
@@ -402,13 +446,56 @@ def _user_data_dir_from_cmdline(cmdline: list[str]) -> str | None:
 
 
 def _chrome_windows_for_pid(pid: int) -> list[int]:
+    """Find Chromium top-level windows for a PID using ctypes (works without pywin32) with fallback."""
+    if hasattr(ctypes, "windll"):
+        try:
+            user32 = ctypes.windll.user32
+            windows: list[int] = []
+            seen: set[int] = set()
+            enum_proc_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+            def enum_proc(hwnd: int, _lparam: int) -> bool:
+                if hwnd in seen:
+                    return True
+                if not user32.IsWindowVisible(hwnd):
+                    return True
+                buf = ctypes.create_unicode_buffer(256)
+                user32.GetClassNameW(hwnd, buf, 256)
+                if buf.value != "Chrome_WidgetWin_1":
+                    return True
+                proc_id = wintypes.DWORD()
+                user32.GetWindowThreadProcessId(hwnd, ctypes.byref(proc_id))
+                if proc_id.value == int(pid):
+                    seen.add(hwnd)
+                    windows.append(int(hwnd))
+                return True
+
+            cb = enum_proc_type(enum_proc)
+            user32.EnumWindows(cb, 0)
+
+            # Also check OpenInputDesktop / Default desktop
+            try:
+                access = 0x0040 | 0x0001  # DESKTOP_ENUMERATE | DESKTOP_READOBJECTS
+                hdesk = user32.OpenInputDesktop(0, False, access)
+                if not hdesk:
+                    hdesk = user32.OpenDesktopW("Default", 0, False, access)
+                if hdesk:
+                    user32.EnumDesktopWindows(hdesk, cb, 0)
+                    user32.CloseDesktop(hdesk)
+            except Exception:
+                pass
+
+            return windows
+        except Exception as exc:
+            logger.debug("ctypes window enum failed: %s", exc)
+
     try:
         import win32gui  # type: ignore[import-not-found]
         import win32process  # type: ignore[import-not-found]
     except Exception:
         return []
 
-    windows: list[int] = []
+    windows = []
 
     def callback(hwnd: int, _extra: Any) -> bool:
         if not win32gui.IsWindowVisible(hwnd):
@@ -429,24 +516,38 @@ def restore_browser_windows_for_user_data_dir(user_data_dir: Any) -> list[int]:
     if os.name != "nt":
         return []
     try:
-        import win32con  # type: ignore[import-not-found]
-        import win32gui  # type: ignore[import-not-found]
-    except Exception:
-        return []
-    try:
         pids = chrome_pids_for_user_data_dir(str(user_data_dir))
     except ChromiumProcessInspectionError:
         return []
 
     restored: list[int] = []
-    for pid in pids:
-        for hwnd in _chrome_windows_for_pid(pid):
-            try:
-                if win32gui.IsIconic(hwnd):
-                    win32gui.ShowWindow(hwnd, win32con.SW_SHOWNOACTIVATE)
-                    restored.append(int(hwnd))
-            except Exception:
-                logger.debug("Cannot restore Chromium window %s", hwnd, exc_info=True)
+
+    if hasattr(ctypes, "windll"):
+        user32 = ctypes.windll.user32
+        SW_SHOWNOACTIVATE = 4
+        for pid in pids:
+            for hwnd in _chrome_windows_for_pid(pid):
+                try:
+                    if user32.IsIconic(hwnd):
+                        user32.ShowWindow(hwnd, SW_SHOWNOACTIVATE)
+                        restored.append(int(hwnd))
+                except Exception:
+                    logger.debug("Cannot restore Chromium window %s", hwnd, exc_info=True)
+        return restored
+
+    try:
+        import win32con  # type: ignore[import-not-found]
+        import win32gui  # type: ignore[import-not-found]
+        for pid in pids:
+            for hwnd in _chrome_windows_for_pid(pid):
+                try:
+                    if win32gui.IsIconic(hwnd):
+                        win32gui.ShowWindow(hwnd, win32con.SW_SHOWNOACTIVATE)
+                        restored.append(int(hwnd))
+                except Exception:
+                    logger.debug("Cannot restore Chromium window %s", hwnd, exc_info=True)
+    except Exception:
+        pass
     return restored
 
 

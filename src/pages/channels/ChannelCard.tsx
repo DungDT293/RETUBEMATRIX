@@ -7,7 +7,6 @@ import {
   RefreshCw,
   SlidersHorizontal,
   Trash2,
-  Tv,
   Video,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -77,7 +76,12 @@ export function ChannelCard({
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <Tv className="w-6 h-6 text-primary" />
+                <div className="w-full h-full bg-gradient-to-br from-primary/30 via-purple-500/20 to-blue-500/30 flex items-center justify-center font-bold text-xs text-primary uppercase select-none">
+                  {channel.name
+                    .trim()
+                    .slice(0, 2)
+                    .replace(/[^a-zA-Z0-9]/g, '') || 'YT'}
+                </div>
               )}
             </div>
             <div className="min-w-0">

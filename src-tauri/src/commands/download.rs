@@ -1602,11 +1602,13 @@ pub async fn download_video(
         args.push("--no-add-metadata".to_string());
         args.push("--no-embed-info-json".to_string());
     }
+    // Luôn ghi file thumbnail độc lập chất lượng cao (.jpg) cùng thư mục và cùng tên với video để phục vụ Reup / Đăng kênh
+    args.push("--write-thumbnail".to_string());
+    args.push("--convert-thumbnails".to_string());
+    args.push("jpg".to_string());
+
     if embed_thumbnail.unwrap_or(false) {
         args.push("--embed-thumbnail".to_string());
-        // Convert thumbnail to jpg for better compatibility with MP4 container
-        args.push("--convert-thumbnails".to_string());
-        args.push("jpg".to_string());
     } else {
         args.push("--no-embed-thumbnail".to_string());
     }

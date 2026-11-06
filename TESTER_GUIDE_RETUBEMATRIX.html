@@ -91,10 +91,10 @@
           <div class="flex items-center gap-2">
             <h1 class="font-extrabold text-slate-900 dark:text-white text-lg tracking-tight">RETubeMatrix QA Suite</h1>
             <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-              v0.20.6 Pro
+              v0.20.14+ Auto-Pilot 100%
             </span>
           </div>
-          <p class="text-sm text-slate-500 dark:text-slate-400">Kiểm thử nghiệm thu trực quan 9 chức năng cốt lõi và 3 ca hotfix</p>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Kiểm thử nghiệm thu trực quan 9 chức năng cốt lõi, Tự Động Hóa 100% và các bản vá QA</p>
         </div>
       </div>
 
@@ -102,7 +102,7 @@
       <div class="flex items-center gap-2.5 text-sm font-mono">
         <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <span class="text-slate-500 dark:text-slate-400">Tổng:</span>
-          <b id="kpiTotal" class="text-slate-900 dark:text-white font-bold">39</b>
+          <b id="kpiTotal" class="text-slate-900 dark:text-white font-bold">53</b>
         </div>
         <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300">
           <span>Đạt:</span>
@@ -114,7 +114,7 @@
         </div>
         <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300">
           <span>Chưa test:</span>
-          <b id="kpiPending" class="font-bold">39</b>
+          <b id="kpiPending" class="font-bold">53</b>
         </div>
       </div>
 
@@ -129,7 +129,7 @@
             1 Việc Duy Nhất
           </button>
           <button type="button" onclick="setViewMode('all')" id="btnViewAll" class="px-3.5 py-1.5 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
-            Tất Cả (39)
+            Tất Cả (53)
           </button>
         </div>
 
@@ -154,6 +154,18 @@
     </div>
   </header>
 
+      <!-- THÔNG BÁO HƯỚNG DẪN MỞ OFFLINE & NÂNG CẤP BỘ CÀI -->
+      <div class="mb-6 p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 shadow-sm space-y-2">
+        <div class="flex items-center gap-2 font-bold text-base text-amber-800 dark:text-amber-300">
+          <span>💡</span> Hướng Dẫn Sử Dụng &amp; Cài Đặt Bản Mới RETubeMatrix v0.20.15
+        </div>
+        <ul class="text-sm space-y-1 list-disc list-inside leading-relaxed text-slate-700 dark:text-slate-300">
+          <li><b>Mở file Tester này:</b> Double click trực tiếp vào file <code>TESTER_GUIDE_RETUBEMATRIX.html</code> trong Windows Explorer (giao thức <code>file:///</code>). <b>Hoàn toàn offline, không cần chạy localhost.</b></li>
+          <li><b>Cài đặt bản mới v0.20.15:</b> Chạy file bộ cài <code>RETubeMatrix_0.20.15_x64-setup.exe</code>. Nếu bộ cài báo <i>"Already Installed"</i>, bạn chọn <b>"Uninstall before installing"</b> hoặc <b>"Do not uninstall"</b> đều được. Bộ cài đã tích hợp lệnh tự động đóng tiến trình chạy ngầm trước khi cài/gỡ, đảm bảo không bao giờ bị lỗi <i>"Unable to uninstall!"</i>.</li>
+        </ul>
+      </div>
+
+
   <!-- ================= MAIN LAYOUT ================= -->
   <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-6">
 
@@ -165,7 +177,7 @@
             TIÊU ĐIỂM ƯU TIÊN
           </span>
           <span class="text-sm font-bold text-emerald-800 dark:text-emerald-300">
-            3 lỗi vừa khắc phục triệt để từ Báo Cáo BKT v0.20.5
+            3 lỗi vừa khắc phục triệt để từ Báo Cáo BKT v0.20.11
           </span>
         </div>
         <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -217,7 +229,7 @@
         <button type="button" onclick="selectModule('mod1')" id="tabMod1" class="mod-tab p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-left hover:border-emerald-500 transition-all flex flex-col justify-between tab-active">
           <div class="flex items-center justify-between">
             <span class="font-extrabold">1. Tổng Quan</span>
-            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod1">0/4</span>
+            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod1">0/5</span>
           </div>
           <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Đối chiếu 1-1, Cảnh báo chưa gán</span>
         </button>
@@ -225,7 +237,7 @@
         <button type="button" onclick="selectModule('mod2')" id="tabMod2" class="mod-tab p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-left hover:border-emerald-500 transition-all flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="font-extrabold">2. Profile</span>
-            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod2">0/3</span>
+            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod2">0/10</span>
           </div>
           <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Anti-detect, Cookie, Proxy</span>
         </button>
@@ -235,55 +247,55 @@
             <span class="font-extrabold">3. Kênh &amp; Video</span>
             <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod3">0/5</span>
           </div>
-          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Lọc 3d/7d, Top N, Test BKT</span>
+          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Lọc 3d/7d, Top N, @Handle avatar</span>
         </button>
 
         <button type="button" onclick="selectModule('mod4')" id="tabMod4" class="mod-tab p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-left hover:border-emerald-500 transition-all flex flex-col justify-between">
           <div class="flex items-center justify-between">
-            <span class="font-extrabold">4. Reup &amp; BKT</span>
-            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod4">0/9</span>
+            <span class="font-extrabold">4. Săn Đề Xuất</span>
+            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod4">0/4</span>
           </div>
-          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Traffic Light, Quota 15</span>
+          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Outlier Hunter, Hook 30s, Đối thủ</span>
         </button>
 
         <button type="button" onclick="selectModule('mod5')" id="tabMod5" class="mod-tab p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-left hover:border-emerald-500 transition-all flex flex-col justify-between">
           <div class="flex items-center justify-between">
-            <span class="font-extrabold">5. Săn Đề Xuất</span>
-            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod5">0/5</span>
+            <span class="font-extrabold">5. Reup &amp; BKT</span>
+            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod5">0/12</span>
           </div>
-          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Ikigai, A-Z Suggest, VPH</span>
+          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Auto-Pilot 100%, 95/5 Title, Thumb .jpg</span>
         </button>
 
         <button type="button" onclick="selectModule('mod6')" id="tabMod6" class="mod-tab p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-left hover:border-emerald-500 transition-all flex flex-col justify-between">
           <div class="flex items-center justify-between">
-            <span class="font-extrabold">6. AI Tiêu Đề</span>
-            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod6">0/4</span>
+            <span class="font-extrabold">6. Thư Viện</span>
+            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod6">0/3</span>
           </div>
-          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Quy tắc 95%-5%, Thumb</span>
+          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Player nội bộ, Cắt ghép, Đưa vào Reup</span>
         </button>
 
         <button type="button" onclick="selectModule('mod7')" id="tabMod7" class="mod-tab p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-left hover:border-emerald-500 transition-all flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="font-extrabold">7. Tải Sạch</span>
-            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod7">0/2</span>
+            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod7">0/4</span>
           </div>
-          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">URL Đơn &amp; Playlist</span>
+          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">URL Đơn &amp; Playlist, Phụ đề CC</span>
         </button>
 
         <button type="button" onclick="selectModule('mod8')" id="tabMod8" class="mod-tab p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-left hover:border-emerald-500 transition-all flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="font-extrabold">8. Nhật Ký Log</span>
-            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod8">0/4</span>
+            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod8">0/3</span>
           </div>
-          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">6 File log, Tips tiếng Việt</span>
+          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Bộ lọc Level, Tips tiếng Việt</span>
         </button>
 
         <button type="button" onclick="selectModule('mod9')" id="tabMod9" class="mod-tab p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-left hover:border-emerald-500 transition-all flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="font-extrabold">9. Cài Đặt</span>
-            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod9">0/3</span>
+            <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold" id="badgeMod9">0/4</span>
           </div>
-          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Cấu hình hệ thống chuẩn</span>
+          <span class="text-slate-500 dark:text-slate-400 text-xs mt-1.5">Trợ năng, Binary, AI API</span>
         </button>
       </div>
     </div>
@@ -302,699 +314,1095 @@
 
   <!-- ================= TEST CASES DATA & JAVASCRIPT ================= -->
   <script>
-    // 39 TEST CASES SPECIFICATION (KHÔNG CHỨA ICON/EMOJI)
-    const QA_TEST_CASES = [
-      // --- HOTFIX / TIÊU ĐIỂM FIX ---
-      {
-        id: "tc-4-7",
-        code: "TC-18A",
-        module: "mod4",
-        isHotfix: true,
-        categoryName: "Chức Năng 4: Reup & BKT",
-        title: "Khắc phục triệt để Deadlock: Thêm Kênh Test thứ 2 & Sửa thông tin không bị treo ứng dụng",
-        steps: [
-          "Mở trang 'Reup & BKT' -> bấm sang Tab '3. Kênh Test Bản Quyền'.",
-          "Bấm nút '+ Thêm Kênh Test', nhập tên 'Kênh Test Beta', chọn một Profile khả dụng trong danh sách, đặt hạn ngạch 15 -> Bấm nút 'Lưu Kênh'.",
-          "Thử tiếp: Bấm nút 'Sửa' trên một kênh test đã có sẵn, thay đổi ghi chú hoặc độ ưu tiên -> Bấm 'Lưu Kênh'."
-        ],
-        expectedPass: [
-          "Hộp thoại Lưu đóng tức thì, danh sách kênh cập nhật ngay lập tức.",
-          "Hoàn toàn KHÔNG bị loading quay tròn vô tận, KHÔNG bị đơ hay báo 'Not Responding' trên thanh tiêu đề ứng dụng."
-        ],
-        expectedFailNotice: "Bị đơ cửa sổ, nút Lưu bị mờ mãi không đóng, hoặc SQLite báo lỗi database lock.",
-        noteHint: "Điền kết quả phản hồi khi lưu kênh test thứ 2..."
+    // SAFE STORAGE WRAPPER (CHONG CRASH KHI MO TREN FILE:/// PROTOCOL HOAC LOCALSTORAGE BI KHOA)
+    const _memStore = {};
+    const safeStorage = {
+      getItem: function(key) {
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            const val = window.localStorage.getItem(key);
+            if (val !== null && val !== undefined) return val;
+          }
+          return _memStore[key] || null;
+        } catch (e) {
+          return _memStore[key] || null;
+        }
       },
-      {
-        id: "tc-4-8",
-        code: "TC-18B",
-        module: "mod4",
-        isHotfix: true,
-        categoryName: "Chức Năng 4: Reup & BKT",
-        title: "Xác thực Profile ID thực tế: Chặn liên kết với Profile giả / không tồn tại",
-        steps: [
-          "Mở form 'Thêm Kênh Test Bản Quyền'.",
-          "Kiểm tra dropdown Hồ sơ xem có nạp đúng các Profile thật từ trang 'Quản lý Profile' hay không.",
-          "Thử gán hoặc truyền một Profile ID không có thật (ví dụ: QA-FAKE-PROFILE-99)."
-        ],
-        expectedPass: [
-          "Ứng dụng chặn lưu và hiển thị thông báo lỗi tiếng Việt rõ ràng: 'Hồ sơ trình duyệt không tồn tại. Vui lòng chọn Profile hợp lệ'.",
-          "Không phát sinh bản ghi mồ côi trong cơ sở dữ liệu."
-        ],
-        expectedFailNotice: "Vẫn cho lưu Profile giả hoặc báo lỗi tiếng Anh mơ hồ.",
-        noteHint: "Điền phản hồi khi nhập profile ID không tồn tại..."
-      },
-      {
-        id: "tc-4-9",
-        code: "TC-18C",
-        module: "mod4",
-        isHotfix: true,
-        categoryName: "Chức Năng 4: Reup & BKT",
-        title: "Xử lý phiên Studio chưa đăng nhập: Không tự đóng Chromium đột ngột, hiện cảnh báo tiếng Việt",
-        steps: [
-          "Chọn một Profile trình duyệt chưa đăng nhập tài khoản Google/YouTube.",
-          "Thực hiện quét BKT hoặc chạy test bản quyền với Profile này.",
-          "Quan sát hành vi của cửa sổ Chromium và phản hồi trên phần mềm."
-        ],
-        expectedPass: [
-          "Bot tự động phát hiện redirect sang trang đăng nhập Google (accounts.google.com).",
-          "Phần mềm hiển thị thông báo hướng dẫn tiếng Việt: 'Hồ sơ chưa đăng nhập YouTube Studio. Vui lòng vào Quản lý Profile mở trình duyệt và đăng nhập trước'.",
-          "Tuyệt đối KHÔNG tự đóng Chromium đột ngột sau 10s timeout và KHÔNG báo trạng thái xanh/sạch giả mạo."
-        ],
-        expectedFailNotice: "Cửa sổ Chromium tự sụp đổ sau 10s mà không có thông báo, hoặc hệ thống báo Sạch Bản Quyền trong khi chưa kiểm tra.",
-        noteHint: "Điền phản hồi khi chạy BKT với profile chưa login..."
-      },
-
-      // --- CHỨC NĂNG 1: TỔNG QUAN HỆ THỐNG ---
-      {
-        id: "tc-1-1",
-        code: "TC-01",
-        module: "mod1",
-        isHotfix: false,
-        categoryName: "Chức Năng 1: Tổng Quan Hệ Thống",
-        title: "Hiển thị đầy đủ số liệu 6 thẻ KPI trên Dashboard",
-        steps: [
-          "Khởi động ứng dụng RETubeMatrix, mở trang 'Tổng quan' (Dashboard).",
-          "Kiểm tra dãy 6 thẻ thống kê trên cùng màn hình."
-        ],
-        expectedPass: [
-          "Hiển thị đủ 6 thẻ: Tổng hồ sơ, Sẵn sàng chạy, Đang chạy, Lỗi hôm nay, Thời gian hôm nay, Trạng thái hệ thống.",
-          "Các con số hiển thị đúng thực tế dữ liệu của máy."
-        ],
-        expectedFailNotice: "Bị thiếu thẻ, số liệu hiển thị NaN hoặc undefined.",
-        noteHint: ""
-      },
-      {
-        id: "tc-1-2",
-        code: "TC-02",
-        module: "mod1",
-        isHotfix: false,
-        categoryName: "Chức Năng 1: Tổng Quan Hệ Thống",
-        title: "Bảng đối chiếu 1-1 liệt kê đầy đủ Kênh đối thủ <-> Kênh hệ thống",
-        steps: [
-          "Thêm ít nhất 1-2 kênh đối thủ tại trang 'Theo dõi kênh'.",
-          "Quay lại trang 'Tổng quan' và cuộn xuống bảng đối chiếu 1-1."
-        ],
-        expectedPass: [
-          "Mỗi hàng hiển thị rõ: Kênh đối thủ (Tên, URL, avatar), Kênh đích hệ thống (Hồ sơ gắn kèm), Số video cào được, Trạng thái rủi ro Traffic Light, Từ khóa lọc.",
-          "Trực quan hóa quan hệ 1-1 giúp người dùng không nhầm lẫn nguồn và đích."
-        ],
-        expectedFailNotice: "Bảng trống rỗng, không hiện kênh đối thủ hoặc thiếu cột thông tin.",
-        noteHint: ""
-      },
-      {
-        id: "tc-1-3",
-        code: "TC-03",
-        module: "mod1",
-        isHotfix: false,
-        categoryName: "Chức Năng 1: Tổng Quan Hệ Thống",
-        title: "Nhận diện và gắn cảnh báo màu hổ phách: [Chưa gán - Dễ nhầm lẫn]",
-        steps: [
-          "Thêm một kênh đối thủ mới nhưng không chọn profile đích (để trống).",
-          "Kiểm tra cột Hồ sơ / Kênh đích trên bảng đối chiếu 1-1 tại Dashboard."
-        ],
-        expectedPass: [
-          "Hiển thị nhãn cảnh báo màu vàng hổ phách nổi bật: '[Chưa gán - Dễ nhầm lẫn]'.",
-          "Có nút 'Gán ngay ->' bấm vào chuyển ngay sang màn hình Kênh để cấu hình."
-        ],
-        expectedFailNotice: "Không có cảnh báo, để trống không nhắc nhở người dùng.",
-        noteHint: ""
-      },
-      {
-        id: "tc-1-4",
-        code: "TC-04",
-        module: "mod1",
-        isHotfix: false,
-        categoryName: "Chức Năng 1: Tổng Quan Hệ Thống",
-        title: "Đảm bảo tính trùng khớp và liên kết dữ liệu giữa Kênh và Từ khóa",
-        steps: [
-          "Cấu hình từ khóa lọc cho kênh đối thủ (vd: 'review phim, tóm tắt').",
-          "Kiểm tra cột 'Từ khóa đối chiếu' và số video cào được trên bảng Dashboard."
-        ],
-        expectedPass: [
-          "Từ khóa hiển thị chính xác theo từng kênh.",
-          "Số lượng video cào được đối chiếu khớp 100% với dữ liệu SQLite thực tế."
-        ],
-        expectedFailNotice: "Từ khóa kênh này nhảy sang kênh khác, số đếm video bị sai lệch.",
-        noteHint: ""
-      },
-
-      // --- CHỨC NĂNG 2: QUẢN LÝ PROFILE ---
-      {
-        id: "tc-2-1",
-        code: "TC-05",
-        module: "mod2",
-        isHotfix: false,
-        categoryName: "Chức Năng 2: Quản Lý Profile",
-        title: "Khởi chạy trình duyệt Chromium cô lập độc lập (Anti-detect)",
-        steps: [
-          "Vào trang 'Quản lý Profile' -> bấm nút 'Mở' (biểu tượng Chromium) trên một profile.",
-          "Kiểm tra môi trường trình duyệt mở ra."
-        ],
-        expectedPass: [
-          "Chromium khởi chạy với thư mục dữ liệu (User Data Dir) riêng biệt, độc lập hoàn toàn với Chrome máy chính.",
-          "Vân tay trình duyệt (User-Agent, Canvas, WebGL, WebRTC) được áp dụng đúng cấu hình."
-        ],
-        expectedFailNotice: "Không mở được trình duyệt, hoặc mở chung profile với trình duyệt hệ thống.",
-        noteHint: ""
-      },
-      {
-        id: "tc-2-2",
-        code: "TC-06",
-        module: "mod2",
-        isHotfix: false,
-        categoryName: "Chức Năng 2: Quản Lý Profile",
-        title: "Kiểm tra giữ phiên đăng nhập Google và Cookie sau khi đóng/mở",
-        steps: [
-          "Mở profile, đăng nhập vào YouTube hoặc tài khoản Google Studio.",
-          "Đóng cửa sổ Chromium lại, sau đó bấm nút 'Mở' lại lần thứ hai."
-        ],
-        expectedPass: [
-          "Trình duyệt mở lại vẫn giữ nguyên 100% phiên đăng nhập (avatar Google hiển thị sẵn, không bị văng ra trang login).",
-          "Cookie và localStorage được lưu bền vững."
-        ],
-        expectedFailNotice: "Mở lại bị bắt đăng nhập lại từ đầu, mất cookie.",
-        noteHint: ""
-      },
-      {
-        id: "tc-2-3",
-        code: "TC-07",
-        module: "mod2",
-        isHotfix: false,
-        categoryName: "Chức Năng 2: Quản Lý Profile",
-        title: "Kiểm tra định tuyến Proxy độc lập trên từng hồ sơ",
-        steps: [
-          "Gán Proxy cho Profile A, Profile B để IP mạng nhà.",
-          "Mở cả 2 profile và truy cập trang kiểm tra IP (như api.ipify.org hoặc whoer.net)."
-        ],
-        expectedPass: [
-          "Profile A ra đúng IP của proxy đã cấu hình.",
-          "Profile B ra đúng IP mạng gia đình. Hoàn toàn không dính chùm IP giữa các profile."
-        ],
-        expectedFailNotice: "Proxy không ăn hoặc làm sập cả hai profile.",
-        noteHint: ""
-      },
-
-      // --- CHỨC NĂNG 3: THEO DÕI KÊNH & PHÂN TÍCH VIDEO ---
-      {
-        id: "tc-3-1",
-        code: "TC-08",
-        module: "mod3",
-        isHotfix: false,
-        categoryName: "Chức Năng 3: Theo Dõi Kênh & Phân Tích",
-        title: "Sắp xếp video đa chiều (Mới nhất, Phổ biến, Cũ nhất, Thời lượng, A-Z)",
-        steps: [
-          "Mở xem danh sách video của một kênh đối thủ đang theo dõi.",
-          "Bấm dropdown 'Sắp xếp' và lần lượt chọn: Mới nhất -> Phổ biến nhất (Viral) -> Cũ nhất -> Thời lượng."
-        ],
-        expectedPass: [
-          "Danh sách video tự động sắp xếp lại chuẩn xác theo đúng tiêu chí đã chọn.",
-          "Không có độ trễ lớn, không bị trùng lặp video."
-        ],
-        expectedFailNotice: "Chọn sắp xếp nhưng thứ tự video không đổi hoặc bị crash giao diện.",
-        noteHint: ""
-      },
-      {
-        id: "tc-3-2",
-        code: "TC-09",
-        module: "mod3",
-        isHotfix: false,
-        categoryName: "Chức Năng 3: Theo Dõi Kênh & Phân Tích",
-        title: "Bộ lọc thời gian linh hoạt (Tất cả, 3 ngày qua, 7 ngày qua)",
-        steps: [
-          "Nhấp chọn các tab thời gian: 'Tất cả' -> '3 ngày qua' -> '7 ngày qua'."
-        ],
-        expectedPass: [
-          "Chỉ lọc và hiển thị các video được xuất bản trong khoảng thời gian đã chọn dựa theo ngày đăng (upload_date)."
-        ],
-        expectedFailNotice: "Tab 3 ngày nhưng vẫn hiện video từ 1 tháng trước.",
-        noteHint: ""
-      },
-      {
-        id: "tc-3-3",
-        code: "TC-10",
-        module: "mod3",
-        isHotfix: false,
-        categoryName: "Chức Năng 3: Theo Dõi Kênh & Phân Tích",
-        title: "Bộ chọn nhanh số lượng video (Top 5, Top 10, Top 20)",
-        steps: [
-          "Bấm nhanh nút 'Top 5' -> sau đó thử bấm 'Top 10'."
-        ],
-        expectedPass: [
-          "Tự động tích chọn đúng số lượng 5 hoặc 10 video đầu tiên trong danh sách đang hiển thị.",
-          "Cập nhật số đếm trên các nút tác vụ (ví dụ: 'Tải video sạch (5)')."
-        ],
-        expectedFailNotice: "Bấm nút không thấy video nào được tích chọn.",
-        noteHint: ""
-      },
-      {
-        id: "tc-3-4",
-        code: "TC-11",
-        module: "mod3",
-        isHotfix: false,
-        categoryName: "Chức Năng 3: Theo Dõi Kênh & Phân Tích",
-        title: "Tải video sạch hàng loạt từ danh sách đã chọn",
-        steps: [
-          "Chọn 2 video từ danh sách đối thủ -> bấm nút 'Tải video sạch (2)'."
-        ],
-        expectedPass: [
-          "Các video được đẩy vào hàng đợi tải xuống.",
-          "Tự động áp dụng subfolder kênh và tiến hành tải về máy với thanh % tiến trình."
-        ],
-        expectedFailNotice: "Bấm nút không phản hồi hoặc báo lỗi không tải được.",
-        noteHint: ""
-      },
-      {
-        id: "tc-3-5",
-        code: "TC-12",
-        module: "mod3",
-        isHotfix: false,
-        categoryName: "Chức Năng 3: Theo Dõi Kênh & Phân Tích",
-        title: "Nút 'Test BKT (N)' điều phối hàng loạt sang Kênh Test Bản Quyền",
-        steps: [
-          "Tích chọn 2 video đã có file trên máy -> bấm nút 'Test BKT (2)'."
-        ],
-        expectedPass: [
-          "Hệ thống kiểm tra quota các kênh test BKT khả dụng.",
-          "Tự động nạp video vào hàng đợi BKT và hiển thị thông báo đã gửi video sang quy trình test."
-        ],
-        expectedFailNotice: "Bấm nút báo lỗi hoặc không chuyển tiếp được sang quy trình BKT.",
-        noteHint: ""
-      },
-
-      // --- CHỨC NĂNG 4: REUP & TEST BẢN QUYỀN ---
-      {
-        id: "tc-4-1",
-        code: "TC-13",
-        module: "mod4",
-        isHotfix: false,
-        categoryName: "Chức Năng 4: Reup & BKT",
-        title: "Mặc định xóa sạch toàn bộ metadata file gốc khi tải video về máy",
-        steps: [
-          "Tải một video YouTube bất kỳ qua ứng dụng.",
-          "Mở file MP4 đã tải về máy, click chuột phải chọn Properties -> Details (hoặc dùng ffprobe kiểm tra)."
-        ],
-        expectedPass: [
-          "Toàn bộ EXIF, uploader title, tags, comments gốc đều bị xóa sạch (áp dụng cờ --no-add-metadata và bitexact).",
-          "File hoàn toàn sạch thông tin định danh của người đăng gốc."
-        ],
-        expectedFailNotice: "Trong Properties của file vẫn còn nguyên tên kênh hoặc URL của video YouTube gốc.",
-        noteHint: ""
-      },
-      {
-        id: "tc-4-2",
-        code: "TC-14",
-        module: "mod4",
-        isHotfix: false,
-        categoryName: "Chức Năng 4: Reup & BKT",
-        title: "Reup Pipeline Lv.1: Đổi mã băm MD5/SHA256 & Dynamic Resampling",
-        steps: [
-          "Mở Tab '1. Xử Lý Reup Pipeline' -> chọn một video và bấm chạy Cấp độ 1.",
-          "Kiểm tra file xuất ra."
-        ],
-        expectedPass: [
-          "Mã băm MD5/SHA256 thay đổi 100% so với file ban đầu.",
-          "Âm thanh được dynamic resample theo đúng tần số gốc của file {sr}, triệt tiêu hoàn toàn hiện tượng lệch tiếng lệch hình."
-        ],
-        expectedFailNotice: "Mã hash không đổi, hoặc âm thanh bị kéo dài/ngắn hơn hình (lệch sync).",
-        noteHint: ""
-      },
-      {
-        id: "tc-4-3",
-        code: "TC-15",
-        module: "mod4",
-        isHotfix: false,
-        categoryName: "Chức Năng 4: Reup & BKT",
-        title: "Tự động đăng Unlisted lên kênh test để Studio quét Content ID ngầm",
-        steps: [
-          "Chạy tác vụ Test BKT cho một video.",
-          "Quan sát video được tải lên Studio trên kênh test."
-        ],
-        expectedPass: [
-          "Video được đăng ở chế độ 'Không Công Khai' (Unlisted).",
-          "Chuyển trạng thái sang Checking và đợi YouTube Studio quét bản quyền Content ID ngầm."
-        ],
-        expectedFailNotice: "Video bị đăng sang chế độ Công khai (Public) hoặc đăng nhầm vào Profile chính.",
-        noteHint: ""
-      },
-      {
-        id: "tc-4-4",
-        code: "TC-16",
-        module: "mod4",
-        isHotfix: false,
-        categoryName: "Chức Năng 4: Reup & BKT",
-        title: "Kiểm tra Quota nghiêm ngặt 15 video/24h và tự động luân chuyển kênh",
-        steps: [
-          "Kiểm tra card kênh test BKT hiển thị hạn ngạch sử dụng trong 24h (ví dụ 0/15).",
-          "Khi một kênh đã dùng đủ 15 video, thử gửi thêm video thứ 16."
-        ],
-        expectedPass: [
-          "Kênh hết quota tự động bị khóa đăng, hệ thống tự động luân chuyển video sang kênh test BKT khác còn hạn ngạch.",
-          "Không cố tình đăng vượt hạn ngạch 15 video/ngày."
-        ],
-        expectedFailNotice: "Cho đăng vô hạn vượt 15 video hoặc báo lỗi sập thay vì luân chuyển sang kênh khác.",
-        noteHint: ""
-      },
-      {
-        id: "tc-4-5",
-        code: "TC-17",
-        module: "mod4",
-        isHotfix: false,
-        categoryName: "Chức Năng 4: Reup & BKT",
-        title: "Thuật toán Traffic Light: 2 video liên tiếp dính bản quyền -> Khóa nhãn ĐỎ",
-        steps: [
-          "Giả lập hoặc quét kênh đối thủ có 2 video mới liên tiếp dính bản quyền Content ID."
-        ],
-        expectedPass: [
-          "Kênh đối thủ lập tức bị chuyển sang nhãn Đỏ (Red - Blacklist).",
-          "Hệ thống tự động tắt auto_download = 0 để bảo vệ kênh, khóa quét và tải video từ kênh này."
-        ],
-        expectedFailNotice: "2 video dính bản quyền nhưng kênh vẫn giữ màu xanh hoặc màu vàng, vẫn tiếp tục tự động tải.",
-        noteHint: ""
-      },
-      {
-        id: "tc-4-6",
-        code: "TC-18",
-        module: "mod4",
-        isHotfix: false,
-        categoryName: "Chức Năng 4: Reup & BKT",
-        title: "Tính độc lập 100% của Kênh Test BKT với Quản Lý Profile",
-        steps: [
-          "Thao tác thêm, sửa, xóa các kênh trong Tab 'Kênh Test Bản Quyền'.",
-          "Mở trang 'Quản lý Profile' xem các hồ sơ nuôi chính."
-        ],
-        expectedPass: [
-          "Các profile dùng để nuôi hoặc đăng kênh chính hoàn toàn giữ nguyên vẹn 100%.",
-          "Dữ liệu kênh test chỉ phục vụ quy trình thử nghiệm bản quyền, không trộn lẫn với profile nuôi."
-        ],
-        expectedFailNotice: "Dữ liệu kênh test bị lẫn lộn hoặc làm xóa mất profile nuôi chính.",
-        noteHint: ""
-      },
-
-      // --- CHỨC NĂNG 5: SĂN ĐỀ XUẤT (IKIGAI) ---
-      {
-        id: "tc-5-1",
-        code: "TC-19",
-        module: "mod5",
-        isHotfix: false,
-        categoryName: "Chức Năng 5: Săn Đề Xuất (Ikigai)",
-        title: "Hiển thị khung phân tích ngách theo mô hình Ikigai Nhật Bản",
-        steps: [
-          "Vào trang 'Săn Đề Xuất' (Outlier Hunter).",
-          "Kiểm tra khung 'Đào Mỏ Vàng Từ Khóa & Phân Tích Ngách Ikigai'."
-        ],
-        expectedPass: [
-          "Hiển thị rõ 3 trụ cột Ikigai: (1) Nhu cầu người xem, (2) Khả năng làm lâu dài, (3) Tiềm năng kiếm tiền (CPM/Affiliate).",
-          "Có tóm tắt gợi ý ngách phù hợp theo tiêu chuẩn."
-        ],
-        expectedFailNotice: "Không thấy khung Ikigai hoặc thiếu 1 trong 3 trụ cột.",
-        noteHint: ""
-      },
-      {
-        id: "tc-5-2",
-        code: "TC-20",
-        module: "mod5",
-        isHotfix: false,
-        categoryName: "Chức Năng 5: Săn Đề Xuất (Ikigai)",
-        title: "Công cụ 1: YouTube Alphabet Autosuggest (a, b, c...)",
-        steps: [
-          "Nhập một từ khóa gốc (vd: 'nấu ăn') -> bấm nút '1. Alphabet Suggest' hoặc các pill 'a', 'b', 'c'."
-        ],
-        expectedPass: [
-          "Hệ thống tự động đào các từ khóa đuôi dài ít cạnh tranh từ thanh tìm kiếm gợi ý của YouTube."
-        ],
-        expectedFailNotice: "Bấm nút không ra gợi ý nào hoặc báo lỗi kết nối.",
-        noteHint: ""
-      },
-      {
-        id: "tc-5-3",
-        code: "TC-21",
-        module: "mod5",
-        isHotfix: false,
-        categoryName: "Chức Năng 5: Săn Đề Xuất (Ikigai)",
-        title: "Công cụ 2: Mở nhanh Google Trends YouTube Search 12 tháng",
-        steps: [
-          "Bấm nút '2. Google Trends' bên cạnh ô từ khóa."
-        ],
-        expectedPass: [
-          "Tự động mở trình duyệt đến Google Trends với phạm vi tìm kiếm lọc sẵn theo YouTube Search trong 12 tháng qua."
-        ],
-        expectedFailNotice: "Không mở được trình duyệt hoặc mở sai trang web.",
-        noteHint: ""
-      },
-      {
-        id: "tc-5-4",
-        code: "TC-22",
-        module: "mod5",
-        isHotfix: false,
-        categoryName: "Chức Năng 5: Săn Đề Xuất (Ikigai)",
-        title: "Công cụ 3: Phân tích chỉ số Content Gap (Cơ hội ngách thiếu video)",
-        steps: [
-          "Xem các thẻ video săn được trong bảng phát hiện outlier."
-        ],
-        expectedPass: [
-          "Hiển thị huy hiệu Content Gap và Demand Signal cho các chủ đề có lượng tìm kiếm cao nhưng ít video cạnh tranh."
-        ],
-        expectedFailNotice: "Không có chỉ số phân tích cơ hội.",
-        noteHint: ""
-      },
-      {
-        id: "tc-5-5",
-        code: "TC-23",
-        module: "mod5",
-        isHotfix: false,
-        categoryName: "Chức Năng 5: Săn Đề Xuất (Ikigai)",
-        title: "Công cụ 4: Đo vận tốc tăng trưởng view VPH (Views Per Hour)",
-        steps: [
-          "Kiểm tra cột 'Vận Tốc (VPH)' trên danh sách video outlier."
-        ],
-        expectedPass: [
-          "Tính toán chính xác số lượt xem mỗi giờ (VPH = views / hours_published), gán nhãn Đang bứt tốc / Đang giảm nhiệt."
-        ],
-        expectedFailNotice: "VPH bị tính sai (ví dụ chia cho 0 hoặc NaN).",
-        noteHint: ""
-      },
-
-      // --- CHỨC NĂNG 6: AI TIÊU ĐỀ & THUMBNAIL ---
-      {
-        id: "tc-6-1",
-        code: "TC-24",
-        module: "mod6",
-        isHotfix: false,
-        categoryName: "Chức Năng 6: AI Tiêu Đề & Thumbnail",
-        title: "Tối ưu tiêu đề theo Quy tắc 95% - 5%",
-        steps: [
-          "Mở Tab '4. AI Tiêu Đề & Thumb' tại trang Reup & BKT.",
-          "Dán tiêu đề đối thủ (ví dụ: 'Cách làm bánh mì tại nhà thơm ngon') -> bấm 'Tạo Tiêu Đề AI'."
-        ],
-        expectedPass: [
-          "Giữ nguyên 95% từ khóa và ngữ cảnh gốc, chỉ biến đổi 5% hook cuối (kích thích tò mò) để tăng CTR mà không mất từ khóa SEO."
-        ],
-        expectedFailNotice: "Đổi sạch toàn bộ tiêu đề làm mất từ khóa gốc hoặc giữ nguyên 100% không đổi gì.",
-        noteHint: ""
-      },
-      {
-        id: "tc-6-2",
-        code: "TC-25",
-        module: "mod6",
-        isHotfix: false,
-        categoryName: "Chức Năng 6: AI Tiêu Đề & Thumbnail",
-        title: "Tối ưu Thumbnail: Giữ 95% chữ & nhân vật gốc, tinh chỉnh nhẹ vượt Content ID",
-        steps: [
-          "Tải lên ảnh thumbnail đối thủ có chữ phức tạp -> bấm 'Xử Lý Thumbnail AI'."
-        ],
-        expectedPass: [
-          "Ảnh mới giữ nguyên vẹn chữ và vị trí nhân vật, chỉ tăng nhẹ contrast (+4%), zoom 102%, dời pixel nhẹ để đổi mã băm ảnh."
-        ],
-        expectedFailNotice: "Chữ trên ảnh bị mờ nhòe, nhân vật bị biến dạng hoặc mã băm ảnh không đổi.",
-        noteHint: ""
-      },
-      {
-        id: "tc-6-3",
-        code: "TC-26",
-        module: "mod6",
-        isHotfix: false,
-        categoryName: "Chức Năng 6: AI Tiêu Đề & Thumbnail",
-        title: "Lựa chọn Backend AI (Stable Diffusion cpp / AI Horde / Pillow FastAPI)",
-        steps: [
-          "Kiểm tra bộ chọn Engine AI trên giao diện tab AI."
-        ],
-        expectedPass: [
-          "Hỗ trợ linh hoạt chuyển đổi giữa các backend xử lý ảnh nội bộ hoặc server API."
-        ],
-        expectedFailNotice: "Không chọn được engine hoặc bị crash khi đổi engine.",
-        noteHint: ""
-      },
-      {
-        id: "tc-6-4",
-        code: "TC-27",
-        module: "mod6",
-        isHotfix: false,
-        categoryName: "Chức Năng 6: AI Tiêu Đề & Thumbnail",
-        title: "Xem trước so sánh Trực Quan: Ảnh Gốc vs Ảnh Đã Tối Ưu",
-        steps: [
-          "Quan sát khung kết quả sau khi AI xử lý xong thumbnail."
-        ],
-        expectedPass: [
-          "Hiển thị 2 ảnh cạnh nhau kèm mã hash SHA256 để tester nghiệm thu trực quan trước khi xuất file."
-        ],
-        expectedFailNotice: "Không hiện ảnh so sánh, không có mã hash.",
-        noteHint: ""
-      },
-
-      // --- CHỨC NĂNG 7: TẢI VIDEO SẠCH ---
-      {
-        id: "tc-7-1",
-        code: "TC-28",
-        module: "mod7",
-        isHotfix: false,
-        categoryName: "Chức Năng 7: Tải Video Sạch",
-        title: "Tải đơn qua liên kết URL từ YouTube độ phân giải cao",
-        steps: [
-          "Mở trang 'Tải xuống', dán URL video YouTube bất kỳ vào ô nhập và chọn chất lượng cao nhất."
-        ],
-        expectedPass: [
-          "Video được tải mượt mà về máy với đuôi .mp4 chuẩn, thanh tiến trình hiển thị rõ % và tốc độ tải."
-        ],
-        expectedFailNotice: "Tải bị lỗi, file hỏng 0 byte hoặc đơ ở 99%.",
-        noteHint: ""
-      },
-      {
-        id: "tc-7-2",
-        code: "TC-29",
-        module: "mod7",
-        isHotfix: false,
-        categoryName: "Chức Năng 7: Tải Video Sạch",
-        title: "Tải toàn bộ Playlist đa luồng song song",
-        steps: [
-          "Dán URL của một playlist YouTube (chứa 3-5 video) và bấm Tải."
-        ],
-        expectedPass: [
-          "Tự động phân tách danh sách, tải theo số luồng cấu hình mà không làm đơ giao diện."
-        ],
-        expectedFailNotice: "Chỉ tải 1 video đầu tiên rồi dừng, hoặc crash ứng dụng.",
-        noteHint: ""
-      },
-
-      // --- CHỨC NĂNG 8: NHẬT KÝ & KIỂM TRA LỖI ---
-      {
-        id: "tc-8-1",
-        code: "TC-30",
-        module: "mod8",
-        isHotfix: false,
-        categoryName: "Chức Năng 8: Nhật Ký & Kiểm Tra Lỗi",
-        title: "Phân tách 6 file log riêng biệt chi tiết cho từng chức năng",
-        steps: [
-          "Mở thư mục lưu trữ logs của ứng dụng (%LOCALAPPDATA%/reupytb/logs hoặc app_data_dir/logs)."
-        ],
-        expectedPass: [
-          "Xuất hiện các file log riêng biệt: download.log, channels.log, bkt_test.log, outlier.log, reup.log, ai.log.",
-          "Ghi đúng sự kiện tương ứng vào từng file."
-        ],
-        expectedFailNotice: "Chỉ có 1 file log chung hoặc không ghi log.",
-        noteHint: ""
-      },
-      {
-        id: "tc-8-2",
-        code: "TC-31",
-        module: "mod8",
-        isHotfix: false,
-        categoryName: "Chức Năng 8: Nhật Ký & Kiểm Tra Lỗi",
-        title: "Thông báo lỗi tiếng Việt có dấu và đề xuất hướng dẫn xử lý",
-        steps: [
-          "Mở trang 'Nhật Ký', xem các mục lỗi (đánh dấu đỏ)."
-        ],
-        expectedPass: [
-          "Dưới mỗi dòng log lỗi xuất hiện hộp gợi ý (Tip) bằng tiếng Việt có dấu hướng dẫn người dùng cách khắc phục ngay."
-        ],
-        expectedFailNotice: "Log chỉ hiện mã lỗi thô sơ (raw stacktrace) không có hướng dẫn.",
-        noteHint: ""
-      },
-      {
-        id: "tc-8-3",
-        code: "TC-32",
-        module: "mod8",
-        isHotfix: false,
-        categoryName: "Chức Năng 8: Nhật Ký & Kiểm Tra Lỗi",
-        title: "Xuất file log theo chuẩn tên: retubematrix-logs-YYYY-MM-DD.json",
-        steps: [
-          "Bấm nút 'Xuất log' trên thanh công cụ trang Nhật Ký."
-        ],
-        expectedPass: [
-          "Hộp thoại lưu file đề xuất đúng tên định dạng: retubematrix-logs-YYYY-MM-DD.json.",
-          "Nội dung file JSON đầy đủ cấu trúc."
-        ],
-        expectedFailNotice: "Tên file xuất ra là logs.json cũ hoặc định dạng sai.",
-        noteHint: ""
-      },
-      {
-        id: "tc-8-4",
-        code: "TC-33",
-        module: "mod8",
-        isHotfix: false,
-        categoryName: "Chức Năng 8: Nhật Ký & Kiểm Tra Lỗi",
-        title: "Gợi ý khắc phục chuyên biệt cho lỗi BKT và Quota",
-        steps: [
-          "Tìm kiếm từ khóa 'bkt' hoặc 'quota' trên thanh tìm kiếm nhật ký."
-        ],
-        expectedPass: [
-          "Hiển thị giải thích nguyên nhân rõ ràng: Hồ sơ chưa đăng nhập Studio, hoặc kênh đã đạt giới hạn 15 video/ngày."
-        ],
-        expectedFailNotice: "Không có gợi ý xử lý chuyên biệt cho BKT.",
-        noteHint: ""
-      },
-
-      // --- CHỨC NĂNG 9: CÀI ĐẶT & REBRANDING ---
-      {
-        id: "tc-9-1",
-        code: "TC-34",
-        module: "mod9",
-        isHotfix: false,
-        categoryName: "Chức Năng 9: Cài Đặt & Rebranding",
-        title: "Đồng bộ tên thương hiệu RETubeMatrix trên toàn bộ giao diện",
-        steps: [
-          "Kiểm tra Header, Sidebar, Title Bar của ứng dụng và trang Cài đặt."
-        ],
-        expectedPass: [
-          "Tên ứng dụng hiển thị nhất quán là RETubeMatrix với logo chính thức.",
-          "Không còn sót chữ Youwee ở các tiêu đề chính."
-        ],
-        expectedFailNotice: "Vẫn còn chữ Youwee to ở header hoặc sidebar.",
-        noteHint: ""
-      },
-      {
-        id: "tc-9-2",
-        code: "TC-35",
-        module: "mod9",
-        isHotfix: false,
-        categoryName: "Chức Năng 9: Cài Đặt & Rebranding",
-        title: "Loại bỏ triệt để các UI và liên kết ngoài liên quan đến Youwee cũ",
-        steps: [
-          "Mở trang 'Cài đặt' -> Tab 'Giới thiệu' (About)."
-        ],
-        expectedPass: [
-          "Không còn liên kết BuyMeACoffee vanloctech, badge ProductHunt Youwee, hay link subreddit youwee cũ.",
-          "Được thay thế bằng Card ma trận kiến trúc động cơ RETubeMatrix hiện đại."
-        ],
-        expectedFailNotice: "Vẫn còn nút Donate BuyMeACoffee hoặc link ProductHunt cũ.",
-        noteHint: ""
-      },
-      {
-        id: "tc-9-3",
-        code: "TC-36",
-        module: "mod9",
-        isHotfix: false,
-        categoryName: "Chức Năng 9: Cài Đặt & Rebranding",
-        title: "Bảo toàn 100% các phân hệ Cài Đặt Chung, Mạng, Tải Xuống, Phụ Thuộc",
-        steps: [
-          "Kiểm tra các tab: Cài đặt chung, Thành phần phụ thuộc (FFmpeg/yt-dlp), Tải xuống, Mạng & Proxy."
-        ],
-        expectedPass: [
-          "Tất cả các chức năng cài đặt cấu hình kỹ thuật hoạt động hoàn hảo và lưu trữ chính xác."
-        ],
-        expectedFailNotice: "Bị mất chức năng cài đặt quan trọng hoặc không lưu được setting.",
-        noteHint: ""
+      setItem: function(key, val) {
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.setItem(key, String(val));
+          }
+        } catch (e) {
+          // ignore localStorage security block on file:///
+        }
+        _memStore[key] = String(val);
       }
-    ];
+    };
+    // 53 TEST CASES SPECIFICATION (KHÔNG CHỨA ICON/EMOJI)
+    const QA_TEST_CASES = [
+  {
+    "id": "tc-fix-1",
+    "code": "TC-HOTFIX-01",
+    "module": "hotfix",
+    "isHotfix": true,
+    "title": "Bộ Cài NSIS: Tự Động Đóng Tiến Trình Chạy Ngầm Trước Khi Gỡ / Nâng Cấp",
+    "desc": "Khắc phục triệt để lỗi 'Unable to uninstall!' và 'Error launching installer' khi chạy file setup đè lên bản cũ.",
+    "category": "NSIS Installer / Upgrade Lifecycle",
+    "steps": [
+      "1. Mở ứng dụng RETubeMatrix lên màn hình (hoặc để một tiến trình RETubeMatrix.exe / browsermulti chạy ngầm).",
+      "2. Chạy file cài đặt mới 'RETubeMatrix_0.20.12_x64-setup.exe'.",
+      "3. Tại màn hình 'Already Installed', chọn 'Uninstall before installing' (hoặc 'Do not uninstall') rồi nhấn Next."
+    ],
+    "expectedPass": [
+      "Trình cài đặt tự động ngắt an toàn các tiến trình cũ mà không bị Windows khóa file.",
+      "Không bao giờ xuất hiện hộp thoại lỗi '[!] Unable to uninstall!'.",
+      "Quá trình cài đặt hoàn tất 100% và biểu tượng ứng dụng mới khởi chạy mượt mà."
+    ],
+    "expectedFailNotice": "Nếu xuất hiện hộp thoại 'Unable to uninstall!' hoặc 'Error launching installer', kiểm tra lại file template.nsi.",
+    "noteHint": "Xác nhận cài đặt thành công không lỗi..."
+  },
+  {
+    "id": "tc-fix-2",
+    "code": "TC-HOTFIX-02",
+    "module": "hotfix",
+    "isHotfix": true,
+    "title": "Tester Guide: Mở Trực Tiếp File HTML 100% Offline (Không Phụ Thuộc Localhost)",
+    "desc": "Đảm bảo file hướng dẫn tester mở được ngay bằng cách double click vào file (giao thức file://), hoạt động độc lập không cần localhost server.",
+    "category": "Offline HTML / DOM Reliability",
+    "steps": [
+      "1. Tắt toàn bộ máy chủ dev hoặc ngắt kết nối mạng Internet.",
+      "2. Vào thư mục dự án và double click trực tiếp vào file 'TESTER_GUIDE_RETUBEMATRIX.html'.",
+      "3. Bấm thử các tab phân hệ, bấm lọc trạng thái, tìm kiếm và bấm nút ĐẠT (PASS) / LỖI (FAIL)."
+    ],
+    "expectedPass": [
+      "File mở ngay lập tức trên trình duyệt mặc định với đường dẫn 'file:///...'.",
+      "Không bao giờ bị lỗi 'localhost từ chối kết nối' (ERR_CONNECTION_REFUSED).",
+      "Giao diện hiển thị đầy đủ màu sắc, nút bấm phản hồi tức thì 100% ngay cả khi offline."
+    ],
+    "expectedFailNotice": "Nếu click vào các tab mà không thấy phản hồi, kiểm tra xem initGuide đã được gọi hay chưa.",
+    "noteHint": "Ghi nhận tốc độ tải và độ mượt khi bấm nút..."
+  },
+  {
+    "id": "tc-fix-3",
+    "code": "TC-HOTFIX-03",
+    "module": "hotfix",
+    "isHotfix": true,
+    "title": "Browser Engine: Tự Động Thu Gom Chromium Zombie Không Cửa Sổ",
+    "desc": "Khi mở profile, nếu phát hiện tiến trình Chromium cũ bị treo ngầm không có cửa sổ giao diện, hệ thống tự động dọn dẹp để khởi động lại sạch sẽ.",
+    "category": "BrowserMulti / CloakSession Robustness",
+    "steps": [
+      "1. Vào Quản lý Profile, chọn một hồ sơ và bấm nút Play để mở trình duyệt.",
+      "2. Tắt cửa sổ trình duyệt từ nút X trên thanh tiêu đề Windows.",
+      "3. Bấm lại nút Play ngay sau đó để khởi chạy lại hồ sơ đó."
+    ],
+    "expectedPass": [
+      "Cửa sổ trình duyệt mới mở lên bình thường sau 1-2 giây.",
+      "Không bị văng lỗi 'Hồ sơ đang mở trong Chromium...'.",
+      "Khung badge tiêu đề hiển thị đúng tên hồ sơ và múi giờ."
+    ],
+    "expectedFailNotice": "Nếu nút Play bị kẹt ở trạng thái 'Đang chạy' mà không có cửa sổ Chromium nào xuất hiện.",
+    "noteHint": "Kiểm tra tiến trình chrome.exe trong Task Manager..."
+  },
+  {
+    "id": "tc-mod1-1",
+    "code": "TC-MOD1-01",
+    "module": "mod1",
+    "title": "Nút 'Làm mới' & Thời Gian Đồng Bộ Dữ Liệu Vận Hành",
+    "desc": "Kiểm tra nút Làm mới trên thanh công cụ đầu trang Dashboard.",
+    "category": "Dashboard / Toolbar",
+    "steps": [
+      "1. Tại trang Tổng quan, quan sát nhãn 'Cập nhật: HH:mm:ss'.",
+      "2. Bấm vào nút 'Làm mới' (icon RefreshCw).",
+      "3. Quan sát icon xoay và nhãn thời gian cập nhật."
+    ],
+    "expectedPass": [
+      "Icon Refresh xoay tròn trong lúc truy vấn SQLite.",
+      "Nhãn thời gian nhảy sang đúng giây hiện tại.",
+      "6 thẻ thống kê và bảng đối chiếu được làm mới dữ liệu."
+    ],
+    "expectedFailNotice": "Nếu icon xoay mãi không dừng hoặc xuất hiện banner lỗi đỏ 'Không thể tải dữ liệu'.",
+    "noteHint": "Thời gian phản hồi truy vấn..."
+  },
+  {
+    "id": "tc-mod1-2",
+    "code": "TC-MOD1-02",
+    "module": "mod1",
+    "title": "Nút Điều Hướng 'Quản lý hồ sơ' & 'Quản lý Kênh'",
+    "desc": "Kiểm tra liên kết điều hướng nhanh từ Dashboard sang các phân hệ nghiệp vụ.",
+    "category": "Dashboard / Navigation",
+    "steps": [
+      "1. Bấm vào nút 'Quản lý hồ sơ' ở góc phải Dashboard.",
+      "2. Kiểm tra xem app có chuyển sang trang Hồ sơ trình duyệt hay không.",
+      "3. Quay lại Dashboard, bấm vào nút 'Quản lý Kênh' trên header bảng đối chiếu."
+    ],
+    "expectedPass": [
+      "Điều hướng tức thì sang đúng trang mục tiêu mà không bị giật trang.",
+      "Sidebar highlight đúng mục tương ứng (Quản lý Profile / Theo dõi kênh)."
+    ],
+    "expectedFailNotice": "Nếu bấm nút nhưng màn hình đứng yên hoặc chuyển sang trang trắng.",
+    "noteHint": "Trạng thái active của Sidebar..."
+  },
+  {
+    "id": "tc-mod1-3",
+    "code": "TC-MOD1-03",
+    "module": "mod1",
+    "title": "Thẻ 'Phiên gần nhất' & Hộp Thoại Chi Tiết Phiên Chạy",
+    "desc": "Kiểm tra khả năng mở modal lịch sử phiên chạy từ card trạng thái.",
+    "category": "Dashboard / Session Details Modal",
+    "steps": [
+      "1. Bấm vào toàn bộ vùng thẻ Card 'Phiên gần nhất' (có badge 'Bấm để xem').",
+      "2. Kiểm tra modal 'Chi tiết phiên chạy' xuất hiện.",
+      "3. Kiểm tra danh sách các lần chạy, workflow, tổng thời gian và lỗi phát sinh."
+    ],
+    "expectedPass": [
+      "Hộp thoại mở lên với thanh cuộn mượt mà.",
+      "Nếu chưa có lượt chạy nào trong ngày, hiển thị thông báo rõ ràng.",
+      "Bấm nút Đóng hoặc phím Esc đóng modal sạch sẽ."
+    ],
+    "expectedFailNotice": "Modal bị đơ khi có nhiều bản ghi log hoặc không đóng được khi bấm ra ngoài backdrop.",
+    "noteHint": "Ghi nhận nội dung hiển thị trong modal..."
+  },
+  {
+    "id": "tc-mod1-4",
+    "code": "TC-MOD1-04",
+    "module": "mod1",
+    "title": "Bảng Đối Chiếu 1-1 Kênh Cào & Hồ Sơ Trình Duyệt Đích",
+    "desc": "Kiểm tra bảng ánh xạ kênh đối thủ và profile reup chỉ định.",
+    "category": "Dashboard / 1-1 Mapping Table",
+    "steps": [
+      "1. Quan sát danh sách các kênh trong bảng 'Đối chiếu 1-1 Kênh cào & Hồ sơ đích'.",
+      "2. Với kênh chưa được gán hồ sơ đích, kiểm tra nút 'Gán ngay →'.",
+      "3. Bấm 'Gán ngay →' và kiểm tra điều hướng sang trang Kênh."
+    ],
+    "expectedPass": [
+      "Bảng phân biệt rõ ràng kênh Đã gán (badge xanh) và Chưa gán (badge vàng).",
+      "Bấm 'Gán ngay →' chuyển người dùng sang trang Kênh để thiết lập."
+    ],
+    "expectedFailNotice": "Tên kênh hoặc hồ sơ bị hiển thị lỗi font chữ Unicode tiếng Việt.",
+    "noteHint": "Kiểm tra độ chính xác của cột hồ sơ đích..."
+  },
+  {
+    "id": "tc-mod1-5",
+    "code": "TC-MOD1-05",
+    "module": "mod1",
+    "title": "Thẻ 'Lỗi gần nhất' & Nút 'Xem log'",
+    "desc": "Kiểm tra khả năng phát hiện lỗi vận hành và chuyển nhanh tới Logs Viewer.",
+    "category": "Dashboard / Error Diagnostics",
+    "steps": [
+      "1. Quan sát thẻ 'Lỗi gần nhất' trên Dashboard.",
+      "2. Nếu có lỗi, bấm nút 'Xem log'.",
+      "3. Kiểm tra xem ứng dụng có chuyển sang trang Nhật ký hay không."
+    ],
+    "expectedPass": [
+      "Hiển thị tóm tắt lỗi ngắn gọn, không làm tràn khung giao diện.",
+      "Nút 'Xem log' đưa thẳng người dùng đến tab Nhật ký để tra cứu nguyên nhân."
+    ],
+    "expectedFailNotice": "Thông báo lỗi bị che khuất hoặc bấm 'Xem log' không hoạt động.",
+    "noteHint": "Kiểm tra tính liên kết với trang Logs..."
+  },
+  {
+    "id": "tc-mod2-1",
+    "code": "TC-MOD2-01",
+    "module": "mod2",
+    "title": "Nút '+ Thêm hồ sơ' & Modal Khởi Tạo Hồ Sơ Trình Duyệt",
+    "desc": "Kiểm tra quy trình tạo hồ sơ mới với đầy đủ các trường cấu hình.",
+    "category": "Profiles / Create Profile",
+    "steps": [
+      "1. Bấm nút '+ Thêm hồ sơ' màu hồng/đỏ ở góc trên bên phải.",
+      "2. Nhập Tên hồ sơ (VD: 'Profile_KiemThu_01'), chọn Nhóm, chọn Màu nhận diện.",
+      "3. Nhập kênh YouTube ưu tiên '@kenhtest' và bấm nút 'Tạo hồ sơ'."
+    ],
+    "expectedPass": [
+      "Modal xuất hiện với các trường trống sạch sẽ, màu mặc định #E15B64.",
+      "Sau khi bấm Tạo, modal tự động đóng, thông báo toast thành công xuất hiện.",
+      "Hồ sơ mới xuất hiện ngay trên dòng đầu tiên của bảng với trạng thái 'Đã dừng'."
+    ],
+    "expectedFailNotice": "Bỏ trống Tên hồ sơ mà bấm Tạo phải báo lỗi đỏ 'Vui lòng nhập tên hồ sơ'.",
+    "noteHint": "Kiểm tra validation tên trùng hoặc ký tự đặc biệt..."
+  },
+  {
+    "id": "tc-mod2-2",
+    "code": "TC-MOD2-02",
+    "module": "mod2",
+    "title": "Nút 'Kiểm tra proxy' Trong Modal & Đánh Giá Mức Độ Rủi Ro",
+    "desc": "Kiểm tra tính năng test proxy trực tiếp trước khi lưu hồ sơ.",
+    "category": "Profiles / Proxy Inspection",
+    "steps": [
+      "1. Trong modal Thêm/Sửa hồ sơ, nhập một proxy (dạng IP:PORT hoặc HTTP/SOCKS5).",
+      "2. Bấm nút 'Kiểm tra proxy' bên cạnh ô nhập.",
+      "3. Quan sát kết quả ping ms, IP xuất hiện và nhãn rủi ro."
+    ],
+    "expectedPass": [
+      "Hệ thống kiểm tra kết nối qua backend Rust trong vòng 2-5 giây.",
+      "Nếu proxy sống: hiển thị IP ra ngoài, thời gian phản hồi (ms), cờ quốc gia và mức rủi ro (Thấp/Trung bình).",
+      "Nếu proxy chết: hiển thị cảnh báo đỏ 'Không thể kết nối proxy'."
+    ],
+    "expectedFailNotice": "Hệ thống bị treo vô hạn (không có timeout) khi nhập proxy không tồn tại.",
+    "noteHint": "Kiểm tra timeout tối đa 10s khi test proxy..."
+  },
+  {
+    "id": "tc-mod2-3",
+    "code": "TC-MOD2-03",
+    "module": "mod2",
+    "title": "Nút Play / Stop Trình Duyệt Từng Dòng & Đồng Bộ Trạng Thái",
+    "desc": "Kiểm tra khởi chạy và dừng trình duyệt Chromium độc lập cho từng hồ sơ.",
+    "category": "Profiles / Browser Launch",
+    "steps": [
+      "1. Bấm nút Play (icon tam giác) tại dòng hồ sơ 'realacc'.",
+      "2. Quan sát cửa sổ Chromium xuất hiện kèm thanh tiêu đề nhận diện.",
+      "3. Nút Play chuyển thành nút Stop (hình vuông màu đỏ) và badge đổi sang 'Đang chạy' (xanh lá).",
+      "4. Bấm nút Stop hình vuông màu đỏ."
+    ],
+    "expectedPass": [
+      "Chromium mở lên với dữ liệu độc lập, tự động điều hướng tới trang đã định.",
+      "Bấm nút Stop đóng sạch tiến trình Chromium và badge chuyển lại thành 'Đã dừng'.",
+      "Không để lại tiến trình chạy ngầm chiếm dụng bộ nhớ RAM."
+    ],
+    "expectedFailNotice": "Cửa sổ trình duyệt không xuất hiện nhưng trạng thái vẫn báo 'Đang chạy'.",
+    "noteHint": "Thời gian khởi động Chromium thực tế..."
+  },
+  {
+    "id": "tc-mod2-4",
+    "code": "TC-MOD2-04",
+    "module": "mod2",
+    "title": "Nút '1-Click Đăng YouTube' & Modal Tải Lên Nhanh",
+    "desc": "Kiểm tra nút YouTube đỏ trên từng dòng hồ sơ.",
+    "category": "Profiles / Quick Upload Action",
+    "steps": [
+      "1. Bấm nút YouTube (icon màu đỏ) tại một hồ sơ bất kỳ.",
+      "2. Kiểm tra modal 'QuickUploadDialog' mở lên.",
+      "3. Kiểm tra xem Profile đích đã được chọn sẵn đúng tên hồ sơ vừa bấm hay chưa."
+    ],
+    "expectedPass": [
+      "Modal mở tức thì với profile được bind sẵn.",
+      "Có đầy đủ các trường: Chọn video, Tiêu đề, Mô tả, Tags, Thumbnail, Chế độ hiển thị, Bình luận ghim.",
+      "Bộ đếm ký tự tiêu đề hiển thị chuẩn (VD: 0/100)."
+    ],
+    "expectedFailNotice": "Dropdown profile bị trống hoặc không mở được hộp thoại chọn file video.",
+    "noteHint": "Kiểm tra trường bình luận ghim đầu video..."
+  },
+  {
+    "id": "tc-mod2-5",
+    "code": "TC-MOD2-05",
+    "module": "mod2",
+    "title": "Nút 'Sửa hồ sơ' & Modal Cập Nhật Thông Tin",
+    "desc": "Kiểm tra chỉnh sửa thông tin hồ sơ hiện có.",
+    "category": "Profiles / Edit Profile",
+    "steps": [
+      "1. Bấm nút hình cây bút (Edit) tại dòng hồ sơ cần sửa.",
+      "2. Đổi tên hồ sơ, đổi màu sắc hoặc đổi kênh YouTube ưu tiên.",
+      "3. Bấm 'Lưu thay đổi'."
+    ],
+    "expectedPass": [
+      "Dữ liệu cũ được nạp chính xác vào từng ô nhập liệu.",
+      "Sau khi lưu, thông tin mới cập nhật ngay trên bảng mà không cần F5 tải lại trang."
+    ],
+    "expectedFailNotice": "Lưu xong nhưng thông tin trên bảng vẫn giữ nguyên giá trị cũ.",
+    "noteHint": "Kiểm tra tính nhất quán trong SQLite..."
+  },
+  {
+    "id": "tc-mod2-6",
+    "code": "TC-MOD2-06",
+    "module": "mod2",
+    "title": "Nút 'Sắp xếp cửa sổ' & 7 Presets Bố Trí Màn Hình",
+    "desc": "Kiểm tra tính năng tự động sắp xếp lưới cửa sổ trình duyệt (Tile/Cascade).",
+    "category": "Profiles / Window Arranger",
+    "steps": [
+      "1. Mở đồng thời 2 hoặc 3 hồ sơ trình duyệt lên màn hình.",
+      "2. Bấm nút 'Sắp xếp cửa sổ' trên thanh công cụ.",
+      "3. Chọn preset '2 cột' hoặc '4 cửa sổ ngang' và bấm 'Sắp xếp ngay'."
+    ],
+    "expectedPass": [
+      "Các cửa sổ Chromium tự động co dãn kích thước và xếp ngay ngắn trên màn hình theo lưới.",
+      "Tránh che khuất thanh Taskbar của Windows.",
+      "Tùy chọn 'Tự động sắp xếp khi mở hồ sơ' lưu đúng vào cấu hình người dùng."
+    ],
+    "expectedFailNotice": "Cửa sổ bị tràn ra ngoài viền màn hình hoặc lệnh sắp xếp không có tác dụng.",
+    "noteHint": "Kiểm tra độ chuẩn xác của tọa độ x, y, width, height..."
+  },
+  {
+    "id": "tc-mod2-7",
+    "code": "TC-MOD2-07",
+    "module": "mod2",
+    "title": "Dropdown 'Hiển thị cột' (7 Cột Dữ Liệu Tùy Biến)",
+    "desc": "Kiểm tra ẩn/hiện động các cột trong bảng hồ sơ.",
+    "category": "Profiles / Column Visibility",
+    "steps": [
+      "1. Bấm nút 'Hiển thị cột' trên thanh công cụ.",
+      "2. Bỏ tick lần lượt các cột: 'STT', 'Quốc gia', 'Rủi ro proxy'.",
+      "3. F5 tải lại trang và kiểm tra xem cấu hình cột có được ghi nhớ hay không."
+    ],
+    "expectedPass": [
+      "Các cột bị bỏ tick biến mất ngay lập tức trên bảng, bảng tự co dãn vừa vặn.",
+      "Khi tải lại trang, hệ thống đọc từ localStorage và giữ nguyên trạng thái ẩn/hiện.",
+      "Các cột cố định (Checkbox, Tên hồ sơ, Thao tác) luôn được bảo toàn."
+    ],
+    "expectedFailNotice": "Bảng bị vỡ khung hoặc lỗi trắng trang khi bỏ chọn toàn bộ checkbox.",
+    "noteHint": "Kiểm tra localStorage key 'retubematrix.profile.columnVisibility'..."
+  },
+  {
+    "id": "tc-mod2-8",
+    "code": "TC-MOD2-08",
+    "module": "mod2",
+    "title": "Thanh Tác Vụ Hàng Loạt (Chạy, Dừng, Gom nhóm, Gán proxy, Xóa)",
+    "desc": "Kiểm tra các hành động thực hiện đồng thời trên nhiều hồ sơ được tick chọn.",
+    "category": "Profiles / Bulk Operations",
+    "steps": [
+      "1. Tick chọn 2 hoặc nhiều hồ sơ trên bảng (thanh Bulk Action màu nổi bật xuất hiện bên dưới).",
+      "2. Thử nghiệm nút 'Chạy đã chọn' -> quan sát các profile đồng loạt khởi chạy.",
+      "3. Thử nghiệm nút 'Dừng đã chọn' -> các profile đồng loạt đóng lại.",
+      "4. Thử nghiệm nút 'Gom nhóm' và 'Gán proxy' hàng loạt."
+    ],
+    "expectedPass": [
+      "Thanh tác vụ hàng loạt chỉ xuất hiện khi có ít nhất 1 hồ sơ được chọn.",
+      "Các hành động chạy/dừng áp dụng chính xác cho toàn bộ danh sách được chọn.",
+      "Nút Xóa hàng loạt có hộp thoại xác nhận số lượng hồ sơ trước khi thực thi."
+    ],
+    "expectedFailNotice": "Một profile bị lỗi làm gián đoạn toàn bộ các profile còn lại trong danh sách.",
+    "noteHint": "Kiểm tra xử lý lỗi độc lập cho từng profile..."
+  },
+  {
+    "id": "tc-mod2-9",
+    "code": "TC-MOD2-09",
+    "module": "mod2",
+    "title": "Ô Tìm Kiếm & Bộ Lọc Nhóm / Trạng Thái Hồ Sơ",
+    "desc": "Kiểm tra bộ lọc đa tiêu chí trên danh sách hồ sơ.",
+    "category": "Profiles / Search & Filter",
+    "steps": [
+      "1. Nhập từ khóa tìm kiếm tiếng Việt có dấu hoặc ID hồ sơ vào ô tìm kiếm.",
+      "2. Chọn bộ lọc 'Trạng thái': chọn 'Đang chạy' hoặc 'Đã dừng'.",
+      "3. Chọn bộ lọc 'Nhóm': lọc theo nhóm cụ thể."
+    ],
+    "expectedPass": [
+      "Bảng lọc kết quả ngay lập tức (real-time) sau mỗi ký tự gõ.",
+      "Hỗ trợ tìm kiếm không phân biệt hoa thường và hỗ trợ Unicode tiếng Việt chuẩn.",
+      "Khi không tìm thấy kết quả, hiển thị thông báo rỗng thân thiện."
+    ],
+    "expectedFailNotice": "Gõ ký tự đặc biệt như '[', '*', '\\' làm crash ứng dụng.",
+    "noteHint": "Kiểm tra tính an toàn của chuỗi regex tìm kiếm..."
+  },
+  {
+    "id": "tc-mod2-10",
+    "code": "TC-MOD2-10",
+    "module": "mod2",
+    "title": "Nút 'Dọn dẹp cache' & 'Xóa hồ sơ'",
+    "desc": "Kiểm tra bảo toàn cookie khi dọn cache và xóa hoàn toàn hồ sơ.",
+    "category": "Profiles / Cache & Delete",
+    "steps": [
+      "1. Bấm nút Dọn dẹp cache (icon Refresh) trên dòng hồ sơ -> xác nhận.",
+      "2. Mở lại hồ sơ đó lên và kiểm tra xem tài khoản Google có còn đăng nhập hay không.",
+      "3. Thử bấm nút Thùng rác (Xóa hồ sơ) trên một hồ sơ đang tắt -> xác nhận xóa."
+    ],
+    "expectedPass": [
+      "Dọn cache giải phóng dung lượng rác nhưng GIỮ NGUYÊN 100% phiên đăng nhập và Cookie.",
+      "Nút Xóa bị vô hiệu hóa (disabled) nếu hồ sơ đang trong trạng thái 'Đang chạy'.",
+      "Xóa hồ sơ thành công sẽ dọn dẹp sạch cả bản ghi trong SQLite lẫn thư mục trên ổ cứng."
+    ],
+    "expectedFailNotice": "Dọn cache làm mất phiên đăng nhập Google hoặc xóa nhầm thư mục profile khác.",
+    "noteHint": "Kiểm tra thư mục profile_data_dir sau khi xóa..."
+  },
+  {
+    "id": "tc-mod3-1",
+    "code": "TC-MOD3-01",
+    "module": "mod3",
+    "title": "Thêm Kênh Theo Dõi Với Nhiều Định Dạng URL Khác Nhau",
+    "desc": "Kiểm tra ô nhập URL kênh đối thủ hỗ trợ đầy đủ các định dạng phổ biến.",
+    "category": "Channels / Add Channel",
+    "steps": [
+      "1. Thử nhập URL dạng Handle: 'https://www.youtube.com/@MRBEAST'.",
+      "2. Thử nhập URL dạng Channel ID: 'https://www.youtube.com/channel/UCX6OQ3DkcsbYNE6H8uQQuVA'.",
+      "3. Bấm nút 'Thêm kênh theo dõi' và quan sát quá trình cào thông tin."
+    ],
+    "expectedPass": [
+      "Hệ thống tự động chuẩn hóa URL, trích xuất avatar, tên kênh, số người đăng ký và số lượng video.",
+      "Kênh mới được thêm vào danh sách theo dõi ngay lập tức."
+    ],
+    "expectedFailNotice": "Nhập URL không hợp lệ hoặc kênh không tồn tại phải báo lỗi rõ ràng, không để đơ giao diện.",
+    "noteHint": "Kiểm tra regex chuẩn hóa URL kênh..."
+  },
+  {
+    "id": "tc-mod3-2",
+    "code": "TC-MOD3-02",
+    "module": "mod3",
+    "title": "Nút 'Quét ngay' & Tự Động Cập Nhật Video Mới Từ Kênh",
+    "desc": "Kiểm tra quét cập nhật danh sách video mới nhất của kênh đối thủ.",
+    "category": "Channels / Sync Videos",
+    "steps": [
+      "1. Tại dòng kênh theo dõi, bấm nút 'Quét ngay' (icon Sync/Refresh).",
+      "2. Quan sát biểu tượng xoay và số lượng video mới được phát hiện.",
+      "3. Kiểm tra nhãn 'Lần quét gần nhất' cập nhật sang giờ hiện tại."
+    ],
+    "expectedPass": [
+      "Hệ thống gọi yt-dlp/RSS ngầm, phát hiện các video mới đăng tải.",
+      "Cập nhật số lượt xem và lượt đăng ký mới nhất của kênh."
+    ],
+    "expectedFailNotice": "Bị nghẽn rate-limit 429 từ YouTube mà không có thông báo cho người dùng.",
+    "noteHint": "Kiểm tra xử lý ngoại lệ HTTP 429..."
+  },
+  {
+    "id": "tc-mod3-3",
+    "code": "TC-MOD3-03",
+    "module": "mod3",
+    "title": "Switch 'Tự động tải' Video Mới & Nút 'Mở thư mục'",
+    "desc": "Kiểm tra cơ chế auto-download video mới khi kênh đối thủ đăng bài.",
+    "category": "Channels / Auto Download",
+    "steps": [
+      "1. Bật công tắc (Switch) 'Tự động tải' trên dòng kênh cần theo dõi.",
+      "2. Bấm nút 'Mở thư mục lưu' để kiểm tra đường dẫn thư mục tải về của kênh.",
+      "3. Xác nhận thư mục mở ra đúng vị trí trên File Explorer của Windows."
+    ],
+    "expectedPass": [
+      "Công tắc lưu trạng thái bật/tắt bền vững trong SQLite.",
+      "Thư mục lưu trữ được đặt tên sạch sẽ, không chứa ký tự cấm trên Windows (/ \\ : * ? \" < > |)."
+    ],
+    "expectedFailNotice": "Tên kênh chứa emoji hoặc ký tự đặc biệt làm sai lệch đường dẫn thư mục.",
+    "noteHint": "Kiểm tra hàm sanitizeChannelFolderName..."
+  },
+  {
+    "id": "tc-mod3-4",
+    "code": "TC-MOD3-04",
+    "module": "mod3",
+    "title": "Chi Tiết Kênh (Channel Drawer) & Chỉ Số Outlier Score Từng Video",
+    "desc": "Kiểm tra bảng xem chi tiết danh sách video của một kênh đối thủ.",
+    "category": "Channels / Channel Detail View",
+    "steps": [
+      "1. Bấm vào dòng kênh hoặc nút 'Xem chi tiết'.",
+      "2. Xem danh sách 50 video gần nhất, phân tích lượt xem (Views) so với lượng Sub trung bình.",
+      "3. Kiểm tra các video có Outlier Score cao (> 3x) có được gắn badge nổi bật hay không."
+    ],
+    "expectedPass": [
+      "Hiển thị đầy đủ thumbnail, tiêu đề, ngày đăng, thời lượng, số view và Outlier Score.",
+      "Nút 'Tải video này' trên từng dòng video hoạt động chính xác."
+    ],
+    "expectedFailNotice": "Kênh có số sub dạng chữ '340K' bị tính nhầm thành 340 dẫn đến sai lệch chỉ số Outlier.",
+    "noteHint": "Quy tắc chống hồi quy: Parse subscriber multiplier K/M/B/Triệu..."
+  },
+  {
+    "id": "tc-mod3-5",
+    "code": "TC-MOD3-05",
+    "module": "mod3",
+    "title": "Tự Động Chuẩn Hóa Tên Kênh @Handle & Gradient Initials Avatar Fallback (TC-09 Fix)",
+    "desc": "Kiểm tra xử lý tên kênh đẹp từ @Handle và hiển thị avatar gradient chữ cái đầu khi thiếu thumbnail.",
+    "category": "Channels / Prettify & Avatar Fallback",
+    "steps": [
+      "1. Thêm một kênh bằng URL có chứa Handle dạng: 'https://youtube.com/@NguyenVanA' hoặc '@TechReviewVN'.",
+      "2. Quan sát tên kênh hiển thị trên danh sách kênh theo dõi.",
+      "3. Thử nghiệm với kênh chưa có ảnh đại diện hoặc xóa tạm ảnh thumbnail."
+    ],
+    "expectedPass": [
+      "Hàm resolvePrettyChannelName tự động chuyển đổi @Handle thành tên có khoảng trắng đẹp mắt: 'Nguyen Van A' hoặc 'Tech Review VN'.",
+      "Khi thumbnail là null hoặc không tải được: Hiển thị avatar tròn gradient màu sắc (Xanh ngọc / Tím) với 1-2 chữ cái đầu viết tắt (Initials), không bị vỡ khung hay icon trống."
+    ],
+    "expectedFailNotice": "Hiển thị tên kênh thô cứng dạng '@NguyenVanA' hoặc vỡ giao diện avatar rỗng.",
+    "noteHint": "Đã sửa trong ChannelsPage.tsx và ChannelCard.tsx..."
+  },
+  {
+    "id": "tc-mod4-1",
+    "code": "TC-MOD4-01",
+    "module": "mod4",
+    "title": "Ô Tìm Kiếm Từ Khóa & Bộ Lọc Khung Thời Gian (24h, 48h, 7d, 30d)",
+    "desc": "Kiểm tra tìm kiếm video đột biến đề xuất theo từ khóa ngách.",
+    "category": "Outlier Hunter / Search & Filter",
+    "steps": [
+      "1. Nhập từ khóa ngách vào ô tìm kiếm (VD: 'AI automation' hoặc 'review phim').",
+      "2. Chọn khung thời gian '48h' hoặc '7 ngày'.",
+      "3. Chọn ngưỡng đột biến: 'Outlier > 3x' và bấm 'Bắt đầu Săn Đề Xuất'."
+    ],
+    "expectedPass": [
+      "Thanh tiến trình quét xuất hiện, hiển thị số video đã quét và số video đột biến tìm được.",
+      "Đảm bảo biến môi trường YTDLP_BIN được truyền chính xác vào runner Python.",
+      "Danh sách trả về hiển thị các video có view cao bất thường so với quy mô kênh."
+    ],
+    "expectedFailNotice": "Nếu yt-dlp bị thiếu hoặc lỗi, không được nuốt ngoại lệ mà phải hiển thị thông báo lỗi chi tiết.",
+    "noteHint": "Kiểm tra quy tắc chống hồi quy Outlier Hunter Robustness..."
+  },
+  {
+    "id": "tc-mod4-2",
+    "code": "TC-MOD4-02",
+    "module": "mod4",
+    "title": "Thẻ Video Đột Biến: Nút 'Xem trên YouTube' & 'Tải video sạch'",
+    "desc": "Kiểm tra các hành động thao tác nhanh trên từng thẻ video đề xuất.",
+    "category": "Outlier Hunter / Card Actions",
+    "steps": [
+      "1. Trên một thẻ video đột biến, bấm nút 'Xem trên YouTube'.",
+      "2. Bấm nút 'Tải video sạch'.",
+      "3. Bấm nút 'Chuyển sang Reup Pipeline'."
+    ],
+    "expectedPass": [
+      "Nút 'Xem trên YouTube' mở URL trực tiếp bằng trình duyệt ngoài của hệ thống qua openExternalUrl (KHÔNG mở trong WebView nội bộ).",
+      "Nút 'Tải video sạch' gửi URL sang trang Downloader để tải về.",
+      "Nút 'Chuyển sang Reup Pipeline' nạp sẵn video vào trang Reup."
+    ],
+    "expectedFailNotice": "Bấm 'Xem trên YouTube' mở tab nội bộ làm mất giao diện phần mềm.",
+    "noteHint": "Kiểm tra openExternalUrl trong src/utils/open-url.ts..."
+  },
+  {
+    "id": "tc-mod4-3",
+    "code": "TC-MOD4-03",
+    "module": "mod4",
+    "title": "Nút 'Phân Tích Hook 30s' & Phân Rã Kịch Bản Giữ Chân Người Xem",
+    "desc": "Kiểm tra tính năng AI phân tích 30 giây đầu tiên của video triệu view.",
+    "category": "Outlier Hunter / Hook Analysis",
+    "steps": [
+      "1. Bấm nút 'Phân tích Hook' trên thẻ video có phụ đề.",
+      "2. Quan sát hộp thoại phân tích kịch bản mở ra.",
+      "3. Kiểm tra các trường: Hook 30s, Điểm nhấn giữ chân, Đoạn trích phụ đề."
+    ],
+    "expectedPass": [
+      "Hệ thống tải transcript video và bóc tách cấu trúc mở đầu (Question, Shocking statement, Visual hook).",
+      "Nếu video không có phụ đề, thông báo rõ ràng 'Video không có phụ đề (CC)' thay vì báo lỗi hệ thống."
+    ],
+    "expectedFailNotice": "Bị nhầm lẫn giữa lỗi YouTube rate-limit (429) và việc video không có phụ đề thật sự.",
+    "noteHint": "Kiểm tra quy tắc Transcript Diagnostics..."
+  },
+  {
+    "id": "tc-mod4-4",
+    "code": "TC-MOD4-04",
+    "module": "mod4",
+    "title": "Nút 'Phân Tích Đối Thủ' & Đánh Giá Chỉ Số SEO Kênh",
+    "desc": "Kiểm tra công cụ phân tích toàn diện kênh của video đột biến.",
+    "category": "Outlier Hunter / Competitor Audit",
+    "steps": [
+      "1. Bấm nút 'Phân tích đối thủ' trên thẻ video.",
+      "2. Quan sát bảng thống kê số video mỗi tuần, tốc độ tăng trưởng view/giờ (VPH).",
+      "3. Kiểm tra danh sách từ khóa tags hiệu quả nhất của kênh."
+    ],
+    "expectedPass": [
+      "Hiển thị biểu đồ và danh sách top video hiệu suất cao nhất của đối thủ.",
+      "Có nút 'Theo dõi kênh này' để thêm ngay vào Module 3."
+    ],
+    "expectedFailNotice": "Tải dữ liệu đối thủ bị lỗi crash khi kênh đặt chế độ ẩn số người đăng ký.",
+    "noteHint": "Kiểm tra fallback khi sub count = hidden..."
+  },
+  {
+    "id": "tc-mod5-1",
+    "code": "TC-MOD5-01",
+    "module": "mod5",
+    "title": "Xử Lý Reup Cấp Độ 1 (Chuẩn 95% Gốc) & Chống Lệch Âm Thanh",
+    "desc": "Kiểm tra pipeline lách bản quyền video cơ bản giữ nguyên chất lượng 95%.",
+    "category": "Reup / Pipeline Level 1",
+    "steps": [
+      "1. Tại Tab '1. Xử Lý Reup', bấm 'Chọn file từ máy tính' và chọn một video MP4.",
+      "2. Chọn thẻ 'Cấp độ 1 (Chuẩn 95% gốc)'.",
+      "3. Bấm 'Bắt đầu Chạy Reup Pipeline' và chờ hoàn thành."
+    ],
+    "expectedPass": [
+      "Quá trình render FFmpeg chạy ngầm không gây đơ ứng dụng.",
+      "Mã MD5 và SHA256 của file đầu ra khác hoàn toàn so với file gốc.",
+      "Độ dài video không bị lệch quá 0.5s so với gốc nhờ Dynamic Audio Resampling (aresample={sr} theo đúng mẫu nguồn 48kHz, không hardcode 44100Hz).",
+      "Xóa sạch toàn bộ EXIF metadata và chèn đệm nhị phân 32-byte an toàn."
+    ],
+    "expectedFailNotice": "Video xuất ra bị lệch tiếng (audio drift) sau vài phút phát sóng.",
+    "noteHint": "Quy tắc chống hồi quy: Dynamic Audio Resampling bắt buộc..."
+  },
+  {
+    "id": "tc-mod5-2",
+    "code": "TC-MOD5-02",
+    "module": "mod5",
+    "title": "Xử Lý Reup Cấp Độ 2 (Deep Evasion - Lách Sâu Chống Content ID)",
+    "desc": "Kiểm tra pipeline lách bản quyền nâng cao cho video dính bản quyền gắt.",
+    "category": "Reup / Pipeline Level 2",
+    "steps": [
+      "1. Chọn video đầu vào và bấm chọn thẻ 'Cấp độ 2 (Deep Evasion)'.",
+      "2. Bấm 'Bắt đầu Chạy Reup Pipeline'.",
+      "3. Kiểm tra file video xuất ra trong thư mục."
+    ],
+    "expectedPass": [
+      "Áp dụng lật gương ngang (hflip), tăng nhẹ tương phản (+4%), tăng bão hòa (+5%), zoom crop 1.02x.",
+      "Điều chỉnh tốc độ 1.05x và pitch 1.04x để vượt qua sóng âm Content ID.",
+      "File đầu ra xuất hiện cùng thư mục, hiển thị đầy đủ thông số mã băm mới."
+    ],
+    "expectedFailNotice": "Lỗi FFmpeg exit code != 0 do thiếu codec hoặc sai tham số filter.",
+    "noteHint": "Kiểm tra log chi tiết FFmpeg trong console..."
+  },
+  {
+    "id": "tc-mod5-3",
+    "code": "TC-MOD5-03",
+    "module": "mod5",
+    "title": "Nút 'Chuyển video này sang Test Kênh BKT' & Xóa Trạng Thái Cũ",
+    "desc": "Kiểm tra tính liên kết giữa Tab Reup và Tab Đăng BKT.",
+    "category": "Reup / Flow Integration",
+    "steps": [
+      "1. Sau khi Reup xong tại Tab 1, bấm nút 'Chuyển video này sang Test Kênh BKT'.",
+      "2. Kiểm tra giao diện tự động nhảy sang Tab '2. Đăng BKT'.",
+      "3. Đổi sang một hồ sơ/kênh BKT khác từ dropdown."
+    ],
+    "expectedPass": [
+      "Đường dẫn file video vừa render được tự động điền vào ô 'File Video Reup cần test'.",
+      "Khi chuyển profile hoặc kênh, toàn bộ kết quả quét cũ bị XÓA SẠCH (setStudioStatus(null)), không để sót trạng thái của lần test trước."
+    ],
+    "expectedFailNotice": "Quy tắc chống hồi quy: Vẫn hiển thị badge 'Sạch bản quyền' của kênh trước khi vừa chuyển sang kênh mới.",
+    "noteHint": "Quy tắc chống hồi quy BKT Verification Honesty..."
+  },
+  {
+    "id": "tc-mod5-4",
+    "code": "TC-MOD5-04",
+    "module": "mod5",
+    "title": "Đăng Video Ngầm Lên Kênh BKT Ở Chế Độ Không Công Khai (Unlisted)",
+    "desc": "Kiểm tra tự động tải video lên YouTube Studio để quét bản quyền ẩn.",
+    "category": "Reup / BKT Unlisted Upload",
+    "steps": [
+      "1. Tại Tab 2, chọn hồ sơ kênh BKT còn lượt test trong ngày.",
+      "2. Bấm nút 'Tải Lên Kênh BKT để Test'.",
+      "3. Quan sát quá trình Playwright tự động upload và tự kích hoạt chu kỳ theo dõi Studio (Adaptive Polling)."
+    ],
+    "expectedPass": [
+      "Playwright mở hồ sơ Chromium ngầm, upload video thành công ở chế độ Unlisted.",
+      "Nhận được video URL và ID video trên YouTube.",
+      "Giao diện khởi tạo chu kỳ giám sát thông minh (Adaptive Polling), tự động truy vấn Studio định kỳ mỗi 25s cho đến khi YouTube hoàn tất phân tích Content ID (tối đa 25 lần ~ 10-12 phút)."
+    ],
+    "expectedFailNotice": "Kênh hết quota (0 lượt) mà vẫn cho phép bấm nút Upload hoặc upload ở chế độ Public.",
+    "noteHint": "Xác nhận video luôn ở trạng thái Unlisted..."
+  },
+  {
+    "id": "tc-mod5-5",
+    "code": "TC-MOD5-05",
+    "module": "mod5",
+    "title": "Quét Kết Quả YouTube Studio & Trung Thực Trạng Thái Bản Quyền",
+    "desc": "Kiểm tra đọc cột Restrictions trong YouTube Studio và báo cáo trung thực.",
+    "category": "Reup / Studio Verification",
+    "steps": [
+      "1. Quan sát chu kỳ Polling tự động quét YouTube Studio (mỗi 25s) hoặc bấm nút 'Quét kết quả'.",
+      "2. Theo dõi trạng thái thay đổi theo chu kỳ thực tế của YouTube: Processing -> Checking -> Kết quả cuối cùng.",
+      "3. Thử nghiệm với cả video sạch và video dính nhạc/hình ảnh bản quyền."
+    ],
+    "expectedPass": [
+      "Nếu đang xử lý hoặc đang kiểm tra: Giao diện hiển thị đúng trạng thái 'YouTube đang phân tích [Lần X/25]' và GIỮ NGUYÊN trạng thái Pending, tuyệt đối không báo Sạch ảo.",
+      "Nếu dính bản quyền: Hiển thị badge đỏ 'Dính Bản Quyền (Content ID)' kèm nút 'Chuyển sang Reup Cấp độ 2 ngay'.",
+      "Nếu sạch (Checks complete / None / —): Hiển thị badge xanh lá 'Sạch Bản Quyền (Clean)' với icon ShieldCheck."
+    ],
+    "expectedFailNotice": "Báo sạch ảo khi YouTube Studio mới đang ở bước 'Processing' hoặc 'Checking'.",
+    "noteHint": "Quy tắc chống hồi quy BKT Verification Honesty..."
+  },
+  {
+    "id": "tc-mod5-6",
+    "code": "TC-MOD5-06",
+    "module": "mod5",
+    "title": "Quản Lý Kênh Test BKT: Thêm Kênh, Hạn Ngạch & Mở Studio 1-Click",
+    "desc": "Kiểm tra cấu hình kênh test tại Tab '3. Kênh Test BKT'.",
+    "category": "Reup / Test Channels Management",
+    "steps": [
+      "1. Chuyển sang Tab '3. Kênh Test BKT', bấm 'Thêm Kênh Test'.",
+      "2. Đặt tên gợi nhớ, liên kết hồ sơ trình duyệt, đặt hạn ngạch (VD: 15 video/ngày).",
+      "3. Bấm 'Lưu', sau đó trên card kênh bấm nút 'Mở YouTube Studio'."
+    ],
+    "expectedPass": [
+      "Kênh test mới xuất hiện kèm thanh tiến độ hạn ngạch trực quan (VD: Còn 15/15 lượt).",
+      "Nút 'Mở YouTube Studio' khởi chạy profile và mở thẳng trang studio.youtube.com để tester đăng nhập."
+    ],
+    "expectedFailNotice": "Không lưu được kênh test vào SQLite hoặc đặt hạn ngạch âm/quá 100.",
+    "noteHint": "Kiểm tra ràng buộc hạn ngạch 1 - 100..."
+  },
+  {
+    "id": "tc-mod5-7",
+    "code": "TC-MOD5-07",
+    "module": "mod5",
+    "title": "Tự Động Hóa 100% Zero-Touch Auto-Pilot (1-Click Pipeline)",
+    "desc": "Kiểm tra toàn bộ luồng tự động từ Reup Lv1 -> Tiêu đề 95/5 -> Đăng BKT Unlisted -> Quét Studio -> Tự Động Publish Kênh Chính.",
+    "category": "Reup / 100% Zero-Touch Auto-Pilot",
+    "steps": [
+      "1. Tại trang Reup & BKT, chọn video gốc trên máy (hoặc lấy từ Outlier / Thư viện).",
+      "2. Chọn Profile & Kênh BKT (test ngầm), chọn Hồ sơ Kênh Chính đích và chế độ hiển thị (Public).",
+      "3. Bấm banner 'Chạy Toàn Bộ Quy Trình Tự Động Hóa 100% (1-Click)'.",
+      "4. Quan sát hệ thống tự thực hiện từng bước mà không cần bấm thêm bất kỳ nút nào."
+    ],
+    "expectedPass": [
+      "Bước 1: Tự động chạy Reup Cấp độ 1, biến đổi MD5/SHA256, speed 1.03x, pitch 1.02x.",
+      "Bước 2: Tự động bóc tách tiêu đề 95% chuẩn tiếng Việt và tạo mô tả 3 tầng kèm Fair Use disclaimer.",
+      "Bước 3: Tự động tìm và gán file thumbnail .jpg cùng thư mục vào tham số upload.",
+      "Bước 4: Playwright upload video lên Kênh BKT ở chế độ Unlisted.",
+      "Bước 5: Kích hoạt chu kỳ theo dõi thông minh (Adaptive Polling) mỗi 25s; kiên trì theo dõi YouTube hoàn tất khâu Checks (thường từ 2 - 8 phút). Khi Studio xác nhận 'green_clean' (Sạch bản quyền), hệ thống tự động gọi lệnh publish sang Kênh Chính đích!"
+    ],
+    "expectedFailNotice": "Auto-Pilot bị dừng giữa chừng không rõ nguyên nhân hoặc không tự động đăng lên Kênh Chính khi Green Clean.",
+    "noteHint": "Kiểm tra console và log browser-upload-log của Playwright..."
+  },
+  {
+    "id": "tc-mod5-8",
+    "code": "TC-MOD5-08",
+    "module": "mod5",
+    "title": "Tự Động Tải Thumbnail .jpg Độc Lập Cùng Thư Mục Video",
+    "desc": "Kiểm tra yt-dlp luôn xuất ảnh .jpg độc lập đi kèm video và tự động nhận diện trong Reup BKT.",
+    "category": "Reup / Companion Thumbnail",
+    "steps": [
+      "1. Tải một video bất kỳ từ Universal Downloader hoặc Outlier Hunter.",
+      "2. Mở thư mục chứa file đã tải trên máy tính.",
+      "3. Chuyển sang trang Reup & BKT và chọn file video vừa tải."
+    ],
+    "expectedPass": [
+      "Trong thư mục luôn xuất hiện cả file video (.mp4) VÀ file ảnh thumbnail (.jpg) cùng tên.",
+      "Ô 'File Ảnh Thumbnail' trong tab Đăng BKT tự động được điền đường dẫn file .jpg tương ứng mà không cần chọn thủ công.",
+      "Không bao giờ bị lỗi thiếu ảnh khi đẩy lên YouTube Studio."
+    ],
+    "expectedFailNotice": "yt-dlp tự xóa ảnh rời sau khi nhúng vào video khiến ô thumbnail bị trống.",
+    "noteHint": "Đã sửa flag --write-thumbnail --convert-thumbnails jpg trong download.rs..."
+  },
+  {
+    "id": "tc-mod5-9",
+    "code": "TC-MOD5-09",
+    "module": "mod5",
+    "title": "AI Tiêu Đề 95/5 Chuẩn Tiếng Việt, Bộ Lọc Hook Style & Xoay Vòng Seed (TC-25 Fix)",
+    "desc": "Kiểm tra thuật toán 95% Core Slice theo ranh giới từ tiếng Việt, tính điểm CTR động và nút Áp dụng.",
+    "category": "Reup / AI Title Optimization",
+    "steps": [
+      "1. Mở Tab '4. AI Tiêu Đề & Thumb', quan sát tiêu đề video gốc tự động được nạp từ video đang chọn.",
+      "2. Thử đổi dropdown phong cách Hook: Tò mò, Bí mật, Khẩn cấp, Giá trị, Kêu gọi.",
+      "3. Bấm nút 'Đổi 5 Mẫu Khác (Xoay vòng Seed)' nhiều lần.",
+      "4. Bấm nút 'Áp dụng' bên cạnh một biến thể yêu thích."
+    ],
+    "expectedPass": [
+      "Tiêu đề 95% được cắt chuẩn theo ranh giới từ, không bao giờ bị cắt cụt âm tiết (không bị 'Hư...', 'Bí m...').",
+      "Điểm CTR động hiển thị chính xác theo Power Words và độ dài vàng (+15% đến +49%).",
+      "Bấm nút 'Áp dụng' cập nhật tức thì tiêu đề vào ô upload của Tab 2 và cấu hình Auto-Publish."
+    ],
+    "expectedFailNotice": "Tiêu đề bị cắt cụt từ tiếng Việt hoặc CTR luôn cố định ở một mức +15%.",
+    "noteHint": "Đã kiểm tra thuật toán reup-auto-pilot.ts với 25+ template hook..."
+  },
+  {
+    "id": "tc-mod5-10",
+    "code": "TC-MOD5-10",
+    "module": "mod5",
+    "title": "Thiết Lập Auto-Publish Kênh Chính & Nút Xuất Bản Thủ Công",
+    "desc": "Kiểm tra cấu hình kênh chính đích và nút xuất bản cưỡng bức khi cần.",
+    "category": "Reup / Auto-Publish Configuration",
+    "steps": [
+      "1. Tại Tab 2 (Đăng BKT), quan sát Card 'Thiết Lập Auto-Publish Kênh Chính'.",
+      "2. Bật công tắc 'Tự động xuất bản lên Kênh Chính khi Sạch Bản Quyền'.",
+      "3. Chọn Profile Kênh Chính đích và Chế độ hiển thị (Public / Unlisted / Private).",
+      "4. Bấm nút 'Xuất Bản Ngay Lên Kênh Chính'."
+    ],
+    "expectedPass": [
+      "Playwright mở đúng Profile Kênh Chính đã chọn, nạp video reup, thumbnail .jpg, tiêu đề 95/5 và mô tả 3 tầng.",
+      "Cập nhật thẻ thông báo kết quả xuất bản với URL video trên Kênh Chính.",
+      "Xử lý chuẩn tham số override, không bị lỗi Stale Closure trong React."
+    ],
+    "expectedFailNotice": "Bấm xuất bản kênh chính nhưng Playwright mở nhầm Profile kênh test BKT.",
+    "noteHint": "Đã kiểm tra IPC upload_video_multibrowser với mainProfileId..."
+  },
+  {
+    "id": "tc-mod5-11",
+    "code": "TC-MOD5-11",
+    "module": "mod5",
+    "title": "Nút 'Đưa vào Reup & Test BKT' Trong Thư Viện (Library)",
+    "desc": "Kiểm tra tính liên kết liền mạch từ Thư viện video sang Reup BKT.",
+    "category": "Library / Cross-Feature Integration",
+    "steps": [
+      "1. Tải xong một video sạch, chuyển sang trang Thư viện (Library).",
+      "2. Bấm vào menu 3 chấm (...) của video vừa tải.",
+      "3. Chọn 'Đưa vào Reup & Test BKT'."
+    ],
+    "expectedPass": [
+      "Giao diện lập tức chuyển sang trang Reup & BKT.",
+      "Đường dẫn file video và tiêu đề gốc tự động được nạp vào cả Tab 1 (Pipeline Reup) và Tab 2 (Đăng BKT).",
+      "File thumbnail .jpg tương ứng tự động được nhận diện."
+    ],
+    "expectedFailNotice": "Bấm nút không chuyển trang hoặc nạp đường dẫn tệp bị trống/sai.",
+    "noteHint": "Kiểm tra sessionStorage reup_input_video_path..."
+  },
+  {
+    "id": "tc-mod5-12",
+    "code": "TC-MOD5-12",
+    "module": "mod5",
+    "title": "Bảo Vệ URL YouTube Từ Outlier Hunter & Nút Tải Nhanh Về Máy",
+    "desc": "Kiểm tra chống crash FFmpeg khi nhận link mạng từ Outlier Hunter.",
+    "category": "Reup / URL Protection",
+    "steps": [
+      "1. Tại trang Săn Video Xu Hướng (Outlier Hunter), bấm 'Chuyển sang Test BKT' của một video.",
+      "2. Màn hình Reup hiển thị huy hiệu vàng 'URL Web/YouTube (Cần tải về)'.",
+      "3. Thử bấm 'Chạy Reup' -> Quan sát thông báo nhắc nhở.",
+      "4. Bấm nút 'Tải về máy' ngay bên cạnh."
+    ],
+    "expectedPass": [
+      "Hệ thống chặn không cho FFmpeg chạy trên URL mạng, ngăn ngừa hoàn toàn crash phần mềm.",
+      "Bấm 'Tải về máy' tự động đưa URL vào hàng đợi tải xuống của yt-dlp.",
+      "Thông báo toast hướng dẫn rõ ràng, thân thiện."
+    ],
+    "expectedFailNotice": "Phần mềm bị treo/crash do FFmpeg cố mở URL mạng trực tiếp.",
+    "noteHint": "Đã thêm regex kiểm tra URL và nút handleQuickDownloadUrl..."
+  },
+  {
+    "id": "tc-mod6-1",
+    "code": "TC-MOD6-01",
+    "module": "mod6",
+    "title": "Nút Chuyển Đổi Giao Diện Lưới (Grid) / Danh Sách (List) & Ô Tìm Kiếm",
+    "desc": "Kiểm tra hiển thị kho video trong Thư viện.",
+    "category": "Library / Views & Search",
+    "steps": [
+      "1. Tại trang Thư viện, bấm nút chuyển đổi giữa Grid View (dạng thẻ lưới) và List View (dạng bảng).",
+      "2. Nhập từ khóa tìm kiếm tiêu đề video vào ô tìm kiếm.",
+      "3. Quan sát tốc độ lọc và bố cục giao diện."
+    ],
+    "expectedPass": [
+      "Chuyển đổi mượt mà giữa dạng thẻ trực quan và bảng chi tiết.",
+      "Tìm kiếm real-time không bị giật lag, hiển thị đúng video khớp từ khóa."
+    ],
+    "expectedFailNotice": "Vỡ layout khi danh sách có video tiêu đề quá dài.",
+    "noteHint": "Kiểm tra text truncation trong thẻ video..."
+  },
+  {
+    "id": "tc-mod6-2",
+    "code": "TC-MOD6-02",
+    "module": "mod6",
+    "title": "Trình Phát Video Nội Bộ & Nút 'Cắt / Trích Đoạn' (Scissors)",
+    "desc": "Kiểm tra xem thử video và cắt khoảng thời gian trực tiếp.",
+    "category": "Library / Player & Trimming",
+    "steps": [
+      "1. Bấm vào thumbnail video để mở trình phát video nội bộ (Play, Pause, Tua, Tốc độ phát).",
+      "2. Bấm vào nút Cây kéo (Scissors) màu hổ phách để mở hộp thoại cắt video.",
+      "3. Nhập thời gian bắt đầu và kết thúc (VD: 00:10 đến 01:30), bấm Cắt."
+    ],
+    "expectedPass": [
+      "Trình phát video xem mượt mà, hỗ trợ tua timeline không bị đứng hình.",
+      "Hộp thoại cắt video sinh ra trích đoạn mới chính xác theo mốc thời gian đã chọn."
+    ],
+    "expectedFailNotice": "Nhập mốc thời gian bắt đầu lớn hơn kết thúc mà không báo lỗi.",
+    "noteHint": "Kiểm tra validation thời gian cắt..."
+  },
+  {
+    "id": "tc-mod6-3",
+    "code": "TC-MOD6-03",
+    "module": "mod6",
+    "title": "Nút 'Đưa vào Reup', 'Mở thư mục' & 'Xóa vĩnh viễn'",
+    "desc": "Kiểm tra các thao tác quản lý tệp trên từng video trong Thư viện.",
+    "category": "Library / File Operations",
+    "steps": [
+      "1. Bấm nút 'Đưa vào Reup' trên một video -> kiểm tra tự động chuyển sang trang Reup.",
+      "2. Bấm nút 'Mở thư mục' -> kiểm tra mở đúng vị trí file trong Windows Explorer.",
+      "3. Bấm nút 'Xóa video' -> kiểm tra hộp thoại xác nhận và xóa sạch khỏi ổ cứng."
+    ],
+    "expectedPass": [
+      "Video được nạp thẳng vào Reup pipeline mà không cần tìm chọn lại thủ công.",
+      "File Explorer mở đúng thư mục và highlight đúng file.",
+      "Xóa thành công cập nhật lại thanh dung lượng ổ cứng trên đầu trang."
+    ],
+    "expectedFailNotice": "Xóa video trong app nhưng file trên ổ đĩa vẫn còn nguyên.",
+    "noteHint": "Kiểm tra đồng bộ giữa DB và filesystem..."
+  },
+  {
+    "id": "tc-mod7-1",
+    "code": "TC-MOD7-01",
+    "module": "mod7",
+    "title": "Tải Video Đơn Lẻ & Tùy Chọn Định Dạng (1080p, 4K, MP3)",
+    "desc": "Kiểm tra tải video sạch từ URL YouTube, TikTok, Facebook.",
+    "category": "Downloader / Single Download",
+    "steps": [
+      "1. Dán URL video YouTube vào ô nhập.",
+      "2. Chọn định dạng: '1080p MP4' hoặc 'Audio MP3'.",
+      "3. Bấm nút 'Bắt đầu tải'."
+    ],
+    "expectedPass": [
+      "Hệ thống phân tích link qua yt-dlp, hiển thị thanh tiến độ %, tốc độ MB/s và thời gian còn lại (ETA).",
+      "Tải xong video xuất hiện ngay trong Thư viện và hiển thị thông báo thành công."
+    ],
+    "expectedFailNotice": "Thanh tiến độ đứng yên ở 0% hoặc lỗi tải nhưng không hiển thị lý do.",
+    "noteHint": "Kiểm tra tốc độ tải thực tế..."
+  },
+  {
+    "id": "tc-mod7-2",
+    "code": "TC-MOD7-02",
+    "module": "mod7",
+    "title": "Tải Hàng Loạt (Batch Mode) & Tải Trích Đoạn (*MM:SS-MM:SS)",
+    "desc": "Kiểm tra tải nhiều link cùng lúc và tải khoảng thời gian định sẵn.",
+    "category": "Downloader / Batch & Section Range",
+    "steps": [
+      "1. Bật chế độ 'Tải hàng loạt', dán 3 URL video vào khung textarea (mỗi dòng một link).",
+      "2. Thử nghiệm nhập khoảng thời gian tải dạng '*00:30-01:45'.",
+      "3. Bấm tải và quan sát hàng đợi xử lý."
+    ],
+    "expectedPass": [
+      "Các video được đưa vào hàng đợi tải tuần tự hoặc song song theo cấu hình.",
+      "Tiền tố '*' trong khoảng thời gian được truyền chuẩn cho yt-dlp và được gọt sạch trước khi lưu lịch sử.",
+      "Tự động phát hiện trùng lặp dựa trên lịch sử Thư viện để tránh tải lặp tốn băng thông."
+    ],
+    "expectedFailNotice": "Quy tắc chống hồi quy: Dấu '*' không được gọt bỏ khi ghi vào lịch sử tải.",
+    "noteHint": "Kiểm tra lịch sử tải sau khi download đoạn cắt..."
+  },
+  {
+    "id": "tc-mod7-3",
+    "code": "TC-MOD7-03",
+    "module": "mod7",
+    "title": "Chọn Cookie Profile & Tải Phụ Đề Đa Ngôn Ngữ",
+    "desc": "Kiểm tra tải video yêu cầu đăng nhập và trích xuất phụ đề song ngữ.",
+    "category": "Downloader / Cookies & Subtitles",
+    "steps": [
+      "1. Tại ô chọn Cookie, chọn một hồ sơ đã đăng nhập Google từ Quản lý Profile.",
+      "2. Chọn phụ đề: 'Tiếng Việt' hoặc 'Song ngữ (Anh - Việt)'.",
+      "3. Tải một video giới hạn độ tuổi hoặc video có phụ đề CC."
+    ],
+    "expectedPass": [
+      "Trích xuất cookie an toàn từ hồ sơ để vượt qua tường lửa xác minh đăng nhập của YouTube.",
+      "Tệp phụ đề (.srt / .vtt) được tải về cùng thư mục với video."
+    ],
+    "expectedFailNotice": "Lỗi 'Sign in to confirm your age' khi đã chọn đúng cookie profile.",
+    "noteHint": "Kiểm tra quyền truy cập file cookie trong AppData..."
+  },
+  {
+    "id": "tc-mod7-4",
+    "code": "TC-MOD7-04",
+    "module": "mod7",
+    "title": "Tải Phụ Đề Tự Động (Auto-Subs) Đa Ngôn Ngữ & Cơ Chế Dự Phòng (TC-29 Fix)",
+    "desc": "Kiểm tra bảng Cài đặt Nâng cao Universal Downloader tích hợp bộ điều khiển phụ đề CC: chọn ngôn ngữ vi/en, trích xuất srt/vtt, an toàn không crash khi video không có phụ đề.",
+    "category": "Downloader / Universal Subtitles CC",
+    "targetElement": "Tải Video > Cài đặt Nâng cao (Bánh răng) > Mục Phụ Đề & Ngôn Ngữ",
+    "samplePayload": "URL video YouTube có CC hoặc không CC; Ngôn ngữ: vi, Định dạng: srt",
+    "steps": [
+      "1. Tại trang 'Tải Video', bấm biểu tượng Cài đặt nâng cao (bánh răng) để mở bảng Universal Settings.",
+      "2. Bật công tắc 'Tải phụ đề (Download Subtitles)', chọn định dạng phụ đề: .srt (hoặc .vtt).",
+      "3. Chọn ngôn ngữ: 'vi' (Tiếng Việt) và tích chọn 'Bao gồm phụ đề tự tạo (Include Auto-generated)'.",
+      "4. Dán URL video YouTube vào ô tải và bấm 'Tải Ngay'."
+    ],
+    "expectedPass": [
+      "Bảng Cài đặt nâng cao hiển thị đầy đủ tùy chọn phụ đề CC, định dạng và ngôn ngữ mà không cần chuyển sang trang khác.",
+      "Nếu video có CC chuẩn hoặc auto-sub: file phụ đề .srt/.vtt được lưu đồng thời vào thư mục cùng file video.",
+      "Nếu video không có CC: tiến trình tải video vẫn hoàn tất 100%, không bị báo lỗi đỏ ngắt mạch."
+    ],
+    "expectedFailNotice": "Lỗi crash đỏ toàn bộ tiến trình tải hoặc thiếu tùy chọn cấu hình phụ đề trong Universal Downloader.",
+    "noteHint": "Kiểm tra file .srt xuất hiện trong thư mục tải về..."
+  },
+  {
+    "id": "tc-mod8-1",
+    "code": "TC-MOD8-01",
+    "module": "mod8",
+    "title": "Lọc Nhật Ký Theo Cấp Độ (INFO, WARN, ERROR) & Theo Phân Hệ",
+    "desc": "Kiểm tra bộ lọc log hệ thống để chẩn đoán lỗi nhanh.",
+    "category": "Logs / Filter & Search",
+    "steps": [
+      "1. Tại trang Nhật ký, bấm vào chip lọc 'ERROR' để chỉ xem các dòng lỗi.",
+      "2. Chọn phân hệ: 'Runner', 'Downloader' hoặc 'Profiles'.",
+      "3. Nhập từ khóa tìm kiếm vào ô tìm trong log."
+    ],
+    "expectedPass": [
+      "Danh sách log lọc tức thì theo cấp độ và màu sắc đặc trưng (Đỏ: ERROR, Vàng: WARN, Xanh: INFO).",
+      "Tìm kiếm làm nổi bật từ khóa trong từng dòng log."
+    ],
+    "expectedFailNotice": "Bấm lọc nhưng danh sách hiển thị lẫn lộn các cấp độ log khác.",
+    "noteHint": "Kiểm tra độ phản hồi khi có hàng nghìn dòng log..."
+  },
+  {
+    "id": "tc-mod8-2",
+    "code": "TC-MOD8-02",
+    "module": "mod8",
+    "title": "Switch 'Tự động cuộn', Nút 'Xóa nhật ký' & 'Xuất file Log'",
+    "desc": "Kiểm tra các tiện ích quản lý và xuất file nhật ký chẩn đoán.",
+    "category": "Logs / Export & Auto Scroll",
+    "steps": [
+      "1. Bật công tắc 'Tự động cuộn' và chạy một tác vụ -> màn hình tự cuộn xuống dòng mới nhất.",
+      "2. Bấm nút 'Xuất file Log' -> lưu file log .txt về máy tính.",
+      "3. Bấm nút 'Xóa nhật ký' -> màn hình xóa sạch log hiển thị."
+    ],
+    "expectedPass": [
+      "Tự động cuộn mượt mà không làm giật khung nhìn khi người dùng đang chủ động cuộn xem dòng cũ.",
+      "File log xuất ra có đầy đủ timestamp, level, module và nội dung chi tiết.",
+      "Nút Xóa làm sạch khung nhìn ngay lập tức."
+    ],
+    "expectedFailNotice": "Không xuất được file log hoặc xuất ra file rỗng 0 bytes.",
+    "noteHint": "Kiểm tra nội dung file log được lưu..."
+  },
+  {
+    "id": "tc-mod8-3",
+    "code": "TC-MOD8-03",
+    "module": "mod8",
+    "title": "Chẩn Đoán Lỗi Thông Minh & Hướng Dẫn Khắc Phục Bằng Tiếng Việt (Actionable Tips)",
+    "desc": "Kiểm tra hệ thống nhận diện mã lỗi đặc thù (HTTP 429 RequestBlocked, Cookie Expired, FFmpeg missing) và hiển thị giải pháp hành động bằng tiếng Việt.",
+    "category": "Logs / Diagnostic Tips",
+    "targetElement": "Trang Nhật Ký / Log Drawer > Hộp Gợi Ý Giải Pháp (Tips)",
+    "samplePayload": "Mã lỗi: HTTP 429 / Sign in to confirm / FFmpeg not found",
+    "steps": [
+      "1. Khi gặp lỗi mạng hoặc chạy tác vụ bị YouTube chặn (hoặc xem dòng log ERROR).",
+      "2. Quan sát khung gợi ý giải pháp (Tips) xuất hiện bên dưới hoặc cạnh dòng lỗi.",
+      "3. Kiểm tra xem lời khuyên có hướng dẫn cụ thể hành động cần làm hay không."
+    ],
+    "expectedPass": [
+      "Lỗi HTTP 429 phân biệt rõ với lỗi không có CC, hướng dẫn tester kiểm tra IP/Proxy hoặc chờ giãn cách.",
+      "Lỗi cookie hết hạn hướng dẫn vào Quản lý Hồ sơ để đăng nhập lại tài khoản Google.",
+      "Không bao giờ bỏ mặc người dùng với thông điệp chung chung 'Unknown error occurred'."
+    ],
+    "expectedFailNotice": "Lỗi 429 bị báo sai thành 'Video không có phụ đề' hoặc không có giải thích nguyên nhân.",
+    "noteHint": "Xem nội dung gợi ý bằng tiếng Việt trong log drawer..."
+  },
+  {
+    "id": "tc-mod9-1",
+    "code": "TC-MOD9-01",
+    "module": "mod9",
+    "title": "Chuyển Đổi Giao Diện Sáng / Tối & Đa Ngôn Ngữ (VI, EN, ZH)",
+    "desc": "Kiểm tra đổi theme và ngôn ngữ ứng dụng trên toàn bộ các trang.",
+    "category": "Settings / Appearance & i18n",
+    "steps": [
+      "1. Tại trang Cài đặt, đổi giao diện từ Tối sang Sáng (hoặc Hệ thống).",
+      "2. Đổi ngôn ngữ từ 'Tiếng Việt' sang 'English' và '中文'.",
+      "3. Kiểm tra xem toàn bộ thanh điều hướng, nút bấm, nhãn chữ có đổi đúng ngôn ngữ hay không."
+    ],
+    "expectedPass": [
+      "Giao diện đổi màu mượt mà, độ tương phản chữ rõ ràng trên cả nền sáng và tối.",
+      "Toàn bộ các namespace i18n hiển thị đúng ngôn ngữ đã chọn, không bị sót chuỗi tiếng Anh hoặc lỗi missing key 'pages.settings.title'."
+    ],
+    "expectedFailNotice": "Quy tắc i18n: Xuất hiện key thô chưa dịch dạng 'settings.general.language'.",
+    "noteHint": "Kiểm tra tính đồng nhất của các tệp ngôn ngữ trong src/i18n/locales/..."
+  },
+  {
+    "id": "tc-mod9-2",
+    "code": "TC-MOD9-02",
+    "module": "mod9",
+    "title": "Kiểm Tra Trạng Thái Các Binary Cốt Lõi (FFmpeg, Python, BrowserMulti)",
+    "desc": "Kiểm tra bảng trạng thái môi trường thực thi của ứng dụng.",
+    "category": "Settings / Binary Integrity",
+    "steps": [
+      "1. Quan sát khu vực 'Tình trạng hệ thống' trong Cài đặt.",
+      "2. Kiểm tra các badge trạng thái của: FFmpeg, FFprobe, Python Embed, Deno và BrowserMulti 155.",
+      "3. Bấm nút 'Kiểm tra Cập nhật yt-dlp' để tải bản yt-dlp mới nhất."
+    ],
+    "expectedPass": [
+      "Tất cả binary cốt lõi đều hiển thị badge xanh lá 'Sẵn sàng' kèm phiên bản cụ thể.",
+      "Đường dẫn BrowserMulti trỏ đúng về runtime hợp lệ trong roots hoặc AppData.",
+      "Cập nhật yt-dlp tải thành công file nhị phân mới mà không gây xung đột quyền ghi."
+    ],
+    "expectedFailNotice": "Quy tắc chống hồi quy: Tuyệt đối không dùng symlink/junction trong thư mục roots/browsermulti.",
+    "noteHint": "Kiểm tra thư mục src-tauri/bin/..."
+  },
+  {
+    "id": "tc-mod9-3",
+    "code": "TC-MOD9-03",
+    "module": "mod9",
+    "title": "Cấu Hình AI Providers & Nút 'Kiểm tra kết nối AI'",
+    "desc": "Kiểm tra thiết lập API cho các mô hình AI hỗ trợ tạo tiêu đề và phân tích video.",
+    "category": "Settings / AI Configuration",
+    "steps": [
+      "1. Nhập Endpoint Ollama (VD: 'http://localhost:11434') hoặc API Key Gemini / DeepSeek.",
+      "2. Bấm nút 'Kiểm tra kết nối'.",
+      "3. Quan sát thông báo phản hồi từ nhà cung cấp AI."
+    ],
+    "expectedPass": [
+      "Nếu kết nối thành công: hiển thị thông báo xanh 'Kết nối thành công' kèm danh sách model khả dụng.",
+      "Nếu không có mạng hoặc sai key: hiển thị cảnh báo lỗi chi tiết.",
+      "Các khóa API được lưu trữ an toàn trong SQLite/Keyring."
+    ],
+    "expectedFailNotice": "Bấm kiểm tra kết nối làm đơ màn hình do không cài đặt timeout mạng.",
+    "noteHint": "Kiểm tra timeout gọi API tối đa 8s..."
+  },
+  {
+    "id": "tc-mod9-4",
+    "code": "TC-MOD9-04",
+    "module": "mod9",
+    "title": "Quản Lý Binary yt-dlp: Làm Mới Trạng Thái & Hỗ Trợ Đổi Kênh Cập Nhật (TC-34 Fix)",
+    "desc": "Kiểm tra nút làm mới phiên bản yt-dlp, hiển thị trạng thái chuẩn trợ năng (aria-label), chuyển kênh Stable/Nightly và kiểm tra cập nhật an toàn.",
+    "category": "Settings / Dependencies & Accessibility",
+    "targetElement": "Cài Đặt > Phụ Thuộc Hệ Thống > yt-dlp Card > Nút Làm Mới & Kênh Cập Nhật",
+    "samplePayload": "Nút icon RefreshCw (aria-label='Làm mới phiên bản yt-dlp')",
+    "steps": [
+      "1. Vào Cài đặt > tab 'Phụ thuộc' (Dependencies).",
+      "2. Quan sát thẻ yt-dlp: kiểm tra nút làm mới phiên bản có aria-label đầy đủ, hover có tooltip rõ ràng.",
+      "3. Bấm nút 'Làm mới' để truy vấn phiên bản nhị phân thực tế trên đĩa.",
+      "4. Thử chuyển đổi kênh cập nhật giữa Stable và Nightly hoặc bấm 'Kiểm tra cập nhật'."
+    ],
+    "expectedPass": [
+      "Nút làm mới xoay mượt mà, cập nhật phiên bản chính xác từ file nhị phân trong src-tauri/bin/.",
+      "Thẻ yt-dlp tuân thủ tiêu chuẩn trợ năng, người dùng khiếm thị hoặc dùng bàn phím có thể điều hướng dễ dàng.",
+      "Kiểm tra cập nhật phản hồi nhanh, không làm khóa luồng giao diện chính."
+    ],
+    "expectedFailNotice": "Nút làm mới không có aria-label hoặc bấm làm mới làm văng ứng dụng do xung đột truy cập file.",
+    "noteHint": "Kiểm tra console và badge phiên bản yt-dlp..."
+  }
+];
 
     // APP STATE
     let currentViewMode = 'module'; // 'module', 'focus', 'all'
@@ -1004,23 +1412,33 @@
     let currentFocusIndex = 0;
 
     // INIT
-    document.addEventListener('DOMContentLoaded', () => {
+    // ROBUST INITIALIZATION (HOẠT ĐỘNG 100% KHI MỞ TRỰC TIẾP FILE:// HOẶC WEB)
+    function initGuide() {
       // Sync theme
-      const savedTheme = localStorage.getItem('rtm_theme') || 'light';
+      const savedTheme = safeStorage.getItem('rtm_theme') || 'light';
       document.documentElement.className = savedTheme;
-      document.getElementById('themeText').textContent = savedTheme === 'dark' ? 'Giao diện: Sáng' : 'Giao diện: Tối';
+      const themeText = document.getElementById('themeText');
+      if (themeText) {
+        themeText.textContent = savedTheme === 'dark' ? 'Giao diện: Sáng' : 'Giao diện: Tối';
+      }
 
       // Load initial view
       updateMetrics();
       renderUI();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGuide);
+    } else {
+      initGuide();
+    }
 
     // THEME TOGGLER (KHÔNG ICON)
     function toggleTheme() {
       const isDark = document.documentElement.classList.contains('dark');
       const newTheme = isDark ? 'light' : 'dark';
       document.documentElement.className = newTheme;
-      localStorage.setItem('rtm_theme', newTheme);
+      safeStorage.setItem('rtm_theme', newTheme);
       document.getElementById('themeText').textContent = newTheme === 'dark' ? 'Giao diện: Sáng' : 'Giao diện: Tối';
     }
 
@@ -1087,16 +1505,17 @@
         }
 
         // Status filter
-        const savedStatus = localStorage.getItem(`rtm_status_${tc.id}`) || 'pending';
+        const savedStatus = safeStorage.getItem(`rtm_status_${tc.id}`) || 'pending';
         if (currentStatusFilter !== 'all' && savedStatus !== currentStatusFilter) return false;
 
         // Search query
         if (searchQuery) {
           const matchCode = tc.code.toLowerCase().includes(searchQuery);
           const matchTitle = tc.title.toLowerCase().includes(searchQuery);
+          const matchCat = (tc.category || tc.categoryName || '').toLowerCase().includes(searchQuery);
           const matchSteps = tc.steps.join(' ').toLowerCase().includes(searchQuery);
           const matchExpected = tc.expectedPass.join(' ').toLowerCase().includes(searchQuery);
-          if (!matchCode && !matchTitle && !matchSteps && !matchExpected) return false;
+          if (!matchCode && !matchTitle && !matchCat && !matchSteps && !matchExpected) return false;
         }
 
         return true;
@@ -1142,8 +1561,8 @@
       }
 
       list.forEach((tc) => {
-        const status = localStorage.getItem(`rtm_status_${tc.id}`) || 'pending';
-        const note = localStorage.getItem(`rtm_note_${tc.id}`) || '';
+        const status = safeStorage.getItem(`rtm_status_${tc.id}`) || 'pending';
+        const note = safeStorage.getItem(`rtm_note_${tc.id}`) || '';
 
         const card = document.createElement('div');
         card.id = `card-${tc.id}`;
@@ -1167,7 +1586,7 @@
                 }">
                   ${tc.code}
                 </span>
-                <span class="text-sm text-slate-500 dark:text-slate-400 font-semibold">${tc.categoryName}</span>
+                <span class="text-sm text-slate-500 dark:text-slate-400 font-semibold">${tc.categoryName || tc.category || ''}</span>
                 ${tc.isHotfix ? '<span class="px-2.5 py-0.5 rounded text-xs font-mono font-extrabold bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 border border-amber-300">[VỪA FIX]</span>' : ''}
               </div>
               <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-snug">${tc.title}</h2>
@@ -1211,6 +1630,24 @@
             
             <!-- THAO TÁC CẦN LÀM -->
             <div class="p-4.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-3">
+              ${tc.targetElement ? `
+                <div class="flex flex-wrap items-center gap-2 pb-1.5 border-b border-slate-200 dark:border-slate-700/60 mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Vị trí/Nút:</span>
+                  <span class="px-2.5 py-0.5 rounded-md text-xs font-mono font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                    ${tc.targetElement}
+                  </span>
+                </div>
+              ` : ''}
+              ${tc.samplePayload ? `
+                <div class="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 mb-2">
+                  <span class="text-xs font-mono text-slate-600 dark:text-slate-400 truncate max-w-[280px]" title="${tc.samplePayload.replace(/"/g, '&quot;')}">
+                    Payload: ${tc.samplePayload.replace(/"/g, '&quot;')}
+                  </span>
+                  <button type="button" onclick="navigator.clipboard.writeText(decodeURIComponent('${encodeURIComponent(tc.samplePayload)}')); alert('Đã sao chép dữ liệu mẫu!')" class="shrink-0 px-2.5 py-1 text-xs font-bold rounded-md bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shadow-2xs cursor-pointer">
+                    📋 Copy
+                  </button>
+                </div>
+              ` : ''}
               <div class="font-bold text-slate-800 dark:text-slate-200 text-base">
                 Thao Tác Thực Hiện Từng Bước:
               </div>
@@ -1261,8 +1698,8 @@
       if (currentFocusIndex < 0) currentFocusIndex = total - 1;
 
       const tc = QA_TEST_CASES[currentFocusIndex];
-      const status = localStorage.getItem(`rtm_status_${tc.id}`) || 'pending';
-      const note = localStorage.getItem(`rtm_note_${tc.id}`) || '';
+      const status = safeStorage.getItem(`rtm_status_${tc.id}`) || 'pending';
+      const note = safeStorage.getItem(`rtm_note_${tc.id}`) || '';
 
       container.innerHTML = `
         <div class="max-w-3xl mx-auto p-7 sm:p-9 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl space-y-7">
@@ -1273,7 +1710,7 @@
               <span class="px-3.5 py-1.5 rounded-lg font-mono text-base font-bold bg-emerald-600 text-white shadow-xs">
                 ${tc.code}
               </span>
-              <span class="text-base font-bold text-slate-600 dark:text-slate-300">${tc.categoryName}</span>
+              <span class="text-base font-bold text-slate-600 dark:text-slate-300">${tc.categoryName || tc.category || ''}</span>
               ${tc.isHotfix ? '<span class="px-2.5 py-1 rounded text-xs font-mono font-extrabold bg-amber-100 text-amber-900 border border-amber-300">[VỪA FIX]</span>' : ''}
             </div>
             <div class="font-mono text-sm text-slate-500">
@@ -1288,7 +1725,25 @@
 
           <!-- Big Steps -->
           <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-3.5">
-            <h3 class="font-bold text-slate-800 dark:text-slate-200 text-base">
+            ${tc.targetElement ? `
+                <div class="flex flex-wrap items-center gap-2 pb-1.5 border-b border-slate-200 dark:border-slate-700/60 mb-2">
+                  <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Vị trí/Nút:</span>
+                  <span class="px-2.5 py-0.5 rounded-md text-xs font-mono font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                    ${tc.targetElement}
+                  </span>
+                </div>
+              ` : ''}
+              ${tc.samplePayload ? `
+                <div class="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 mb-2">
+                  <span class="text-xs font-mono text-slate-600 dark:text-slate-400 truncate max-w-[340px]" title="${tc.samplePayload.replace(/"/g, '&quot;')}">
+                    Payload: ${tc.samplePayload.replace(/"/g, '&quot;')}
+                  </span>
+                  <button type="button" onclick="navigator.clipboard.writeText(decodeURIComponent('${encodeURIComponent(tc.samplePayload)}')); alert('Đã sao chép dữ liệu mẫu!')" class="shrink-0 px-2.5 py-1 text-xs font-bold rounded-md bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 shadow-2xs cursor-pointer">
+                    📋 Copy
+                  </button>
+                </div>
+              ` : ''}
+              <h3 class="font-bold text-slate-800 dark:text-slate-200 text-base">
               Thao Tác Cần Làm:
             </h3>
             <ol class="space-y-3 text-base text-slate-700 dark:text-slate-200 list-decimal list-inside pl-2 leading-relaxed">
@@ -1370,7 +1825,7 @@
 
     // SET STATUS
     function setCaseStatus(id, newStatus) {
-      localStorage.setItem(`rtm_status_${id}`, newStatus);
+      safeStorage.setItem(`rtm_status_${id}`, newStatus);
       updateMetrics();
       if (currentViewMode !== 'focus') {
         renderCardsList();
@@ -1378,7 +1833,7 @@
     }
 
     function setCaseStatusAndNext(id, newStatus) {
-      localStorage.setItem(`rtm_status_${id}`, newStatus);
+      safeStorage.setItem(`rtm_status_${id}`, newStatus);
       updateMetrics();
       currentFocusIndex++;
       renderFocusMode();
@@ -1386,7 +1841,7 @@
 
     // SAVE NOTE
     function saveCaseNote(id, noteText) {
-      localStorage.setItem(`rtm_note_${id}`, noteText);
+      safeStorage.setItem(`rtm_note_${id}`, noteText);
     }
 
     // UPDATE METRICS & TAB BADGES
@@ -1410,7 +1865,7 @@
       };
 
       QA_TEST_CASES.forEach((tc) => {
-        const st = localStorage.getItem(`rtm_status_${tc.id}`) || 'pending';
+        const st = safeStorage.getItem(`rtm_status_${tc.id}`) || 'pending';
         if (st === 'pass') passCount++;
         else if (st === 'fail') failCount++;
         else pendingCount++;

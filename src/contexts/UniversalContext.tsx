@@ -55,6 +55,8 @@ import type {
   PostDownloadPluginPayload,
   PreferredFps,
   Quality,
+  SubtitleFormat,
+  SubtitleMode,
   VideoCodec,
   VideoInfoResponse,
   YtdlpAdvancedOption,
@@ -70,8 +72,10 @@ import { sanitizeYtdlpAdvancedOptions } from '@/lib/ytdlp-advanced-options';
 import { useDownload } from './download-context';
 import { UniversalContext } from './universal-context';
 
-const STORAGE_KEY = 'youwee-universal-settings';
-const DOWNLOAD_STORAGE_KEY = 'youwee-settings';
+const STORAGE_KEY = 'retubematrix-universal-settings';
+const LEGACY_STORAGE_KEY = 'youwee-universal-settings';
+const DOWNLOAD_STORAGE_KEY = 'retubematrix-settings';
+const LEGACY_DOWNLOAD_STORAGE_KEY = 'youwee-settings';
 const DOWNLOAD_QUEUE_IDLE_GRACE_MS = 1000;
 
 // Format duration in seconds to HH:MM:SS or MM:SS
@@ -121,7 +125,7 @@ async function resolveDefaultOutputPath(): Promise<string> {
 // Load settings from localStorage
 function loadSavedSettings(): Partial<UniversalSettings> {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     if (saved) {
       return JSON.parse(saved);
     }
@@ -134,7 +138,9 @@ function loadSavedSettings(): Partial<UniversalSettings> {
 // Load embed settings from main download settings
 function loadEmbedSettings(): { embedMetadata: boolean; embedThumbnail: boolean } {
   try {
-    const saved = localStorage.getItem(DOWNLOAD_STORAGE_KEY);
+    const saved =
+      localStorage.getItem(DOWNLOAD_STORAGE_KEY) ||
+      localStorage.getItem(LEGACY_DOWNLOAD_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       return {
@@ -151,7 +157,9 @@ function loadEmbedSettings(): { embedMetadata: boolean; embedThumbnail: boolean 
 // Load SponsorBlock settings from main download settings
 function loadSponsorBlockArgs(): { remove: string | null; mark: string | null } {
   try {
-    const saved = localStorage.getItem(DOWNLOAD_STORAGE_KEY);
+    const saved =
+      localStorage.getItem(DOWNLOAD_STORAGE_KEY) ||
+      localStorage.getItem(LEGACY_DOWNLOAD_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       if (!parsed.sponsorBlock) return { remove: null, mark: null };
@@ -185,7 +193,9 @@ function loadDownloadAdvancedSettings(): {
   ytdlpAdvancedOptions: YtdlpAdvancedOption[];
 } {
   try {
-    const saved = localStorage.getItem(DOWNLOAD_STORAGE_KEY);
+    const saved =
+      localStorage.getItem(DOWNLOAD_STORAGE_KEY) ||
+      localStorage.getItem(LEGACY_DOWNLOAD_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       return {
@@ -242,6 +252,10 @@ export interface UniversalContextType {
   updateConcurrentDownloads: (concurrent: number) => void;
   updateLiveFromStart: (enabled: boolean) => void;
   updateSkipLive: (enabled: boolean) => void;
+  updateSubtitleMode: (mode: SubtitleMode) => void;
+  updateSubtitleLangs: (langs: string[]) => void;
+  updateSubtitleEmbed: (embed: boolean) => void;
+  updateSubtitleFormat: (format: SubtitleFormat) => void;
   updateAutoRetry: (enabled: boolean, maxAttempts: number, delaySeconds: number) => void;
   // Cookie error detection
   cookieError: { show: boolean; itemId?: string; kind: 'db_locked' | 'fresh_cookies' } | null;
@@ -965,7 +979,9 @@ export function UniversalProvider({ children }: { children: ReactNode }) {
       // Use item's saved settings (snapshot from when it was added)
       // Fallback to current global settings if not available
       const itemSettings = item.settings as ItemUniversalSettings | undefined;
-      const logStderr = localStorage.getItem('youwee_log_stderr') !== 'false';
+      const logStderr =
+        (localStorage.getItem('retubematrix_log_stderr') ??
+          localStorage.getItem('youwee_log_stderr')) !== 'false';
       const cookieSettings = loadCookieSettings();
       const proxySettings = loadProxySettings();
       const networkOptions = buildCookieProxyInvokeOptions(cookieSettings, proxySettings);
@@ -1018,10 +1034,10 @@ export function UniversalProvider({ children }: { children: ReactNode }) {
             preferredFps: itemSettings?.preferredFps ?? settings.preferredFps,
             audioBitrate: itemSettings?.audioBitrate ?? settings.audioBitrate,
             playlistLimit: null,
-            subtitleMode: 'off',
-            subtitleLangs: '',
-            subtitleEmbed: false,
-            subtitleFormat: 'srt',
+            subtitleMode: settings.subtitleMode,
+            subtitleLangs: settings.subtitleLangs.join(','),
+            subtitleEmbed: settings.subtitleEmbed,
+            subtitleFormat: settings.subtitleFormat,
             // Logging settings
             logStderr,
             // Cookie settings
@@ -1338,6 +1354,38 @@ export function UniversalProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const updateSubtitleMode = useCallback((subtitleMode: SubtitleMode) => {
+    setSettings((s) => {
+      const newSettings = { ...s, subtitleMode };
+      saveSettings(newSettings);
+      return newSettings;
+    });
+  }, []);
+
+  const updateSubtitleLangs = useCallback((subtitleLangs: string[]) => {
+    setSettings((s) => {
+      const newSettings = { ...s, subtitleLangs };
+      saveSettings(newSettings);
+      return newSettings;
+    });
+  }, []);
+
+  const updateSubtitleEmbed = useCallback((subtitleEmbed: boolean) => {
+    setSettings((s) => {
+      const newSettings = { ...s, subtitleEmbed };
+      saveSettings(newSettings);
+      return newSettings;
+    });
+  }, []);
+
+  const updateSubtitleFormat = useCallback((subtitleFormat: SubtitleFormat) => {
+    setSettings((s) => {
+      const newSettings = { ...s, subtitleFormat };
+      saveSettings(newSettings);
+      return newSettings;
+    });
+  }, []);
+
   const updateAutoRetry = useCallback(
     (autoRetryEnabled: boolean, autoRetryMaxAttempts: number, autoRetryDelaySeconds: number) => {
       setSettings((s) => {
@@ -1419,6 +1467,10 @@ export function UniversalProvider({ children }: { children: ReactNode }) {
       updateConcurrentDownloads,
       updateLiveFromStart,
       updateSkipLive,
+      updateSubtitleMode,
+      updateSubtitleLangs,
+      updateSubtitleEmbed,
+      updateSubtitleFormat,
       updateAutoRetry,
       // Cookie error detection
       cookieError,
@@ -1453,6 +1505,10 @@ export function UniversalProvider({ children }: { children: ReactNode }) {
       updateConcurrentDownloads,
       updateLiveFromStart,
       updateSkipLive,
+      updateSubtitleMode,
+      updateSubtitleLangs,
+      updateSubtitleEmbed,
+      updateSubtitleFormat,
       updateAutoRetry,
       cookieError,
       clearCookieError,

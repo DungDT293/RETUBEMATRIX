@@ -27,25 +27,34 @@ def get_ytdlp_bin() -> str:
     py_app_root = os.path.dirname(py_root)
 
     candidates = [
-        # 1. App binary directory (Tauri packaging & dev)
-        os.path.join(app_root, "bin", "youwee-yt-dlp-x86_64-pc-windows-msvc.exe"),
+        # 1. RETubeMatrix binaries in Tauri dev & build
+        os.path.join(app_root, "src-tauri", "bin", "retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe"),
+        os.path.join(app_root, "bin", "retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe"),
+        os.path.join(app_root, "bin", "retubematrix-yt-dlp.exe"),
         os.path.join(app_root, "bin", "yt-dlp.exe"),
-        os.path.join(app_root, "youwee-yt-dlp.exe"),
+        os.path.join(app_root, "retubematrix-yt-dlp.exe"),
         os.path.join(app_root, "yt-dlp.exe"),
-        os.path.join(py_app_root, "bin", "youwee-yt-dlp-x86_64-pc-windows-msvc.exe"),
+        os.path.join(py_app_root, "src-tauri", "bin", "retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe"),
+        os.path.join(py_app_root, "bin", "retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe"),
         os.path.join(py_app_root, "bin", "yt-dlp.exe"),
-        os.path.join(py_app_root, "youwee-yt-dlp.exe"),
+        os.path.join(py_app_root, "retubematrix-yt-dlp.exe"),
         os.path.join(py_app_root, "yt-dlp.exe"),
+        # Legacy name fallbacks
+        os.path.join(app_root, "bin", "youwee-yt-dlp-x86_64-pc-windows-msvc.exe"),
+        os.path.join(py_app_root, "bin", "youwee-yt-dlp-x86_64-pc-windows-msvc.exe"),
         # 2. Python environment scripts
         os.path.join(sys.prefix, "Scripts", "yt-dlp.exe"),
         os.path.join(sys.prefix, "bin", "yt-dlp"),
         os.path.join(py_root, "Scripts", "yt-dlp.exe"),
         # 3. User AppData
+        os.path.expandvars(r"%APPDATA%\com.retubematrix.app\bin\yt-dlp.exe"),
+        os.path.expandvars(r"%LOCALAPPDATA%\com.retubematrix.app\bin\yt-dlp.exe"),
+        os.path.expandvars(r"%APPDATA%\com.vanloctech.retubematrix\bin\yt-dlp.exe"),
+        os.path.expandvars(r"%LOCALAPPDATA%\com.vanloctech.retubematrix\bin\yt-dlp.exe"),
         os.path.expandvars(r"%APPDATA%\com.vanloctech.youwee\bin\yt-dlp.exe"),
         os.path.expandvars(r"%APPDATA%\com.vanloctech.youwee\bin\yt-dlp-stable.exe"),
         os.path.expandvars(r"%APPDATA%\com.vanloctech.youwee\bin\yt-dlp-nightly.exe"),
         os.path.expandvars(r"%LOCALAPPDATA%\com.vanloctech.youwee\bin\yt-dlp.exe"),
-        r"C:\Users\Admin\AppData\Local\Programs\Python\Python311\Scripts\yt-dlp.exe",
     ]
     for c in candidates:
         if os.path.exists(c):
@@ -145,9 +154,9 @@ def is_reup_safe_and_valid_small_channel(video: Dict, settings: Dict) -> Tuple[b
         if bad_word in title_lower or bad_word in channel_lower:
             return False, f"Dính Blacklist bản quyền nặng: '{bad_word}'"
 
-    # 2. CHỐT CHẶN 2: CHẶN KÊNH CÓ DẤU TÍCH XÁC MINH (VERIFIED CHANNEL = KÊNH LỚN >100K SUB)
-    if video.get("channel_is_verified") is True:
-        return False, "Loại bỏ: Kênh có tích Xác minh chính chủ YouTube (Kênh lớn >100K subs)"
+    # 2. CHỐT CHẶN 2: CHẶN KÊNH CÓ DẤU TÍCH XÁC MINH CỦA KÊNH QUÁ LỚN (>200K SUB)
+    if video.get("channel_is_verified") is True and raw_subs > 200000:
+        return False, f"Loại bỏ: Kênh có tích Xác minh lớn ({raw_subs:,} subs > 200K)"
 
     # 3. CHỐT CHẶN 3: PHÒNG VỆ SUB & LỖI PARSE (Tránh biến kênh triệu sub thành 340 sub)
     if raw_subs <= 0:
@@ -161,29 +170,29 @@ def is_reup_safe_and_valid_small_channel(video: Dict, settings: Dict) -> Tuple[b
     if views > 100_000 and raw_subs < 100:
         return False, f"Loại bỏ: Kênh bất thường ({raw_subs} subs nhưng {views:,} views)"
 
-    # Kênh vượt quá Max Subscribers trong cấu hình (mặc định 25k-50k)
-    max_subs = safe_int(settings.get("max_subscribers"), 50000)
+    # Kênh vượt quá Max Subscribers trong cấu hình (Linh hoạt: mặc định 150k subs, nếu ratio >= 3.0x cho phép tới 250k)
+    base_max_subs = safe_int(settings.get("max_subscribers"), 150000)
+    ratio_sub = views / max(raw_subs, 1)
+    max_subs = 250000 if ratio_sub >= 3.0 else base_max_subs
     if raw_subs > max_subs:
         return False, f"Kênh quá lớn: {raw_subs:,} subs (ngưỡng tối đa: {max_subs:,})"
 
-    # 4. CHỐT CHẶN 4: GIỚI HẠN THỜI LƯỢNG (Chặn Gameshow / Livestream / Phim dài >60 phút)
+    # 4. CHỐT CHẶN 4: GIỚI HẠN THỜI LƯỢNG (Chặn Gameshow / Livestream / Phim siêu dài > 3 tiếng)
     if is_live:
         return False, "Loại bỏ: Video Live Stream"
 
-    is_music_mix = any(k in title_lower for k in ["mix", "set", "playlist", "nhạc", "house", "edm", "remix"])
-    default_max = 7200 if is_music_mix else 3600  # 60 phút cho video thường, 120 phút cho set nhạc
-    max_dur = safe_int(settings.get("max_duration"), default_max)
+    # Cho phép video tổng hợp công thức, kiến thức, podcast, lofi dài tối đa 3 tiếng (180 phút)
+    max_dur = safe_int(settings.get("max_duration"), 10800)
     if duration > max_dur:
         return False, f"Thời lượng quá dài: {duration//60} phút (> {max_dur//60} phút - Dễ dính Gameshow/Phim dài tập)"
 
-    min_dur = safe_int(settings.get("min_duration"), 180)
+    min_dur = safe_int(settings.get("min_duration"), 60)
     if duration < min_dur:
         return False, f"Thời lượng quá ngắn: {duration}s (< {min_dur}s)"
 
-    # 5. CHỐT CHẶN 5: KHỐNG CHẾ TRẦN VIEW CHO KÊNH NHỎ (Chặn Bom Tấn Truyền Thông)
-    # Kênh nhỏ dưới 50k sub khi nổ đề xuất thường nằm ở dải 20k - 800k views.
-    # Video >2M views trong 1-7 ngày 99.9% là siêu sao / gameshow quốc gia.
-    if views > 2_000_000:
+    # 5. CHỐT CHẶN 5: KHỐNG CHẾ TRẦN VIEW (Chặn Bom Tấn Truyền Thông/Đài Lớn >8 Triệu Views)
+    # Kênh nhỏ có video bứt phá 1M - 4M views là siêu phẩm cực kỳ giá trị để Reup/học hỏi cấu trúc.
+    if views > 8_000_000:
         return False, f"View quá khủng ({views:,}) của Đài lớn/Ngôi sao, không an toàn Reup"
 
     return True, "An toàn"
@@ -210,35 +219,36 @@ def evaluate_outlier_candidate(
     hours = max(safe_float(video.get("hours_published"), 1.0), 1.0)
     likes = safe_int(video.get("like_count") if video.get("like_count") is not None else video.get("likes"), 0)
     comments = safe_int(video.get("comment_count") if video.get("comment_count") is not None else video.get("comments"), 0)
-    min_dur = safe_int(settings.get("min_duration"), 180)
+    min_dur = safe_int(settings.get("min_duration"), 60)
 
-    # Khung giờ vàng (2h - 336h, tức từ 2 giờ đến 14 ngày)
-    if hours < 2.0 or hours > 336.0:
-        return None, f"Ngoài khung giờ vàng: Hours={hours:.1f}h (Yêu cầu: 2h - 336h)"
+    # Khung giờ: Cho phép các video bứt phá ngách mọi thời điểm (mặc định mở rộng)
+    max_hours = safe_float(settings.get("max_hours_published"), 87600.0)
+    if hours < 1.0 or hours > max_hours:
+        return None, f"Ngoài khung giờ: Hours={hours:.1f}h"
 
     # Quy mô cơ sở (Kênh nhỏ - View lớn)
-    min_views = safe_int(settings.get("min_views"), 15000)
+    min_views = safe_int(settings.get("min_views"), 3000)
     if views < min_views:
         return None, f"Views={views:,} (<{min_views:,})"
 
+    # Tỷ lệ Đột biến Sub
+    sub_outlier = views / subs_floor
+    min_sub_out = safe_float(settings.get("min_sub_outlier"), 1.8)
+    if sub_outlier < min_sub_out:
+        return None, f"Chưa đạt Sub Outlier: {sub_outlier:.1f}x (<{min_sub_out}x)"
+
     # Bộ lọc Chống Buff View & Google Ads (Organic Engagement)
     engagement_rate = (likes + comments) / views if views > 0 else 0.0
-    min_eng = safe_float(settings.get("min_engagement_rate"), 0.008)
-    min_cmt = safe_int(settings.get("min_comments"), 10)
-    if engagement_rate < min_eng or comments < min_cmt:
-        return None, f"Nghi vấn Ads/Buff: Engagement={engagement_rate*100:.2f}% (<{min_eng*100}%), Cmt={comments}"
+    min_eng = safe_float(settings.get("min_engagement_rate"), 0.002)
+    min_cmt = safe_int(settings.get("min_comments"), 2)
+    if engagement_rate < min_eng and comments < min_cmt:
+        return None, f"Nghi vấn Ads/Buff: Engagement={engagement_rate*100:.2f}%, Cmt={comments}"
 
     # Vận tốc View Trung bình (VPH)
     avg_vph = views / hours
-    min_vph = safe_float(settings.get("min_vph"), 200.0)
-    if avg_vph < min_vph:
+    min_vph = safe_float(settings.get("min_vph"), 0.5)
+    if avg_vph < min_vph and sub_outlier < 2.5:
         return None, f"Vận tốc view yếu: {avg_vph:.1f} VPH (<{min_vph} VPH)"
-
-    # Tỷ lệ Đột biến Kép (Sub Outlier & Baseline Median Outlier)
-    sub_outlier = views / subs_floor
-    min_sub_out = safe_float(settings.get("min_sub_outlier"), 3.0)
-    if sub_outlier < min_sub_out:
-        return None, f"Chưa đạt Sub Outlier: {sub_outlier:.1f}x (<{min_sub_out}x)"
 
     # QUAN TRỌNG: Loại trừ chính video đang xét và các video Shorts (<min_dur) khỏi mẫu tính Median
     valid_recent_views = [
@@ -256,9 +266,9 @@ def evaluate_outlier_candidate(
         baseline_median = int(statistics.median(valid_recent_views))
     
     baseline_outlier = views / max(baseline_median, 500)
-    min_base_out = safe_float(settings.get("min_baseline_outlier"), 4.5)
+    min_base_out = safe_float(settings.get("min_baseline_outlier"), 1.8)
 
-    if baseline_outlier >= min_base_out:
+    if baseline_outlier >= min_base_out or sub_outlier >= 2.2:
         now_ts = int(time.time())
         initial_history = [{"ts": now_ts, "views": views, "vph": round(avg_vph, 1)}]
         
@@ -342,7 +352,7 @@ def fetch_channel_recent_videos(channel_url: str, limit: int = 15) -> List[Dict]
         target
     ]
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=20)
+        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=5)
         videos = []
         for line in res.stdout.splitlines():
             line = line.strip()
@@ -516,11 +526,34 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
     Truy cập tab video của kênh đối thủ, sắp xếp theo 'Phổ biến' (Popular) hoặc 'Mới nhất'.
     Trích xuất: lượt xem, thời gian đăng, tính toán VPH (lượt xem theo giờ), điểm từ khóa, tags.
     """
-    if not channel_url:
+    raw_url = (channel_url or "").strip()
+    if not raw_url:
         return []
 
-    ytdlp_bin = get_ytdlp_bin()
-    clean_url = channel_url.rstrip("/")
+    # 1. Chuẩn hóa URL kênh đối thủ (hỗ trợ @handle, URL có tham số ?si=..., hoặc thiếu https://)
+    if raw_url.startswith("@"):
+        clean_url = f"https://www.youtube.com/{raw_url}"
+    elif not (raw_url.startswith("http://") or raw_url.startswith("https://")):
+        if "youtube.com" in raw_url or "youtu.be" in raw_url:
+            clean_url = f"https://{raw_url}"
+        elif raw_url.isalnum():
+            clean_url = f"https://www.youtube.com/@{raw_url}"
+        else:
+            clean_url = f"https://www.youtube.com/{raw_url}"
+    else:
+        clean_url = raw_url
+
+    # Bỏ query parameters (?si=..., ?sub_confirmation=...)
+    if "?" in clean_url:
+        clean_url = clean_url.split("?")[0]
+    clean_url = clean_url.rstrip("/")
+
+    # Loại bỏ subtab cũ nếu có để trỏ đúng /videos
+    for sub in ["/featured", "/community", "/about", "/playlists", "/streams", "/shorts"]:
+        if clean_url.endswith(sub):
+            clean_url = clean_url[:-len(sub)]
+            break
+
     if not clean_url.endswith("/videos"):
         target_url = clean_url + "/videos"
     else:
@@ -530,6 +563,10 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
         target_url += "?view=0&sort=p"
     else:
         target_url += "?view=0&sort=dd"
+
+    ytdlp_bin = get_ytdlp_bin()
+    if not os.path.exists(ytdlp_bin) and not shutil.which(ytdlp_bin):
+        raise RuntimeError(f"Không tìm thấy công cụ yt-dlp tại: {ytdlp_bin}")
 
     cmd = [
         ytdlp_bin,
@@ -541,16 +578,16 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
     ]
 
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=30)
+        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=35)
     except Exception as e:
-        logger.error(f"Lỗi phân tích kênh đối thủ {channel_url}: {e}")
-        return []
+        logger.error(f"Lỗi thực thi yt-dlp khi phân tích kênh đối thủ {channel_url}: {e}")
+        raise RuntimeError(f"Lỗi chạy yt-dlp: {e}")
 
     now_ts = int(time.time())
     videos = []
 
-    for line in res.stdout.splitlines():
-        line = line.strip()
+    lines = [line.strip() for line in res.stdout.splitlines() if line.strip()]
+    for idx, line in enumerate(lines):
         if not (line.startswith("{") and line.endswith("}")):
             continue
         try:
@@ -570,14 +607,29 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
                 t_struct = time.strptime(t_str, "%Y%m%d")
                 upload_ts = int(time.mktime(t_struct))
             except Exception:
-                upload_ts = now_ts - 86400
-        upload_ts = upload_ts or (now_ts - 86400)
-        hours_published = max((now_ts - upload_ts) / 3600.0, 1.0)
+                upload_ts = None
+
+        if upload_ts:
+            hours_published = max((now_ts - upload_ts) / 3600.0, 1.0)
+        elif sort_by == "latest":
+            # Ước lượng khoảng cách hợp lý cho danh sách video mới nhất
+            hours_published = max((idx + 1) * 24.0, 12.0)
+        else:
+            # Video phổ biến nhất (all-time): tích lũy qua nhiều tháng
+            hours_published = max(720.0, 24.0 * (45 + idx * 15))
+
         vph = round(views / hours_published, 1)
 
         title = raw.get("title") or "Untitled Video"
         words = title.split()
-        keyword_score = min(len(words) * 8 + (25 if vph > 500 else 10), 100)
+
+        # Tính điểm SEO thông minh thực tế (từ 50 - 98)
+        base_score = 45
+        len_bonus = 20 if 30 <= len(title) <= 80 else (10 if len(title) > 80 else 5)
+        word_bonus = 15 if 5 <= len(words) <= 14 else 8
+        num_bonus = 10 if any(char.isdigit() for char in title) else 0
+        vph_bonus = 10 if vph > 100 else (5 if vph > 20 else 0)
+        keyword_score = min(base_score + len_bonus + word_bonus + num_bonus + vph_bonus, 98)
 
         videos.append({
             "id": vid_id,
@@ -589,8 +641,12 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
             "hours_published": round(hours_published, 1),
             "vph": vph,
             "keyword_score": keyword_score,
-            "uploader": raw.get("uploader") or raw.get("channel") or "Đối thủ",
+            "uploader": raw.get("uploader") or raw.get("channel") or raw.get("playlist_channel") or "Đối thủ",
         })
+
+    if not videos and res.returncode != 0:
+        err_hint = res.stderr.strip() if res.stderr else "Không tìm thấy video nào trên kênh đối thủ"
+        raise RuntimeError(f"Không thể tải video từ kênh đối thủ: {err_hint[:200]}")
 
     if sort_by == "popular":
         videos.sort(key=lambda x: x["views"], reverse=True)
@@ -715,46 +771,41 @@ def analyze_video_hook_and_transcript(video_id: str) -> Dict:
     }
 
 
-def hunt_niche_outliers(
-    target_niche: str, 
-    settings: Dict, 
-    channel_cache: Optional[Dict[str, List[Dict]]] = None
+IKIGAI_GOLDEN_NICHES = [
+    {"name": "Nấu ăn 1 mình", "query": "nấu ăn cho người ở 1 mình", "category": "Nhóm 3: View Ngoại / Dễ Làm"},
+    {"name": "Món sinh viên tiết kiệm", "query": "món ăn sinh viên tiết kiệm", "category": "Nhóm 3: View Ngoại / Dễ Làm"},
+    {"name": "Tài chính cá nhân", "query": "quản lý tài chính cá nhân", "category": "Nhóm 1: CPM Cao / Giáo Dục"},
+    {"name": "Công nghệ & AI Tools", "query": "công cụ ai kiếm tiền", "category": "Nhóm 1: CPM Cao / Giáo Dục"},
+    {"name": "Nhạc Lofi Chill", "query": "nhạc lofi chill học bài", "category": "Nhóm 2: View Khủng / Dễ Scale"},
+    {"name": "ASMR Satisfying", "query": "asmr satisfying âm thanh thư giãn", "category": "Nhóm 2: View Khủng / Dễ Scale"},
+    {"name": "Nhạc nền BGM không bản quyền", "query": "nhạc nền no copyright bgm", "category": "Nhóm 3: View Ngoại / Dễ Làm"},
+]
+
+
+def _scan_single_query(
+    query_text: str,
+    niche_label: str,
+    settings: Dict,
+    channel_cache: Dict[str, List[Dict]],
+    limit: int = 15
 ) -> List[Dict]:
-    """
-    TẦNG 1 & TẦNG 2: Quét video ngách theo thời gian và đánh giá Outlier Kép.
-    Tối ưu hóa: Lọc sơ bộ In-Memory trước khi tải channel baseline (Lazy Fetching).
-    """
-    if channel_cache is None:
-        channel_cache = {}
-
-    clean_niche = target_niche.strip()
-    if not clean_niche or clean_niche.lower() in ("all", "tất cả các ngách"):
-        clean_niche = "nấu ăn cho người ở 1 mình"
-
-    logger.info(f"Bắt đầu săn video đột biến cho ngách Ikigai: '{clean_niche}'")
-    search_term = clean_niche
-    query = f"ytsearch30:{search_term}"
     ytdlp_bin = get_ytdlp_bin()
     if not shutil.which(ytdlp_bin) and not os.path.exists(ytdlp_bin):
-        raise FileNotFoundError(f"Không tìm thấy file thực thi yt-dlp tại '{ytdlp_bin}'. Vui lòng kiểm tra lại cấu hình hoặc bộ cài.")
+        raise FileNotFoundError(f"Không tìm thấy file thực thi yt-dlp tại '{ytdlp_bin}'.")
 
     cmd = [
         ytdlp_bin,
         "--dump-json",
-        "--playlist-end", "30",
+        "--playlist-end", str(limit),
         "--no-warnings",
-        query
+        f"ytsearch{limit}:{query_text}"
     ]
 
     try:
         res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=45)
     except Exception as e:
-        logger.error(f"Lỗi chạy yt-dlp hunt_niche_outliers: {e}")
-        raise RuntimeError(f"Lỗi thực thi yt-dlp ({ytdlp_bin}): {e}") from e
-
-    if res.returncode != 0 and not res.stdout.strip():
-        err_msg = res.stderr.strip() if res.stderr else f"Exit code {res.returncode}"
-        raise RuntimeError(f"yt-dlp quét video thất bại ({ytdlp_bin}): {err_msg}")
+        logger.error(f"Lỗi chạy yt-dlp cho '{query_text}': {e}")
+        return []
 
     discovered = []
     now_ts = int(time.time())
@@ -772,7 +823,6 @@ def hunt_niche_outliers(
         if not vid_id:
             continue
 
-        # Tính hours_published
         upload_ts = raw.get("timestamp")
         if not upload_ts and raw.get("upload_date"):
             try:
@@ -781,7 +831,7 @@ def hunt_niche_outliers(
                 upload_ts = int(time.mktime(t_struct))
             except Exception:
                 upload_ts = now_ts - 86400
-        
+
         upload_ts = upload_ts or (now_ts - 86400)
         hours_published = max((now_ts - upload_ts) / 3600.0, 1.0)
 
@@ -813,54 +863,43 @@ def hunt_niche_outliers(
             "was_live": bool(raw.get("was_live", False)),
         }
 
-        # -------------------------------------------------------------
-        # 0. CHỐT CHẶN BẢO VỆ TOÀN DIỆN (Blacklist, Verified, Parse Sub, Max Duration, Max Views)
-        # -------------------------------------------------------------
+        # 0. Chốt chặn bảo vệ bản quyền & kênh nhỏ
         safe, safe_reason = is_reup_safe_and_valid_small_channel(video_candidate, settings)
         if not safe:
             logger.debug(f"Bỏ qua '{video_candidate['title'][:40]}': {safe_reason}")
             continue
 
-        # -------------------------------------------------------------
-        # TỐI ƯU HÓA HIỆU NĂNG: SƠ TUYỂN IN-MEMORY TRƯỚC KHI GỌI BASELINE
-        # Khung giờ vàng từ 2 giờ đến 14 ngày (336h)
-        if hours_published < 2.0 or hours_published > 336.0:
+        # Sơ tuyển nhanh (Linh hoạt cho cả video mới nổ & nội dung Evergreen):
+        max_hours = safe_float(settings.get("max_hours_published"), 87600.0)
+        if hours_published < 1.0 or hours_published > max_hours:
             continue
 
-        min_views = int(settings.get("min_views", 15000))
+        min_views = int(settings.get("min_views", 3000))
         if video_candidate["views"] < min_views:
             continue
 
-        engagement_rate = (video_candidate["likes"] + video_candidate["comments"]) / video_candidate["views"] if video_candidate["views"] > 0 else 0.0
-        min_eng = float(settings.get("min_engagement_rate", 0.008))
-        min_cmt = int(settings.get("min_comments", 10))
-        if engagement_rate < min_eng or video_candidate["comments"] < min_cmt:
-            continue
-
-        avg_vph = video_candidate["views"] / hours_published
-        min_vph = float(settings.get("min_vph", 200.0))
-        if avg_vph < min_vph:
-            continue
-
-        subs_floor = max(video_candidate["subscribers"], 500)
+        subs_floor = max(video_candidate["subscribers"], 300)
         sub_outlier = video_candidate["views"] / subs_floor
-        min_sub_out = float(settings.get("min_sub_outlier", 3.0))
+        min_sub_out = float(settings.get("min_sub_outlier", 1.8))
         if sub_outlier < min_sub_out:
             continue
 
-        # ĐÃ VƯỢT QUA SƠ LỌC -> TẢI BASELINE 15 VIDEO CỦA KÊNH (DÙNG CACHE)
+        # Đạt sơ lọc -> Tải baseline kênh (chỉ fetch khi sub_outlier cận biên < 2.0x để tăng tốc độ quét)
         ch_url = video_candidate["channel_url"]
         recent_videos = []
-        if ch_url:
+        if ch_url and sub_outlier < 2.0:
             if ch_url in channel_cache:
                 recent_videos = channel_cache[ch_url]
             else:
-                recent_videos = fetch_channel_recent_videos(ch_url, limit=15)
-                channel_cache[ch_url] = recent_videos
+                try:
+                    recent_videos = fetch_channel_recent_videos(ch_url, limit=8)
+                    channel_cache[ch_url] = recent_videos
+                except Exception:
+                    recent_videos = []
 
         evaluation, reason = evaluate_outlier_candidate(video_candidate, recent_videos, settings)
         if evaluation:
-            logger.info(f" [OUTLIER DISCOVERED] '{video_candidate['title']}' | Sub: {video_candidate['subscribers']} | View: {video_candidate['views']} | SubRatio: {evaluation['sub_outlier_ratio']}x | BaseRatio: {evaluation['baseline_outlier_ratio']}x")
+            logger.info(f" [OUTLIER DISCOVERED] '{video_candidate['title']}' | Niche: {niche_label} | Sub: {video_candidate['subscribers']} | View: {video_candidate['views']} | SubRatio: {evaluation['sub_outlier_ratio']}x")
             
             auto_dl = settings.get("auto_download", False)
             init_status = "discovered"
@@ -869,7 +908,7 @@ def hunt_niche_outliers(
 
             outlier_record = {
                 "id": vid_id,
-                "niche": clean_niche,
+                "niche": niche_label,
                 "title": video_candidate["title"],
                 "thumbnail_url": video_candidate["thumbnail_url"],
                 "channel_id": video_candidate["channel_id"],
@@ -893,10 +932,10 @@ def hunt_niche_outliers(
                 "local_filepath": None,
                 "reup_filepath": None,
                 "bkt_status": "none",
-                "opportunity_score": round(min(min(evaluation["sub_outlier_ratio"] * 3.5, 35.0) + min(evaluation["baseline_outlier_ratio"] * 3.5, 35.0) + min((evaluation["avg_vph"] / 50.0) * 5, 20.0) + min((evaluation["engagement_rate"] / 0.01) * 5, 10.0), 100.0), 1),
+                "opportunity_score": round(min(min(evaluation["sub_outlier_ratio"] * 3.5, 40.0) + min(evaluation["baseline_outlier_ratio"] * 3.5, 30.0) + min((evaluation["avg_vph"] / 30.0) * 5, 20.0) + min((evaluation["engagement_rate"] / 0.01) * 5, 10.0), 100.0), 1),
                 "demand_signal": json.dumps({
                     "demand_score": min(int(evaluation["sub_outlier_ratio"] * 8 + 30), 100),
-                    "demand_level": "Cực Cao (Viral Demand)" if evaluation["sub_outlier_ratio"] >= 8.0 else ("Cao (Nhu cầu lớn)" if evaluation["sub_outlier_ratio"] >= 4.0 else "Bình thường"),
+                    "demand_level": "Cực Cao (Viral Demand)" if evaluation["sub_outlier_ratio"] >= 8.0 else ("Cao (Nhu cầu lớn)" if evaluation["sub_outlier_ratio"] >= 3.0 else "Bình thường"),
                     "triggers_found": ["hóng phần tiếp", "nội dung cuốn"],
                     "top_demand_quotes": []
                 }, ensure_ascii=False),
@@ -909,6 +948,57 @@ def hunt_niche_outliers(
             logger.debug(f"Bỏ qua '{video_candidate['title'][:40]}': {reason}")
 
     return discovered
+
+
+def hunt_niche_outliers(
+    target_niche: str, 
+    settings: Dict, 
+    channel_cache: Optional[Dict[str, List[Dict]]] = None
+) -> List[Dict]:
+    """
+    TẦNG 1 & TẦNG 2: Quét video ngách theo thời gian và đánh giá Outlier Kép.
+    Hỗ trợ cả chế độ: Quét 1 ngách đơn lẻ HOẶC Quét Toàn Bộ Ngách Ngon Ikigai.
+    """
+    if channel_cache is None:
+        channel_cache = {}
+
+    clean_niche = target_niche.strip()
+    is_scan_all = not clean_niche or clean_niche.lower() in ("all", "tất cả", "tất cả các ngách", "toàn bộ", "toàn bộ ngách ngon")
+
+    all_discovered = []
+    seen_ids = set()
+
+    if is_scan_all:
+        logger.info("⚡ Bắt đầu quét TOÀN BỘ CÁC NGÁCH NGON IKIGAI...")
+        for niche_item in IKIGAI_GOLDEN_NICHES:
+            found = _scan_single_query(
+                query_text=niche_item["query"],
+                niche_label=f"{niche_item['name']}",
+                settings=settings,
+                channel_cache=channel_cache,
+                limit=12
+            )
+            for item in found:
+                if item["id"] not in seen_ids:
+                    seen_ids.add(item["id"])
+                    all_discovered.append(item)
+    else:
+        logger.info(f"Bắt đầu săn video đột biến cho ngách Ikigai: '{clean_niche}'")
+        found = _scan_single_query(
+            query_text=clean_niche,
+            niche_label=clean_niche,
+            settings=settings,
+            channel_cache=channel_cache,
+            limit=30
+        )
+        for item in found:
+            if item["id"] not in seen_ids:
+                seen_ids.add(item["id"])
+                all_discovered.append(item)
+
+    # Sắp xếp các video tìm được theo Opportunity Score giảm dần
+    all_discovered.sort(key=lambda x: x.get("opportunity_score", 0), reverse=True)
+    return all_discovered
 
 
 def ping_momentum_videos(videos: List[Dict]) -> List[Dict]:

@@ -67,7 +67,7 @@
     "title": "Prelucrare",
     "history": "istorie",
     "chat": {
-      "title": "Youwee",
+      "title": "RETubeMatrix",
       "subtitle": "Descrieți editarea dvs",
       "promptTemplates": "Șabloane prompte",
       "emptyTitle": "Ce ai vrea sa faci?",
@@ -219,7 +219,10 @@
       "proxyError": "Verificați setările de proxy în Setări → Rețea",
       "networkError": "Verificați-vă conexiunea la internet și încercați din nou",
       "cookieLocked": "Închideți complet browserul înainte de a descărca sau utilizați modul Fișier cookie",
-      "cookieDpapi": "Chrome 127+ blochează accesul la cookie-uri pe Windows. Utilizați Firefox sau modul Fișier cookie"
+      "cookieDpapi": "Chrome 127+ blochează accesul la cookie-uri pe Windows. Utilizați Firefox sau modul Fișier cookie",
+      "bktLoginRequired": "Profile is not logged into YouTube Studio: Open Profile Management or click the browser icon to sign in first",
+      "bktTimeout": "Timed out waiting for YouTube Studio response: Check network speed or ensure no captcha is blocking the browser",
+      "bktQuotaExceeded": "BKT test quota reached for today (15 videos/channel): Add a new Test Channel or wait until 00:00 for automatic reset"
     }
   },
   "library": {

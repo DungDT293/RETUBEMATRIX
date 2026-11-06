@@ -57,9 +57,6 @@ fn get_python_exe() -> String {
         r"C:\Python312\python.exe",
         r"C:\Python311\python.exe",
         r"C:\Python310\python.exe",
-        r"C:\Users\Admin\AppData\Local\Programs\Python\Python311\python.exe",
-        r"C:\Users\Admin\AppData\Local\Programs\Python\Python312\python.exe",
-        r"C:\Users\Admin\AppData\Local\Programs\Python\Python310\python.exe",
     ];
     for cand in system_candidates {
         if std::path::Path::new(cand).exists() {
@@ -138,12 +135,6 @@ fn get_runner_path(app: &AppHandle) -> PathBuf {
         }
     }
 
-    // 5. Hardcoded dev fallback
-    let hardcoded = PathBuf::from(r"D:\TOOL DUNG CODE\reupytb\browser_engine\runner.py");
-    if hardcoded.exists() {
-        return hardcoded;
-    }
-
     PathBuf::from("browser_engine/runner.py")
 }
 
@@ -163,14 +154,19 @@ pub fn create_runner_cmd(app: &AppHandle) -> (Command, PathBuf) {
 
     // Inject YTDLP_BIN to ensure Outlier Hunter and Background Engines always find yt-dlp
     let ytdlp_candidates = [
+        std::env::current_exe().ok().and_then(|e| e.parent().map(|p| p.join("bin").join("retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe"))),
+        std::env::current_exe().ok().and_then(|e| e.parent().map(|p| p.join("retubematrix-yt-dlp.exe"))),
         std::env::current_exe().ok().and_then(|e| e.parent().map(|p| p.join("bin").join("youwee-yt-dlp-x86_64-pc-windows-msvc.exe"))),
         std::env::current_exe().ok().and_then(|e| e.parent().map(|p| p.join("bin").join("yt-dlp.exe"))),
         std::env::current_exe().ok().and_then(|e| e.parent().map(|p| p.join("youwee-yt-dlp.exe"))),
         std::env::current_exe().ok().and_then(|e| e.parent().map(|p| p.join("yt-dlp.exe"))),
+        app.path().resource_dir().ok().map(|r| r.join("bin").join("retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe")),
+        app.path().resource_dir().ok().map(|r| r.join("bin").join("retubematrix-yt-dlp.exe")),
         app.path().resource_dir().ok().map(|r| r.join("bin").join("youwee-yt-dlp-x86_64-pc-windows-msvc.exe")),
         app.path().resource_dir().ok().map(|r| r.join("bin").join("yt-dlp.exe")),
         app.path().app_data_dir().ok().map(|a| a.join("bin").join("yt-dlp.exe")),
-        Some(PathBuf::from(r"D:\TOOL DUNG CODE\reupytb\src-tauri\bin\youwee-yt-dlp-x86_64-pc-windows-msvc.exe")),
+        std::env::current_dir().ok().map(|cwd| cwd.join("src-tauri").join("bin").join("retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe")),
+        std::env::current_dir().ok().map(|cwd| cwd.join("bin").join("retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe")),
     ];
     for cand in ytdlp_candidates.into_iter().flatten() {
         if cand.exists() {
@@ -384,7 +380,11 @@ pub async fn test_multibrowser_proxy(
 }
 
 #[tauri::command]
-pub async fn launch_multibrowser_profile(app: AppHandle, profile_id: String) -> Result<(), String> {
+pub async fn launch_multibrowser_profile(
+    app: AppHandle,
+    profile_id: String,
+    target_url: Option<String>,
+) -> Result<(), String> {
     let (mut cmd, runner) = create_runner_cmd(&app);
 
     tokio::spawn(async move {
@@ -393,6 +393,11 @@ pub async fn launch_multibrowser_profile(app: AppHandle, profile_id: String) -> 
             .arg("open_profile")
             .arg("--profile-id")
             .arg(&profile_id);
+        if let Some(ref url) = target_url {
+            if !url.trim().is_empty() {
+                cmd.arg("--target-url").arg(url.trim());
+            }
+        }
         cmd.hide_window();
 
         if let Ok(mut child) = cmd.spawn() {

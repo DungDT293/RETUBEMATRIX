@@ -78,18 +78,35 @@ def _list_browser_windows() -> list[dict[str, Any]]:
 
     user32 = ctypes.windll.user32
     windows: list[dict[str, Any]] = []
+    seen_hwnds: set[int] = set()
 
     enum_proc_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 
     def enum_proc(hwnd: int, _lparam: int) -> bool:
+        if hwnd in seen_hwnds:
+            return True
         if not _is_visible_window(hwnd) or not _is_browser_window(hwnd):
             return True
         pid = _window_pid(hwnd)
         if pid is not None:
+            seen_hwnds.add(hwnd)
             windows.append({"hwnd": hwnd, "pid": pid, "title": _get_window_text(hwnd).strip()})
         return True
 
-    user32.EnumWindows(enum_proc_type(enum_proc), 0)
+    cb = enum_proc_type(enum_proc)
+    user32.EnumWindows(cb, 0)
+
+    try:
+        access = 0x0040 | 0x0001
+        hdesk = user32.OpenInputDesktop(0, False, access)
+        if not hdesk:
+            hdesk = user32.OpenDesktopW("Default", 0, False, access)
+        if hdesk:
+            user32.EnumDesktopWindows(hdesk, cb, 0)
+            user32.CloseDesktop(hdesk)
+    except Exception as exc:
+        logger.debug("Desktop window enum fallback error: %s", exc)
+
     return windows
 
 
@@ -98,7 +115,12 @@ def _profile_browser_pids(profile_dirs: dict[str, str]) -> tuple[dict[str, set[i
     failures: dict[str, str] = {}
     for profile_id, user_data_dir in profile_dirs.items():
         try:
-            pids = {int(pid) for pid in chrome_pids_for_user_data_dir(user_data_dir)}
+            from core.paths import profile_data_dir
+            resolved_dir = str(profile_data_dir(user_data_dir))
+        except Exception:
+            resolved_dir = user_data_dir
+        try:
+            pids = {int(pid) for pid in chrome_pids_for_user_data_dir(resolved_dir)}
         except ChromiumProcessInspectionError:
             failures[profile_id] = "Không xác minh được tiến trình Chromium của hồ sơ"
             continue
@@ -275,7 +297,16 @@ def arrange_windows(
     elif layout == "cascade":
         positions = _cascade_positions(len(matched), width, height, screen_w, screen_h)
     else:
-        positions = _tile_positions(len(matched), width, height, screen_w, screen_h, columns=columns, gap=gap)
+        if columns:
+            cols = max(1, min(len(matched), int(columns)))
+        else:
+            cols = max(1, min(len(matched), (screen_w + gap) // max(width + gap, 1)))
+        rows = max(1, math.ceil(len(matched) / cols))
+        max_w = max(280, (screen_w - gap * (cols - 1)) // cols)
+        max_h = max(240, (screen_h - gap * (rows - 1)) // rows)
+        width = min(width, max_w)
+        height = min(height, max_h)
+        positions = _tile_positions(len(matched), width, height, screen_w, screen_h, columns=cols, gap=gap)
 
     user32 = ctypes.windll.user32
     arranged: list[dict[str, Any]] = []
@@ -364,7 +395,16 @@ def preview_arrangement(
     elif layout == "cascade":
         positions = _cascade_positions(count, width, height, screen_w, screen_h)
     else:
-        positions = _tile_positions(count, width, height, screen_w, screen_h, columns=columns, gap=gap)
+        if columns:
+            cols = max(1, min(count, int(columns)))
+        else:
+            cols = max(1, min(count, (screen_w + gap) // max(width + gap, 1)))
+        rows = max(1, math.ceil(count / cols))
+        max_w = max(280, (screen_w - gap * (cols - 1)) // cols)
+        max_h = max(240, (screen_h - gap * (rows - 1)) // rows)
+        width = min(width, max_w)
+        height = min(height, max_h)
+        positions = _tile_positions(count, width, height, screen_w, screen_h, columns=cols, gap=gap)
 
     return {
         "ok": True,
@@ -376,3 +416,81 @@ def preview_arrangement(
             for index, (x, y) in enumerate(positions)
         ],
     }
+
+
+def focus_profile_windows(user_data_dir: Any, pids: list[int] | set[int] | None = None) -> bool:
+    """Find and bring to front any visible Chromium window for this profile."""
+    if not _is_windows():
+        return False
+
+    from core.window_icon_badge import chrome_pids_for_user_data_dir
+
+    if pids is None:
+        try:
+            target_pids = set(chrome_pids_for_user_data_dir(str(user_data_dir)))
+        except Exception:
+            return False
+    else:
+        target_pids = set(pids)
+
+    if not target_pids:
+        return False
+
+    user32 = ctypes.windll.user32
+    focused = False
+
+    enum_proc_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+    def enum_proc(hwnd: int, _lparam: int) -> bool:
+        nonlocal focused
+        if not _is_visible_window(hwnd) or not _is_browser_window(hwnd):
+            return True
+        wpid = _window_pid(hwnd)
+        if wpid in target_pids:
+            try:
+                user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+                user32.SetForegroundWindow(hwnd)
+                user32.BringWindowToTop(hwnd)
+                focused = True
+            except Exception:
+                pass
+        return True
+
+    user32.EnumWindows(enum_proc_type(enum_proc), 0)
+    return focused
+
+
+def has_profile_windows(user_data_dir: Any, pids: list[int] | set[int] | None = None) -> bool:
+    """Check if there is any visible Chromium window for this profile without modifying window state."""
+    if not _is_windows():
+        return False
+
+    from core.window_icon_badge import chrome_pids_for_user_data_dir
+
+    if pids is None:
+        try:
+            target_pids = set(chrome_pids_for_user_data_dir(str(user_data_dir)))
+        except Exception:
+            return False
+    else:
+        target_pids = set(pids)
+
+    if not target_pids:
+        return False
+
+    has_win = False
+    user32 = ctypes.windll.user32
+    enum_proc_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+    def enum_proc(hwnd: int, _lparam: int) -> bool:
+        nonlocal has_win
+        if not _is_visible_window(hwnd) or not _is_browser_window(hwnd):
+            return True
+        wpid = _window_pid(hwnd)
+        if wpid in target_pids:
+            has_win = True
+            return False
+        return True
+
+    user32.EnumWindows(enum_proc_type(enum_proc), 0)
+    return has_win

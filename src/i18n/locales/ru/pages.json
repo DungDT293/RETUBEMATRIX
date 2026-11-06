@@ -67,7 +67,7 @@
     "title": "Обработка",
     "history": "История",
     "chat": {
-      "title": "Youwee",
+      "title": "RETubeMatrix",
       "subtitle": "Опишите редактирование",
       "promptTemplates": "Шаблоны запросов",
       "emptyTitle": "Что вы хотите сделать?",
@@ -219,7 +219,10 @@
       "proxyError": "Проверьте настройки прокси в Настройки → Сеть",
       "networkError": "Проверьте интернет-соединение и попробуйте снова",
       "cookieLocked": "Полностью закройте браузер перед загрузкой, или используйте режим Cookie File",
-      "cookieDpapi": "Chrome 127+ блокирует доступ к куки на Windows. Используйте Firefox или Cookie File"
+      "cookieDpapi": "Chrome 127+ блокирует доступ к куки на Windows. Используйте Firefox или Cookie File",
+      "bktLoginRequired": "Profile is not logged into YouTube Studio: Open Profile Management or click the browser icon to sign in first",
+      "bktTimeout": "Timed out waiting for YouTube Studio response: Check network speed or ensure no captcha is blocking the browser",
+      "bktQuotaExceeded": "BKT test quota reached for today (15 videos/channel): Add a new Test Channel or wait until 00:00 for automatic reset"
     }
   },
   "library": {

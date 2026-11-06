@@ -8,12 +8,12 @@ interface ExtensionSectionProps {
   highlightId?: string | null;
 }
 
-const RELEASES_LATEST_URL = 'https://github.com/vanloctech/youwee/releases/latest';
-const EXTENSION_DOCS_URL = 'https://youwee.app/docs/browser-extension';
+const RELEASES_LATEST_URL = 'https://github.com/DungDT293/RETUBEMATRIX/releases/latest';
+const EXTENSION_DOCS_URL = 'https://github.com/DungDT293/RETUBEMATRIX';
 const CHROMIUM_DOWNLOAD_URL =
-  'https://github.com/vanloctech/youwee/releases/latest/download/Youwee-Extension-Chromium.zip';
+  'https://github.com/DungDT293/RETUBEMATRIX/releases/latest/download/RETubeMatrix-Extension-Chromium.zip';
 const FIREFOX_DOWNLOAD_URL =
-  'https://github.com/vanloctech/youwee/releases/latest/download/Youwee-Extension-Firefox-signed.xpi';
+  'https://github.com/DungDT293/RETUBEMATRIX/releases/latest/download/RETubeMatrix-Extension-Firefox-signed.xpi';
 
 const actionButtonClass = cn(
   'h-9 px-3 rounded-md border border-dashed border-border/70',

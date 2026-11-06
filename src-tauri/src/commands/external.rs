@@ -12,14 +12,15 @@ pub struct ExternalOpenUrlEventPayload {
 
 fn extract_external_link_from_arg(arg: &str) -> Option<String> {
     let trimmed = arg.trim().trim_matches('"').trim_matches('\'');
-    if trimmed.starts_with("youwee://") {
+    if trimmed.starts_with("retubematrix://") || trimmed.starts_with("youwee://") {
         if is_valid_external_link(trimmed) {
             return Some(trimmed.to_string());
         }
         return None;
     }
 
-    trimmed.find("youwee://").and_then(|start| {
+    let start_pos = trimmed.find("retubematrix://").or_else(|| trimmed.find("youwee://"));
+    start_pos.and_then(|start| {
         let candidate = trimmed[start..].trim_matches('"').to_string();
         if is_valid_external_link(&candidate) {
             Some(candidate)
@@ -34,7 +35,11 @@ fn is_valid_external_link(link: &str) -> bool {
     if trimmed.is_empty() || trimmed.len() > MAX_EXTERNAL_LINK_LENGTH {
         return false;
     }
-    if !trimmed.starts_with("youwee://download") && !trimmed.starts_with("youwee://summary") {
+    let is_valid_prefix = trimmed.starts_with("retubematrix://download")
+        || trimmed.starts_with("retubematrix://summary")
+        || trimmed.starts_with("youwee://download")
+        || trimmed.starts_with("youwee://summary");
+    if !is_valid_prefix {
         return false;
     }
     trimmed.contains("v=1") && trimmed.contains("url=")
@@ -83,6 +88,61 @@ pub fn take_pending_external_links() -> Vec<String> {
 pub fn consume_pending_external_links() -> Vec<String> {
     take_pending_external_links()
 }
+
+/// Mở link ra trình duyệt mặc định của hệ điều hành (Google Chrome, Edge, Firefox...)
+/// Đảm bảo không mở tab Webview nội bộ trong ứng dụng.
+#[tauri::command]
+pub async fn open_external_url(app: tauri::AppHandle, url: String) -> Result<(), String> {
+    let trimmed = url.trim();
+    if trimmed.is_empty() {
+        return Err("URL không được để trống".to_string());
+    }
+
+    use tauri_plugin_opener::OpenerExt;
+    if app.opener().open_url(trimmed, None::<&str>).is_ok() {
+        return Ok(());
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        // CREATE_NO_WINDOW = 0x08000000
+        let status = std::process::Command::new("rundll32.exe")
+            .args(["url.dll,FileProtocolHandler", trimmed])
+            .creation_flags(0x08000000)
+            .status();
+
+        if let Ok(s) = status {
+            if s.success() {
+                return Ok(());
+            }
+        }
+
+        let safe_url = trimmed.replace('^', "^^").replace('&', "^&");
+        let _ = std::process::Command::new("cmd.exe")
+            .args(["/c", "start", "", &safe_url])
+            .creation_flags(0x08000000)
+            .status();
+
+        return Ok(());
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        let _ = std::process::Command::new("open").arg(trimmed).status();
+        return Ok(());
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        let _ = std::process::Command::new("xdg-open").arg(trimmed).status();
+        return Ok(());
+    }
+
+    #[allow(unreachable_code)]
+    Ok(())
+}
+
 
 #[cfg(test)]
 mod tests {

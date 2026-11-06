@@ -1,4 +1,5 @@
-export const LIBRARY_DELETE_FILE_BEHAVIOR_KEY = 'youwee_library_delete_file_behavior';
+export const LIBRARY_DELETE_FILE_BEHAVIOR_KEY = 'retubematrix_library_delete_file_behavior';
+export const LEGACY_LIBRARY_DELETE_FILE_BEHAVIOR_KEY = 'youwee_library_delete_file_behavior';
 
 export const LIBRARY_DELETE_FILE_BEHAVIORS = ['ask', 'delete-file', 'keep-file'] as const;
 
@@ -13,7 +14,8 @@ export function normalizeLibraryDeleteFileBehavior(value: unknown): LibraryDelet
 export function loadLibraryDeleteFileBehavior(): LibraryDeleteFileBehavior {
   if (typeof window === 'undefined') return 'ask';
   return normalizeLibraryDeleteFileBehavior(
-    window.localStorage.getItem(LIBRARY_DELETE_FILE_BEHAVIOR_KEY),
+    window.localStorage.getItem(LIBRARY_DELETE_FILE_BEHAVIOR_KEY) ||
+      window.localStorage.getItem(LEGACY_LIBRARY_DELETE_FILE_BEHAVIOR_KEY),
   );
 }
 

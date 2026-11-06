@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-reupytb Browser Engine Runner
-Bridge between reupytb (Tauri Rust backend) and anti-detect core & YouTube upload automation.
+RETubeMatrix Browser Engine Runner
+Bridge between RETubeMatrix (Tauri Rust backend) and anti-detect core & YouTube upload automation.
 """
 import sys
 import os
@@ -84,11 +84,17 @@ def _clean_profile_locks(profile_dir_name: str, force_kill_live: bool = False):
                 for pid in pids:
                     try:
                         if psutil.pid_exists(pid):
-                            psutil.Process(pid).kill()
+                            proc = psutil.Process(pid)
+                            for child in proc.children(recursive=True):
+                                try:
+                                    child.kill()
+                                except Exception:
+                                    pass
+                            proc.kill()
                     except Exception:
                         pass
                 if pids:
-                    time.sleep(0.8)
+                    time.sleep(0.5)
             except Exception:
                 pass
         if pdir.is_dir():
@@ -106,6 +112,38 @@ def _clean_profile_locks(profile_dir_name: str, force_kill_live: bool = False):
 def action_list_profiles():
     try:
         profiles = load_profiles()
+        # Đối soát tiến trình Chromium thực tế: kiểm tra xem PID thực tế có còn sống không
+        try:
+            from core.window_icon_badge import chrome_pids_by_user_data_dir
+            from core.paths import profile_data_dir
+            import psutil
+            active_dirs = chrome_pids_by_user_data_dir()
+            changed = False
+            for p in profiles:
+                p_dir = p.get("profile_dir") or p.get("profile_name") or p.get("id")
+                norm = ""
+                pdir_path = None
+                try:
+                    pdir_path = profile_data_dir(p_dir)
+                    norm = os.path.normcase(os.path.abspath(str(pdir_path)))
+                except Exception:
+                    pass
+                pids = active_dirs.get(norm, [])
+                is_running = bool(pids and any(psutil.pid_exists(pid) for pid in pids))
+
+                if is_running:
+                    if p.get("last_run_status") != "running":
+                        p["last_run_status"] = "running"
+                        changed = True
+                else:
+                    if p.get("last_run_status") == "running":
+                        p["last_run_status"] = "stopped"
+                        changed = True
+            if changed:
+                save_profiles(profiles)
+        except Exception as e:
+            logger.warning("Lỗi đối soát trạng thái profile: %s", e)
+
         print(json.dumps({"success": True, "profiles": profiles}, ensure_ascii=False))
         sys.stdout.flush()
     except Exception as e:
@@ -259,23 +297,29 @@ def action_get_stats():
 
         # Check live profiles
         running_profiles = []
+        try:
+            from core.window_icon_badge import chrome_pids_by_user_data_dir
+            from core.window_arranger import has_profile_windows
+            active_dirs = chrome_pids_by_user_data_dir()
+        except Exception:
+            active_dirs = {}
+
         for p in profiles:
             p_id = p.get("id") or p.get("profile_name")
             p_dir = p.get("profile_dir") or p.get("profile_name") or p_id
-            is_running = False
+            norm = ""
+            pdir_path = None
             try:
                 pdir_path = profile_data_dir(p_dir)
-                pid_file = pdir_path / "browsermulti_session.pid"
-                if pid_file.exists():
-                    pid_str = pid_file.read_text(encoding="utf-8").strip()
-                    if pid_str.isdigit() and psutil is not None:
-                        pid = int(pid_str)
-                        if psutil.pid_exists(pid):
-                            is_running = True
+                norm = os.path.normcase(os.path.abspath(str(pdir_path)))
             except Exception:
                 pass
+            pids = active_dirs.get(norm, [])
+            is_running = False
+            if pids and pdir_path and has_profile_windows(pdir_path, pids):
+                is_running = True
 
-            if is_running or p.get("last_run_status") == "running":
+            if is_running:
                 running_profiles.append({
                     "id": p_id,
                     "name": p.get("profile_name") or p_id,
@@ -408,11 +452,18 @@ def action_arrange_windows(args):
         w = int(payload.get("window_width") or payload.get("width") or 516)
         h = int(payload.get("window_height") or payload.get("height") or 600)
         apply_visible = bool(payload.get("apply_to_visible_area", True))
+        cols_val = payload.get("columns")
+        columns = int(cols_val) if cols_val is not None and str(cols_val).isdigit() else None
+        gap = int(payload.get("gap") or 0)
 
         profiles = load_profiles()
         profile_ids = [p.get("id") for p in profiles if p.get("id")]
         profile_names = {p.get("id"): (p.get("profile_name") or p.get("id")) for p in profiles if p.get("id")}
-        profile_dirs = {p.get("id"): (p.get("profile_dir") or p.get("profile_name") or p.get("id")) for p in profiles if p.get("id")}
+        profile_dirs = {
+            p.get("id"): str(profile_data_dir(p.get("profile_dir") or p.get("profile_name") or p.get("id")))
+            for p in profiles
+            if p.get("id")
+        }
 
         res = arrange_windows(
             profile_ids=profile_ids,
@@ -422,6 +473,8 @@ def action_arrange_windows(args):
             window_width=w,
             window_height=h,
             apply_to_visible_area=apply_visible,
+            columns=columns,
+            gap=gap,
         )
         print(json.dumps({"success": True, "result": res}, ensure_ascii=False))
         sys.stdout.flush()
@@ -506,7 +559,7 @@ def action_bulk_set_group(args):
         sys.stdout.flush()
 
 
-async def _async_open_profile(profile_id: str):
+async def _async_open_profile(profile_id: str, target_url: str | None = None):
     profiles = load_profiles()
     profile = next((p for p in profiles if (p.get("id") == profile_id or p.get("profile_name") == profile_id)), None)
     if not profile:
@@ -516,8 +569,37 @@ async def _async_open_profile(profile_id: str):
 
     name = profile.get("profile_name") or profile_id
     profile_dir = profile.get("profile_dir") or name
+    pdir = profile_data_dir(profile_dir)
     proxy = profile.get("proxy") or ""
     fingerprint_seed = profile.get("fingerprint_seed")
+
+    # 1. Kiểm tra xem profile đã có tiến trình Chromium đang chạy không
+    try:
+        from core.window_icon_badge import chrome_pids_for_user_data_dir
+        live_pids = chrome_pids_for_user_data_dir(str(pdir))
+    except Exception:
+        live_pids = []
+
+    if live_pids:
+        # Đã có Chromium đang mở: đưa cửa sổ lên màn hình chính thay vì báo lỗi
+        from core.window_arranger import focus_profile_windows
+        brought_to_front = focus_profile_windows(pdir, live_pids)
+        if brought_to_front:
+            logger.info(f"Hồ sơ '{name}' đã đang mở. Đã kích hoạt và đưa cửa sổ lên phía trước.")
+            update_profile(profile_id, last_run_status="running")
+            print(json.dumps({
+                "success": True,
+                "event": "profile_already_running",
+                "profile_id": profile_id,
+                "name": name,
+                "pids": live_pids
+            }, ensure_ascii=False))
+            sys.stdout.flush()
+            return
+        else:
+            # Có PID nhưng không có cửa sổ hiển thị (tiến trình zombie/treo ngầm) -> dọn sạch để mở mới
+            logger.info(f"Phát hiện tiến trình treo ngầm không có cửa sổ cho hồ sơ '{name}'. Đang dọn dẹp để mở lại...")
+            _clean_profile_locks(profile_dir, force_kill_live=True)
 
     _clean_profile_locks(profile_dir)
     update_profile(profile_id, last_run_status="running")
@@ -533,10 +615,24 @@ async def _async_open_profile(profile_id: str):
             profile_data=profile,
         )
 
+        dest_url = (target_url or "").strip()
+        if not dest_url:
+            dest_url = "https://studio.youtube.com/"
+
+        # Điều hướng nhanh với wait_until='commit' tránh block 30s
         try:
-            await page.goto("https://studio.youtube.com/", timeout=30000)
+            current_url = str(getattr(page, "url", "") or "").strip().lower()
+            if dest_url.lower().rstrip("/") not in current_url:
+                await page.goto(dest_url, wait_until="commit", timeout=15000)
         except Exception as e:
-            logger.warning(f"Lỗi điều hướng ban đầu: {e}")
+            logger.warning(f"Lỗi điều hướng ban đầu ({dest_url}): {e}")
+
+        # Đưa cửa sổ vừa mở lên phía trước
+        try:
+            from core.window_arranger import focus_profile_windows
+            focus_profile_windows(pdir)
+        except Exception:
+            pass
 
         print(json.dumps({"event": "profile_opened", "profile_id": profile_id, "name": name}, ensure_ascii=False))
         sys.stdout.flush()
@@ -1002,74 +1098,10 @@ def action_hunt_outliers(args):
         
         settings = raw_data.get("settings") or {}
         target_niche = (raw_data.get("target_niche") or "").strip()
-        
-        niches = []
-        if target_niche and target_niche.lower() not in ("all", "tất cả các ngách"):
-            niches = [target_niche]
-        else:
-            try:
-                raw_niches = settings.get("niches")
-                if isinstance(raw_niches, str):
-                    niches = json.loads(raw_niches)
-                elif isinstance(raw_niches, list):
-                    niches = raw_niches
-            except Exception:
-                niches = []
 
-        # Lọc các giá trị rỗng
-        niches = [n.strip() for n in niches if isinstance(n, str) and n.strip()]
-
-        # NẾU NGƯỜI DÙNG ĐỂ TRỐNG NGÁCH HOẶC QUÉT TOÀN BỘ:
-        # Tự động kích hoạt Chế độ Quét Toàn Bộ Hệ Thống (Universal System Hunt)
-        # Tuyệt đối KHÔNG quét tab 'thịnh hành' (Trending) vì 99% là gameshow/nhà đài bản quyền gắt!
-        # Thay vào đó quét các cụm từ khóa MMO / Kể chuyện / Tóm tắt / Kiến thức dễ reup:
-        is_universal = False
-        if not niches:
-            is_universal = True
-            # Thư viện ngách siêu đa dạng cho Chế độ Săn Toàn Bộ Hệ Thống
-            # Xoay tua ngẫu nhiên cân bằng giữa View Ngoại (High CPM) và View Việt
-            foreign_pool = [
-                "movie recap",
-                "anime recap",
-                "scary stories animated",
-                "disturbing rabbit holes",
-                "true crime documentary",
-                "police interrogation breakdown",
-                "dark psychology facts",
-                "unsolved disappearances",
-                "deep sea mysteries",
-                "mind blowing science facts",
-                "dark history documentary",
-                "business empire breakdown",
-            ]
-            vn_pool = [
-                "kể chuyện ma",
-                "vụ án bí ẩn có thật việt nam",
-                "review phim tóm tắt",
-                "tóm tắt truyện tranh hay",
-                "kiến thức thú vị",
-                "sự thật lạ lùng về vũ trụ",
-                "giải mã bí ẩn lịch sử việt nam",
-                "podcast tư duy phát triển",
-            ]
-            import random
-            selected_foreign = random.sample(foreign_pool, min(len(foreign_pool), 3))
-            selected_vn = random.sample(vn_pool, min(len(vn_pool), 3))
-            niches = selected_foreign + selected_vn
-
-        all_discovered = []
-        seen_ids = set()
-        channel_cache = {}
-
-        for niche in niches:
-            found = hunt_niche_outliers(niche, settings, channel_cache=channel_cache)
-            for item in found:
-                vid_id = item.get("id")
-                if vid_id and vid_id not in seen_ids:
-                    seen_ids.add(vid_id)
-                    if is_universal:
-                        item["niche"] = f"Toàn Hệ Thống ({niche})"
-                    all_discovered.append(item)
+        logger.info(f"Yêu cầu săn video đột biến cho ngách: '{target_niche or 'TOÀN BỘ NGÁCH NGON IKIGAI'}'")
+        all_discovered = hunt_niche_outliers(target_niche, settings)
+        logger.info(f"Tìm thấy tổng cộng: {len(all_discovered)} video bứt phá")
 
         print(json.dumps({"success": True, "discovered_videos": all_discovered}, ensure_ascii=True))
         sys.stdout.flush()
@@ -1164,7 +1196,7 @@ def action_analyze_competitor(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="reupytb Browser Engine Runner")
+    parser = argparse.ArgumentParser(description="RETubeMatrix Browser Engine Runner")
     parser.add_argument("--action", required=True, choices=[
         "list_profiles",
         "add_profile",
@@ -1188,6 +1220,7 @@ def main():
         "analyze_competitor",
     ])
     parser.add_argument("--profile-id", default="")
+    parser.add_argument("--target-url", default="")
     parser.add_argument("--data", default="")
     parser.add_argument("--data-b64", default="")
 
@@ -1204,7 +1237,8 @@ def main():
     elif args.action == "test_proxy":
         action_test_proxy(args)
     elif args.action == "open_profile":
-        asyncio.run(_async_open_profile(args.profile_id))
+        target_url = getattr(args, "target_url", None)
+        asyncio.run(_async_open_profile(args.profile_id, target_url=target_url))
     elif args.action == "upload_video":
         asyncio.run(_async_upload_video(args))
     elif args.action == "check_copyright_status":

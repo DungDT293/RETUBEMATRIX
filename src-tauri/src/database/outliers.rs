@@ -114,7 +114,7 @@ pub fn get_outlier_settings_db() -> Result<OutlierHunterSettings, String> {
     match res {
         Ok(settings) => Ok(settings),
         Err(rusqlite::Error::QueryReturnedNoRows) => {
-            // Seed default row
+            // Seed default row with modern Ikigai golden niche thresholds
             conn.execute(
                 "INSERT OR IGNORE INTO outlier_hunter_settings (
                     id, enabled, niches, min_views, max_subscribers, min_sub_outlier,
@@ -122,8 +122,8 @@ pub fn get_outlier_settings_db() -> Result<OutlierHunterSettings, String> {
                     min_comments, auto_download, auto_reup_level, auto_bkt_test,
                     scan_interval_minutes, updated_at
                 ) VALUES (
-                    'default', 1, '[\"review phim\",\"tin tức\",\"công nghệ\",\"giải trí\"]',
-                    25000, 25000, 5.0, 5.0, 180, 300.0, 0.012, 15, 0, 'v1', 0, 60, datetime('now')
+                    'default', 1, '[\"nấu ăn cho người ở 1 mình\",\"món ăn sinh viên tiết kiệm\",\"quản lý tài chính cá nhân\",\"công cụ ai kiếm tiền\",\"nhạc lofi chill học bài\",\"asmr satisfying âm thanh thư giãn\"]',
+                    3000, 150000, 1.8, 1.8, 60, 0.5, 0.002, 2, 0, 'v1', 0, 60, datetime('now')
                 )",
                 [],
             )
@@ -133,15 +133,15 @@ pub fn get_outlier_settings_db() -> Result<OutlierHunterSettings, String> {
             Ok(OutlierHunterSettings {
                 id: "default".to_string(),
                 enabled: true,
-                niches: "[\"review phim\",\"tin tức\",\"công nghệ\",\"giải trí\"]".to_string(),
-                min_views: 25000,
-                max_subscribers: 25000,
-                min_sub_outlier: 5.0,
-                min_baseline_outlier: 5.0,
-                min_duration: 180,
-                min_vph: 300.0,
-                min_engagement_rate: 0.012,
-                min_comments: 15,
+                niches: "[\"nấu ăn cho người ở 1 mình\",\"món ăn sinh viên tiết kiệm\",\"quản lý tài chính cá nhân\",\"công cụ ai kiếm tiền\",\"nhạc lofi chill học bài\",\"asmr satisfying âm thanh thư giãn\"]".to_string(),
+                min_views: 3000,
+                max_subscribers: 150000,
+                min_sub_outlier: 1.8,
+                min_baseline_outlier: 1.8,
+                min_duration: 60,
+                min_vph: 0.5,
+                min_engagement_rate: 0.002,
+                min_comments: 2,
                 auto_download: false,
                 auto_reup_level: "v1".to_string(),
                 auto_bkt_test: false,

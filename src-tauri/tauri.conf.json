@@ -1,13 +1,13 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "RETubeMatrix",
-  "version": "0.20.8",
-  "identifier": "com.vanloctech.youwee",
+  "version": "0.20.15",
+  "identifier": "com.retubematrix.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "bun run dev",
+    "beforeBuildCommand": "bun run build"
   },
   "app": {
     "macOSPrivateApi": true,
@@ -45,7 +45,7 @@
       "python/": "python/",
       "bin/": "bin/"
     },
-    "externalBin": ["bin/youwee-yt-dlp"],
+    "externalBin": ["bin/retubematrix-yt-dlp"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -58,15 +58,16 @@
     },
     "windows": {
       "nsis": {
-        "installerIcon": "icons/icon.ico"
+        "installerIcon": "icons/icon.ico",
+        "template": "template.nsi"
       }
     },
     "createUpdaterArtifacts": true
   },
   "plugins": {
     "cli": {
-      "description": "Youwee - GUI for yt-dlp. Pass a video URL to queue or download it.",
-      "longDescription": "Youwee opens the desktop app and adds the given URL to the download queue. By default the download starts immediately; use --queue-only to only add it to the queue.",
+      "description": "RETubeMatrix - Hệ Thống Săn Đề Xuất & Reup Tự Động Bản Quyền YouTube",
+      "longDescription": "RETubeMatrix - Mở ứng dụng desktop để săn đề xuất, reup và kiểm tra bản quyền ngầm.",
       "args": [
         {
           "name": "source",
@@ -165,8 +166,10 @@
       }
     },
     "updater": {
-      "endpoints": ["https://github.com/vanloctech/youwee/releases/latest/download/latest.json"],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDk0MzYxNjBFRDQwMzlEM0MKUldROG5RUFVEaFkybE5laTlyUVJXczNRdmFQS1dtc3hpalA3NWw1R2VmUlBDRC9FZCtoR2dlVWcK"
+      "endpoints": [
+        "https://github.com/DungDT293/RETUBEMATRIX/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDBCM0QyRkJFOUJBNjFENjgKUldSb0hhYWJ2aTg5Qyt6U2RMek5pNXMzaWRaa3FpSnBrMjlRWFNHUEYyRUwzUlJRbVQ0MGVaZEUK"
     }
   }
 }

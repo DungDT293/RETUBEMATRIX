@@ -17,7 +17,8 @@ export function loadInitialSettings(): {
   isAudioMode: boolean;
 } {
   try {
-    const saved = localStorage.getItem('youwee-settings');
+    const saved =
+      localStorage.getItem('retubematrix-settings') || localStorage.getItem('youwee-settings');
     if (saved) {
       const parsed = JSON.parse(saved);
       const quality: Quality = parsed.quality || 'best';

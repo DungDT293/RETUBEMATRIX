@@ -76,7 +76,7 @@ type PluginWorkspaceCreateFlowProps = Pick<
   | 'updateCreatePluginForm'
 >;
 
-const PLUGINS_PAGE_URL = 'https://youwee.app/plugins';
+const PLUGINS_PAGE_URL = 'https://github.com/DungDT293/RETUBEMATRIX';
 
 export const PluginWorkspaceActions = memo(function PluginWorkspaceActions({
   onAttachWorkspace,

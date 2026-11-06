@@ -67,7 +67,7 @@
     "title": "ประมวลผล",
     "history": "ประวัติ",
     "chat": {
-      "title": "Youwee",
+      "title": "RETubeMatrix",
       "subtitle": "อธิบายสิ่งที่ต้องการแก้ไข",
       "promptTemplates": "เทมเพลตพรอมต์",
       "emptyTitle": "คุณต้องการทำอะไร?",
@@ -219,7 +219,10 @@
       "proxyError": "ตรวจสอบการตั้งค่า Proxy ของคุณใน Settings → Network",
       "networkError": "ตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่",
       "cookieLocked": "ปิดเบราว์เซอร์ของคุณให้สนิทก่อนดาวน์โหลด หรือใช้โหมด Cookie File แทน",
-      "cookieDpapi": "Chrome 127+ บล็อกการเข้าถึงคุกกี้บน Windows ใช้ Firefox หรือ Cookie File mode แทน"
+      "cookieDpapi": "Chrome 127+ บล็อกการเข้าถึงคุกกี้บน Windows ใช้ Firefox หรือ Cookie File mode แทน",
+      "bktLoginRequired": "Profile is not logged into YouTube Studio: Open Profile Management or click the browser icon to sign in first",
+      "bktTimeout": "Timed out waiting for YouTube Studio response: Check network speed or ensure no captcha is blocking the browser",
+      "bktQuotaExceeded": "BKT test quota reached for today (15 videos/channel): Add a new Test Channel or wait until 00:00 for automatic reset"
     }
   },
   "library": {

@@ -21,6 +21,29 @@ import { cn } from '@/lib/utils';
 import { ChannelCard } from '@/pages/channels/ChannelCard';
 import { ChannelVideoAccordion } from '@/pages/channels/ChannelVideoAccordion';
 
+function resolvePrettyChannelName(url: string): string {
+  try {
+    const trimmed = url.trim();
+    const handleMatch = trimmed.match(/@([a-zA-Z0-9_.-]+)/);
+    if (handleMatch?.[1]) {
+      const handle = handleMatch[1];
+      const spaced = handle.replace(/([a-z])([A-Z])/g, '$1 $2');
+      return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+    }
+    const customMatch = trimmed.match(/\/(?:c|user)\/([a-zA-Z0-9_.-]+)/i);
+    if (customMatch?.[1]) {
+      return customMatch[1];
+    }
+    const channelMatch = trimmed.match(/\/channel\/(UC[a-zA-Z0-9_-]+)/i);
+    if (channelMatch?.[1]) {
+      return `Kênh YouTube (${channelMatch[1].slice(0, 8)}...)`;
+    }
+    return trimmed;
+  } catch {
+    return url;
+  }
+}
+
 export function ChannelsPage() {
   const {
     followedChannels,
@@ -114,8 +137,9 @@ export function ChannelsPage() {
 
     setAddingChannel(true);
     try {
+      const prettyName = resolvePrettyChannelName(url);
       const contentType: YoutubeChannelContentType = 'all';
-      await followChannel(url, url, undefined, undefined, contentType);
+      await followChannel(url, prettyName, undefined, undefined, contentType);
       setUrlInput('');
       await refreshChannels();
       await refreshStats();

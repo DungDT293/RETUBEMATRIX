@@ -14,18 +14,13 @@ import { UpdateDialog } from '@/components/UpdateDialog';
 import { ToastProvider } from '@/components/ui/toast';
 import { AIProvider } from '@/contexts/AIContext';
 import { ChannelsProvider } from '@/contexts/ChannelsContext';
-import { DataExportProvider } from '@/contexts/DataExportContext';
 import { DependenciesProvider, useDependencies } from '@/contexts/DependenciesContext';
 import { DownloadProvider } from '@/contexts/DownloadContext';
 import { useDownload } from '@/contexts/download-context';
-import { GalleryDlProvider } from '@/contexts/GalleryDlContext';
 import { HistoryProvider } from '@/contexts/HistoryContext';
 import { LogProvider } from '@/contexts/LogContext';
-import { MetadataProvider } from '@/contexts/MetadataContext';
 import { PlayerProvider } from '@/contexts/PlayerContext';
 import { ProcessingProvider } from '@/contexts/ProcessingContext';
-import { SubtitleProvider } from '@/contexts/SubtitleContext';
-import { SummarySessionProvider } from '@/contexts/SummarySessionProvider';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { UniversalProvider } from '@/contexts/UniversalContext';
 import { UpdaterProvider, useUpdater } from '@/contexts/UpdaterContext';
@@ -46,6 +41,7 @@ import {
   SettingsPage,
   UniversalPage,
 } from '@/pages';
+import { openExternalUrl } from '@/utils/open-url';
 
 function AppContent() {
   const { i18n } = useTranslation('settings');
@@ -94,6 +90,30 @@ function AppContent() {
       console.error('Failed to sync plugin runtime locale:', error);
     });
   }, [i18n.language, i18n.resolvedLanguage]);
+
+  // Điều hướng toàn bộ link ngoài hoặc thẻ a target="_blank" ra trình duyệt mặc định hệ thống (Chrome/Edge)
+  useEffect(() => {
+    const handleGlobalLinkClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement | null)?.closest('a');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (!href) return;
+
+      if (
+        (href.startsWith('http://') || href.startsWith('https://')) &&
+        (target.target === '_blank' || !href.startsWith(window.location.origin))
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        void openExternalUrl(href);
+      }
+    };
+
+    document.addEventListener('click', handleGlobalLinkClick, true);
+    return () => {
+      document.removeEventListener('click', handleGlobalLinkClick, true);
+    };
+  }, []);
 
   // Show FFmpeg dialog on startup if not installed
   useEffect(() => {
@@ -146,7 +166,9 @@ function AppContent() {
     invoke('rebuild_tray_menu_cmd', { lang }).catch(() => {});
 
     // Sync hideDockOnClose preference to Rust on startup
-    const hideDock = localStorage.getItem('youwee_hide_dock_on_close') === 'true';
+    const hideDock =
+      (localStorage.getItem('retubematrix_hide_dock_on_close') ??
+        localStorage.getItem('youwee_hide_dock_on_close')) === 'true';
     if (hideDock) {
       invoke('set_hide_dock_on_close', { hide: true }).catch(() => {});
     }
@@ -162,8 +184,8 @@ function AppContent() {
         )}
         {currentPage === 'channels' && <ChannelsPage />}
         {currentPage === 'outliers' && <OutlierHunterPage onNavigate={setCurrentPage} />}
-        {currentPage === 'reup' && <ReupBktPage />}
-        {currentPage === 'library' && <HistoryPage />}
+        {currentPage === 'reup' && <ReupBktPage onNavigate={setCurrentPage} />}
+        {currentPage === 'library' && <HistoryPage onNavigate={setCurrentPage} />}
         {currentPage === 'logs' && <LogsPage />}
         {currentPage === 'settings' && <SettingsPage initialSection={settingsInitialSection} />}
         <MusicPlayer />
@@ -207,33 +229,23 @@ export function App() {
       <DependenciesProvider>
         <DownloadProvider>
           <UniversalProvider>
-            <GalleryDlProvider>
-              <ChannelsProvider>
-                <LogProvider>
-                  <HistoryProvider>
-                    <PlayerProvider>
-                      <AIProvider>
-                        <SummarySessionProvider>
-                          <ProcessingProvider>
-                            <SubtitleProvider>
-                              <MetadataProvider>
-                                <DataExportProvider>
-                                  <ToastProvider>
-                                    <UpdaterWrapper>
-                                      <AppContent />
-                                    </UpdaterWrapper>
-                                  </ToastProvider>
-                                </DataExportProvider>
-                              </MetadataProvider>
-                            </SubtitleProvider>
-                          </ProcessingProvider>
-                        </SummarySessionProvider>
-                      </AIProvider>
-                    </PlayerProvider>
-                  </HistoryProvider>
-                </LogProvider>
-              </ChannelsProvider>
-            </GalleryDlProvider>
+            <ChannelsProvider>
+              <LogProvider>
+                <HistoryProvider>
+                  <PlayerProvider>
+                    <AIProvider>
+                      <ProcessingProvider>
+                        <ToastProvider>
+                          <UpdaterWrapper>
+                            <AppContent />
+                          </UpdaterWrapper>
+                        </ToastProvider>
+                      </ProcessingProvider>
+                    </AIProvider>
+                  </PlayerProvider>
+                </HistoryProvider>
+              </LogProvider>
+            </ChannelsProvider>
           </UniversalProvider>
         </DownloadProvider>
       </DependenciesProvider>

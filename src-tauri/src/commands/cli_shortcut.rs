@@ -131,7 +131,7 @@ fn ensure_command_parent_is_in_path(command_path: &Path) -> Result<(), String> {
 fn windows_apps_shim_path() -> Option<PathBuf> {
     std::env::var_os("LOCALAPPDATA")
         .map(PathBuf::from)
-        .map(|dir| dir.join("Microsoft").join("WindowsApps").join("youwee.cmd"))
+        .map(|dir| dir.join("Microsoft").join("WindowsApps").join("retubematrix.cmd"))
 }
 
 /// Inspect whether the `youwee` command is already available globally.
@@ -356,7 +356,7 @@ fn install_macos_symlink(exe: &Path) -> Result<String, String> {
     // Fall back to a per-user location that does not require admin rights.
     let fallback = user_local_bin()
         .ok_or_else(|| "Could not resolve HOME directory.".to_string())?
-        .join("youwee");
+        .join("retubematrix");
     create_symlink(exe, &fallback)?;
     Ok(fallback.display().to_string())
 }
@@ -369,7 +369,7 @@ fn install_linux_symlink(exe: &Path) -> Result<String, String> {
     }
     let link = user_local_bin()
         .ok_or_else(|| "Could not resolve HOME directory.".to_string())?
-        .join("youwee");
+        .join("retubematrix");
     create_symlink(exe, &link)?;
     Ok(link.display().to_string())
 }

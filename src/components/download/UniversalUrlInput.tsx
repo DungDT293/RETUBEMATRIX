@@ -1,6 +1,7 @@
 import { ClipboardPaste, FileText, Globe, List, Loader2, Plus, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { VideoPreview } from '@/components/download/VideoPreview';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,6 +31,9 @@ export function UniversalUrlInput({
   const [isAdding, setIsAdding] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const debounceRef = useRef<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -43,12 +47,49 @@ export function UniversalUrlInput({
     }
   }, [hasMultipleLines, isExpanded]);
 
+  // Auto-show preview when single URL is entered (500ms debounce)
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    const lines = value
+      .trim()
+      .split('\n')
+      .filter((l) => l.trim() && !l.trim().startsWith('#'));
+
+    if (lines.length === 1) {
+      const urls = extractUrls(value);
+      const url = urls.length === 1 ? urls[0] : null;
+      if (url && url !== previewUrl && !url.includes('/playlist?list=')) {
+        debounceRef.current = window.setTimeout(() => {
+          setPreviewUrl(url);
+          setShowPreview(true);
+        }, 500);
+      } else if (!url || url.includes('/playlist?list=')) {
+        setShowPreview(false);
+        setPreviewUrl(null);
+      }
+    } else {
+      setShowPreview(false);
+      setPreviewUrl(null);
+    }
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [value, previewUrl]);
+
   const handleAdd = useCallback(async () => {
     setIsAdding(true);
     try {
       const count = await onAddUrls(value);
       if (count > 0) {
         setValue('');
+        setShowPreview(false);
+        setPreviewUrl(null);
         setIsExpanded(false);
       }
     } finally {
@@ -306,6 +347,19 @@ export function UniversalUrlInput({
           </div>
         )}
       </div>
+
+      {/* Video Preview */}
+      {showPreview && previewUrl && (
+        <VideoPreview
+          url={previewUrl}
+          onClose={() => {
+            setValue('');
+            setShowPreview(false);
+            setPreviewUrl(null);
+            setIsExpanded(false);
+          }}
+        />
+      )}
 
       {/* Action Bar */}
       <div className="flex items-center gap-2 flex-wrap">

@@ -133,10 +133,13 @@ export async function analyzeCompetitorChannel(
   channelUrl: string,
   sortBy: 'popular' | 'latest' = 'popular',
 ): Promise<CompetitorVideo[]> {
-  const res = await invoke<{ success: boolean; videos: CompetitorVideo[] }>(
+  const res = await invoke<{ success: boolean; error?: string; videos: CompetitorVideo[] }>(
     'analyze_competitor_channel_cmd',
     { channelUrl, sortBy },
   );
+  if (res && res.success === false && res.error) {
+    throw new Error(res.error);
+  }
   return res?.videos || [];
 }
 

@@ -15,14 +15,26 @@ def app_path(*parts: str) -> Path:
 
 
 def user_data_root() -> Path:
-    """Return a per-user writable fallback directory for reupytb browser data."""
-    override = os.environ.get("REUPYTB_BROWSER_DATA_DIR", "").strip() or os.environ.get("YOUWEE_BROWSER_DATA_DIR", "").strip()
+    """Return a per-user writable fallback directory for RETubeMatrix browser data."""
+    override = (
+        os.environ.get("RETUBEMATRIX_BROWSER_DATA_DIR", "").strip()
+        or os.environ.get("REUPYTB_BROWSER_DATA_DIR", "").strip()
+        or os.environ.get("YOUWEE_BROWSER_DATA_DIR", "").strip()
+    )
     if override:
         return Path(override)
     base = os.environ.get("LOCALAPPDATA")
     if base:
-        return Path(base) / "reupytb" / "browser_engine"
-    return Path.home() / "AppData" / "Local" / "reupytb" / "browser_engine"
+        retube_dir = Path(base) / "RETubeMatrix" / "browser_engine"
+        reup_dir = Path(base) / "reupytb" / "browser_engine"
+        # If RETubeMatrix directory already exists with profiles, use it
+        if (retube_dir / "profiles.json").exists() or (retube_dir / "profiles").exists():
+            return retube_dir
+        # Otherwise fallback to reupytb if it has existing profiles
+        if (reup_dir / "profiles.json").exists() or (reup_dir / "profiles").exists():
+            return reup_dir
+        return retube_dir
+    return Path.home() / "AppData" / "Local" / "RETubeMatrix" / "browser_engine"
 
 
 def user_data_path(*parts: str) -> Path:
@@ -32,7 +44,8 @@ def user_data_path(*parts: str) -> Path:
 def profile_data_root() -> Path:
     """Return one per-user profile root for source and frozen app launches."""
     override = (
-        os.environ.get("REUPYTB_BROWSER_DATA_DIR", "").strip()
+        os.environ.get("RETUBEMATRIX_BROWSER_DATA_DIR", "").strip()
+        or os.environ.get("REUPYTB_BROWSER_DATA_DIR", "").strip()
         or os.environ.get("YOUWEE_BROWSER_DATA_DIR", "").strip()
         or os.environ.get("BROWSERMULTI_PROFILE_DATA_DIR", "").strip()
     )

@@ -215,9 +215,14 @@ export function BktChannelManagerTab() {
     try {
       toast.info({
         title: 'Đang mở trình duyệt',
-        description: 'Đang mở Chromium cô lập để bạn đăng nhập YouTube Studio...',
+        description: 'Đang kích hoạt Chromium và mở YouTube Studio...',
       });
-      await invoke('launch_multibrowser_profile', { profileId });
+      await invoke('launch_multibrowser_profile', {
+        profileId,
+        profile_id: profileId,
+        targetUrl: 'https://studio.youtube.com/',
+        target_url: 'https://studio.youtube.com/',
+      });
     } catch (err) {
       toast.error({
         title: 'Lỗi mở trình duyệt',

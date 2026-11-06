@@ -77,7 +77,8 @@ interface HistoryContextType {
 
 const HistoryContext = createContext<HistoryContextType | null>(null);
 
-const HISTORY_SORT_KEY = 'youwee_history_sort';
+const HISTORY_SORT_KEY = 'retubematrix_history_sort';
+const LEGACY_HISTORY_SORT_KEY = 'youwee_history_sort';
 
 const DEFAULT_ADVANCED_FILTERS: HistoryAdvancedFilters = {
   searchScope: 'all',
@@ -226,7 +227,8 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
   const [advancedFilters, setAdvancedFiltersState] =
     useState<HistoryAdvancedFilters>(DEFAULT_ADVANCED_FILTERS);
   const [sort, setSortState] = useState<HistorySort>(() => {
-    const saved = localStorage.getItem(HISTORY_SORT_KEY) as HistorySort | null;
+    const saved = (localStorage.getItem(HISTORY_SORT_KEY) ||
+      localStorage.getItem(LEGACY_HISTORY_SORT_KEY)) as HistorySort | null;
     if (saved && SORT_OPTIONS.includes(saved)) {
       return saved;
     }
@@ -342,7 +344,8 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
         .map((entry) => entry.filepath);
 
       try {
-        const savedSettings = localStorage.getItem('youwee-settings');
+        const savedSettings =
+          localStorage.getItem('retubematrix-settings') || localStorage.getItem('youwee-settings');
         if (savedSettings) {
           const parsed = JSON.parse(savedSettings) as { outputPath?: string };
           if (parsed.outputPath) {
@@ -528,7 +531,9 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
       }
 
       // Get settings from localStorage
-      const logStderr = localStorage.getItem('youwee_log_stderr') !== 'false';
+      const logStderr =
+        (localStorage.getItem('retubematrix_log_stderr') ??
+          localStorage.getItem('youwee_log_stderr')) !== 'false';
       let useBunRuntime = false;
       let useActualPlayerJs = false;
       let useAria2 = false;
@@ -537,7 +542,8 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
       let ytdlpAdvancedOptions: YtdlpAdvancedOption[] = [];
       let savedOutputPath = '';
       try {
-        const savedSettings = localStorage.getItem('youwee-settings');
+        const savedSettings =
+          localStorage.getItem('retubematrix-settings') || localStorage.getItem('youwee-settings');
         if (savedSettings) {
           const parsed = JSON.parse(savedSettings);
           useBunRuntime = parsed.useBunRuntime || false;

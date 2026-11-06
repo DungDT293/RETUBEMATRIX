@@ -310,6 +310,8 @@ export function DependenciesSection({ highlightId }: DependenciesSectionProps) {
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label={t('dependencies.checkForUpdates')}
+                title={t('dependencies.checkForUpdates')}
                 onClick={() => {
                   if (ytdlpSource === 'system') {
                     refreshYtdlpVersion();

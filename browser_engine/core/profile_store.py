@@ -577,6 +577,38 @@ def load_profiles() -> list[dict]:
                 continue
             seen_names.add(name_key)
             result.append(row)
+
+        # Auto-recover any on-disk profiles with .browsermulti-profile.json not in profiles.json
+        existing_ids = {r.get("id") for r in result if r.get("id")}
+        for root in profile_data_roots():
+            for p_sub in [root / "profiles", root]:
+                if not p_sub.is_dir():
+                    continue
+                try:
+                    for c in p_sub.iterdir():
+                        if not c.is_dir():
+                            continue
+                        meta_path = c / ".browsermulti-profile.json"
+                        if meta_path.exists():
+                            try:
+                                m_data = json.loads(meta_path.read_text(encoding="utf-8-sig"))
+                                m_row = m_data[0] if isinstance(m_data, list) and m_data else m_data
+                                m_id = m_row.get("id")
+                                m_name = m_row.get("profile_name")
+                                if m_id and m_id not in existing_ids and _profile_match_key(m_name) not in seen_names:
+                                    raw_row, _ = _coerce_legacy_profile_row(m_row)
+                                    rec_row = dict(_DEFAULTS)
+                                    rec_row.update(raw_row)
+                                    rec_row["profile_name"] = validate_display_profile_name(rec_row.get("profile_name", ""))
+                                    seen_names.add(_profile_match_key(rec_row["profile_name"]))
+                                    existing_ids.add(m_id)
+                                    result.append(rec_row)
+                                    changed = True
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+
         if changed:
             save_profiles(result)
         else:

@@ -1,6 +1,7 @@
 import i18n from '@/i18n';
 
-export const BACKEND_ERROR_PREFIX = '__YOUWEE_ERR__';
+export const BACKEND_ERROR_PREFIX = '__RETUBEMATRIX_ERR__';
+export const LEGACY_BACKEND_ERROR_PREFIX = '__YOUWEE_ERR__';
 
 export interface BackendErrorPayload {
   code: string;
@@ -138,8 +139,14 @@ export function inferBackendErrorCode(message: string): string {
 }
 
 function parseWireMessage(message: string): BackendErrorPayload | null {
-  if (!message.startsWith(BACKEND_ERROR_PREFIX)) return null;
-  const payload = message.slice(BACKEND_ERROR_PREFIX.length);
+  let payload = '';
+  if (message.startsWith(BACKEND_ERROR_PREFIX)) {
+    payload = message.slice(BACKEND_ERROR_PREFIX.length);
+  } else if (message.startsWith(LEGACY_BACKEND_ERROR_PREFIX)) {
+    payload = message.slice(LEGACY_BACKEND_ERROR_PREFIX.length);
+  } else {
+    return null;
+  }
   try {
     const parsed: unknown = JSON.parse(payload);
     if (

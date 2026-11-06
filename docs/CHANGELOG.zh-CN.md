@@ -1,11 +1,106 @@
 # 更新日志
 
-Youwee 的所有重要更改都将记录在此文件中。
+RETubeMatrix 的所有重要更改都将记录在此文件中。
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)，
 本项目遵循 [语义化版本](https://semver.org/spec/v2.0.0.html)。
 
 ## [Unreleased]
+
+## [0.20.15] - 2026-11-05
+
+### 新增
+
+- **100% 全自动零干预流水线 (Zero-Touch Auto-Pilot)** - 实现一键闭环全自动工作流：Lv1 Reup 变换 -> 95/5 词界分词标题与 3 层免责描述 -> 伴生封面图自动挂载 -> BKT 影子频道上传 (Unlisted) -> 自适应 Studio 限制轮询 (最多 25 次 / 10-12 分钟) -> `green_clean` 版权确认后自动发布至官方目标频道
+- **独立伴生缩略图 (.jpg) 自动提取与提取** - 在 `download.rs` 中增加 `--write-thumbnail --convert-thumbnails jpg`，确保 yt-dlp 在嵌入缩略图后保留磁盘上的独立 `.jpg` 文件，供自动化上传使用
+- **YouTube Studio 创作者中心自适应版权轮询** - 全面升级版权检测逻辑，支持多达 25 次轮询（每次 25 秒，总计 10-12 分钟），实时追踪 YouTube 真实阶段（"Processing SD/HD..." -> "Checks in progress..." -> "None / Copyright claim"），彻底杜绝虚假放行与过早超时
+- **媒体库一键直通 Reup & BKT 按钮** - 在已下载媒体列表操作菜单中新增“🚀 移入 Reup & 测试 BKT”快捷操作，自动将视频路径及伴生封面填充至 Reup 页面
+- **网络 URL 防崩溃保护机制** - 在 Reup 页面拦截未下载的 YouTube 网页链接，避免 FFmpeg 崩溃报错，并提供一键“下载到本地”按钮
+
+### 修复
+
+- **AI 标题 95/5 词界分词与动态 CTR 评分 (TC-25)** - 以平滑的词界正则替代暴力字符截断，完整保留音节结构；集成涵盖 5 种风格的 25+ 钩子模板库，提供动态 CTR 估分（+15% 至 +49%）、种子轮换及一键应用至活动上传
+- **极简下载器字幕 (CC) 详细设置 (TC-29)** - 在 Clean Downloader 中新增字幕配置按钮、弹窗选择模式（关闭/自动/手动）、语言、嵌入及格式，并将参数传递至 `download_video`
+- **频道 @Handle 美化与首字母渐变头像占位 (TC-09)** - 自动美化以 `@Handle` 导入的频道显示名称；当缺少缩略图时自动渲染高质感渐变首字母头像
+- **国际化 BKT 报错翻译补齐 (TC-36)** - 补齐 10 种非主要语言中缺失的 `bktLoginRequired`、`bktTimeout`、`bktQuotaExceeded` 国际化键值
+- **无障碍访问与 yt-dlp 刷新按钮标注 (TC-34)** - 为 `DependenciesSection.tsx` 中的依赖刷新按钮添加 `aria-label` 和 `title` 属性
+- **测试指南存储递归修复与 44 个用例扩展** - 修复 `TESTER_GUIDE_RETUBEMATRIX.html` 中 `safeStorage` 的递归报错，并将测试用例扩充至 44 个
+
+## [0.20.14] - 2026-11-04
+
+### 修复
+
+- **多行窗口网格排列自适应尺寸限制 (TC-06)** - 修复按多行网格（如“2 列”预设）排列窗口时超出屏幕下边界的缺陷。动态计算并限制窗口宽高（`max_h = (screen_h - (rows - 1) * gap) // rows`），确保所有浏览器窗口 100% 完整容纳在屏幕工作区内，并在 `runner.py` 中完整传递 `columns` 与 `gap` 参数
+- **爆款发掘向 Reup & Test BKT 数据联动传递 (TC-17)** - 修复点击爆款卡片上的“Test BKT”后仅跳转界面而未填入视频路径的缺陷。视频标题与 URL 完整通过 `sessionStorage` 传递，并自动回填至 Tab 1（`inputVideoPath`）与 Tab 2（`uploadVideoPath` 及 `uploadTitle`）
+- **AI 缩略图导出 Canvas 渲染与本地文件下载 (TC-26)** - 完整实现 HTML5 Canvas 离屏渲染，应用对比度、亮度、饱和度、防哈希缩放偏移及色调滤镜，生成真实 PNG 数据并自动触发文件下载保存至本地（`optimized_thumbnail_<timestamp>.png`）
+- **万能下载 500ms 防抖预获取视频信息 (TC-27)** - 在 `UniversalUrlInput.tsx` 中集成 500ms 防抖自动解析功能，粘贴有效视频链接后即时展示预览卡片 `VideoPreview`（缩略图、标题、时长、分辨率徽标），无需预先点击“添加”
+- **NSIS 安装包覆盖升级与进程安全释放** - 优化 `template.nsi`，覆盖安装时自动安全终止 `RETubeMatrix.exe`、`retubematrix-yt-dlp.exe`、`browsermulti.exe`、`python.exe` 与 `msedgewebview2.exe`，并以静默模式运行旧版卸载逻辑，彻底消除“Unable to uninstall!”弹窗报错
+- **测试指南 file:// 协议本地存储降级兼容** - 在 `TESTER_GUIDE_RETUBEMATRIX.html` 中引入 `safeStorage` 包装层，在浏览器对 `file:///` 本地文件禁用 `localStorage` 时平滑降级至内存缓存，确保所有按钮、标签筛选与笔记输入 100% 正常响应
+
+## [0.20.13] - 2026-11-04
+
+### 修复
+
+- **窗口排列纯 ctypes 引擎与配置文件路径解析** - 通过 Windows 原生 `ctypes` 结合 `OpenInputDesktop` 重新实现窗口枚举，彻底移除对 `win32gui` 与 `win32process` 的依赖。自动解析 `profile_data_dir` 完整物理路径，彻底解决“未找到匹配的 Chromium 窗口”错误
+- **BKT YouTube 频道匹配与切换优化** - 重构 `ensure_preferred_youtube_channel` 匹配逻辑（`_normalize_clean`），支持无 `@` 前缀、频道名、URL 及大小写自适应匹配。新增活动账户头部（`ytd-active-account-header-renderer`）即时识别，完美支持单频道账户
+- **僵尸进程过滤与后台界面状态轮询** - 从 `chrome_pids_by_user_data_dir` 中剔除带有 `--type=` 的子进程，仅以主浏览器进程判定运行状态。在 `ProfilesPage.tsx` 中新增 4 秒后台静默轮询机制，外部关闭浏览器窗口时界面自动刷新为“已停止”
+- **YouTube Studio 创作者中心多语言选择器支持** - 增加中英双语按钮匹配（"Create" / "Tạo", "Upload videos" / "Tải video lên" 等），确保自动化上传流程顺畅
+
+## [0.20.12] - 2026-11-04
+
+### 修复
+
+- **NSIS 安装包升级时自动终止后台进程** - 彻底解决覆盖安装时因旧进程锁定文件导致的 `[!] Unable to uninstall!` 报错弹窗。在 `template.nsi` 中集成了在执行卸载程序及覆盖文件前自动安全结束 `RETubeMatrix.exe`、`retubematrix-yt-dlp.exe` 和 `browsermulti.exe` 进程的机制，确保升级过程顺畅无阻
+- **测试指南初始化与离线运行保障** - 修复 `TESTER_GUIDE_RETUBEMATRIX.html` 中 DOMContentLoaded 偶发的生命周期竞争问题，改用 `document.readyState` 校验，保障在离线直接通过 `file://` 双击打开时按钮 100% 正常响应
+
+### 新增
+
+- **全量多智能体审计测试用例矩阵** - 大幅扩充 `TESTER_GUIDE_RETUBEMATRIX.html`，细化至全部 9 大核心功能模块的每一个具体按钮、输入框、滑块与弹窗，并配备离线独立运行指引
+
+## [0.20.11] - 2026-11-04
+
+### 修复
+
+- **彻底消除测试频道与配置管理间的启动死锁** - 修复前端频繁轮询 `action_list_profiles` 时在窗口尚未渲染完成前误杀正在启动中的 Chromium 实例的竞争问题。只读查询切换为基于 PID 活跃检测（`psutil.pid_exists`），杜绝误杀行为
+- **递归清理进程树** - 升级 `_clean_profile_locks`，通过 `proc.children(recursive=True)` 递归清理全部子进程，根除后台残留的 `BrowserMulti` 渲染与工具孤儿进程
+- **浏览器会话智能自愈** - 在 `session.start` 中自动清理无窗口的残留孤儿进程并顺畅启动，避免抛出 `RuntimeError` 导致配置卡死在假“运行中”状态
+- **安全进程枚举与兼容** - 在 `chrome_pids_by_user_data_dir` 中妥善处理 Windows `psutil.AccessDenied` 异常，并新增对 `browsermulti` 进程标识的原生识别
+- **旧版数据库无缝数据迁移** - 启动时自动将旧版 `youwee.db` 中的版权测试频道、关注频道及视频数据合并至 `retubematrix.db`
+
+### 新增
+
+- **全方位交互式测试看板** - 全新升级 `TESTER_GUIDE_RETUBEMATRIX.html`，覆盖全部 9 大核心模块的 40 个精细化测试用例，包含精确按钮目标（`targetElement`）、一键复制测试载荷（`samplePayload`）与潜在风险预警
+
+## [0.20.10] - 2026-11-04
+
+### 新增
+
+- **真实可见浏览器窗口校验** - 集成 Win32 `has_profile_windows`（`EnumWindows` 与 `IsWindowVisible`）机制，精准识别屏幕上正在呈现的真实 Chromium 窗口，杜绝仅依赖后台 PID 造成的误判
+
+### 修复
+
+- **修复配置文件异常显示“运行中”问题** - 彻底解决用户已关闭浏览器但界面仍显示为“运行中”且带有红色停止按钮的问题（由 Chromium 后台残留的 crashpad、utility、gpu 辅助进程所致）。系统在列表对账时自动清理锁文件（`SingletonLock`、`lockfile`、`browsermulti_session.pid`）并清理僵尸进程，自动恢复为“已停止”状态
+- **测试频道与配置管理多窗口启动流优化** - 消除连续调起 BKT 版权测试频道与配置管理浏览器时的锁竞争问题，确保浏览器秒级启动并自动置顶窗口
+
+### 变更
+
+- **全面统一 RETubeMatrix 品牌标识** - 完成桌面主程序（`RETubeMatrix.exe`）、下载组件（`retubematrix-yt-dlp.exe`）、外部协议唤起（`retubematrix://`）、本地存储键及全 13 种界面多语言的完整品牌统一
+
+
+## [0.20.9] - 2026-11-04
+
+### 新增
+
+- **一键全量赛道爆款扫描** - 新增“⚡ 扫描全部热门赛道”按钮，一次操作即可并行扫描全部 7 大 Ikigai 黄金细分赛道
+- **赛道快速筛选标签（Filter Pills）** - 在爆款视频列表中增加赛道快速切换标签，支持按赛道独立查看或汇总浏览
+- **系统默认浏览器专用调用指令** - 新增 Tauri `open_external_url` 指令，通过 Windows API（`rundll32 url.dll,FileProtocolHandler`）确保链接直接在当前系统默认浏览器（Chrome/Edge/Firefox）中打开
+- **全局外链拦截机制（Global Interceptor）** - 在 `App.tsx` 顶层统一拦截全部外部超链接与 `target="_blank"` 标签，杜绝在内嵌 WebView 中意外打开空白标签
+
+### 修复
+
+- **YouTube 视频发布时间自然语义化** - 彻底废除原始庞大小时数显示（如 `48940h trước`），转换为天、周、月、年前的自然时间格式，并提供悬浮精准时间提示
+- **全功能视频“查看”按钮跳转问题** - 彻底修复爆款发掘卡片、竞对分析列表与 Google Trends 按钮无法正常调起外部浏览器的问题
+- **长尾常青赛道筛选逻辑优化** - 放宽 SQLite 数据库与 Python 引擎中的过度限制，确保 Vlog 背景音乐、学习白噪音等优质常青视频能够被准确发掘
 
 ## [0.20.8] - 2026-11-03
 

@@ -8,8 +8,8 @@ import type {
   PostDownloadPluginPayload,
 } from '@/lib/types';
 
-const STORAGE_KEY = 'youwee-plugin-workflow-snapshots';
-const LEGACY_STORAGE_KEY = 'youwee-post-download-workflow-steps';
+const STORAGE_KEY = 'retubematrix-plugin-workflow-snapshots';
+const LEGACY_STORAGE_KEY = 'youwee-plugin-workflow-snapshots';
 export const DOWNLOAD_WORKFLOW_TRIGGERS: PluginTrigger[] = [
   'download.queued',
   'download.beforeStart',
@@ -100,7 +100,6 @@ export function savePluginWorkflowSnapshots(snapshots: PluginWorkflowSnapshotMap
   try {
     const sanitized = sanitizeSnapshotMap(snapshots);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
-    localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(sanitized['download.completed'] ?? []));
   } catch (error) {
     console.error('Failed to save plugin workflow snapshots:', error);
   }

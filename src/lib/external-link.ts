@@ -166,7 +166,10 @@ export function parseExternalDeepLink(raw: string): ExternalLinkRequest | null {
     return null;
   }
 
-  if (parsed.protocol !== 'youwee:' || parsed.hostname !== 'download') {
+  if (
+    (parsed.protocol !== 'retubematrix:' && parsed.protocol !== 'youwee:') ||
+    parsed.hostname !== 'download'
+  ) {
     return null;
   }
 
@@ -213,7 +216,10 @@ export function parseExternalSummaryDeepLink(raw: string): ExternalSummaryLinkRe
     return null;
   }
 
-  if (parsed.protocol !== 'youwee:' || parsed.hostname !== 'summary') {
+  if (
+    (parsed.protocol !== 'retubematrix:' && parsed.protocol !== 'youwee:') ||
+    parsed.hostname !== 'summary'
+  ) {
     return null;
   }
 

@@ -1,7 +1,9 @@
 import type { CookieSettings, ProxySettings } from '@/lib/types';
 
-export const COOKIE_STORAGE_KEY = 'youwee-cookie-settings';
-export const PROXY_STORAGE_KEY = 'youwee-proxy-settings';
+export const COOKIE_STORAGE_KEY = 'retubematrix-cookie-settings';
+export const LEGACY_COOKIE_STORAGE_KEY = 'youwee-cookie-settings';
+export const PROXY_STORAGE_KEY = 'retubematrix-proxy-settings';
+export const LEGACY_PROXY_STORAGE_KEY = 'youwee-proxy-settings';
 export const DEFAULT_COOKIE_SKIP_PATTERNS = ['facebook.com/reel'];
 
 export type CookieProxyInvokeOptions = {
@@ -77,7 +79,8 @@ function normalizeCookieSettings(settings: CookieSettings): CookieSettings {
 
 export function loadCookieSettings(): CookieSettings {
   try {
-    const saved = localStorage.getItem(COOKIE_STORAGE_KEY);
+    const saved =
+      localStorage.getItem(COOKIE_STORAGE_KEY) || localStorage.getItem(LEGACY_COOKIE_STORAGE_KEY);
     if (saved) {
       return normalizeCookieSettings(JSON.parse(saved));
     }
@@ -97,7 +100,8 @@ export function saveCookieSettings(settings: CookieSettings) {
 
 export function loadProxySettings(): ProxySettings {
   try {
-    const saved = localStorage.getItem(PROXY_STORAGE_KEY);
+    const saved =
+      localStorage.getItem(PROXY_STORAGE_KEY) || localStorage.getItem(LEGACY_PROXY_STORAGE_KEY);
     if (saved) {
       return JSON.parse(saved);
     }

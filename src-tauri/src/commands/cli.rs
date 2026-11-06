@@ -122,13 +122,13 @@ fn command_name(argv: &[String]) -> &str {
                 .and_then(|name| name.to_str())
         })
         .filter(|name| !name.is_empty())
-        .unwrap_or("youwee")
+        .unwrap_or("retubematrix")
 }
 
 fn cli_help_text(command: &str) -> String {
     format!(
         "\
-Youwee {version}
+RETubeMatrix {version}
 GUI for yt-dlp. Pass a video URL to queue or download it.
 
 Usage:

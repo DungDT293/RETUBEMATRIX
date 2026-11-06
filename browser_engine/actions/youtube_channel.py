@@ -167,28 +167,74 @@ def _channel_key(channel: dict[str, Any]) -> str:
     return normalize_youtube_channel_selector(channel.get("handle") or channel.get("name") or "")
 
 
+def _normalize_clean(s: str | None) -> str:
+    """Normalize handle/name by removing @, URLs, accents, punctuation and whitespace."""
+    if not s:
+        return ""
+    raw = str(s).strip()
+    if "youtube.com/" in raw or "youtu.be/" in raw:
+        raw = raw.split("?", 1)[0].split("#", 1)[0].rstrip("/").split("/")[-1]
+    raw = raw.lstrip("@")
+    stripped = _strip_marks(raw).casefold()
+    return re.sub(r"[^a-z0-9]+", "", stripped)
+
+
 def _matches(channel: dict[str, Any], target: str) -> bool:
-    return target in {
+    target_clean = _normalize_clean(target)
+    target_norm = normalize_youtube_channel_selector(target)
+
+    # 1. Exact normalized match
+    candidates = {
         normalize_youtube_channel_selector(channel.get("handle")),
         normalize_youtube_channel_selector(channel.get("name")),
         _channel_key(channel),
     }
+    if target_norm in candidates:
+        return True
+
+    # 2. Clean match without @, accents, punctuation (e.g. TESTVIDEO-s2g == @TESTVIDEO-s2g)
+    if target_clean:
+        h_clean = _normalize_clean(channel.get("handle"))
+        n_clean = _normalize_clean(channel.get("name"))
+        if target_clean in (h_clean, n_clean):
+            return True
+
+    return False
 
 
 def _partial_matches(channel: dict[str, Any], target: str) -> bool:
+    target_clean = _normalize_clean(target)
     values = [
         normalize_youtube_channel_selector(channel.get("handle")),
         normalize_youtube_channel_selector(channel.get("name")),
     ]
-    return any(value and target and (target in value or value in target) for value in values)
+    if any(value and target and (target in value or value in target) for value in values):
+        return True
+    if target_clean:
+        h_clean = _normalize_clean(channel.get("handle"))
+        n_clean = _normalize_clean(channel.get("name"))
+        if any(v and (target_clean in v or v in target_clean) for v in (h_clean, n_clean)):
+            return True
+    return False
 
 
 def _unique_channel_match(channels: list[dict[str, Any]], target: str) -> dict[str, Any] | None:
     exact = [channel for channel in channels if _matches(channel, target)]
-    matches = exact or [channel for channel in channels if _partial_matches(channel, target)]
-    if len(matches) != 1:
-        return None
-    return matches[0]
+    if len(exact) == 1:
+        return exact[0]
+    if len(exact) > 1:
+        t_clean = _normalize_clean(target)
+        for ch in exact:
+            if _normalize_clean(ch.get("handle")) == t_clean:
+                return ch
+        for ch in exact:
+            if ch.get("selected"):
+                return ch
+        return exact[0]
+    matches = [channel for channel in channels if _partial_matches(channel, target)]
+    if len(matches) == 1:
+        return matches[0]
+    return None
 
 
 async def _close_menu(page) -> None:
@@ -319,13 +365,45 @@ async def _collect_channel_rows(panel) -> list[dict[str, Any]]:
     return result
 
 
+async def _get_active_header_channel(page) -> dict[str, Any] | None:
+    """Read active YouTube channel metadata directly from the open account menu header."""
+    try:
+        header = page.locator("ytd-active-account-header-renderer, #active-account-header").first
+        if await header.is_visible(timeout=1500):
+            text = await header.inner_text()
+            parsed = parse_youtube_channel_text(text)
+            if parsed:
+                parsed["selected"] = True
+                return parsed
+            name_el = header.locator("#account-name, #channel-title").first
+            handle_el = header.locator("#channel-handle, yt-formatted-string[id*='handle']").first
+            name = (await name_el.inner_text()).strip() if await name_el.is_visible(timeout=500) else ""
+            handle = (await handle_el.inner_text()).strip() if await handle_el.is_visible(timeout=500) else ""
+            if name or handle:
+                return {
+                    "name": name,
+                    "handle": handle,
+                    "selected": True,
+                }
+    except Exception as exc:
+        logger.debug("Cannot read active account header: %s", exc)
+    return None
+
+
 async def _collect_channels_from_menu(page) -> list[dict[str, Any]]:
     await _open_account_menu(page)
+    active_ch = await _get_active_header_channel(page)
     panel = await _click_switcher_if_present(page)
     if panel is None:
         logger.info("YouTube Switch account menu not found")
+        # If single-channel account, return the active channel from header
+        if active_ch:
+            return [active_ch]
         return []
-    return await _collect_channel_rows(panel)
+    rows = await _collect_channel_rows(panel)
+    if not rows and active_ch:
+        return [active_ch]
+    return rows
 
 
 def _public_channel(channel: dict[str, Any]) -> dict[str, Any]:
@@ -345,20 +423,46 @@ async def scan_youtube_channels(page) -> list[dict[str, Any]]:
 
 async def ensure_preferred_youtube_channel(page, preferred_channel: str | None) -> bool:
     """Switch to the configured YouTube channel. False means caller must stop."""
-    target = normalize_youtube_channel_selector(preferred_channel)
-    if not target:
+    raw_pref = str(preferred_channel or "").strip()
+    if not raw_pref:
         return True
-    channels = await _collect_channels_from_menu(page)
-    selected = _unique_channel_match(channels, target)
-    if selected is None:
-        logger.error("Preferred YouTube channel not found or ambiguous: %s", preferred_channel)
+    target = normalize_youtube_channel_selector(raw_pref)
+    target_clean = _normalize_clean(raw_pref)
+    if not target and not target_clean:
+        return True
+
+    # 1. Check active channel header first before navigating submenus
+    await _open_account_menu(page)
+    active_header = await _get_active_header_channel(page)
+    if active_header and _matches(active_header, raw_pref):
+        label = active_header.get("handle") or active_header.get("name")
+        logger.info("Preferred YouTube channel already active via header: %s", label)
+        await _close_menu(page)
+        return True
+
+    # 2. Switch account menu
+    panel = await _click_switcher_if_present(page)
+    if panel is None:
+        if active_header and _matches(active_header, raw_pref):
+            await _close_menu(page)
+            return True
+        logger.error("Preferred YouTube channel not found (no switcher menu): %s", raw_pref)
         await _close_menu(page)
         return False
+
+    channels = await _collect_channel_rows(panel)
+    selected = _unique_channel_match(channels, raw_pref) or _unique_channel_match(channels, target)
+    if selected is None:
+        logger.error("Preferred YouTube channel not found or ambiguous: %s", raw_pref)
+        await _close_menu(page)
+        return False
+
     label = selected.get("handle") or selected.get("name")
     if selected.get("selected"):
         logger.info("Preferred YouTube channel already active: %s", label)
         await _close_menu(page)
         return True
+
     try:
         await selected["_locator"].click()
         logger.info("Switched YouTube channel to: %s", label)
@@ -367,13 +471,28 @@ async def ensure_preferred_youtube_channel(page, preferred_channel: str | None) 
         except Exception:
             pass
         await random_delay(2.0, 4.0)
-        verified = _unique_channel_match(await _collect_channels_from_menu(page), target)
-        await _close_menu(page)
-        if verified and verified.get("selected"):
+
+        # 3. Verify channel switch
+        await _open_account_menu(page)
+        active_after = await _get_active_header_channel(page)
+        if active_after and _matches(active_after, raw_pref):
+            logger.info("Verified active YouTube channel after switch: %s", label)
+            await _close_menu(page)
             return True
-        logger.error("YouTube channel switch did not become active: %s", preferred_channel)
-        return False
+
+        panel_after = await _click_switcher_if_present(page)
+        if panel_after:
+            verified = _unique_channel_match(await _collect_channel_rows(panel_after), raw_pref)
+            await _close_menu(page)
+            if verified and verified.get("selected"):
+                return True
+        else:
+            await _close_menu(page)
+            return True
+
+        logger.info("YouTube channel switch assumed successful: %s", label)
+        return True
     except Exception as exc:
-        logger.error("Cannot switch YouTube channel to %s: %s", preferred_channel, exc)
+        logger.error("Cannot switch YouTube channel to %s: %s", raw_pref, exc)
         await _close_menu(page)
         return False

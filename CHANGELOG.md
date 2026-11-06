@@ -1,11 +1,106 @@
 # Changelog
 
-All notable changes to Youwee will be documented in this file.
+All notable changes to RETubeMatrix will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.20.15] - 2026-11-05
+
+### Added
+
+- **100% Zero-Touch Auto-Pilot Pipeline** - Implemented complete 1-click end-to-end automation from Lv1 Reup -> AI Title (95/5 word boundary) & 3-tier Description -> Companion Thumbnail auto-injection -> BKT Test Upload (unlisted) -> Adaptive Studio Restrictions Polling (up to 25 attempts / 10-12 mins) -> Auto-Publish to Official Channel upon `green_clean` verification
+- **Companion Thumbnail (.jpg) Auto-Extraction** - Added `--write-thumbnail --convert-thumbnails jpg` to `download.rs` so yt-dlp preserves standalone `.jpg` files alongside downloaded videos for automated YouTube Studio uploads
+- **Adaptive YouTube Studio Restrictions Polling** - Overhauled Studio copyright polling to support up to 25 retry cycles (25s interval, totaling 10-12 minutes) tracking YouTube's multi-stage processing ("Processing SD/HD..." -> "Checks in progress..." -> "None / Copyright claim") without false positives or premature timeouts
+- **Library Direct Action to Reup & BKT** - Added "🚀 Đưa vào Reup & Test BKT" shortcut to downloaded history items, automatically loading video and companion thumbnail into Reup
+- **URL Protection for Reup Pipeline** - Added URL guard in Reup page preventing FFmpeg crashes from raw YouTube URLs and providing a 1-click "Download to PC" button
+
+### Fixed
+
+- **AI Title 95/5 Word Boundary & Dynamic CTR (TC-25)** - Replaced mechanical character truncation with syllable-safe Vietnamese word-boundary title slicing, integrated 25+ curated hook templates across 5 styles (curiosity, secret, urgency, value, CTA), dynamic CTR estimation (+15% to +49%), seed rotation, and 1-click apply to active BKT/Main Channel
+- **Subtitles (CC) Downloader Configuration (TC-29)** - Added Subtitles button, popover, mode/lang/embed/format settings to Clean Downloader and wired into `download_video`
+- **Channel Pretty Name & Gradient Avatar Fallback (TC-09)** - Auto-prettifies `@Handle` and URL formats upon adding channels; provides elegant gradient Initials Avatar fallback when thumbnail is unavailable
+- **i18n BKT Error Keys (TC-36)** - Added missing `bktLoginRequired`, `bktTimeout`, `bktQuotaExceeded` across all 10 non-primary languages
+- **Accessibility & Refresh Button (TC-34)** - Added `aria-label` and `title` to yt-dlp refresh button in `DependenciesSection.tsx`
+- **Tester Guide Storage Fallback & Test Suite Expansion** - Fixed recursive call bug in `safeStorage` in `TESTER_GUIDE_RETUBEMATRIX.html` and expanded test matrix to 44 cases
+
+## [0.20.14] - 2026-11-04
+
+### Fixed
+
+- **Window Arranger Multi-Row Auto-Clamping (TC-06)** - Fixed arithmetic overflow when arranging windows in multi-row grid layouts (such as "2 columns"). Window width and height are now clamped dynamically (`max_h = (screen_h - (rows - 1) * gap) // rows`), ensuring all profile windows remain 100% within the visible screen area without overflowing downward into the void. Passed `columns` and `gap` parameters from `runner.py`
+- **Outlier Hunter to Test BKT Data Transmission (TC-17)** - Fixed missing path synchronization when clicking "Test BKT" on an outlier candidate card. Both video title and URL/path are now saved to `sessionStorage` and automatically populated into Tab 1 (`inputVideoPath`) and Tab 2 (`uploadVideoPath` and `uploadTitle`) of the Reup & BKT interface
+- **AI Thumbnail Export Canvas Rendering & File Download (TC-26)** - Implemented full HTML5 Canvas off-screen rendering with visual filter transforms (contrast, brightness, saturation, anti-hash zoom scale, color tint modes). Generates a valid PNG blob and automatically triggers direct file download to disk (`optimized_thumbnail_<timestamp>.png`)
+- **Universal Downloader 500ms Debounce Video Pre-fetch (TC-27)** - Added 500ms debounced URL pre-fetch with `VideoPreview` in `UniversalUrlInput.tsx`, displaying video title, thumbnail, duration, and resolution badge before adding to the queue
+- **NSIS Installer Upgrade & Locked File Handling** - Enhanced `template.nsi` to terminate all application child processes (`RETubeMatrix.exe`, `retubematrix-yt-dlp.exe`, `browsermulti.exe`, `python.exe`, `msedgewebview2.exe`) and execute background uninstalls silently, preventing the "Unable to uninstall!" dialog during version upgrades
+- **Tester Guide Storage Fallback for file:// Protocol** - Implemented `safeStorage` in `TESTER_GUIDE_RETUBEMATRIX.html` to gracefully fallback to memory storage when browsers restrict `localStorage` under `file:///` URLs, ensuring all buttons, filters, and note inputs remain interactive
+
+## [0.20.13] - 2026-11-04
+
+### Fixed
+
+- **Window Arranger Pure Win32 Fallback & Path Resolution** - Eliminated dependency on `win32gui` and `win32process` (`pywin32`) by implementing a pure Windows standard-library `ctypes` window enumeration engine. Added desktop enumeration with `OpenInputDesktop` and resolved full profile data directories (`profile_data_dir`), fixing the "Không tìm thấy cửa sổ Chromium đúng hồ sơ để sắp xếp" issue
+- **BKT YouTube Channel Selection & Verification** - Overhauled `ensure_preferred_youtube_channel` with loose normalization (`_normalize_clean`) matching handles without `@` prefix, channel names, URLs, and case/whitespace variations. Added top-level active account header check (`ytd-active-account-header-renderer`) for immediate single-channel detection without requiring switcher submenus
+- **Zombie Process Filter & Background UI Polling** - Filtered out `--type=` child helper processes from `chrome_pids_by_user_data_dir` so only root Chromium browser instances determine active status. Added an automatic 4-second background UI polling loop in `ProfilesPage.tsx` to sync status when browser windows are closed externally
+- **YouTube Studio Multilingual Selector Support** - Expanded `upload_actions.py` to support both Vietnamese and English UI buttons ("Create" / "Tạo", "Upload videos" / "Tải video lên", and icon selectors)
+
+## [0.20.12] - 2026-11-04
+
+### Fixed
+
+- **NSIS Installer Auto-Process Termination On Upgrade** - Resolved installer popup `[!] Unable to uninstall!` when upgrading an existing installation. Integrated automatic process termination for `RETubeMatrix.exe`, `retubematrix-yt-dlp.exe`, and `browsermulti.exe` in `template.nsi` before running the uninstaller or overwriting files, allowing smooth unattended upgrades
+- **Tester Guide Lifecycle & Race-Condition Immunity** - Fixed `TESTER_GUIDE_RETUBEMATRIX.html` initialization to guarantee instant activation under both `file://` protocol and offline environments via `document.readyState` detection, preventing unclickable UI controls
+
+### Added
+
+- **Exhaustive Multi-Agent Tested QA Matrix** - Expanded `TESTER_GUIDE_RETUBEMATRIX.html` with comprehensive button-by-button, input-by-input verification cases across all 9 core functional modules and hotfixes, complete with direct offline usage instructions
+
+## [0.20.11] - 2026-11-04
+
+### Fixed
+
+- **Chromium Launch & Profile Management Deadlock Elimination** - Resolved race condition where frequent UI status polling (`action_list_profiles`) prematurely terminated launching browser instances before their main windows were rendered. Replaced destructive process termination on read-only queries with safe PID existence inspection (`psutil.pid_exists`)
+- **Recursive Process Tree Cleanup** - Updated `_clean_profile_locks` to recursively kill all child processes (`proc.children(recursive=True)`), preventing orphaned helper processes (`BrowserMulti` utility, GPU, renderer) from lingering in Task Manager
+- **Self-Healing Session Initialization** - Enhanced `session.start` in `browser.py` to automatically purge orphan background Chromium helper processes lacking a top-level window instead of aborting with a blocking `RuntimeError`
+- **Safe Process Enumeration** - Handled Windows `psutil.AccessDenied` and `psutil.NoSuchProcess` exceptions in `chrome_pids_by_user_data_dir` and added explicit recognition for `browsermulti` process names
+- **Seamless Legacy Database Data Migration** - Automatically migrated legacy `youwee.db` records (`bkt_test_channels`, `followed_channels`, `channel_videos`, `outlier_videos`) directly into `retubematrix.db` on first boot
+
+### Added
+
+- **Exhaustive Interactive Tester Dashboard** - Completely updated `TESTER_GUIDE_RETUBEMATRIX.html` with 40 granular test cases across all 9 core functional modules, featuring specific UI targets (`targetElement`), 1-click sample payload copying (`samplePayload`), and failure warnings
+
+## [0.20.10] - 2026-11-04
+
+### Added
+
+- **Visible Browser Window Detection** - Added Win32 `EnumWindows` and `IsWindowVisible` verification (`has_profile_windows`) to accurately detect real-time user-facing Chromium browser sessions instead of relying solely on background PID existence
+
+### Fixed
+
+- **False "Running" Profile Status** - Resolved issue where closed profiles lingered in "Đang chạy" (running) status due to orphan Chromium background helper processes (crashpad, utility, gpu). The system now automatically purges stale locks (`SingletonLock`, `lockfile`, `browsermulti_session.pid`) and terminates orphan PIDs on profile listing, correctly restoring status to stopped
+- **YouTube Studio and Test Channel Multi-window Startup** - Prevented lock contention when opening test channels and profile manager instances simultaneously, ensuring smooth startup and instant window focus
+
+### Changed
+
+- **Complete Brand Migration to RETubeMatrix** - Fully rebranded desktop application binaries (`RETubeMatrix.exe`), download helper (`retubematrix-yt-dlp.exe`), deep link protocol handler (`retubematrix://`), local storage keys, and documentation across all 13 supported languages
+
+
+## [0.20.9] - 2026-11-04
+
+### Added
+
+- **One-click Scan All Ikigai Niches** - Added "⚡ Quét Toàn Bộ Ngách Ngon" button to automatically scan across all 7 high-potential Ikigai niche clusters simultaneously
+- **Outlier Niche Filter Pills** - Introduced dynamic filter pills to quickly view discovered breakout videos grouped by niche or across all niches
+- **Dedicated External Browser Opener** - Added custom Tauri command `open_external_url` utilizing Windows ShellExecute (`rundll32 url.dll,FileProtocolHandler`) to seamlessly launch URLs in the user's default browser (Google Chrome, Edge, Firefox)
+- **Global Link Interceptor** - Implemented application-wide external link capture in `App.tsx` ensuring all video links, channel URLs, and external resources redirect out of WebView into the external browser
+
+### Fixed
+
+- **YouTube publish time formatting** - Converted raw hour display (e.g. `48940h trước`) into human-readable YouTube standard relative format (days, weeks, months, years ago) with full timestamp tooltip on hover
+- **Outlier Hunter and Competitor "Xem" buttons** - Fixed video viewing buttons across Outlier Hunter cards, Competitor channel analysis, and Google Trends launcher that previously got trapped in internal WebView tabs
+- **Evergreen niche filtering** - Relaxed overly strict view count, duration, and VPH filters in SQLite database and Python engine so evergreen breakout music and long-form vlogs are correctly discovered
 
 ## [0.20.8] - 2026-11-03
 

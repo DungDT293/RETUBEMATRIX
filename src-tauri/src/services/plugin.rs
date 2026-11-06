@@ -87,7 +87,7 @@ pub use state::{
 
 const PLUGIN_STORE_CATALOG_JSON: &str = include_str!("../../../plugin-store/catalog.json");
 const PLUGIN_STORE_CATALOG_URL: &str =
-    "https://raw.githubusercontent.com/vanloctech/youwee/main/plugin-store/catalog.json";
+    "https://raw.githubusercontent.com/DungDT293/RETUBEMATRIX/main/plugin-store/catalog.json";
 const PLUGIN_STORE_CATALOG_TIMEOUT_SECS: u64 = 10;
 static PLUGIN_STORE_REMOTE_CATALOG_CACHE: OnceLock<std::sync::RwLock<Option<PluginStoreCatalog>>> =
     OnceLock::new();

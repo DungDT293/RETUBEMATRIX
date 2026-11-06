@@ -18,7 +18,8 @@ interface LogContextType {
 
 const LogContext = createContext<LogContextType | null>(null);
 
-const LOG_STDERR_KEY = 'youwee_log_stderr';
+const LOG_STDERR_KEY = 'retubematrix_log_stderr';
+const LEGACY_LOG_STDERR_KEY = 'youwee_log_stderr';
 
 function areLogsEqual(current: LogEntry[], next: LogEntry[]): boolean {
   if (current.length !== next.length) return false;
@@ -43,7 +44,8 @@ export function LogProvider({ children }: { children: ReactNode }) {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [logStderr, setLogStderrState] = useState(() => {
-    const saved = localStorage.getItem(LOG_STDERR_KEY);
+    const saved =
+      localStorage.getItem(LOG_STDERR_KEY) ?? localStorage.getItem(LEGACY_LOG_STDERR_KEY);
     return saved !== null ? saved === 'true' : true; // Default: true
   });
 

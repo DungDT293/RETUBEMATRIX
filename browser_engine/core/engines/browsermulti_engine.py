@@ -38,27 +38,19 @@ RUNTIME_MAPPINGS: dict[str, tuple[Path, ...]] = {
         REPO_ROOT / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
         Path(sys.executable).resolve().parent.parent / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
         Path(sys.executable).resolve().parent / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
+        Path(os.environ.get("LOCALAPPDATA", "")) / "RETubeMatrix" / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
+        Path(os.environ.get("PROGRAMFILES", r"C:\Program Files")) / "RETubeMatrix" / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
+        # Legacy data dirs kept for migration from earlier builds
         Path(os.environ.get("LOCALAPPDATA", "")) / "reupytb" / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
         Path(os.environ.get("PROGRAMFILES", r"C:\Program Files")) / "reupytb" / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
-        # Local machine paths
-        Path(r"D:\TOOL DUNG CODE\BrowserMulti\roots\browsermulti\155.0.8059.12\chrome.exe"),
-        Path(r"D:\TOOL DUNG CODE\BrowserMulti\browsermulti-155.0.8059.12-win64\browsermulti-155.0.8059.12-win64\chrome.exe"),
         # Gói đóng gói runtime
         APP_ROOT / "browsermulti-155.0.8059.12-win64" / "browsermulti-155.0.8059.12-win64" / "chrome.exe",
         REPO_ROOT / "browsermulti-155.0.8059.12-win64" / "browsermulti-155.0.8059.12-win64" / "chrome.exe",
-        Path(r"E:\TOOL DUNG CODE\BrowserMulti\roots\browsermulti\155.0.8059.12\chrome.exe"),
-        Path(r"E:\TOOL DUNG CODE\BrowserMulti\browsermulti-155.0.8059.12-win64\browsermulti-155.0.8059.12-win64\chrome.exe"),
-        Path(r"E:\TOOL DUNG CODE\browsermulti-155.0.8059.12-win64\browsermulti-155.0.8059.12-win64\chrome.exe"),
-        # Máy 1 (Môi trường phát triển): Trỏ về thư mục build out/Default/chrome.exe
-        Path(r"D:\dichchrome\chromium\src\out\Default\chrome.exe"),
-        Path(r"D:\dichchrome\out\Default\chrome.exe"),
-        Path(r"D:\dichchrome\dist") / f"browsermulti-{DEFAULT_BROWSERMULTI_VERSION}-win64" / "chrome.exe",
         Path.home() / ".browsermulti" / "bin" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
     ),
     BASELINE_VERSION: (
         REPO_ROOT / "roots" / "browsermulti" / BASELINE_VERSION / "chrome.exe",
         Path.home() / ".browsermulti" / "bin" / BASELINE_VERSION / "chrome.exe",
-        Path(r"D:\dichchrome\dist") / f"browsermulti-{BASELINE_VERSION}-win64" / "chrome.exe",
     ),
 }
 

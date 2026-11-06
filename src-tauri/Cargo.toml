@@ -1,16 +1,20 @@
 [package]
-name = "youwee"
-version = "0.20.8"
-description = "Youwee - Modern YouTube Video Downloader"
-authors = ["locnguyen"]
+name = "retubematrix"
+version = "0.20.15"
+description = "RETubeMatrix - Hệ Thống Săn Đề Xuất & Reup Tự Động Bản Quyền YouTube"
+authors = ["DungDT"]
 license = "MIT"
-repository = ""
+repository = "https://github.com/DungDT293/RETUBEMATRIX.git"
 edition = "2021"
 rust-version = "1.77.2"
 
 [lib]
 name = "app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "RETubeMatrix"
+path = "src/main.rs" 
 
 [build-dependencies]
 tauri-build = { version = "2.6.3", features = [] }

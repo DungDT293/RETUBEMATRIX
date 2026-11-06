@@ -2,6 +2,7 @@ import { FolderDown } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HistoryItem, HistoryToolbar } from '@/components/history';
+import type { Page } from '@/components/layout';
 import { ThemePicker } from '@/components/settings/ThemePicker';
 import { EmptyStateIllustration } from '@/components/shared/EmptyStateIllustration';
 import { useHistory } from '@/contexts/HistoryContext';
@@ -9,7 +10,7 @@ import { useHistory } from '@/contexts/HistoryContext';
 const INITIAL_VISIBLE_HISTORY_ITEMS = 10;
 const HISTORY_RENDER_BATCH_SIZE = 40;
 
-export function HistoryPage() {
+export function HistoryPage({ onNavigate }: { onNavigate?: (page: Page) => void } = {}) {
   const { t } = useTranslation('pages');
   const { entries, loading, totalCount } = useHistory();
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_HISTORY_ITEMS);
@@ -77,7 +78,7 @@ export function HistoryPage() {
             ) : (
               <div className="space-y-2 pb-4">
                 {visibleEntries.map((entry) => (
-                  <HistoryItem key={entry.id} entry={entry} />
+                  <HistoryItem key={entry.id} entry={entry} onNavigate={onNavigate} />
                 ))}
               </div>
             )}

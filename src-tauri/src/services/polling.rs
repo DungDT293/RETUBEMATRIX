@@ -958,7 +958,7 @@ pub async fn check_channel_for_new_videos(
 fn send_notification(app: &AppHandle, channel_name: &str, new_count: usize) {
     use tauri_plugin_notification::NotificationExt;
 
-    let title = "reupytb • Theo dõi Kênh";
+    let title = "RETubeMatrix • Theo dõi Kênh";
     let body = if new_count == 1 {
         format!("{}: Phát hiện 1 video mới! Đang tự động xử lý...", channel_name)
     } else {

@@ -67,7 +67,7 @@
     "title": "処理状況",
     "history": "履歴",
     "chat": {
-      "title": "Youwee",
+      "title": "RETubeMatrix",
       "subtitle": "編集内容を記述してください",
       "promptTemplates": "プロンプトテンプレート",
       "emptyTitle": "何を行いますか？",
@@ -219,7 +219,10 @@
       "proxyError": "[設定] → [ネットワーク] でプロキシ設定を確認してください",
       "networkError": "インターネット接続を確認してもう一度お試しください",
       "cookieLocked": "ダウンロードを開始する前にブラウザを完全に閉じるか、Cookie ファイルモードを使用してください",
-      "cookieDpapi": "Chrome 127 以降は Windows での Cookie アクセスをブロックします。Firefox または Cookie ファイルモードを使用してください"
+      "cookieDpapi": "Chrome 127 以降は Windows での Cookie アクセスをブロックします。Firefox または Cookie ファイルモードを使用してください",
+      "bktLoginRequired": "Profile is not logged into YouTube Studio: Open Profile Management or click the browser icon to sign in first",
+      "bktTimeout": "Timed out waiting for YouTube Studio response: Check network speed or ensure no captcha is blocking the browser",
+      "bktQuotaExceeded": "BKT test quota reached for today (15 videos/channel): Add a new Test Channel or wait until 00:00 for automatic reset"
     }
   },
   "library": {

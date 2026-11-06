@@ -15,9 +15,9 @@ pub fn get_app_data_dir() -> Option<PathBuf> {
 static DB_TEST_LOCK: std::sync::OnceLock<Mutex<()>> = std::sync::OnceLock::new();
 
 pub const MAX_LOG_ENTRIES: i64 = 500;
-const DATABASE_FILE_NAME: &str = "youwee.db";
+const DATABASE_FILE_NAME: &str = "retubematrix.db";
 const LEGACY_DATABASE_FILE_NAME: &str = "logs.db";
-const MIGRATING_DATABASE_FILE_NAME: &str = "youwee.db.migrating";
+const MIGRATING_DATABASE_FILE_NAME: &str = "retubematrix.db.migrating";
 
 fn database_sidecar_path(path: &Path, suffix: &str) -> Option<PathBuf> {
     let filename = path.file_name()?.to_string_lossy();
@@ -99,8 +99,21 @@ fn resolve_database_path(app_data_dir: &Path) -> Result<PathBuf, String> {
     }
 
     let legacy_path = app_data_dir.join(LEGACY_DATABASE_FILE_NAME);
+    let youwee_local = app_data_dir.join("youwee.db");
     if legacy_path.exists() {
         migrate_legacy_database(&legacy_path, &db_path)?;
+    } else if youwee_local.exists() {
+        migrate_legacy_database(&youwee_local, &db_path)?;
+    } else if let Some(parent) = app_data_dir.parent() {
+        let old_dir_youwee = parent.join("com.vanloctech.youwee").join("youwee.db");
+        let old_dir_legacy = parent.join("com.vanloctech.youwee").join(LEGACY_DATABASE_FILE_NAME);
+        if old_dir_youwee.exists() {
+            migrate_legacy_database(&old_dir_youwee, &db_path)?;
+        } else if old_dir_legacy.exists() {
+            migrate_legacy_database(&old_dir_legacy, &db_path)?;
+        } else {
+            remove_incomplete_database(&temp_db_path);
+        }
     } else {
         remove_incomplete_database(&temp_db_path);
     }
@@ -702,6 +715,21 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     )
     .map_err(|e| format!("Failed to create outlier_hunter_settings table: {}", e))?;
 
+    // Migration: Update default outlier settings to modern adaptive thresholds (Ikigai golden niches)
+    conn.execute(
+        "UPDATE outlier_hunter_settings
+         SET min_views = 3000,
+             max_subscribers = 150000,
+             min_sub_outlier = 1.8,
+             min_baseline_outlier = 1.8,
+             min_duration = 60,
+             min_vph = 0.5,
+             min_engagement_rate = 0.002,
+             min_comments = 2
+         WHERE id = 'default' AND min_views >= 20000",
+        [],
+    ).ok();
+
     // Outlier Hunter: Outlier Videos table with Sparkline history
     conn.execute(
         "CREATE TABLE IF NOT EXISTS outlier_videos (
@@ -800,6 +828,21 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     conn.execute("CREATE INDEX IF NOT EXISTS idx_bkt_test_jobs_channel ON bkt_test_jobs(test_channel_id)", []).ok();
     conn.execute("CREATE INDEX IF NOT EXISTS idx_bkt_test_jobs_status ON bkt_test_jobs(status)", []).ok();
     conn.execute("CREATE INDEX IF NOT EXISTS idx_bkt_test_jobs_date ON bkt_test_jobs(tested_date)", []).ok();
+
+    // Seamless migration: If legacy youwee.db exists, import existing data
+    if let Some(parent) = app_data_dir.parent() {
+        let old_youwee_db = parent.join("com.vanloctech.youwee").join("youwee.db");
+        if old_youwee_db.exists() {
+            let old_path_str = old_youwee_db.to_string_lossy().to_string();
+            if conn.execute("ATTACH DATABASE ?1 AS old_youwee_db", params![old_path_str]).is_ok() {
+                let _ = conn.execute("INSERT OR IGNORE INTO bkt_test_channels SELECT * FROM old_youwee_db.bkt_test_channels", []);
+                let _ = conn.execute("INSERT OR IGNORE INTO followed_channels SELECT * FROM old_youwee_db.followed_channels", []);
+                let _ = conn.execute("INSERT OR IGNORE INTO channel_videos SELECT * FROM old_youwee_db.channel_videos", []);
+                let _ = conn.execute("INSERT OR IGNORE INTO outlier_videos SELECT * FROM old_youwee_db.outlier_videos", []);
+                let _ = conn.execute("DETACH DATABASE old_youwee_db", []);
+            }
+        }
+    }
 
     DB_CONNECTION
         .set(Mutex::new(conn))

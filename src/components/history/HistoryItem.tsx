@@ -1,3 +1,4 @@
+import { convertFileSrc } from '@tauri-apps/api/core';
 import {
   AlertCircle,
   Check,
@@ -26,6 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { CollectionManagerDialog } from '@/components/history/CollectionManagerDialog';
 import { HistorySummaryDialog } from '@/components/history/HistorySummaryDialog';
 import { HistoryTagsCollectionsDialog } from '@/components/history/HistoryTagsCollectionsDialog';
+import type { Page } from '@/components/layout';
 import { SplitMediaDialog } from '@/components/media/SplitMediaDialog';
 import { FaIcon } from '@/components/shared/FaIcon';
 import {
@@ -38,6 +40,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAI } from '@/contexts/AIContext';
 import { useDependencies } from '@/contexts/DependenciesContext';
@@ -56,6 +59,7 @@ import { getHistoryItemActionLayout } from './historyItemActions';
 
 interface HistoryItemProps {
   entry: HistoryEntry;
+  onNavigate?: (page: Page) => void;
 }
 
 // Format file size
@@ -96,7 +100,7 @@ function createSummaryPreview(summary: string): string {
     .trim();
 }
 
-export function HistoryItem({ entry }: HistoryItemProps) {
+export function HistoryItem({ entry, onNavigate }: HistoryItemProps) {
   const { t } = useTranslation('pages');
   const {
     entries,
@@ -126,6 +130,7 @@ export function HistoryItem({ entry }: HistoryItemProps) {
   const [isActionsPopoverOpen, setIsActionsPopoverOpen] = useState(false);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [isSplitDialogOpen, setIsSplitDialogOpen] = useState(false);
+  const [isVideoPreviewOpen, setIsVideoPreviewOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteFileBehavior, setDeleteFileBehavior] = useState<LibraryDeleteFileBehavior>('ask');
   const [renameName, setRenameName] = useState('');
@@ -182,6 +187,9 @@ export function HistoryItem({ entry }: HistoryItemProps) {
   );
   const canDeleteMediaFile = Boolean(entry.file_exists && entry.filepath.trim());
   const canSplitMedia = Boolean(entry.file_exists && entry.filepath.trim() && !isDataExport);
+  const isVideoMedia = Boolean(
+    entry.file_exists && entry.filepath.trim() && !canPlayAudio && !isDataExport,
+  );
 
   // Update local summary when task completes
   useEffect(() => {
@@ -355,7 +363,7 @@ export function HistoryItem({ entry }: HistoryItemProps) {
                 )}
               </div>
               <span className="rounded bg-background/35 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/80">
-                Youwee
+                RETubeMatrix
               </span>
             </div>
           </div>
@@ -407,6 +415,21 @@ export function HistoryItem({ entry }: HistoryItemProps) {
             ) : (
               <Play className="w-3.5 h-3.5" />
             )}
+          </button>
+        )}
+
+        {isVideoMedia && (
+          <button
+            type="button"
+            onClick={() => setIsVideoPreviewOpen(true)}
+            title="Xem video trực tiếp"
+            className={cn(
+              'absolute bottom-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center shadow-sm',
+              'bg-primary text-primary-foreground hover:bg-primary/90',
+              'opacity-0 group-hover:opacity-100 transition-opacity',
+            )}
+          >
+            <Play className="w-3.5 h-3.5 fill-current" />
           </button>
         )}
       </div>
@@ -577,6 +600,36 @@ export function HistoryItem({ entry }: HistoryItemProps) {
             </button>
           )}
 
+          {isVideoMedia && (
+            <button
+              type="button"
+              onClick={() => setIsVideoPreviewOpen(true)}
+              className={cn(
+                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium',
+                'bg-primary/10 hover:bg-primary/20 text-primary transition-colors',
+              )}
+              title="Phát video trực tiếp trong ứng dụng"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              Xem video
+            </button>
+          )}
+
+          {canSplitMedia && (
+            <button
+              type="button"
+              onClick={() => setIsSplitDialogOpen(true)}
+              className={cn(
+                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium',
+                'bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 transition-colors',
+              )}
+              title={t('library.item.split')}
+            >
+              <Scissors className="w-3.5 h-3.5" />
+              {t('library.item.split')}
+            </button>
+          )}
+
           {actionLayout.primary.includes('redownload') && (
             <button
               type="button"
@@ -698,6 +751,30 @@ export function HistoryItem({ entry }: HistoryItemProps) {
                     )}
                   </button>
                 )}
+
+                {entry.filepath &&
+                  !['mp3', 'm4a', 'wav', 'opus', 'flac'].includes(
+                    entry.format?.toLowerCase() || '',
+                  ) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsActionsPopoverOpen(false);
+                        sessionStorage.setItem('reup_input_video_path', entry.filepath);
+                        sessionStorage.setItem('reup_input_video_title', entry.title || '');
+                        if (onNavigate) {
+                          onNavigate('reup');
+                        }
+                      }}
+                      className={cn(
+                        'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium',
+                        'text-primary transition-colors hover:bg-primary/10 hover:text-primary',
+                      )}
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-primary" />
+                      Đưa vào Reup & Test BKT
+                    </button>
+                  )}
 
                 {canSplitMedia && (
                   <button
@@ -866,6 +943,59 @@ export function HistoryItem({ entry }: HistoryItemProps) {
             onComplete={refreshHistory}
           />
         )}
+        {isVideoMedia && isVideoPreviewOpen && (
+          <Dialog open={isVideoPreviewOpen} onOpenChange={setIsVideoPreviewOpen}>
+            <DialogContent className="max-w-4xl p-4 bg-background/95 backdrop-blur-md border-border/60">
+              <DialogHeader className="mb-2">
+                <DialogTitle className="text-sm font-semibold truncate flex items-center gap-2">
+                  <Play className="w-4 h-4 text-primary" />
+                  {entry.title}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="relative rounded-lg overflow-hidden bg-black flex items-center justify-center max-h-[70vh]">
+                <video
+                  src={convertFileSrc(entry.filepath)}
+                  controls
+                  autoPlay
+                  className="w-full max-h-[70vh] object-contain"
+                >
+                  <track kind="captions" />
+                </video>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2 border-t border-border/40 text-xs">
+                <span
+                  className="text-muted-foreground truncate max-w-md font-mono"
+                  title={entry.filepath}
+                >
+                  {entry.filepath}
+                </span>
+                <div className="flex items-center gap-2">
+                  {canSplitMedia && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsVideoPreviewOpen(false);
+                        setIsSplitDialogOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 transition-colors"
+                    >
+                      <Scissors className="w-3.5 h-3.5" />
+                      Cắt video (Scissors)
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleOpenFolder}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-muted hover:bg-muted/80 text-foreground transition-colors"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5" />
+                    {t('library.item.openFolder')}
+                  </button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );
@@ -882,6 +1012,24 @@ export function HistoryItem({ entry }: HistoryItemProps) {
           'cursor-pointer',
           isCurrentAudio &&
             'border-emerald-500/40 bg-emerald-500/[0.06] shadow-[0_0_0_1px_rgba(16,185,129,0.12)]',
+          !entry.file_exists && 'opacity-70',
+        )}
+      >
+        {cardContent}
+      </div>
+    );
+  }
+
+  if (isVideoMedia) {
+    return (
+      // biome-ignore lint/a11y/noStaticElementInteractions: double-click to preview video
+      <div
+        onDoubleClick={() => setIsVideoPreviewOpen(true)}
+        className={cn(
+          'group relative rounded-xl border p-4 transition-all duration-200',
+          'bg-card/50 hover:bg-card/80',
+          'border-white/[0.08] dark:border-white/[0.05]',
+          'cursor-pointer',
           !entry.file_exists && 'opacity-70',
         )}
       >

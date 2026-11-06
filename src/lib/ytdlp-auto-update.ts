@@ -1,8 +1,10 @@
 import type { YtdlpChannel } from '@/lib/types';
 
 export const YTDLP_AUTO_UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
-export const YTDLP_AUTO_UPDATE_LAST_CHECKED_KEY = 'youwee_ytdlp_auto_update_last_checked_at';
-export const YTDLP_AUTO_UPDATE_LAST_NOTIFIED_KEY = 'youwee_ytdlp_auto_update_last_notified';
+export const YTDLP_AUTO_UPDATE_LAST_CHECKED_KEY = 'retubematrix_ytdlp_auto_update_last_checked_at';
+export const LEGACY_YTDLP_AUTO_UPDATE_LAST_CHECKED_KEY = 'youwee_ytdlp_auto_update_last_checked_at';
+export const YTDLP_AUTO_UPDATE_LAST_NOTIFIED_KEY = 'retubematrix_ytdlp_auto_update_last_notified';
+export const LEGACY_YTDLP_AUTO_UPDATE_LAST_NOTIFIED_KEY = 'youwee_ytdlp_auto_update_last_notified';
 
 export function isYtdlpAutoUpdateCheckDue(
   lastCheckedAt: string | null,
@@ -52,7 +54,10 @@ export function createYtdlpUpdateToastAction({
 export function readYtdlpAutoUpdateLastChecked(): string | null {
   if (typeof window === 'undefined') return null;
   try {
-    return window.localStorage.getItem(YTDLP_AUTO_UPDATE_LAST_CHECKED_KEY);
+    return (
+      window.localStorage.getItem(YTDLP_AUTO_UPDATE_LAST_CHECKED_KEY) ||
+      window.localStorage.getItem(LEGACY_YTDLP_AUTO_UPDATE_LAST_CHECKED_KEY)
+    );
   } catch {
     return null;
   }
@@ -70,7 +75,10 @@ export function writeYtdlpAutoUpdateLastChecked(now = Date.now()) {
 export function readYtdlpAutoUpdateLastNotified(): string | null {
   if (typeof window === 'undefined') return null;
   try {
-    return window.localStorage.getItem(YTDLP_AUTO_UPDATE_LAST_NOTIFIED_KEY);
+    return (
+      window.localStorage.getItem(YTDLP_AUTO_UPDATE_LAST_NOTIFIED_KEY) ||
+      window.localStorage.getItem(LEGACY_YTDLP_AUTO_UPDATE_LAST_NOTIFIED_KEY)
+    );
   } catch {
     return null;
   }

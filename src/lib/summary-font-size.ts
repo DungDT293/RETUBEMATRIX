@@ -1,4 +1,5 @@
-export const SUMMARY_FONT_SIZE_STORAGE_KEY = 'youwee_library_summary_font_size';
+export const SUMMARY_FONT_SIZE_STORAGE_KEY = 'retubematrix_library_summary_font_size';
+export const LEGACY_SUMMARY_FONT_SIZE_STORAGE_KEY = 'youwee_library_summary_font_size';
 
 export const SUMMARY_FONT_SIZES = ['small', 'medium', 'large'] as const;
 

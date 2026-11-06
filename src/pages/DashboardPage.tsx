@@ -720,7 +720,7 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                     className="font-mono text-[10px] text-muted-foreground truncate max-w-[180px]"
                     title={stats.system_info?.data_dir}
                   >
-                    {stats.system_info?.data_dir || '%LOCALAPPDATA%\\reupytb\\browser_engine'}
+                    {stats.system_info?.data_dir || '%LOCALAPPDATA%\\RETubeMatrix\\browser_engine'}
                   </span>
                 </div>
               </div>

@@ -16,6 +16,8 @@
       "!!**/python",
       "!!**/src-tauri/python",
       "!!**/QA_REUPYTB_UPDATED_2026-11-02_EVIDENCE",
+      "!!**/TESTER_GUIDE_*.html",
+      "!!**/graphify-out",
       "!!**/archive"
     ]
   },
