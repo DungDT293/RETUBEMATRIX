@@ -7,12 +7,12 @@
 
 ## 1. Tổng quan
 
-| Loại                             | Số lượng | Ghi chú                                                              |
-| :------------------------------- | -------: | :------------------------------------------------------------------- |
-| PASS (tự động + smoke thật)      |       20 | Build, unit test, launch, CLI, Python, DB, static audit              |
-| FIXED trong quá trình test       |        2 | Dialog lỗi auto-update; summary deep link/AI Summary chết            |
-| BLOCKED (cần người/tài khoản)    |        6 | Click UI, Studio login/upload, Content ID, tải thật, proxy, Telegram |
-| KNOWN ISSUE (ghi nhận, chưa sửa) |        2 | Identifier `.app`, lệch version Tauri                                |
+| Loại                             | Số lượng | Ghi chú                                                                   |
+| :------------------------------- | -------: | :------------------------------------------------------------------------ |
+| PASS (tự động + smoke thật)      |       30 | Build, unit test, launch, CLI, Python, DB, static audit, UI tour 9 trang  |
+| FIXED trong quá trình test       |        2 | Dialog lỗi auto-update; summary deep link/AI Summary chết                 |
+| BLOCKED (cần người/tài khoản)    |        5 | Form sâu (upload/proxy/Studio), Content ID, tải thật, Telegram, plugin ký |
+| KNOWN ISSUE (ghi nhận, chưa sửa) |        2 | Identifier `.app`, lệch version Tauri                                     |
 
 Bằng chứng smoke: [retubematrix-0.20.16-smoke.png](screenshots/retubematrix-0.20.16-smoke.png).
 
@@ -42,6 +42,24 @@ Bằng chứng smoke: [retubematrix-0.20.16-smoke.png](screenshots/retubematrix-
 | Process count                                     | ✅ 1 instance (single-instance)              |
 | CLI `--version`                                   | ✅ `RETubeMatrix 0.20.16`                    |
 | CLI `--help`                                      | ✅ usage/arguments đúng                      |
+
+### 3.1 UI tour thật (điều khiển chuột + chụp màn hình)
+
+Đã cố định cửa sổ ở `100,100` kích thước `1116×839`, dùng Win32 `SetCursorPos` + `mouse_event` click sidebar, chờ ~3 giây mỗi trang.
+
+| Trang      | Kết quả thực tế                                                            | Ảnh                                                               |
+| :--------- | :------------------------------------------------------------------------- | :---------------------------------------------------------------- |
+| Dashboard  | ✅ 2 hồ sơ, 2 sẵn sàng, engine sẵn sàng; bảng đối chiếu 1-1 render         | [dashboard](screenshots/retubematrix-0.20.16-dashboard.png)       |
+| Profiles   | ✅ 2/2 hồ sơ (`realacc`, `test`), trạng thái "Đã dừng"                     | [profiles](screenshots/retubematrix-0.20.16-profiles.png)         |
+| Channels   | ✅ empty state "Chưa có kênh nào được theo dõi", form thêm kênh            | —                                                                 |
+| Outliers   | ✅ mô hình Ikigai, 3 nhóm ngách, 4 công cụ kiểm chứng                      | [outliers](screenshots/retubematrix-0.20.16-outliers.png)         |
+| Reup & BKT | ✅ 4 tab, Auto-Pilot, Lv1/Lv2, khu vực chọn file                           | [reup](screenshots/retubematrix-0.20.16-reup.png)                 |
+| Library    | ✅ mở được, empty state                                                    | —                                                                 |
+| Universal  | ✅ input URL, toolbar, empty queue, 1.800+ sites                           | [smoke](screenshots/retubematrix-0.20.16-smoke.png)               |
+| Logs       | ✅ empty state, filter 6 loại, export/xóa                                  | —                                                                 |
+| Settings   | ✅ 5 section; Dependencies hiển thị yt-dlp `2026.10.26`, FFmpeg `N-126455` | [dependencies](screenshots/retubematrix-0.20.16-dependencies.png) |
+
+> Ghi chú: lần đầu mở Profiles thấy `0/0` do Python runner chưa trả kịp; chờ ~3 giây hiển thị đúng `2/2`. Không phải lỗi dữ liệu.
 
 ## 4. Python browser engine
 
@@ -81,14 +99,14 @@ DB: `%APPDATA%\com.retubematrix.app\retubematrix.db`
 
 ## 7. BLOCKED — cần tester thật
 
-| Case                                         | Lý do                                                                          |
-| :------------------------------------------- | :----------------------------------------------------------------------------- |
-| Click/duyệt toàn bộ UI                       | WebView2 không expose accessibility tree qua UI Automation (chỉ 10 node khung) |
-| Profiles: mở Chromium, proxy, arrange        | Cần thao tác GUI và quan sát cửa sổ                                            |
-| Channels: thêm kênh, auto-download thật      | Cần mạng + kênh thật                                                           |
-| Reup/BKT: upload, Studio polling, Content ID | Cần profile đã đăng nhập YouTube Studio                                        |
-| Universal: tải video thật                    | Cần URL/network, sẽ tạo file/history thật                                      |
-| Telegram/plugin `.ywp` ký                    | Cần bot token và gói plugin thật                                               |
+| Case                                         | Lý do                                                                  |
+| :------------------------------------------- | :--------------------------------------------------------------------- |
+| Form sâu (upload/proxy/Studio)               | Đã click được nav bằng chuột; form phức tạp cần dữ liệu/tài khoản thật |
+| Profiles: mở Chromium, proxy, arrange        | Cần thao tác GUI và quan sát cửa sổ                                    |
+| Channels: thêm kênh, auto-download thật      | Cần mạng + kênh thật                                                   |
+| Reup/BKT: upload, Studio polling, Content ID | Cần profile đã đăng nhập YouTube Studio                                |
+| Universal: tải video thật                    | Cần URL/network, sẽ tạo file/history thật                              |
+| Telegram/plugin `.ywp` ký                    | Cần bot token và gói plugin thật                                       |
 
 ## 8. KNOWN ISSUE ghi nhận
 
@@ -105,6 +123,7 @@ DB: `%APPDATA%\com.retubematrix.app\retubematrix.db`
 ## 10. Kết luận
 
 - Bản 0.20.16 **build và khởi động được**, UI mới render đúng, không còn dialog update lỗi.
+- Đã **click thật qua 9 trang** bằng chuột/Win32: Dashboard (2 hồ sơ), Profiles (2/2), Channels, Outliers, Reup & BKT, Library, Universal, Logs, Settings; Dependencies hiển thị yt-dlp/FFmpeg đúng.
 - Toàn bộ kiểm thử tự động (lint, type, Rust test, Python, DB, IPC, i18n) **pass**.
 - Các luồng cần tài khoản/Studio/network thật vẫn phải do tester thủ công thực hiện theo `TEST_PLAN_CODE_DERIVED.md`.
-- Trước release chính thức: xử lý 3 known issue (ưu tiên summary dead path + identifier `.app`), sau đó chạy QA thủ công mục 6–16 của test plan.
+- Trước release chính thức: xử lý 2 known issue còn lại (identifier `.app`, lệch version Tauri), sau đó chạy QA thủ công mục 6–16 của test plan.
