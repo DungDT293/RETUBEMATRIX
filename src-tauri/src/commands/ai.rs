@@ -1,6 +1,6 @@
 use crate::database::update_history_summary;
 use crate::services::{
-    generate_raw, generate_summary_custom_with_hooks, test_connection, AIConfig, LongSummaryFormat,
+    generate_summary_custom_with_hooks, test_connection, AIConfig, LongSummaryFormat,
     LongSummaryHooks, LongSummaryProgress, SummaryStyle,
 };
 use std::collections::HashSet;
@@ -480,21 +480,4 @@ pub fn get_summary_languages() -> Vec<LanguageOption> {
 pub struct LanguageOption {
     pub value: String,
     pub label: String,
-}
-
-/// Generate raw AI text response (no summarization wrapping)
-/// Used for subtitle translation, grammar fix, and other custom AI tasks
-#[tauri::command]
-pub async fn generate_ai_response(app: AppHandle, prompt: String) -> Result<String, String> {
-    let config = get_ai_config(app).await?;
-
-    if !config.enabled {
-        return Err("AI features are disabled. Enable them in Settings.".to_string());
-    }
-
-    let result = generate_raw(&config, &prompt)
-        .await
-        .map_err(|e| e.to_wire_string())?;
-
-    Ok(result.summary)
 }

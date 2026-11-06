@@ -90,19 +90,22 @@ core/window_icon_badge.py
 > **✅ Wave 1 hoàn tất 2026-11-06**: giảm từ 244 → 186 file TS/TSX (xóa 58 file), provider tree từ 17 → 12 tầng. Kiểm chứng: `tsc -b` ✅ · `biome check .` ✅ (4 warning tồn tại trong file vendored `injected_listener.js`, không sửa theo quy tắc provenance).
 > Chưa xóa key `pages.summary`/`pages.processing` trong locale (không còn component dùng, nhưng giữ lại không ảnh hưởng).
 
-### Wave 2 — Rust backend
+### Wave 2 — Rust backend — ✅ Hoàn tất 2026-11-06
 
-- Giữ: `run_reup_pipeline_v1/v2_cmd`, `get_video_metadata`, `split_media_segments`, toàn bộ download/channels/BKT/outlier/plugin/AI.
-- Xóa: `gallery.rs`, `metadata.rs`, `whisper.rs`, phần lớn `processing.rs` (tách reup pipeline trước).
-- Xóa command không còn consumer: `get_ytdlp_channel_cmd`, `generate_subtitles_with_whisper`, `update_summary`, `add_log`, `get_image_metadata`, `check_preview_exists`, `cleanup_previews`, `get_runtime_provider_status`, `get_ffmpeg_path_for_ytdlp` (audit lại).
-- Dọn: `POLLING_INTERVAL_SECS`, `_has_cli_request`, `_use_bun_runtime`, nhánh binary legacy không cần.
+- Giữ: `run_reup_pipeline_v1/v2_cmd` (tách sang `commands/reup.rs`), `get_video_metadata`, `generate_video_thumbnail`, `split_media_segments`, toàn bộ download/channels/BKT/outlier/plugin/AI.
+- Xóa: `commands/gallery.rs`, `commands/metadata.rs`, `commands/processing.rs`, `commands/processing/jobs.rs`, `commands/processing/attachments.rs`, `services/gallerydl.rs`.
+- `commands/processing/` thu gọn còn `metadata.rs` (get_video_metadata) + `preview.rs` (generate_video_thumbnail).
+- Xóa **42 command registration** không còn consumer; bỏ `POLLING_INTERVAL_SECS`, `_has_cli_request`, `GalleryDlStatus`, `check_gallerydl`.
+- **Whisper được giữ lại** vì `AIContext` dùng `transcribe_url_with_whisper` làm fallback transcript; chỉ đăng ký command này.
+- Còn tồn (chưa xóa vì rủi ro thấp, sẽ dọn sau): `_use_bun_runtime`, một số hàm command không còn đăng ký (`add_history`, `get_video_basic_info`, `get_available_subtitles`, `generate_summary_with_options`, `cancel_summary_generation`), 2 command Whisper không đăng ký.
 
-### Wave 3 — Python browser engine
+### Wave 3 — Python browser engine — ✅ Hoàn tất 2026-11-06
 
-- Tính import closure từ `runner.py`, xóa phần không reachable:
-  `google_*`, `drive_actions`, `sheets_actions`, `maps_actions`, `gmail_actions`, `oauth_actions`, `google_identity`, `google_citizen`, `ai_comment_settings`, `profile_package`, `profile_transfer_inbox`, `proxy_reputation`, `license_client`/`license_signing`/`secure_store` (nếu không được import).
-- Không sửa 8 file patch.
-- Verify: `python -c "import runner"` + `--action list_profiles`.
+- Tính import closure từ `runner.py`: **135 module reachable**, **40 unreachable**.
+- Đã xóa **32 đường dẫn** (30 file + 2 thư mục `core/proxy_reputation/`, `core/recorder/`):
+  `google_*`, `drive_actions`, `sheets_actions`, `maps_actions`, `gmail_actions`, `oauth_actions`, `youtube_actions`, `profile_package`, `profile_transfer_inbox`, `license_client`/`license_signing`, `proxy_reputation`, `recorder`, `renderer_forensics`, `sidecar_client`, `storage_manager`, `transfer_security`…
+- Giữ `outlier_hunter.py` (import cục bộ trong runner) và `actions/__init__.py`.
+- Kết quả: `browser_engine` còn **37 file Python**; `import runner` OK và `--action list_profiles` trả JSON hợp lệ.
 
 ---
 

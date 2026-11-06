@@ -220,7 +220,6 @@ pub fn run() {
             // CLI invocation (youwee <url> [--quality ...]) on cold start.
             // Use the declared CLI schema when available, falling back to a
             // raw argv parse otherwise.
-            let mut _has_cli_request = false;
             {
                 use tauri_plugin_cli::CliExt;
                 let cli_request = match app.cli().matches() {
@@ -301,7 +300,6 @@ pub fn run() {
                     Err(_) => commands::build_cli_download_request_from_argv(&argv),
                 };
                 if let Some(request) = cli_request {
-                    _has_cli_request = true;
                     commands::enqueue_cli_download_requests(vec![request]);
                 }
             }
@@ -368,21 +366,15 @@ pub fn run() {
             // Download commands
             commands::download_video,
             commands::stop_download,
-            commands::download_gallery,
-            commands::stop_gallery_download,
             // Video info commands
-            commands::get_video_basic_info,
             commands::get_video_info,
             commands::get_playlist_entries,
-            commands::search_youtube_videos,
-            commands::get_available_subtitles,
             commands::get_video_transcript,
             // yt-dlp commands
             commands::get_ytdlp_version,
             commands::check_ytdlp_update,
             commands::update_ytdlp,
             // yt-dlp channel commands
-            commands::get_ytdlp_channel_cmd,
             commands::get_ytdlp_source_cmd,
             commands::set_ytdlp_source_cmd,
             commands::set_ytdlp_channel_cmd,
@@ -395,12 +387,10 @@ pub fn run() {
             commands::set_ffmpeg_source_cmd,
             commands::check_ffmpeg_update,
             commands::download_ffmpeg,
-            commands::get_ffmpeg_path_for_ytdlp,
             // Deno commands
             commands::check_deno,
             commands::check_deno_update,
             commands::download_deno,
-            commands::check_gallerydl,
             // Browser detection
             commands::detect_installed_browsers,
             commands::get_browser_profiles,
@@ -408,11 +398,9 @@ pub fn run() {
             commands::get_logs,
             commands::get_plugin_logs,
             commands::clear_plugin_logs,
-            commands::add_log,
             commands::clear_logs,
             commands::export_logs,
             // History commands
-            commands::add_history,
             commands::get_history,
             commands::get_history_entries_by_ids,
             commands::find_duplicate_downloads,
@@ -436,7 +424,6 @@ pub fn run() {
             commands::rename_downloaded_file,
             commands::sync_history_renamed_entry,
             commands::split_media_segments,
-            commands::update_summary,
             commands::add_summary_only_history,
             commands::open_macos_privacy_settings,
             // AI commands
@@ -444,43 +431,15 @@ pub fn run() {
             commands::get_ai_config,
             commands::test_ai_connection,
             commands::generate_video_summary,
-            commands::generate_summary_with_options,
-            commands::cancel_summary_generation,
-            commands::generate_ai_response,
             commands::get_ai_models,
             commands::get_summary_languages,
             // Processing commands
             commands::get_video_metadata,
-            commands::detect_shot_changes,
-            commands::get_image_metadata,
-            commands::get_processing_attachment_info,
-            commands::generate_processing_command,
-            commands::generate_quick_action_command,
-            commands::execute_ffmpeg_command,
-            commands::cancel_ffmpeg,
-            commands::get_processing_history,
-            commands::save_processing_job,
-            commands::update_processing_job,
-            commands::delete_processing_job,
-            commands::clear_processing_history,
-            commands::get_processing_presets,
-            commands::save_processing_preset,
-            commands::delete_processing_preset,
-            commands::generate_video_preview,
             commands::generate_video_thumbnail,
-            commands::generate_audio_preview,
-            commands::check_preview_exists,
-            commands::cleanup_previews,
             commands::run_reup_pipeline_v1_cmd,
             commands::run_reup_pipeline_v2_cmd,
             // Whisper commands
-            commands::transcribe_video_with_whisper,
             commands::transcribe_url_with_whisper,
-            commands::generate_subtitles_with_whisper,
-            // Metadata commands
-            commands::fetch_metadata,
-            commands::extract_data_rows,
-            commands::export_data_rows_sqlite,
             // Plugin commands
             commands::list_plugins,
             commands::get_plugin_details,
@@ -501,11 +460,8 @@ pub fn run() {
             commands::set_plugin_timeout,
             commands::open_plugin_directory,
             commands::list_runtime_providers,
-            commands::get_runtime_provider_status,
             commands::set_default_provider_for_language,
             commands::set_plugin_runtime_locale,
-            commands::cancel_metadata_fetch,
-            commands::cancel_data_export,
             // Channel commands
             commands::get_channel_videos,
             commands::get_channel_info,

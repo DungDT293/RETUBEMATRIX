@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   ChevronDown,
   ExternalLink,
-  Film,
   Loader2,
   Monitor,
   Moon,
@@ -27,7 +26,6 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/toast';
-import { useProcessing } from '@/contexts/ProcessingContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import {
   type LibraryDeleteFileBehavior,
@@ -75,7 +73,6 @@ export function GeneralSection({ highlightId }: GeneralSectionProps) {
   const { t } = useTranslation('settings');
   const toast = useToast();
   const { theme, setTheme, mode, setMode } = useTheme();
-  const { previewSizeThreshold, setPreviewSizeThreshold } = useProcessing();
   const [languageOpen, setLanguageOpen] = useState(false);
   const [languageQuery, setLanguageQuery] = useState('');
   const [cliStatus, setCliStatus] = useState<CliShortcutStatus | null>(null);
@@ -401,43 +398,6 @@ export function GeneralSection({ highlightId }: GeneralSectionProps) {
                 <SelectItem value="ask">{t('general.libraryDeleteAsk')}</SelectItem>
                 <SelectItem value="delete-file">{t('general.libraryDeleteWithFile')}</SelectItem>
                 <SelectItem value="keep-file">{t('general.libraryDeleteKeepFile')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </SettingsRow>
-        </SettingsCard>
-      </SettingsSection>
-
-      <SettingsDivider />
-
-      {/* Processing */}
-      <SettingsSection
-        title={t('general.processing')}
-        description={t('general.processingDesc')}
-        icon={<Film className="w-5 h-5 text-white" />}
-        iconClassName="bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/20"
-      >
-        <SettingsCard>
-          <SettingsRow
-            id="preview-threshold"
-            label={t('general.previewThreshold')}
-            description={t('general.previewThresholdDesc')}
-            highlight={highlightId === 'preview-threshold'}
-          >
-            <Select
-              value={String(previewSizeThreshold)}
-              onValueChange={(v) => setPreviewSizeThreshold(Number.parseInt(v, 10))}
-            >
-              <SelectTrigger className="h-9 w-full bg-background sm:w-[120px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">{t('general.previewAlways')}</SelectItem>
-                <SelectItem value="100">100 MB</SelectItem>
-                <SelectItem value="200">200 MB</SelectItem>
-                <SelectItem value="300">300 MB</SelectItem>
-                <SelectItem value="500">500 MB</SelectItem>
-                <SelectItem value="1000">1 GB</SelectItem>
-                <SelectItem value="2000">2 GB</SelectItem>
               </SelectContent>
             </Select>
           </SettingsRow>

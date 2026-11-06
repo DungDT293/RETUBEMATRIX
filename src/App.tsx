@@ -20,7 +20,6 @@ import { useDownload } from '@/contexts/download-context';
 import { HistoryProvider } from '@/contexts/HistoryContext';
 import { LogProvider } from '@/contexts/LogContext';
 import { PlayerProvider } from '@/contexts/PlayerContext';
-import { ProcessingProvider } from '@/contexts/ProcessingContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { UniversalProvider } from '@/contexts/UniversalContext';
 import { UpdaterProvider, useUpdater } from '@/contexts/UpdaterContext';
@@ -234,13 +233,11 @@ export function App() {
                 <HistoryProvider>
                   <PlayerProvider>
                     <AIProvider>
-                      <ProcessingProvider>
-                        <ToastProvider>
-                          <UpdaterWrapper>
-                            <AppContent />
-                          </UpdaterWrapper>
-                        </ToastProvider>
-                      </ProcessingProvider>
+                      <ToastProvider>
+                        <UpdaterWrapper>
+                          <AppContent />
+                        </UpdaterWrapper>
+                      </ToastProvider>
                     </AIProvider>
                   </PlayerProvider>
                 </HistoryProvider>

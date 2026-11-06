@@ -1,5 +1,5 @@
 use crate::database::{
-    add_log_internal, clear_logs_from_db, clear_plugin_logs_from_db, export_logs_from_db,
+    clear_logs_from_db, clear_plugin_logs_from_db, export_logs_from_db,
     get_logs_from_db, get_plugin_logs_from_db,
 };
 use crate::types::{LogEntry, PluginLogsPage};
@@ -11,16 +11,6 @@ pub fn get_logs(
     limit: Option<i64>,
 ) -> Result<Vec<LogEntry>, String> {
     get_logs_from_db(filter, search, limit)
-}
-
-#[tauri::command]
-pub fn add_log(
-    log_type: String,
-    message: String,
-    details: Option<String>,
-    url: Option<String>,
-) -> Result<LogEntry, String> {
-    add_log_internal(&log_type, &message, details.as_deref(), url.as_deref())
 }
 
 #[tauri::command]

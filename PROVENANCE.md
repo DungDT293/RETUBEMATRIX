@@ -81,3 +81,17 @@ Các định danh sau **vẫn giữ để tương thích** và sẽ được đ�
 - Bỏ hardcode đường dẫn máy dev trong Rust/Python.
 - `beforeDevCommand`/`beforeBuildCommand` → bun.
 - Chuỗi sản phẩm `reupytb` → `RETubeMatrix` ở notification/Dashboard/Profiles/runner.
+
+## 5. Trim BrowserMulti engine (Wave 3, 2026-11-06)
+
+`browser_engine/` đã được rút gọn theo import closure từ `runner.py`:
+
+- Giữ **37 file Python** (trước trim: 75).
+- Xóa các module không reachable: `google_*`, `drive_actions`, `sheets_actions`, `maps_actions`,
+  `gmail_actions`, `oauth_actions`, `youtube_actions`, `profile_package`, `profile_transfer_inbox`,
+  `license_client`/`license_signing`, `proxy_reputation/`, `recorder/`, `renderer_forensics`,
+  `sidecar_client`, `storage_manager`, `transfer_security`, `visit_history`…
+- **Không xóa** `outlier_hunter.py` (import cục bộ trong runner) và `actions/__init__.py`.
+
+Khi sync lại từ BrowserMulti, chỉ copy các module còn nằm trong danh sách reachable; không khôi phục
+các module đã trim trừ khi thêm tính năng mới cần chúng.

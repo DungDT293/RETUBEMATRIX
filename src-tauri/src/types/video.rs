@@ -67,3 +67,20 @@ pub struct SubtitleInfo {
     pub name: String,
     pub is_auto: bool,
 }
+
+/// Technical metadata extracted from a media file via FFprobe
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VideoMetadata {
+    pub path: String,
+    pub filename: String,
+    pub duration: f64,
+    pub width: i32,
+    pub height: i32,
+    pub fps: f64,
+    pub video_codec: String,
+    pub audio_codec: String,
+    pub bitrate: i64,
+    pub file_size: i64,
+    pub format: String,
+    pub has_audio: bool,
+}

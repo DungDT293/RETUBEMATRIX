@@ -1,4 +1,4 @@
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 use tauri::{AppHandle, Emitter};
 
@@ -58,9 +58,6 @@ fn build_fallback_video_url(channel_url: &str, video_id: &str) -> String {
 
 /// Flag to control polling (stop on app exit)
 pub static POLLING_ACTIVE: AtomicBool = AtomicBool::new(false);
-
-/// Minimum polling interval in seconds (default: 15 minutes = 900 seconds)
-pub static POLLING_INTERVAL_SECS: AtomicU64 = AtomicU64::new(900);
 
 /// Event emitted when new videos are found
 #[derive(Clone, serde::Serialize)]

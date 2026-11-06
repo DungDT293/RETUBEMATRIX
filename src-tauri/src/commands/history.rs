@@ -7,7 +7,7 @@ use crate::database::{
     get_collections_from_db, get_history_count_from_db, get_history_entries_by_ids_from_db,
     get_history_from_db, get_tags_from_db, remove_history_from_collection_in_db,
     remove_history_tag_from_db, rename_collection_in_db, update_history_filepath_and_title,
-    update_history_filepath_and_title_by_id, update_history_summary,
+    update_history_filepath_and_title_by_id,
 };
 use crate::types::{
     DownloadDuplicateIdentity, DownloadDuplicateMatch, HistoryAdvancedFilters, HistoryCollection,
@@ -29,11 +29,6 @@ pub fn add_history(
     add_history_internal(
         url, title, thumbnail, filepath, filesize, duration, quality, format, source, None,
     )
-}
-
-#[tauri::command]
-pub fn update_summary(id: String, summary: String) -> Result<(), String> {
-    update_history_summary(id, summary)
 }
 
 /// Add a summary-only history entry (for videos summarized without downloading)
