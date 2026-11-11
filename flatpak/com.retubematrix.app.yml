@@ -28,6 +28,10 @@ modules:
     build-commands:
       - cp -a usr/. /app/
       - |
+        if [ -x /app/bin/RETubeMatrix ] && [ ! -f /app/bin/retubematrix ]; then
+          ln -s /app/bin/RETubeMatrix /app/bin/retubematrix
+        fi
+      - |
         set -eu
         DESKTOP_FILE="$(find /app/share/applications -maxdepth 1 -type f -name '*.desktop' | sort | head -n 1)"
         if [ -z "$DESKTOP_FILE" ]; then

@@ -143,7 +143,7 @@ jobs:
           APPIMAGE_DIR="src-tauri/target/${{ matrix.target }}/release/bundle/appimage"
           APPIMAGE=$(find "$APPIMAGE_DIR" -maxdepth 1 -type f -name "*.AppImage" | head -n 1)
           test -n "$APPIMAGE"
-          bash scripts/repair-appimage-runtime.sh "$APPIMAGE" "retubematrix"
+          bash scripts/repair-appimage-runtime.sh "$APPIMAGE" "RETubeMatrix"
 
           # The AppImage payload changed after Tauri produced updater artifacts.
           # Regenerate its signature so latest.json always matches the release file.
@@ -288,10 +288,14 @@ jobs:
           flatpak install --user --noninteractive -y flatpak/RETubeMatrix-Linux.flatpak
           dbus-run-session -- flatpak run --command=sh com.retubematrix.app -c '
             set -eu
-            test -x /app/bin/retubematrix
+            MAIN_BIN="/app/bin/retubematrix"
+            if [ ! -x "$MAIN_BIN" ] && [ -x "/app/bin/RETubeMatrix" ]; then
+              MAIN_BIN="/app/bin/RETubeMatrix"
+            fi
+            test -x "$MAIN_BIN"
             test -x /app/bin/retubematrix-yt-dlp
             test -f /app/share/applications/com.retubematrix.app.desktop
-            ldd /app/bin/retubematrix | tee /tmp/retubematrix-ldd.txt
+            ldd "$MAIN_BIN" | tee /tmp/retubematrix-ldd.txt
             if grep -q "not found" /tmp/retubematrix-ldd.txt; then
               echo "Missing runtime libraries in Flatpak bundle:"
               cat /tmp/retubematrix-ldd.txt

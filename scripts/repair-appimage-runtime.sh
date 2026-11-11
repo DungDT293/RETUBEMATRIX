@@ -40,8 +40,20 @@ APPIMAGE_EXTRACT_AND_RUN=1 "$appimage_abs" --appimage-extract >/dev/null
 appdir="$workspace/squashfs-root"
 
 if [ ! -x "$appdir/usr/bin/$main_binary" ]; then
-  echo "Expected executable is missing from AppImage: usr/bin/$main_binary" >&2
-  exit 1
+  if [ -x "$appdir/usr/bin/RETubeMatrix" ]; then
+    main_binary="RETubeMatrix"
+  elif [ -x "$appdir/usr/bin/retubematrix" ]; then
+    main_binary="retubematrix"
+  else
+    detected_bin=$(find "$appdir/usr/bin" -maxdepth 1 -type f -executable ! -name "*yt-dlp*" | head -n 1)
+    if [ -n "$detected_bin" ]; then
+      main_binary=$(basename "$detected_bin")
+    else
+      echo "Expected executable is missing from AppImage: usr/bin/$main_binary" >&2
+      ls -la "$appdir/usr/bin" >&2 || true
+      exit 1
+    fi
+  fi
 fi
 
 # Keep these ABI-coupled libraries on the host. Do not broaden this list to
