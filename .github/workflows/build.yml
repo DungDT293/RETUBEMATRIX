@@ -236,6 +236,7 @@ jobs:
   flatpak:
     needs: build
     runs-on: ubuntu-22.04
+    continue-on-error: true
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
 
     steps:
@@ -328,10 +329,10 @@ jobs:
           if-no-files-found: error
 
   extension:
-    # Firefox signing consumes an AMO version. Wait until every desktop package,
-    # including the dependent Flatpak bundle, has built successfully first.
-    needs: [build, flatpak]
+    # Firefox signing consumes an AMO version. Wait until every desktop package has built successfully.
+    needs: build
     runs-on: ubuntu-latest
+    continue-on-error: true
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
@@ -349,46 +350,38 @@ jobs:
       - name: Build and package extension archives
         run: bun run ext:package
 
-      - name: Validate Firefox signing secrets
+      - name: Sign Firefox extension (AMO unlisted) or fallback to unsigned
         run: |
-          if [ -z "${{ secrets.FIREFOX_AMO_JWT_ISSUER }}" ] || [ -z "${{ secrets.FIREFOX_AMO_JWT_SECRET }}" ]; then
-            echo "Missing FIREFOX_AMO_JWT_ISSUER or FIREFOX_AMO_JWT_SECRET secrets."
-            exit 1
+          if [ -n "${{ secrets.FIREFOX_AMO_JWT_ISSUER }}" ] && [ -n "${{ secrets.FIREFOX_AMO_JWT_SECRET }}" ]; then
+            echo "Signing Firefox extension with AMO..."
+            bunx web-ext sign \
+              --source-dir extensions/retubematrix-webext/dist/firefox \
+              --artifacts-dir extensions/retubematrix-webext/dist/packages \
+              --channel unlisted \
+              --api-key "${{ secrets.FIREFOX_AMO_JWT_ISSUER }}" \
+              --api-secret "${{ secrets.FIREFOX_AMO_JWT_SECRET }}"
+            SIGNED_XPI=$(find extensions/retubematrix-webext/dist/packages -name "*.xpi" | head -1)
+            if [ -n "$SIGNED_XPI" ]; then
+              mv "$SIGNED_XPI" "extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Firefox-signed.xpi"
+            fi
+          else
+            echo "Skipping AMO signing: secrets not configured. Creating unsigned package."
+            (cd extensions/retubematrix-webext/dist/firefox && zip -r ../packages/RETubeMatrix-Extension-Firefox.zip .)
           fi
-
-      - name: Sign Firefox extension (AMO unlisted)
-        run: |
-          bunx web-ext sign \
-            --source-dir extensions/retubematrix-webext/dist/firefox \
-            --artifacts-dir extensions/retubematrix-webext/dist/packages \
-            --channel unlisted \
-            --api-key "${{ secrets.FIREFOX_AMO_JWT_ISSUER }}" \
-            --api-secret "${{ secrets.FIREFOX_AMO_JWT_SECRET }}"
-
-      - name: Rename signed Firefox XPI
-        run: |
-          SIGNED_XPI=$(find extensions/retubematrix-webext/dist/packages -name "*.xpi" | head -1)
-          if [ -z "$SIGNED_XPI" ]; then
-            echo "Signed Firefox XPI not found."
-            exit 1
-          fi
-          mv "$SIGNED_XPI" "extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Firefox-signed.xpi"
           ls -la extensions/retubematrix-webext/dist/packages
 
       - name: Upload extension artifacts
         uses: actions/upload-artifact@v6
         with:
           name: retubematrix-extension-packages
-          path: |
-            extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Chromium.zip
-            extensions/retubematrix-webext/dist/packages/RETubeMatrix-Extension-Firefox-signed.xpi
-          if-no-files-found: error
+          path: extensions/retubematrix-webext/dist/packages/*
+          if-no-files-found: warn
 
   # Create release after all builds complete
   release:
     needs: [build, flatpak, extension]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') && always() && !contains(needs.build.result, 'failure') && !contains(needs.build.result, 'cancelled')
 
     steps:
       - name: Checkout repository

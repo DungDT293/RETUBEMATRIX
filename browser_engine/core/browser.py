@@ -1058,7 +1058,13 @@ class CloakSession:
             "--disable-dev-shm-usage",
             '--js-flags="--max-old-space-size=256 --expose-gc"',
             "--disable-component-update",
+            "--disable-quic",
         ]
+        if proxy_config:
+            low_end_flags.extend([
+                "--disable-http2",
+                "--dns-over-https-mode=off",
+            ])
         for flag in low_end_flags:
             flag_key = flag.split("=")[0]
             if not any(arg == flag or arg.startswith(flag_key + "=") for arg in launch_args):

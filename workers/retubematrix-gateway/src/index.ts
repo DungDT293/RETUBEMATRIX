@@ -1131,8 +1131,7 @@ export default {
         const currentLic = Array.isArray(licList) && licList.length > 0 ? licList[0] : null;
 
         // Xác định số ghế mặc định theo gói nếu không truyền max_seats
-        const defaultSeats =
-          tierStr === 'enterprise' ? 9999 : tierStr === 'pro' ? 10 : 3;
+        const defaultSeats = tierStr === 'enterprise' ? 9999 : tierStr === 'pro' ? 10 : 3;
         const resolvedSeats =
           max_seats !== undefined && Number(max_seats) > 0
             ? Number(max_seats)
@@ -1142,10 +1141,8 @@ export default {
 
         // Tính hạn ngạch tính năng features theo gói
         const defaultFeatures = {
-          max_browser_profiles:
-            tierStr === 'enterprise' ? 999 : tierStr === 'pro' ? 25 : 5,
-          bkt_daily_quota:
-            tierStr === 'enterprise' ? 9999 : tierStr === 'pro' ? 50 : 15,
+          max_browser_profiles: tierStr === 'enterprise' ? 999 : tierStr === 'pro' ? 25 : 5,
+          bkt_daily_quota: tierStr === 'enterprise' ? 9999 : tierStr === 'pro' ? 50 : 15,
           allow_cross_leader_collab: true,
           unlimited_seats: tierStr === 'enterprise',
           owner_unrestricted: tierStr === 'enterprise',
@@ -1156,8 +1153,7 @@ export default {
           ...(custom_features || {}),
           max_browser_profiles:
             custom_features?.max_browser_profiles || defaultFeatures.max_browser_profiles,
-          bkt_daily_quota:
-            custom_features?.bkt_daily_quota || defaultFeatures.bkt_daily_quota,
+          bkt_daily_quota: custom_features?.bkt_daily_quota || defaultFeatures.bkt_daily_quota,
           unlimited_seats: tierStr === 'enterprise',
         };
 

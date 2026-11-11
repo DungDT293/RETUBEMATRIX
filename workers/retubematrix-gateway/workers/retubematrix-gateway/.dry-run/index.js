@@ -1,5 +1,5 @@
 var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __name = (target, value) => __defProp(target, 'name', { value, configurable: true });
 
 // src/portalHtml.ts
 function getPortalHtml() {
@@ -12,7 +12,7 @@ function getPortalHtml() {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"><\/script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -41,7 +41,7 @@ function getPortalHtml() {
         }
       }
     }
-  <\/script>
+  </script>
   <style>
     body {
       background-color: #07090e;
@@ -3234,7 +3234,7 @@ function closeRecentVideosModal() {
 }
 // === END WORK REPORTS JS ===
 
-<\/script>
+</script>
 
   <!-- MODAL: XEM 5 VIDEO G\u1EA6N NH\u1EA4T C\u1EE6A K\xCANH \u0110\u1ED0I TH\u1EE6 -->
   <div id="modal-recent-videos" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
@@ -3269,55 +3269,58 @@ function closeRecentVideosModal() {
 </body>
 </html>`;
 }
-__name(getPortalHtml, "getPortalHtml");
+__name(getPortalHtml, 'getPortalHtml');
 
 // src/index.ts
 var CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-signature, x-rtm-signature, x-timestamp, x-hwid, apikey",
-  "Access-Control-Max-Age": "86400"
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers':
+    'Content-Type, Authorization, x-signature, x-rtm-signature, x-timestamp, x-hwid, apikey',
+  'Access-Control-Max-Age': '86400',
 };
 function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...CORS_HEADERS,
-      ...extraHeaders
-    }
+      ...extraHeaders,
+    },
   });
 }
-__name(json, "json");
-function badRequest(message, code = "BAD_REQUEST") {
+__name(json, 'json');
+function badRequest(message, code = 'BAD_REQUEST') {
   return json({ success: false, code, error: message }, 400);
 }
-__name(badRequest, "badRequest");
-function unauthorized(message, code = "UNAUTHORIZED") {
+__name(badRequest, 'badRequest');
+function unauthorized(message, code = 'UNAUTHORIZED') {
   return json({ success: false, code, error: message }, 401);
 }
-__name(unauthorized, "unauthorized");
-function forbidden(message, code = "FORBIDDEN", extra = {}) {
+__name(unauthorized, 'unauthorized');
+function forbidden(message, code = 'FORBIDDEN', extra = {}) {
   return json({ success: false, code, error: message, ...extra }, 403);
 }
-__name(forbidden, "forbidden");
+__name(forbidden, 'forbidden');
 function internalError(message, details) {
-  return json({ success: false, code: "INTERNAL_SERVER_ERROR", error: message, details }, 500);
+  return json({ success: false, code: 'INTERNAL_SERVER_ERROR', error: message, details }, 500);
 }
-__name(internalError, "internalError");
+__name(internalError, 'internalError');
 async function computeHmacSha256(message, secret) {
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
-    "raw",
+    'raw',
     enc.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
+    { name: 'HMAC', hash: 'SHA-256' },
     false,
-    ["sign"]
+    ['sign'],
   );
-  const signature = await crypto.subtle.sign("HMAC", key, enc.encode(message));
-  return Array.from(new Uint8Array(signature)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  const signature = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
-__name(computeHmacSha256, "computeHmacSha256");
+__name(computeHmacSha256, 'computeHmacSha256');
 function timingSafeEqual(a, b) {
   if (a.length !== b.length) return false;
   let result = 0;
@@ -3326,44 +3329,48 @@ function timingSafeEqual(a, b) {
   }
   return result === 0;
 }
-__name(timingSafeEqual, "timingSafeEqual");
-var MASTER_OWNER_ID = "2e57fca9-0e31-4d1c-b7bf-0eb837f47f44";
-var MASTER_OWNER_EMAIL = "dungdong333@gmail.com";
+__name(timingSafeEqual, 'timingSafeEqual');
+var MASTER_OWNER_ID = '2e57fca9-0e31-4d1c-b7bf-0eb837f47f44';
+var MASTER_OWNER_EMAIL = 'dungdong333@gmail.com';
 function isMasterOwner(userId, email, role) {
-  if (role === "owner") return true;
+  if (role === 'owner') return true;
   if (email && email.toLowerCase() === MASTER_OWNER_EMAIL.toLowerCase()) return true;
   if (userId && userId === MASTER_OWNER_ID) return true;
   return false;
 }
-__name(isMasterOwner, "isMasterOwner");
+__name(isMasterOwner, 'isMasterOwner');
 var getAdminAuthContext = authenticateAdminCaller;
 async function authenticateAdminCaller(request, env, serviceKey) {
-  const authHeader = request.headers.get("Authorization") || "";
-  const apiKeyHeader = request.headers.get("apikey") || "";
+  const authHeader = request.headers.get('Authorization') || '';
+  const apiKeyHeader = request.headers.get('apikey') || '';
   const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
-  if (serviceRoleKey && serviceRoleKey !== env.SUPABASE_ANON_KEY && (apiKeyHeader === serviceRoleKey || authHeader === `Bearer ${serviceRoleKey}`)) {
+  if (
+    serviceRoleKey &&
+    serviceRoleKey !== env.SUPABASE_ANON_KEY &&
+    (apiKeyHeader === serviceRoleKey || authHeader === `Bearer ${serviceRoleKey}`)
+  ) {
     return {
       auth: {
         userId: MASTER_OWNER_ID,
         email: MASTER_OWNER_EMAIL,
-        role: "owner",
-        companyId: "e51f4953-587e-4a5e-af09-e76471ca0326",
-        fullName: "Ti\u1EBFn D\u0169ng (Master Owner)",
-        teamId: null
-      }
+        role: 'owner',
+        companyId: 'e51f4953-587e-4a5e-af09-e76471ca0326',
+        fullName: 'Ti\u1EBFn D\u0169ng (Master Owner)',
+        teamId: null,
+      },
     };
   }
-  if (!authHeader.startsWith("Bearer ")) {
+  if (!authHeader.startsWith('Bearer ')) {
     return {
       errorResponse: unauthorized(
-        "Vui l\xF2ng \u0111\u0103ng nh\u1EADp \u0111\u1EC3 th\u1EF1c hi\u1EC7n thao t\xE1c n\xE0y (Thi\u1EBFu Bearer Token)"
-      )
+        'Vui l\xF2ng \u0111\u0103ng nh\u1EADp \u0111\u1EC3 th\u1EF1c hi\u1EC7n thao t\xE1c n\xE0y (Thi\u1EBFu Bearer Token)',
+      ),
     };
   }
   const token = authHeader.substring(7).trim();
   if (!token) {
     return {
-      errorResponse: unauthorized("Token x\xE1c th\u1EF1c kh\xF4ng h\u1EE3p l\u1EC7")
+      errorResponse: unauthorized('Token x\xE1c th\u1EF1c kh\xF4ng h\u1EE3p l\u1EC7'),
     };
   }
   let cached = null;
@@ -3373,8 +3380,7 @@ async function authenticateAdminCaller(request, env, serviceKey) {
       if (cachedStr) {
         cached = JSON.parse(cachedStr);
       }
-    } catch (_) {
-    }
+    } catch (_) {}
   }
   if (cached) {
     return { auth: cached };
@@ -3382,71 +3388,81 @@ async function authenticateAdminCaller(request, env, serviceKey) {
   const authRes = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
     headers: {
       apikey: env.SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
   let authUser = null;
   if (!authRes.ok) {
     try {
-      const parts = token.split(".");
+      const parts = token.split('.');
       if (parts.length === 3) {
-        const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+        const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(
-          atob(b64).split("").map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join("")
+          atob(b64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join(''),
         );
         const payload = JSON.parse(jsonPayload);
-        const tokenEmail = (payload.email || "").toLowerCase();
+        const tokenEmail = (payload.email || '').toLowerCase();
         const tokenSub = payload.sub;
         if (tokenEmail === MASTER_OWNER_EMAIL || tokenSub === MASTER_OWNER_ID) {
           const adminCheck = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users/${tokenSub}`, {
             headers: {
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
-            }
+              Authorization: `Bearer ${serviceKey}`,
+            },
           });
           if (adminCheck.ok) {
             authUser = await adminCheck.json();
             console.log(
-              "[Gateway Auth] Master Owner session extended & verified via Supabase Admin API."
+              '[Gateway Auth] Master Owner session extended & verified via Supabase Admin API.',
             );
           }
         }
       }
-    } catch (_) {
-    }
+    } catch (_) {}
     if (!authUser) {
       return {
         errorResponse: unauthorized(
-          "Phi\xEAn \u0111\u0103ng nh\u1EADp \u0111\xE3 h\u1EBFt h\u1EA1n ho\u1EB7c kh\xF4ng h\u1EE3p l\u1EC7. Vui l\xF2ng \u0111\u0103ng nh\u1EADp l\u1EA1i."
-        )
+          'Phi\xEAn \u0111\u0103ng nh\u1EADp \u0111\xE3 h\u1EBFt h\u1EA1n ho\u1EB7c kh\xF4ng h\u1EE3p l\u1EC7. Vui l\xF2ng \u0111\u0103ng nh\u1EADp l\u1EA1i.',
+        ),
       };
     }
   } else {
     authUser = await authRes.json();
   }
   const userId = authUser.id;
-  const email = (authUser.email || "").toLowerCase();
+  const email = (authUser.email || '').toLowerCase();
   const profileRes = await fetch(
     `${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${userId}&select=id,role,company_id,full_name,email,team_id,is_active,companies(id,is_active)`,
     {
       headers: {
         apikey: serviceKey,
-        Authorization: `Bearer ${serviceKey}`
-      }
-    }
+        Authorization: `Bearer ${serviceKey}`,
+      },
+    },
   );
-  const profiles = await profileRes.json().catch(() => []) || [];
+  const profiles = (await profileRes.json().catch(() => [])) || [];
   const profile = profiles[0];
   if (!profile) {
     return {
-      errorResponse: forbidden("Kh\xF4ng t\xECm th\u1EA5y h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng trong h\u1EC7 th\u1ED1ng")
+      errorResponse: forbidden(
+        'Kh\xF4ng t\xECm th\u1EA5y h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng trong h\u1EC7 th\u1ED1ng',
+      ),
     };
   }
-  const role = isMasterOwner(userId, email, profile.role) ? "owner" : profile.role || "user";
-  if (role !== "owner") {
-    if (profile.is_active === false || profile.companies && profile.companies.is_active === false) {
+  const role = isMasterOwner(userId, email, profile.role) ? 'owner' : profile.role || 'user';
+  if (role !== 'owner') {
+    if (
+      profile.is_active === false ||
+      (profile.companies && profile.companies.is_active === false)
+    ) {
       return {
-        errorResponse: forbidden("T\xE0i kho\u1EA3n ho\u1EB7c doanh nghi\u1EC7p \u0111\xE3 b\u1ECB t\u1EA1m kh\xF3a.", "ACCOUNT_DISABLED")
+        errorResponse: forbidden(
+          'T\xE0i kho\u1EA3n ho\u1EB7c doanh nghi\u1EC7p \u0111\xE3 b\u1ECB t\u1EA1m kh\xF3a.',
+          'ACCOUNT_DISABLED',
+        ),
       };
     }
   }
@@ -3456,85 +3472,97 @@ async function authenticateAdminCaller(request, env, serviceKey) {
     role,
     companyId: profile.company_id || null,
     fullName: profile.full_name || email,
-    teamId: profile.team_id || null
+    teamId: profile.team_id || null,
   };
   if (env.RETUBEMATRIX_KV) {
     try {
-      const kvTtl = role === "owner" ? 7 * 86400 : role === "admin" || role === "leader" ? 86400 : 3600;
+      const kvTtl =
+        role === 'owner' ? 7 * 86400 : role === 'admin' || role === 'leader' ? 86400 : 3600;
       await env.RETUBEMATRIX_KV.put(`adm_auth:${token.slice(-32)}`, JSON.stringify(authContext), {
-        expirationTtl: kvTtl
+        expirationTtl: kvTtl,
       });
-    } catch (_) {
-    }
+    } catch (_) {}
   }
   return { auth: authContext };
 }
-__name(authenticateAdminCaller, "authenticateAdminCaller");
+__name(authenticateAdminCaller, 'authenticateAdminCaller');
 var index_default = {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (request.method === "OPTIONS") {
+    if (request.method === 'OPTIONS') {
       return new Response(null, {
         status: 204,
-        headers: CORS_HEADERS
+        headers: CORS_HEADERS,
       });
     }
     try {
-      const acceptHeader = request.headers.get("accept") || "";
-      const isHtmlRequest = acceptHeader.includes("text/html") || url.pathname === "/" || url.pathname === "/admin" || url.pathname === "/dashboard" || url.pathname === "/login" || url.pathname === "/licenses" || url.pathname === "/devices" || url.pathname === "/companies" || url.pathname === "/users" || url.pathname === "/analytics";
-      if (isHtmlRequest && !url.pathname.startsWith("/v1/")) {
+      const acceptHeader = request.headers.get('accept') || '';
+      const isHtmlRequest =
+        acceptHeader.includes('text/html') ||
+        url.pathname === '/' ||
+        url.pathname === '/admin' ||
+        url.pathname === '/dashboard' ||
+        url.pathname === '/login' ||
+        url.pathname === '/licenses' ||
+        url.pathname === '/devices' ||
+        url.pathname === '/companies' ||
+        url.pathname === '/users' ||
+        url.pathname === '/analytics';
+      if (isHtmlRequest && !url.pathname.startsWith('/v1/')) {
         return new Response(getPortalHtml(), {
           status: 200,
           headers: {
-            "Content-Type": "text/html; charset=utf-8",
-            "X-Frame-Options": "DENY",
-            "X-Content-Type-Options": "nosniff",
-            "Cache-Control": "no-cache, no-store, must-revalidate"
-          }
+            'Content-Type': 'text/html; charset=utf-8',
+            'X-Frame-Options': 'DENY',
+            'X-Content-Type-Options': 'nosniff',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          },
         });
       }
-      if (url.pathname === "/v1/health") {
-        let kvStatus = "ok";
+      if (url.pathname === '/v1/health') {
+        let kvStatus = 'ok';
         try {
           if (env.RETUBEMATRIX_KV) {
-            await env.RETUBEMATRIX_KV.get("__health_ping__");
+            await env.RETUBEMATRIX_KV.get('__health_ping__');
           }
         } catch (e) {
           kvStatus = `error: ${e instanceof Error ? e.message : String(e)}`;
         }
         return json({
-          status: kvStatus === "ok" ? "healthy" : "degraded",
-          gateway: "retubematrix-gateway",
-          version: "1.0.0",
+          status: kvStatus === 'ok' ? 'healthy' : 'degraded',
+          gateway: 'retubematrix-gateway',
+          version: '1.0.0',
           portal_url: `${url.origin}/admin`,
-          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-          kv_status: kvStatus
+          timestamp: /* @__PURE__ */ new Date().toISOString(),
+          kv_status: kvStatus,
         });
       }
       const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ANON_KEY;
-      if (url.pathname === "/v1/admin/login" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/login' && request.method === 'POST') {
         let body;
         try {
           body = await request.json();
         } catch {
-          return badRequest("Invalid JSON body");
+          return badRequest('Invalid JSON body');
         }
         const { email, password } = body;
         if (!email || !password) {
-          return badRequest("Vui l\xF2ng nh\u1EADp email v\xE0 m\u1EADt kh\u1EA9u");
+          return badRequest('Vui l\xF2ng nh\u1EADp email v\xE0 m\u1EADt kh\u1EA9u');
         }
         const authRes = await fetch(`${env.SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            apikey: env.SUPABASE_ANON_KEY
+            'Content-Type': 'application/json',
+            apikey: env.SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ email: email.trim().toLowerCase(), password })
+          body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
         });
         if (!authRes.ok) {
           const errData = await authRes.json().catch(() => ({}));
           return unauthorized(
-            errData.error_description || errData.msg || "Email ho\u1EB7c m\u1EADt kh\u1EA9u kh\xF4ng ch\xEDnh x\xE1c"
+            errData.error_description ||
+              errData.msg ||
+              'Email ho\u1EB7c m\u1EADt kh\u1EA9u kh\xF4ng ch\xEDnh x\xE1c',
           );
         }
         const authData = await authRes.json();
@@ -3544,38 +3572,48 @@ var index_default = {
           {
             headers: {
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
-            }
-          }
+              Authorization: `Bearer ${serviceKey}`,
+            },
+          },
         );
         const profiles = await profileRes.json().catch(() => []);
         const profile = profiles && profiles[0];
-        if (!profile || profile.role !== "owner" && profile.role !== "admin" && profile.role !== "leader") {
-          return forbidden("T\xE0i kho\u1EA3n kh\xF4ng c\xF3 quy\u1EC1n truy c\u1EADp v\xE0o b\u1EA3ng qu\u1EA3n tr\u1ECB SaaS");
+        if (
+          !profile ||
+          (profile.role !== 'owner' && profile.role !== 'admin' && profile.role !== 'leader')
+        ) {
+          return forbidden(
+            'T\xE0i kho\u1EA3n kh\xF4ng c\xF3 quy\u1EC1n truy c\u1EADp v\xE0o b\u1EA3ng qu\u1EA3n tr\u1ECB SaaS',
+          );
         }
         const isOwner = isMasterOwner(profile.id, profile.email, profile.role);
         if (!isOwner) {
-          if (profile.is_active === false || profile.companies && profile.companies.is_active === false) {
-            return forbidden("T\xE0i kho\u1EA3n ho\u1EB7c doanh nghi\u1EC7p \u0111\xE3 b\u1ECB t\u1EA1m kh\xF3a.", "ACCOUNT_DISABLED");
+          if (
+            profile.is_active === false ||
+            (profile.companies && profile.companies.is_active === false)
+          ) {
+            return forbidden(
+              'T\xE0i kho\u1EA3n ho\u1EB7c doanh nghi\u1EC7p \u0111\xE3 b\u1ECB t\u1EA1m kh\xF3a.',
+              'ACCOUNT_DISABLED',
+            );
           }
         }
         const loginAuthCtx = {
           userId,
           email: profile.email || authData.user.email,
-          role: isOwner ? "owner" : profile.role || "user",
+          role: isOwner ? 'owner' : profile.role || 'user',
           companyId: profile.company_id || null,
           fullName: profile.full_name || authData.user.email,
-          teamId: profile.team_id || null
+          teamId: profile.team_id || null,
         };
         if (env.RETUBEMATRIX_KV && authData.access_token) {
           try {
             await env.RETUBEMATRIX_KV.put(
               `adm_auth:${authData.access_token.slice(-32)}`,
               JSON.stringify(loginAuthCtx),
-              { expirationTtl: isOwner ? 7 * 86400 : 86400 }
+              { expirationTtl: isOwner ? 7 * 86400 : 86400 },
             );
-          } catch (_) {
-          }
+          } catch (_) {}
         }
         return json({
           success: true,
@@ -3588,49 +3626,63 @@ var index_default = {
             email: authData.user.email,
             full_name: profile.full_name,
             role: profile.role,
-            company_id: profile.company_id
-          }
+            company_id: profile.company_id,
+          },
         });
       }
-      if (url.pathname === "/v1/admin/stats" && request.method === "GET") {
+      if (url.pathname === '/v1/admin/stats' && request.method === 'GET') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n truy c\u1EADp d\u1EEF li\u1EC7u th\u1ED1ng k\xEA");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden(
+            'B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n truy c\u1EADp d\u1EEF li\u1EC7u th\u1ED1ng k\xEA',
+          );
         }
-        const compFilter = caller.role === "owner" ? "" : `&company_id=eq.${caller.companyId}`;
+        const compFilter = caller.role === 'owner' ? '' : `&company_id=eq.${caller.companyId}`;
         const [licRes, devRes, compRes, chanRes, revRes] = await Promise.all([
           fetch(
             `${env.SUPABASE_URL}/rest/v1/licenses?select=id,tier,max_seats,used_seats,status${compFilter}`,
             {
-              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-            }
-          ).then((r) => r.json()).catch(() => []),
+              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+            },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(
             `${env.SUPABASE_URL}/rest/v1/device_bindings?is_active=eq.true&select=id${compFilter}`,
             {
-              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-            }
-          ).then((r) => r.json()).catch(() => []),
+              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+            },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(
-            caller.role === "owner" ? `${env.SUPABASE_URL}/rest/v1/companies?is_active=eq.true&select=id` : `${env.SUPABASE_URL}/rest/v1/companies?id=eq.${caller.companyId}&select=id`,
+            caller.role === 'owner'
+              ? `${env.SUPABASE_URL}/rest/v1/companies?is_active=eq.true&select=id`
+              : `${env.SUPABASE_URL}/rest/v1/companies?id=eq.${caller.companyId}&select=id`,
             {
-              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-            }
-          ).then((r) => r.json()).catch(() => []),
+              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+            },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(`${env.SUPABASE_URL}/rest/v1/managed_channels?select=id${compFilter}`, {
-            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-          }).then((r) => r.json()).catch(() => []),
+            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+          })
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(
             `${env.SUPABASE_URL}/rest/v1/channel_revenue_daily?select=estimated_revenue,estimated_revenue_vnd${compFilter}`,
             {
-              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-            }
-          ).then((r) => r.json()).catch(() => [])
+              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+            },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
         ]);
         const licenses = Array.isArray(licRes) ? licRes : [];
         const devices = Array.isArray(devRes) ? devRes : [];
@@ -3657,180 +3709,204 @@ var index_default = {
             active_devices: devices.length,
             monitored_channels: channels.length,
             revenue_usd: totalUsd,
-            revenue_vnd: totalVnd
-          }
+            revenue_vnd: totalVnd,
+          },
         });
       }
-      if (url.pathname === "/v1/admin/licenses" && request.method === "GET") {
+      if (url.pathname === '/v1/admin/licenses' && request.method === 'GET') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem th\xF4ng tin b\u1EA3n quy\u1EC1n");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden(
+            'B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem th\xF4ng tin b\u1EA3n quy\u1EC1n',
+          );
         }
-        const compFilter = caller.role === "owner" ? "" : `&company_id=eq.${caller.companyId}`;
+        const compFilter = caller.role === 'owner' ? '' : `&company_id=eq.${caller.companyId}`;
         const licRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/licenses?select=id,license_key,company_id,tier,status,max_seats,used_seats,valid_from,expires_at,features,companies(id,name,code)&order=created_at.desc${compFilter}`,
           {
-            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-          }
+            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+          },
         );
-        const data = await licRes.json().catch(() => []) || [];
-        const formatted = Array.isArray(data) ? data.map((l) => ({
-          id: l.id,
-          license_key: l.license_key,
-          company_id: l.company_id,
-          company_name: l.companies?.name || "RETubeMatrix HQ",
-          company_code: l.companies?.code || "HQ",
-          tier: l.tier,
-          status: l.status,
-          max_seats: l.max_seats,
-          used_seats: l.used_seats,
-          valid_from: l.valid_from,
-          expires_at: l.expires_at,
-          features: l.features
-        })) : [];
+        const data = (await licRes.json().catch(() => [])) || [];
+        const formatted = Array.isArray(data)
+          ? data.map((l) => ({
+              id: l.id,
+              license_key: l.license_key,
+              company_id: l.company_id,
+              company_name: l.companies?.name || 'RETubeMatrix HQ',
+              company_code: l.companies?.code || 'HQ',
+              tier: l.tier,
+              status: l.status,
+              max_seats: l.max_seats,
+              used_seats: l.used_seats,
+              valid_from: l.valid_from,
+              expires_at: l.expires_at,
+              features: l.features,
+            }))
+          : [];
         return json({ success: true, licenses: formatted });
       }
-      if (url.pathname === "/v1/admin/licenses/issue" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/licenses/issue' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner") {
-          return forbidden("Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n c\u1EA5p m\u1EDBi License b\u1EA3n quy\u1EC1n");
+        if (caller.role !== 'owner') {
+          return forbidden(
+            'Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n c\u1EA5p m\u1EDBi License b\u1EA3n quy\u1EC1n',
+          );
         }
         const body = await request.json().catch(() => ({}));
-        const { company_id, tier = "pro", max_seats = 10, duration_days = 365, license_key } = body;
+        const { company_id, tier = 'pro', max_seats = 10, duration_days = 365, license_key } = body;
         if (!company_id || !license_key) {
-          return badRequest("Vui l\xF2ng ch\u1ECDn c\xF4ng ty v\xE0 cung c\u1EA5p m\xE3 license key");
+          return badRequest(
+            'Vui l\xF2ng ch\u1ECDn c\xF4ng ty v\xE0 cung c\u1EA5p m\xE3 license key',
+          );
         }
         const validFrom = /* @__PURE__ */ new Date();
         const expiresAt = new Date(validFrom.getTime() + duration_days * 24 * 60 * 60 * 1e3);
         const insertRes = await fetch(`${env.SUPABASE_URL}/rest/v1/licenses`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
             Authorization: `Bearer ${serviceKey}`,
-            Prefer: "return=representation"
+            Prefer: 'return=representation',
           },
           body: JSON.stringify({
             license_key: license_key.trim(),
             company_id,
             tier,
-            status: "active",
+            status: 'active',
             max_seats,
             used_seats: 0,
             valid_from: validFrom.toISOString(),
             expires_at: expiresAt.toISOString(),
             features: {
-              max_browser_profiles: tier === "enterprise" ? 100 : 25,
-              bkt_daily_quota: tier === "enterprise" ? 200 : 45,
-              allow_cross_leader_collab: true
-            }
-          })
+              max_browser_profiles: tier === 'enterprise' ? 100 : 25,
+              bkt_daily_quota: tier === 'enterprise' ? 200 : 45,
+              allow_cross_leader_collab: true,
+            },
+          }),
         });
         if (!insertRes.ok) {
           const err = await insertRes.text();
-          return internalError("Kh\xF4ng th\u1EC3 t\u1EA1o License trong c\u01A1 s\u1EDF d\u1EEF li\u1EC7u", err);
+          return internalError(
+            'Kh\xF4ng th\u1EC3 t\u1EA1o License trong c\u01A1 s\u1EDF d\u1EEF li\u1EC7u',
+            err,
+          );
         }
         const createdLic = await insertRes.json();
-        return json({ success: true, message: "C\u1EA5p License m\u1EDBi th\xE0nh c\xF4ng", license: createdLic });
+        return json({
+          success: true,
+          message: 'C\u1EA5p License m\u1EDBi th\xE0nh c\xF4ng',
+          license: createdLic,
+        });
       }
-      if (url.pathname === "/v1/admin/licenses/action" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/licenses/action' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner") {
-          return forbidden("Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n gia h\u1EA1n ho\u1EB7c thu h\u1ED3i License");
+        if (caller.role !== 'owner') {
+          return forbidden(
+            'Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n gia h\u1EA1n ho\u1EB7c thu h\u1ED3i License',
+          );
         }
         const body = await request.json().catch(() => ({}));
         const { action, license_id, days = 365, status } = body;
-        if (!license_id) return badRequest("Thi\u1EBFu license_id");
-        if (action === "extend") {
+        if (!license_id) return badRequest('Thi\u1EBFu license_id');
+        if (action === 'extend') {
           const curRes = await fetch(
             `${env.SUPABASE_URL}/rest/v1/licenses?id=eq.${license_id}&select=expires_at`,
             {
-              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-            }
+              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+            },
           );
           const curList = await curRes.json();
-          const curExpiry = curList && curList[0]?.expires_at ? new Date(curList[0].expires_at) : /* @__PURE__ */ new Date();
-          const baseDate = curExpiry.getTime() > Date.now() ? curExpiry : /* @__PURE__ */ new Date();
+          const curExpiry =
+            curList && curList[0]?.expires_at
+              ? new Date(curList[0].expires_at)
+              : /* @__PURE__ */ new Date();
+          const baseDate =
+            curExpiry.getTime() > Date.now() ? curExpiry : /* @__PURE__ */ new Date();
           const newExpiry = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1e3);
           await fetch(`${env.SUPABASE_URL}/rest/v1/licenses?id=eq.${license_id}`, {
-            method: "PATCH",
+            method: 'PATCH',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
+              Authorization: `Bearer ${serviceKey}`,
             },
             body: JSON.stringify({
               expires_at: newExpiry.toISOString(),
-              status: "active",
-              updated_at: (/* @__PURE__ */ new Date()).toISOString()
-            })
+              status: 'active',
+              updated_at: /* @__PURE__ */ new Date().toISOString(),
+            }),
           });
           return json({
             success: true,
-            message: "\u0110\xE3 gia h\u1EA1n th\xE0nh c\xF4ng",
-            new_expires_at: newExpiry.toISOString()
+            message: '\u0110\xE3 gia h\u1EA1n th\xE0nh c\xF4ng',
+            new_expires_at: newExpiry.toISOString(),
           });
         }
-        if (action === "set_status") {
+        if (action === 'set_status') {
           await fetch(`${env.SUPABASE_URL}/rest/v1/licenses?id=eq.${license_id}`, {
-            method: "PATCH",
+            method: 'PATCH',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
+              Authorization: `Bearer ${serviceKey}`,
             },
-            body: JSON.stringify({ status, updated_at: (/* @__PURE__ */ new Date()).toISOString() })
+            body: JSON.stringify({ status, updated_at: /* @__PURE__ */ new Date().toISOString() }),
           });
-          return json({ success: true, message: "\u0110\xE3 c\u1EADp nh\u1EADt tr\u1EA1ng th\xE1i license" });
+          return json({
+            success: true,
+            message: '\u0110\xE3 c\u1EADp nh\u1EADt tr\u1EA1ng th\xE1i license',
+          });
         }
-        return badRequest("H\xE0nh \u0111\u1ED9ng kh\xF4ng h\u1EE3p l\u1EC7");
+        return badRequest('H\xE0nh \u0111\u1ED9ng kh\xF4ng h\u1EE3p l\u1EC7');
       }
-      if (url.pathname === "/v1/admin/companies" && request.method === "GET") {
+      if (url.pathname === '/v1/admin/companies' && request.method === 'GET') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem danh s\xE1ch c\xF4ng ty");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden('B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem danh s\xE1ch c\xF4ng ty');
         }
-        const compFilter = caller.role === "owner" ? "" : `&id=eq.${caller.companyId}`;
-        const licFilter = caller.role === "owner" ? "" : `&company_id=eq.${caller.companyId}`;
+        const compFilter = caller.role === 'owner' ? '' : `&id=eq.${caller.companyId}`;
+        const licFilter = caller.role === 'owner' ? '' : `&company_id=eq.${caller.companyId}`;
         const [compRes, licRes] = await Promise.all([
           fetch(
             `${env.SUPABASE_URL}/rest/v1/companies?select=id,name,code,is_active,mask_revenue_from_staff,cross_leader_collaboration,created_at&order=created_at.asc${compFilter}`,
             {
-              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-            }
+              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+            },
           ),
           fetch(
             `${env.SUPABASE_URL}/rest/v1/licenses?select=id,license_key,company_id,tier,status,max_seats,used_seats,valid_from,expires_at&order=created_at.desc${licFilter}`,
             {
-              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-            }
-          )
+              headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+            },
+          ),
         ]);
-        const compList = await compRes.json().catch(() => []) || [];
-        const licList = await licRes.json().catch(() => []) || [];
+        const compList = (await compRes.json().catch(() => [])) || [];
+        const licList = (await licRes.json().catch(() => [])) || [];
         const licMap = /* @__PURE__ */ new Map();
         licList.forEach((lic) => {
-          if (lic.company_id && (!licMap.has(lic.company_id) || lic.status === "active")) {
+          if (lic.company_id && (!licMap.has(lic.company_id) || lic.status === 'active')) {
             licMap.set(lic.company_id, lic);
           }
         });
@@ -3838,26 +3914,28 @@ var index_default = {
           const lic = licMap.get(c.id);
           return {
             ...c,
-            license_key: lic?.license_key || "Ch\u01B0a c\u1EA5p license",
-            tier: lic?.tier || "pro",
+            license_key: lic?.license_key || 'Ch\u01B0a c\u1EA5p license',
+            tier: lic?.tier || 'pro',
             max_seats: lic?.max_seats ?? 10,
             used_seats: lic?.used_seats ?? 0,
             expires_at: lic?.expires_at || null,
-            license_status: lic?.status || "inactive",
-            license: lic || null
+            license_status: lic?.status || 'inactive',
+            license: lic || null,
           };
         });
         return json({ success: true, companies });
       }
-      if (url.pathname === "/v1/admin/companies/create" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/companies/create' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner") {
-          return forbidden("Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n t\u1EA1o c\xF4ng ty m\u1EDBi");
+        if (caller.role !== 'owner') {
+          return forbidden(
+            'Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n t\u1EA1o c\xF4ng ty m\u1EDBi',
+          );
         }
         const body = await request.json().catch(() => ({}));
         const {
@@ -3865,47 +3943,55 @@ var index_default = {
           code,
           mask_revenue_from_staff = false,
           cross_leader_collaboration = true,
-          tier = "pro"
+          tier = 'pro',
         } = body;
-        if (!name || !code) return badRequest("Vui l\xF2ng nh\u1EADp t\xEAn v\xE0 m\xE3 c\xF4ng ty");
+        if (!name || !code)
+          return badRequest('Vui l\xF2ng nh\u1EADp t\xEAn v\xE0 m\xE3 c\xF4ng ty');
         const insertRes = await fetch(`${env.SUPABASE_URL}/rest/v1/companies`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
             Authorization: `Bearer ${serviceKey}`,
-            Prefer: "return=representation"
+            Prefer: 'return=representation',
           },
           body: JSON.stringify({
             name: name.trim(),
             code: code.trim().toUpperCase(),
             is_active: true,
             mask_revenue_from_staff,
-            cross_leader_collaboration
-          })
+            cross_leader_collaboration,
+          }),
         });
         let compObj = null;
         if (!insertRes.ok) {
           const err = await insertRes.text();
-          if (err.includes("duplicate key") || err.includes("companies_code_key") || insertRes.status === 409) {
+          if (
+            err.includes('duplicate key') ||
+            err.includes('companies_code_key') ||
+            insertRes.status === 409
+          ) {
             const findRes = await fetch(
               `${env.SUPABASE_URL}/rest/v1/companies?code=eq.${code.trim().toUpperCase()}`,
               {
-                headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-              }
+                headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+              },
             );
             const foundComps = await findRes.json().catch(() => []);
             if (Array.isArray(foundComps) && foundComps.length > 0) {
               compObj = foundComps[0];
               console.log(
-                "[Gateway Create Company] Company code already exists, reusing existing record:",
-                compObj.name
+                '[Gateway Create Company] Company code already exists, reusing existing record:',
+                compObj.name,
               );
             } else {
-              return internalError("Kh\xF4ng th\u1EC3 t\u1EA1o c\xF4ng ty: M\xE3 Code \u0111\xE3 t\u1ED3n t\u1EA1i", err);
+              return internalError(
+                'Kh\xF4ng th\u1EC3 t\u1EA1o c\xF4ng ty: M\xE3 Code \u0111\xE3 t\u1ED3n t\u1EA1i',
+                err,
+              );
             }
           } else {
-            return internalError("Kh\xF4ng th\u1EC3 t\u1EA1o c\xF4ng ty", err);
+            return internalError('Kh\xF4ng th\u1EC3 t\u1EA1o c\xF4ng ty', err);
           }
         } else {
           const newComp = await insertRes.json();
@@ -3914,67 +4000,76 @@ var index_default = {
         let createdLicense = null;
         if (compObj?.id) {
           try {
-            const targetTier = tier || "pro";
-            const maxSeats = targetTier === "enterprise" ? 9999 : targetTier === "trial" ? 3 : 10;
-            const durationDays = targetTier === "trial" ? 14 : targetTier === "enterprise" ? 3650 : 365;
+            const targetTier = tier || 'pro';
+            const maxSeats = targetTier === 'enterprise' ? 9999 : targetTier === 'trial' ? 3 : 10;
+            const durationDays =
+              targetTier === 'trial' ? 14 : targetTier === 'enterprise' ? 3650 : 365;
             const expiresAt = new Date(Date.now() + durationDays * 864e5).toISOString();
-            const cleanCode = code.trim().toUpperCase().replace(/[^A-Z0-9]/g, "") || "RTM";
+            const cleanCode =
+              code
+                .trim()
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, '') || 'RTM';
             const licenseKey = `RTM-${cleanCode}-${targetTier.toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
             const licRes = await fetch(`${env.SUPABASE_URL}/rest/v1/licenses`, {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
                 apikey: serviceKey,
                 Authorization: `Bearer ${serviceKey}`,
-                Prefer: "return=representation"
+                Prefer: 'return=representation',
               },
               body: JSON.stringify({
                 license_key: licenseKey,
                 company_id: compObj.id,
                 tier: targetTier,
-                status: "active",
-                issued_by: "2e57fca9-0e31-4d1c-b7bf-0eb837f47f44",
+                status: 'active',
+                issued_by: '2e57fca9-0e31-4d1c-b7bf-0eb837f47f44',
                 max_seats: maxSeats,
                 used_seats: 0,
-                valid_from: (/* @__PURE__ */ new Date()).toISOString(),
+                valid_from: /* @__PURE__ */ new Date().toISOString(),
                 expires_at: expiresAt,
                 features: {
-                  max_browser_profiles: targetTier === "enterprise" ? 100 : targetTier === "pro" ? 20 : 5,
-                  bkt_daily_quota: targetTier === "enterprise" ? 999 : targetTier === "pro" ? 50 : 15,
-                  allow_cross_leader_collab: cross_leader_collaboration
-                }
-              })
+                  max_browser_profiles:
+                    targetTier === 'enterprise' ? 100 : targetTier === 'pro' ? 20 : 5,
+                  bkt_daily_quota:
+                    targetTier === 'enterprise' ? 999 : targetTier === 'pro' ? 50 : 15,
+                  allow_cross_leader_collab: cross_leader_collaboration,
+                },
+              }),
             });
             if (licRes.ok) {
               createdLicense = await licRes.json().catch(() => null);
               if (Array.isArray(createdLicense)) createdLicense = createdLicense[0];
             }
           } catch (e) {
-            console.error("L\u1ED7i khi t\u1EF1 sinh License cho c\xF4ng ty m\u1EDBi:", e);
+            console.error('L\u1ED7i khi t\u1EF1 sinh License cho c\xF4ng ty m\u1EDBi:', e);
           }
         }
         return json({
           success: true,
-          message: "T\u1EA1o c\xF4ng ty v\xE0 c\u1EA5p ph\xE1t License th\xE0nh c\xF4ng",
+          message: 'T\u1EA1o c\xF4ng ty v\xE0 c\u1EA5p ph\xE1t License th\xE0nh c\xF4ng',
           company: {
             ...compObj,
-            license_key: createdLicense?.license_key || "Ch\u01B0a c\u1EA5p license",
+            license_key: createdLicense?.license_key || 'Ch\u01B0a c\u1EA5p license',
             tier: createdLicense?.tier || tier,
             max_seats: createdLicense?.max_seats || 10,
             expires_at: createdLicense?.expires_at || null,
-            license: createdLicense
-          }
+            license: createdLicense,
+          },
         });
       }
-      if (url.pathname === "/v1/admin/companies/update" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/companies/update' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner") {
-          return forbidden("Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n c\u1EADp nh\u1EADt th\xF4ng tin c\xF4ng ty");
+        if (caller.role !== 'owner') {
+          return forbidden(
+            'Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n c\u1EADp nh\u1EADt th\xF4ng tin c\xF4ng ty',
+          );
         }
         const body = await request.json().catch(() => ({}));
         const {
@@ -3984,10 +4079,10 @@ var index_default = {
           owner_user_id,
           is_active,
           mask_revenue_from_staff,
-          cross_leader_collaboration
+          cross_leader_collaboration,
         } = body;
-        if (!company_id) return badRequest("Thi\u1EBFu company_id");
-        const updateFields = { updated_at: (/* @__PURE__ */ new Date()).toISOString() };
+        if (!company_id) return badRequest('Thi\u1EBFu company_id');
+        const updateFields = { updated_at: /* @__PURE__ */ new Date().toISOString() };
         if (name !== void 0) updateFields.name = name.trim();
         if (code !== void 0) updateFields.code = code.trim().toUpperCase();
         if (owner_user_id !== void 0) updateFields.owner_user_id = owner_user_id;
@@ -3997,73 +4092,84 @@ var index_default = {
         if (cross_leader_collaboration !== void 0)
           updateFields.cross_leader_collaboration = cross_leader_collaboration;
         const patchRes = await fetch(`${env.SUPABASE_URL}/rest/v1/companies?id=eq.${company_id}`, {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
             Authorization: `Bearer ${serviceKey}`,
-            Prefer: "return=representation"
+            Prefer: 'return=representation',
           },
-          body: JSON.stringify(updateFields)
+          body: JSON.stringify(updateFields),
         });
         if (!patchRes.ok) {
           const err = await patchRes.text();
-          return internalError("L\u1ED7i c\u1EADp nh\u1EADt c\xF4ng ty: " + err);
+          return internalError('L\u1ED7i c\u1EADp nh\u1EADt c\xF4ng ty: ' + err);
         }
         const updated = await patchRes.json().catch(() => null);
-        return json({ success: true, message: "C\u1EADp nh\u1EADt c\xF4ng ty th\xE0nh c\xF4ng", company: updated });
+        return json({
+          success: true,
+          message: 'C\u1EADp nh\u1EADt c\xF4ng ty th\xE0nh c\xF4ng',
+          company: updated,
+        });
       }
-      if (url.pathname === "/v1/admin/companies/delete" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/companies/delete' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner") {
-          return forbidden("Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n x\xF3a c\xF4ng ty");
+        if (caller.role !== 'owner') {
+          return forbidden('Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n x\xF3a c\xF4ng ty');
         }
         const body = await request.json().catch(() => ({}));
         const { company_id } = body;
-        if (!company_id) return badRequest("Thi\u1EBFu company_id");
-        if (company_id === "e51f4953-587e-4a5e-af09-e76471ca0326") {
-          return forbidden("Kh\xF4ng th\u1EC3 x\xF3a c\xF4ng ty T\u1ED5ng b\u1ED9 (RETubeMatrix HQ)");
+        if (!company_id) return badRequest('Thi\u1EBFu company_id');
+        if (company_id === 'e51f4953-587e-4a5e-af09-e76471ca0326') {
+          return forbidden(
+            'Kh\xF4ng th\u1EC3 x\xF3a c\xF4ng ty T\u1ED5ng b\u1ED9 (RETubeMatrix HQ)',
+          );
         }
         await fetch(`${env.SUPABASE_URL}/rest/v1/user_profiles?company_id=eq.${company_id}`, {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
-          body: JSON.stringify({ company_id: "e51f4953-587e-4a5e-af09-e76471ca0326" })
+          body: JSON.stringify({ company_id: 'e51f4953-587e-4a5e-af09-e76471ca0326' }),
         });
         await fetch(`${env.SUPABASE_URL}/rest/v1/licenses?company_id=eq.${company_id}`, {
-          method: "DELETE",
-          headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
+          method: 'DELETE',
+          headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
         });
         const delRes = await fetch(`${env.SUPABASE_URL}/rest/v1/companies?id=eq.${company_id}`, {
-          method: "DELETE",
-          headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
+          method: 'DELETE',
+          headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
         });
         if (!delRes.ok) {
           const err = await delRes.text();
-          return internalError("L\u1ED7i khi x\xF3a c\xF4ng ty: " + err);
+          return internalError('L\u1ED7i khi x\xF3a c\xF4ng ty: ' + err);
         }
-        return json({ success: true, message: "\u0110\xE3 x\xF3a c\xF4ng ty th\xE0nh c\xF4ng" });
+        return json({ success: true, message: '\u0110\xE3 x\xF3a c\xF4ng ty th\xE0nh c\xF4ng' });
       }
-      if (url.pathname === "/v1/admin/companies/update-settings" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/companies/update-settings' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
         const body = await request.json().catch(() => ({}));
         const { company_id, mask_revenue_from_staff, cross_leader_collaboration } = body;
-        if (!company_id) return badRequest("Thi\u1EBFu company_id");
-        if (caller.role !== "owner" && (caller.role !== "admin" || caller.companyId !== company_id)) {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n s\u1EEDa c\xE0i \u0111\u1EB7t c\u1EE7a c\xF4ng ty n\xE0y");
+        if (!company_id) return badRequest('Thi\u1EBFu company_id');
+        if (
+          caller.role !== 'owner' &&
+          (caller.role !== 'admin' || caller.companyId !== company_id)
+        ) {
+          return forbidden(
+            'B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n s\u1EEDa c\xE0i \u0111\u1EB7t c\u1EE7a c\xF4ng ty n\xE0y',
+          );
         }
         const updateFields = {};
         if (mask_revenue_from_staff !== void 0)
@@ -4071,36 +4177,39 @@ var index_default = {
         if (cross_leader_collaboration !== void 0)
           updateFields.cross_leader_collaboration = cross_leader_collaboration;
         await fetch(`${env.SUPABASE_URL}/rest/v1/companies?id=eq.${company_id}`, {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
-          body: JSON.stringify(updateFields)
+          body: JSON.stringify(updateFields),
         });
-        return json({ success: true, message: "C\u1EADp nh\u1EADt c\xE0i \u0111\u1EB7t c\xF4ng ty th\xE0nh c\xF4ng" });
+        return json({
+          success: true,
+          message: 'C\u1EADp nh\u1EADt c\xE0i \u0111\u1EB7t c\xF4ng ty th\xE0nh c\xF4ng',
+        });
       }
-      if (url.pathname === "/v1/admin/users" && request.method === "GET") {
+      if (url.pathname === '/v1/admin/users' && request.method === 'GET') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem danh s\xE1ch nh\xE2n s\u1EF1");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden('B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem danh s\xE1ch nh\xE2n s\u1EF1');
         }
         let queryUrl = `${env.SUPABASE_URL}/rest/v1/user_profiles?select=id,company_id,role,team_id,full_name,email,commission_rate,is_active,assigned_niche,created_at,companies(id,name,code)&order=created_at.asc`;
         let deviceQueryUrl = `${env.SUPABASE_URL}/rest/v1/device_bindings?is_active=eq.true&select=id,user_id,device_name,os_info,client_version,hwid_hash,last_ip,last_heartbeat_at`;
-        if (caller.role === "admin" || caller.role === "leader") {
+        if (caller.role === 'admin' || caller.role === 'leader') {
           if (!caller.companyId) {
             return json({ success: true, users: [] });
           }
           queryUrl += `&company_id=eq.${caller.companyId}`;
           deviceQueryUrl += `&company_id=eq.${caller.companyId}`;
-        } else if (caller.role === "owner") {
-          const filterComp = url.searchParams.get("company_id");
+        } else if (caller.role === 'owner') {
+          const filterComp = url.searchParams.get('company_id');
           if (filterComp) {
             queryUrl += `&company_id=eq.${filterComp}`;
             deviceQueryUrl += `&company_id=eq.${filterComp}`;
@@ -4108,11 +4217,15 @@ var index_default = {
         }
         const [profilesRes, devicesRes] = await Promise.all([
           fetch(queryUrl, {
-            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-          }).then((r) => r.json()).catch(() => []),
+            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+          })
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(deviceQueryUrl, {
-            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-          }).then((r) => r.json()).catch(() => [])
+            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+          })
+            .then((r) => r.json())
+            .catch(() => []),
         ]);
         const profilesList = Array.isArray(profilesRes) ? profilesRes : [];
         const devicesList = Array.isArray(devicesRes) ? devicesRes : [];
@@ -4130,194 +4243,218 @@ var index_default = {
             is_active: p.is_active,
             commission_rate: p.commission_rate,
             company_id: p.company_id,
-            company_name: p.companies?.name || (p.company_id ? "N/A" : "Ch\u01B0a g\xE1n c\xF4ng ty (Ch\u1EDD duy\u1EC7t)"),
-            company_code: p.companies?.code || (p.company_id ? "N/A" : "PENDING"),
+            company_name:
+              p.companies?.name ||
+              (p.company_id ? 'N/A' : 'Ch\u01B0a g\xE1n c\xF4ng ty (Ch\u1EDD duy\u1EC7t)'),
+            company_code: p.companies?.code || (p.company_id ? 'N/A' : 'PENDING'),
             team_id: p.team_id,
             assigned_niche: p.assigned_niche || null,
             created_at: p.created_at,
             has_device_bound: !!boundDev,
-            bound_device: boundDev ? {
-              binding_id: boundDev.id,
-              device_name: boundDev.device_name || "Windows PC",
-              os_info: boundDev.os_info || "Windows 11",
-              hwid_hash: boundDev.hwid_hash,
-              last_ip: boundDev.last_ip || "127.0.0.1",
-              last_heartbeat_at: boundDev.last_heartbeat_at
-            } : null
+            bound_device: boundDev
+              ? {
+                  binding_id: boundDev.id,
+                  device_name: boundDev.device_name || 'Windows PC',
+                  os_info: boundDev.os_info || 'Windows 11',
+                  hwid_hash: boundDev.hwid_hash,
+                  last_ip: boundDev.last_ip || '127.0.0.1',
+                  last_heartbeat_at: boundDev.last_heartbeat_at,
+                }
+              : null,
           };
         });
         return json({ success: true, users });
       }
-      if (url.pathname === "/v1/admin/users/create" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/users/create' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n t\u1EA1o t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden(
+            'B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n t\u1EA1o t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng',
+          );
         }
         const body = await request.json().catch(() => ({}));
         let {
           email,
           password,
           full_name,
-          role = "user",
+          role = 'user',
           company_id,
           commission_rate = 0,
           assigned_niche,
-          assigned_niches
+          assigned_niches,
         } = body;
-        const finalAssignedNiche = assigned_niche || (Array.isArray(assigned_niches) ? assigned_niches.join(", ") : assigned_niches) || null;
+        const finalAssignedNiche =
+          assigned_niche ||
+          (Array.isArray(assigned_niches) ? assigned_niches.join(', ') : assigned_niches) ||
+          null;
         if (!email || !password) {
-          return badRequest("Vui l\xF2ng nh\u1EADp email v\xE0 m\u1EADt kh\u1EA9u cho ng\u01B0\u1EDDi d\xF9ng m\u1EDBi");
+          return badRequest(
+            'Vui l\xF2ng nh\u1EADp email v\xE0 m\u1EADt kh\u1EA9u cho ng\u01B0\u1EDDi d\xF9ng m\u1EDBi',
+          );
         }
         const cleanEmail = email.trim().toLowerCase();
-        if (caller.role === "admin") {
+        if (caller.role === 'admin') {
           company_id = caller.companyId;
-          if (role !== "user" && role !== "leader") {
+          if (role !== 'user' && role !== 'leader') {
             return forbidden(
-              "Admin ch\u1EC9 c\xF3 th\u1EC3 t\u1EA1o ng\u01B0\u1EDDi d\xF9ng v\u1EDBi vai tr\xF2 Nh\xE2n vi\xEAn (user) ho\u1EB7c Tr\u01B0\u1EDFng nh\xF3m (leader)"
+              'Admin ch\u1EC9 c\xF3 th\u1EC3 t\u1EA1o ng\u01B0\u1EDDi d\xF9ng v\u1EDBi vai tr\xF2 Nh\xE2n vi\xEAn (user) ho\u1EB7c Tr\u01B0\u1EDFng nh\xF3m (leader)',
             );
           }
-        } else if (caller.role === "leader") {
+        } else if (caller.role === 'leader') {
           company_id = caller.companyId;
-          role = "user";
-        } else if (caller.role === "owner") {
+          role = 'user';
+        } else if (caller.role === 'owner') {
           if (!company_id) {
-            company_id = "e51f4953-587e-4a5e-af09-e76471ca0326";
+            company_id = 'e51f4953-587e-4a5e-af09-e76471ca0326';
           }
         }
         const authCreateRes = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
           body: JSON.stringify({
             email: cleanEmail,
             password,
             email_confirm: true,
-            user_metadata: { full_name: full_name || cleanEmail.split("@")[0] }
-          })
+            user_metadata: { full_name: full_name || cleanEmail.split('@')[0] },
+          }),
         });
         if (!authCreateRes.ok) {
           const err = await authCreateRes.json().catch(() => ({}));
-          const errMsg = err.msg || err.message || "";
-          if (errMsg.toLowerCase().includes("already") || errMsg.toLowerCase().includes("registered")) {
+          const errMsg = err.msg || err.message || '';
+          if (
+            errMsg.toLowerCase().includes('already') ||
+            errMsg.toLowerCase().includes('registered')
+          ) {
             return json(
               {
                 success: false,
-                code: "EMAIL_ALREADY_EXISTS",
-                error: "Email n\xE0y \u0111\xE3 \u0111\u01B0\u1EE3c \u0111\u0103ng k\xFD tr\xEAn h\u1EC7 th\u1ED1ng"
+                code: 'EMAIL_ALREADY_EXISTS',
+                error:
+                  'Email n\xE0y \u0111\xE3 \u0111\u01B0\u1EE3c \u0111\u0103ng k\xFD tr\xEAn h\u1EC7 th\u1ED1ng',
               },
-              409
+              409,
             );
           }
-          return badRequest(errMsg || "Kh\xF4ng th\u1EC3 t\u1EA1o t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng");
+          return badRequest(
+            errMsg || 'Kh\xF4ng th\u1EC3 t\u1EA1o t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng',
+          );
         }
         const createdAuthUser = await authCreateRes.json();
         const newUserId = createdAuthUser.id;
         const compId = company_id || null;
         const profileInsertRes = await fetch(`${env.SUPABASE_URL}/rest/v1/user_profiles`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
             Authorization: `Bearer ${serviceKey}`,
-            Prefer: "resolution=merge-duplicates,return=representation"
+            Prefer: 'resolution=merge-duplicates,return=representation',
           },
           body: JSON.stringify({
             id: newUserId,
             company_id: compId,
             role,
-            full_name: full_name || cleanEmail.split("@")[0],
+            full_name: full_name || cleanEmail.split('@')[0],
             email: cleanEmail,
             commission_rate: Number(commission_rate) || 0,
             is_active: true,
-            assigned_niche: finalAssignedNiche
-          })
+            assigned_niche: finalAssignedNiche,
+          }),
         });
         if (!profileInsertRes.ok) {
           const profErr = await profileInsertRes.text();
-          return internalError("L\u1ED7i t\u1EA1o h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng: " + profErr);
+          return internalError(
+            'L\u1ED7i t\u1EA1o h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng: ' + profErr,
+          );
         }
         return json({
           success: true,
-          message: "C\u1EA5p t\xE0i kho\u1EA3n th\xE0nh c\xF4ng",
+          message: 'C\u1EA5p t\xE0i kho\u1EA3n th\xE0nh c\xF4ng',
           user: {
             id: newUserId,
             email: cleanEmail,
-            full_name: full_name || cleanEmail.split("@")[0],
+            full_name: full_name || cleanEmail.split('@')[0],
             role,
             company_id: compId,
             assigned_niche: finalAssignedNiche,
-            plain_password: password
-          }
+            plain_password: password,
+          },
         });
       }
-      if (url.pathname === "/v1/admin/users/assign-company" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/users/assign-company' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner") {
+        if (caller.role !== 'owner') {
           return forbidden(
-            "Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n g\xE1n ho\u1EB7c chuy\u1EC3n \u0111\u1ED5i c\xF4ng ty cho ng\u01B0\u1EDDi d\xF9ng"
+            'Ch\u1EC9 Master Owner m\u1EDBi c\xF3 quy\u1EC1n g\xE1n ho\u1EB7c chuy\u1EC3n \u0111\u1ED5i c\xF4ng ty cho ng\u01B0\u1EDDi d\xF9ng',
           );
         }
         const body = await request.json().catch(() => ({}));
         const { user_id, company_id, activate = true } = body;
         if (!user_id || !company_id) {
-          return badRequest("Vui l\xF2ng cung c\u1EA5p \u0111\u1EA7y \u0111\u1EE7 user_id v\xE0 company_id");
+          return badRequest(
+            'Vui l\xF2ng cung c\u1EA5p \u0111\u1EA7y \u0111\u1EE7 user_id v\xE0 company_id',
+          );
         }
         const compRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/companies?id=eq.${company_id}&select=id,name,code,is_active`,
-          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
         );
-        const comps = await compRes.json().catch(() => []) || [];
+        const comps = (await compRes.json().catch(() => [])) || [];
         if (!comps || comps.length === 0) {
-          return badRequest("C\xF4ng ty \u0111\u01B0\u1EE3c ch\u1EC9 \u0111\u1ECBnh kh\xF4ng t\u1ED3n t\u1EA1i tr\xEAn h\u1EC7 th\u1ED1ng");
+          return badRequest(
+            'C\xF4ng ty \u0111\u01B0\u1EE3c ch\u1EC9 \u0111\u1ECBnh kh\xF4ng t\u1ED3n t\u1EA1i tr\xEAn h\u1EC7 th\u1ED1ng',
+          );
         }
         const userRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${user_id}&select=id,email,full_name,role,company_id,is_active`,
-          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
         );
-        const targetProfiles = await userRes.json().catch(() => []) || [];
+        const targetProfiles = (await userRes.json().catch(() => [])) || [];
         if (!targetProfiles || targetProfiles.length === 0) {
-          return badRequest("Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng");
+          return badRequest('Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng');
         }
         const target = targetProfiles[0];
         const patchData = {
           company_id,
-          updated_at: (/* @__PURE__ */ new Date()).toISOString()
+          updated_at: /* @__PURE__ */ new Date().toISOString(),
         };
         if (activate && target.is_active === false) {
           patchData.is_active = true;
         }
         const patchRes = await fetch(`${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${user_id}`, {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
             Authorization: `Bearer ${serviceKey}`,
-            Prefer: "return=representation"
+            Prefer: 'return=representation',
           },
-          body: JSON.stringify(patchData)
+          body: JSON.stringify(patchData),
         });
         if (!patchRes.ok) {
           const errText = await patchRes.text();
-          return internalError("L\u1ED7i khi g\xE1n c\xF4ng ty cho ng\u01B0\u1EDDi d\xF9ng: " + errText);
+          return internalError(
+            'L\u1ED7i khi g\xE1n c\xF4ng ty cho ng\u01B0\u1EDDi d\xF9ng: ' + errText,
+          );
         }
         if (env.RETUBEMATRIX_KV) {
           try {
             await env.RETUBEMATRIX_KV.delete(`adm_auth:${user_id}`);
-          } catch (_) {
-          }
+          } catch (_) {}
         }
         const updatedList = await patchRes.json().catch(() => []);
         return json({
@@ -4326,20 +4463,20 @@ var index_default = {
           user: updatedList[0] || {
             id: user_id,
             company_id,
-            is_active: patchData.is_active ?? target.is_active
-          }
+            is_active: patchData.is_active ?? target.is_active,
+          },
         });
       }
-      if (url.pathname === "/v1/admin/users/update-role" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/users/update-role' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin") {
+        if (caller.role !== 'owner' && caller.role !== 'admin') {
           return forbidden(
-            "B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n ph\xE2n quy\u1EC1n ng\u01B0\u1EDDi d\xF9ng (ch\u1EC9 Owner v\xE0 Admin m\u1EDBi c\xF3 quy\u1EC1n)"
+            'B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n ph\xE2n quy\u1EC1n ng\u01B0\u1EDDi d\xF9ng (ch\u1EC9 Owner v\xE0 Admin m\u1EDBi c\xF3 quy\u1EC1n)',
           );
         }
         const body = await request.json().catch(() => ({}));
@@ -4351,91 +4488,115 @@ var index_default = {
           commission_rate,
           is_active,
           assigned_niche,
-          assigned_niches
+          assigned_niches,
         } = body;
-        if (!user_id) return badRequest("Thi\u1EBFu user_id");
-        if (!role && full_name === void 0 && commission_rate === void 0 && is_active === void 0 && company_id === void 0 && assigned_niche === void 0 && assigned_niches === void 0) {
-          return badRequest("Vui l\xF2ng cung c\u1EA5p \xEDt nh\u1EA5t m\u1ED9t th\xF4ng tin c\u1EA7n c\u1EADp nh\u1EADt");
+        if (!user_id) return badRequest('Thi\u1EBFu user_id');
+        if (
+          !role &&
+          full_name === void 0 &&
+          commission_rate === void 0 &&
+          is_active === void 0 &&
+          company_id === void 0 &&
+          assigned_niche === void 0 &&
+          assigned_niches === void 0
+        ) {
+          return badRequest(
+            'Vui l\xF2ng cung c\u1EA5p \xEDt nh\u1EA5t m\u1ED9t th\xF4ng tin c\u1EA7n c\u1EADp nh\u1EADt',
+          );
         }
         const userRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${user_id}&select=id,email,full_name,role,company_id,is_active`,
-          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
         );
-        const targetProfiles = await userRes.json().catch(() => []) || [];
+        const targetProfiles = (await userRes.json().catch(() => [])) || [];
         if (!targetProfiles || targetProfiles.length === 0) {
-          return badRequest("Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng");
+          return badRequest('Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng');
         }
         const target = targetProfiles[0];
         if (isMasterOwner(target.id, target.email, target.role)) {
-          if (role && role !== "owner") {
-            return forbidden("Kh\xF4ng th\u1EC3 thay \u0111\u1ED5i quy\u1EC1n h\u1EA1n Master Owner t\u1ED1i cao");
+          if (role && role !== 'owner') {
+            return forbidden(
+              'Kh\xF4ng th\u1EC3 thay \u0111\u1ED5i quy\u1EC1n h\u1EA1n Master Owner t\u1ED1i cao',
+            );
           }
         }
-        if (caller.role === "admin") {
+        if (caller.role === 'admin') {
           if (target.company_id !== caller.companyId) {
-            return forbidden("Admin ch\u1EC9 c\xF3 quy\u1EC1n ph\xE2n quy\u1EC1n cho nh\xE2n s\u1EF1 thu\u1ED9c c\xF4ng ty m\xECnh");
+            return forbidden(
+              'Admin ch\u1EC9 c\xF3 quy\u1EC1n ph\xE2n quy\u1EC1n cho nh\xE2n s\u1EF1 thu\u1ED9c c\xF4ng ty m\xECnh',
+            );
           }
-          if (target.role === "owner" || target.role === "admin" && target.id !== caller.userId) {
-            return forbidden("Admin kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p thay \u0111\u1ED5i quy\u1EC1n h\u1EA1n c\u1EE7a Owner ho\u1EB7c Admin kh\xE1c");
+          if (target.role === 'owner' || (target.role === 'admin' && target.id !== caller.userId)) {
+            return forbidden(
+              'Admin kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p thay \u0111\u1ED5i quy\u1EC1n h\u1EA1n c\u1EE7a Owner ho\u1EB7c Admin kh\xE1c',
+            );
           }
           if (target.id === caller.userId && role && role !== caller.role) {
-            return forbidden("Admin kh\xF4ng th\u1EC3 t\u1EF1 thay \u0111\u1ED5i vai tr\xF2 c\u1EE7a ch\xEDnh m\xECnh");
-          }
-          if (role && role !== "user" && role !== "leader") {
             return forbidden(
-              "Admin ch\u1EC9 \u0111\u01B0\u1EE3c quy\u1EC1n ph\xE2n quy\u1EC1n gi\u1EEFa Nh\xE2n vi\xEAn (user) v\xE0 Tr\u01B0\u1EDFng nh\xF3m (leader)"
+              'Admin kh\xF4ng th\u1EC3 t\u1EF1 thay \u0111\u1ED5i vai tr\xF2 c\u1EE7a ch\xEDnh m\xECnh',
+            );
+          }
+          if (role && role !== 'user' && role !== 'leader') {
+            return forbidden(
+              'Admin ch\u1EC9 \u0111\u01B0\u1EE3c quy\u1EC1n ph\xE2n quy\u1EC1n gi\u1EEFa Nh\xE2n vi\xEAn (user) v\xE0 Tr\u01B0\u1EDFng nh\xF3m (leader)',
             );
           }
           if (company_id !== void 0 && company_id !== caller.companyId) {
             return forbidden(
-              "Admin kh\xF4ng c\xF3 quy\u1EC1n g\xE1n ho\u1EB7c chuy\u1EC3n \u0111\u1ED5i c\xF4ng ty cho nh\xE2n s\u1EF1 (Ch\u1EC9 Master Owner c\xF3 quy\u1EC1n)"
+              'Admin kh\xF4ng c\xF3 quy\u1EC1n g\xE1n ho\u1EB7c chuy\u1EC3n \u0111\u1ED5i c\xF4ng ty cho nh\xE2n s\u1EF1 (Ch\u1EC9 Master Owner c\xF3 quy\u1EC1n)',
             );
           }
         }
-        const updates = { updated_at: (/* @__PURE__ */ new Date()).toISOString() };
+        const updates = { updated_at: /* @__PURE__ */ new Date().toISOString() };
         if (role !== void 0) updates.role = role;
         if (full_name !== void 0) updates.full_name = full_name;
         if (commission_rate !== void 0) updates.commission_rate = Number(commission_rate);
         if (is_active !== void 0) updates.is_active = is_active;
-        if (company_id !== void 0 && caller.role === "owner") updates.company_id = company_id;
+        if (company_id !== void 0 && caller.role === 'owner') updates.company_id = company_id;
         if (assigned_niche !== void 0 || assigned_niches !== void 0) {
-          updates.assigned_niche = assigned_niche || (Array.isArray(assigned_niches) ? assigned_niches.join(", ") : assigned_niches) || null;
+          updates.assigned_niche =
+            assigned_niche ||
+            (Array.isArray(assigned_niches) ? assigned_niches.join(', ') : assigned_niches) ||
+            null;
         }
         const patchRes = await fetch(`${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${user_id}`, {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
             Authorization: `Bearer ${serviceKey}`,
-            Prefer: "return=representation"
+            Prefer: 'return=representation',
           },
-          body: JSON.stringify(updates)
+          body: JSON.stringify(updates),
         });
         if (!patchRes.ok) {
           const err = await patchRes.text();
-          return internalError("L\u1ED7i c\u1EADp nh\u1EADt ph\xE2n quy\u1EC1n ng\u01B0\u1EDDi d\xF9ng: " + err);
+          return internalError(
+            'L\u1ED7i c\u1EADp nh\u1EADt ph\xE2n quy\u1EC1n ng\u01B0\u1EDDi d\xF9ng: ' + err,
+          );
         }
         if (env.RETUBEMATRIX_KV) {
           try {
             await env.RETUBEMATRIX_KV.delete(`adm_auth:${user_id}`);
-          } catch (_) {
-          }
+          } catch (_) {}
         }
         return json({
           success: true,
-          message: "C\u1EADp nh\u1EADt ph\xE2n quy\u1EC1n ng\u01B0\u1EDDi d\xF9ng th\xE0nh c\xF4ng",
-          user: { id: user_id, ...updates }
+          message: 'C\u1EADp nh\u1EADt ph\xE2n quy\u1EC1n ng\u01B0\u1EDDi d\xF9ng th\xE0nh c\xF4ng',
+          user: { id: user_id, ...updates },
         });
       }
-      if (url.pathname === "/v1/admin/users/update-info" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/users/update-info' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n ch\u1EC9nh s\u1EEDa th\xF4ng tin ng\u01B0\u1EDDi d\xF9ng");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden(
+            'B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n ch\u1EC9nh s\u1EEDa th\xF4ng tin ng\u01B0\u1EDDi d\xF9ng',
+          );
         }
         const body = await request.json().catch(() => ({}));
         const {
@@ -4445,323 +4606,378 @@ var index_default = {
           is_active,
           team_id,
           assigned_niche,
-          assigned_niches
+          assigned_niches,
         } = body;
-        if (!user_id) return badRequest("Thi\u1EBFu user_id");
+        if (!user_id) return badRequest('Thi\u1EBFu user_id');
         const userRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${user_id}&select=id,email,full_name,role,company_id,team_id,is_active`,
-          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
         );
-        const targetProfiles = await userRes.json().catch(() => []) || [];
+        const targetProfiles = (await userRes.json().catch(() => [])) || [];
         if (!targetProfiles || targetProfiles.length === 0) {
-          return badRequest("Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng");
+          return badRequest('Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng');
         }
         const target = targetProfiles[0];
-        if (isMasterOwner(target.id, target.email, target.role) && caller.role !== "owner") {
-          return forbidden("Kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p ch\u1EC9nh s\u1EEDa th\xF4ng tin c\u1EE7a Master Owner");
+        if (isMasterOwner(target.id, target.email, target.role) && caller.role !== 'owner') {
+          return forbidden(
+            'Kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p ch\u1EC9nh s\u1EEDa th\xF4ng tin c\u1EE7a Master Owner',
+          );
         }
-        if (caller.role === "admin") {
+        if (caller.role === 'admin') {
           if (target.company_id !== caller.companyId) {
-            return forbidden("Admin ch\u1EC9 c\xF3 quy\u1EC1n ch\u1EC9nh s\u1EEDa nh\xE2n s\u1EF1 thu\u1ED9c c\xF4ng ty m\xECnh");
-          }
-          if (target.role === "owner" || target.role === "admin" && target.id !== caller.userId) {
-            return forbidden("Admin kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p s\u1EEDa th\xF4ng tin c\u1EE7a Admin kh\xE1c ho\u1EB7c Owner");
-          }
-        }
-        if (caller.role === "leader") {
-          if (target.company_id !== caller.companyId) {
-            return forbidden("Leader ch\u1EC9 c\xF3 quy\u1EC1n ch\u1EC9nh s\u1EEDa nh\xE2n s\u1EF1 thu\u1ED9c c\xF4ng ty m\xECnh");
-          }
-          if (target.role !== "user") {
-            return forbidden("Leader ch\u1EC9 c\xF3 quy\u1EC1n s\u1EEDa th\xF4ng tin c\u1EE7a Nh\xE2n vi\xEAn (user)");
-          }
-          if (caller.teamId && target.team_id && target.team_id !== caller.teamId) {
             return forbidden(
-              "Leader ch\u1EC9 c\xF3 quy\u1EC1n s\u1EEDa th\xF4ng tin nh\xE2n vi\xEAn thu\u1ED9c nh\xF3m m\xECnh ph\u1EE5 tr\xE1ch"
+              'Admin ch\u1EC9 c\xF3 quy\u1EC1n ch\u1EC9nh s\u1EEDa nh\xE2n s\u1EF1 thu\u1ED9c c\xF4ng ty m\xECnh',
+            );
+          }
+          if (target.role === 'owner' || (target.role === 'admin' && target.id !== caller.userId)) {
+            return forbidden(
+              'Admin kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p s\u1EEDa th\xF4ng tin c\u1EE7a Admin kh\xE1c ho\u1EB7c Owner',
             );
           }
         }
-        const updates = { updated_at: (/* @__PURE__ */ new Date()).toISOString() };
+        if (caller.role === 'leader') {
+          if (target.company_id !== caller.companyId) {
+            return forbidden(
+              'Leader ch\u1EC9 c\xF3 quy\u1EC1n ch\u1EC9nh s\u1EEDa nh\xE2n s\u1EF1 thu\u1ED9c c\xF4ng ty m\xECnh',
+            );
+          }
+          if (target.role !== 'user') {
+            return forbidden(
+              'Leader ch\u1EC9 c\xF3 quy\u1EC1n s\u1EEDa th\xF4ng tin c\u1EE7a Nh\xE2n vi\xEAn (user)',
+            );
+          }
+          if (caller.teamId && target.team_id && target.team_id !== caller.teamId) {
+            return forbidden(
+              'Leader ch\u1EC9 c\xF3 quy\u1EC1n s\u1EEDa th\xF4ng tin nh\xE2n vi\xEAn thu\u1ED9c nh\xF3m m\xECnh ph\u1EE5 tr\xE1ch',
+            );
+          }
+        }
+        const updates = { updated_at: /* @__PURE__ */ new Date().toISOString() };
         if (full_name !== void 0) updates.full_name = full_name;
         if (commission_rate !== void 0) updates.commission_rate = Number(commission_rate);
         if (is_active !== void 0) updates.is_active = is_active;
-        if (team_id !== void 0 && caller.role !== "leader") updates.team_id = team_id;
+        if (team_id !== void 0 && caller.role !== 'leader') updates.team_id = team_id;
         if (assigned_niche !== void 0 || assigned_niches !== void 0) {
-          updates.assigned_niche = assigned_niche || (Array.isArray(assigned_niches) ? assigned_niches.join(", ") : assigned_niches) || null;
+          updates.assigned_niche =
+            assigned_niche ||
+            (Array.isArray(assigned_niches) ? assigned_niches.join(', ') : assigned_niches) ||
+            null;
         }
         const patchRes = await fetch(`${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${user_id}`, {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
             Authorization: `Bearer ${serviceKey}`,
-            Prefer: "return=representation"
+            Prefer: 'return=representation',
           },
-          body: JSON.stringify(updates)
+          body: JSON.stringify(updates),
         });
         if (!patchRes.ok) {
           const err = await patchRes.text();
-          return internalError("L\u1ED7i c\u1EADp nh\u1EADt th\xF4ng tin ng\u01B0\u1EDDi d\xF9ng: " + err);
+          return internalError(
+            'L\u1ED7i c\u1EADp nh\u1EADt th\xF4ng tin ng\u01B0\u1EDDi d\xF9ng: ' + err,
+          );
         }
         if (env.RETUBEMATRIX_KV) {
           try {
             await env.RETUBEMATRIX_KV.delete(`adm_auth:${user_id}`);
-          } catch (_) {
-          }
+          } catch (_) {}
         }
         return json({
           success: true,
-          message: "C\u1EADp nh\u1EADt th\xF4ng tin ng\u01B0\u1EDDi d\xF9ng th\xE0nh c\xF4ng",
-          user: { id: user_id, ...updates }
+          message: 'C\u1EADp nh\u1EADt th\xF4ng tin ng\u01B0\u1EDDi d\xF9ng th\xE0nh c\xF4ng',
+          user: { id: user_id, ...updates },
         });
       }
-      const isUsersDeletePath = url.pathname === "/v1/admin/users/delete" && request.method === "POST" || url.pathname === "/v1/admin/users" && request.method === "DELETE" || url.pathname.startsWith("/v1/admin/users/") && request.method === "DELETE" && ![
-        "assign-company",
-        "update-role",
-        "update-info",
-        "create",
-        "delete",
-        "reset-hwid"
-      ].includes(url.pathname.split("/")[4] || "");
+      const isUsersDeletePath =
+        (url.pathname === '/v1/admin/users/delete' && request.method === 'POST') ||
+        (url.pathname === '/v1/admin/users' && request.method === 'DELETE') ||
+        (url.pathname.startsWith('/v1/admin/users/') &&
+          request.method === 'DELETE' &&
+          ![
+            'assign-company',
+            'update-role',
+            'update-info',
+            'create',
+            'delete',
+            'reset-hwid',
+          ].includes(url.pathname.split('/')[4] || ''));
       if (isUsersDeletePath) {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n x\xF3a ng\u01B0\u1EDDi d\xF9ng kh\u1ECFi h\u1EC7 th\u1ED1ng");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden(
+            'B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n x\xF3a ng\u01B0\u1EDDi d\xF9ng kh\u1ECFi h\u1EC7 th\u1ED1ng',
+          );
         }
-        let targetUserId = "";
-        if (url.pathname.startsWith("/v1/admin/users/") && request.method === "DELETE") {
-          const pathPart = url.pathname.split("/")[4];
-          if (pathPart && pathPart !== "delete") {
+        let targetUserId = '';
+        if (url.pathname.startsWith('/v1/admin/users/') && request.method === 'DELETE') {
+          const pathPart = url.pathname.split('/')[4];
+          if (pathPart && pathPart !== 'delete') {
             targetUserId = pathPart;
           }
         }
         if (!targetUserId) {
           const body = await request.json().catch(() => ({}));
-          targetUserId = body.user_id || url.searchParams.get("user_id") || "";
+          targetUserId = body.user_id || url.searchParams.get('user_id') || '';
         }
         if (!targetUserId) {
-          return badRequest("Thi\u1EBFu user_id c\u1EA7n x\xF3a");
+          return badRequest('Thi\u1EBFu user_id c\u1EA7n x\xF3a');
         }
         if (targetUserId === caller.userId) {
-          return forbidden("B\u1EA1n kh\xF4ng th\u1EC3 t\u1EF1 x\xF3a t\xE0i kho\u1EA3n c\u1EE7a ch\xEDnh m\xECnh");
+          return forbidden(
+            'B\u1EA1n kh\xF4ng th\u1EC3 t\u1EF1 x\xF3a t\xE0i kho\u1EA3n c\u1EE7a ch\xEDnh m\xECnh',
+          );
         }
         const userRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${targetUserId}&select=id,email,full_name,role,company_id,team_id`,
-          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
         );
-        const targetProfiles = await userRes.json().catch(() => []) || [];
+        const targetProfiles = (await userRes.json().catch(() => [])) || [];
         if (!targetProfiles || targetProfiles.length === 0) {
-          return badRequest("Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng c\u1EA7n x\xF3a");
+          return badRequest(
+            'Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng c\u1EA7n x\xF3a',
+          );
         }
         const target = targetProfiles[0];
         if (isMasterOwner(target.id, target.email, target.role)) {
-          return forbidden("TUY\u1EC6T \u0110\u1ED0I KH\xD4NG \u0110\u01AF\u1EE2C X\xD3A T\xC0I KHO\u1EA2N MASTER OWNER");
+          return forbidden(
+            'TUY\u1EC6T \u0110\u1ED0I KH\xD4NG \u0110\u01AF\u1EE2C X\xD3A T\xC0I KHO\u1EA2N MASTER OWNER',
+          );
         }
-        if (caller.role === "admin") {
+        if (caller.role === 'admin') {
           if (target.company_id !== caller.companyId) {
-            return forbidden("Admin ch\u1EC9 c\xF3 quy\u1EC1n x\xF3a nh\xE2n s\u1EF1 trong c\xF4ng ty c\u1EE7a m\xECnh");
+            return forbidden(
+              'Admin ch\u1EC9 c\xF3 quy\u1EC1n x\xF3a nh\xE2n s\u1EF1 trong c\xF4ng ty c\u1EE7a m\xECnh',
+            );
           }
-          if (target.role === "owner" || target.role === "admin") {
-            return forbidden("Admin kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p x\xF3a t\xE0i kho\u1EA3n c\u1EE7a Admin kh\xE1c ho\u1EB7c Owner");
+          if (target.role === 'owner' || target.role === 'admin') {
+            return forbidden(
+              'Admin kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p x\xF3a t\xE0i kho\u1EA3n c\u1EE7a Admin kh\xE1c ho\u1EB7c Owner',
+            );
           }
         }
-        if (caller.role === "leader") {
+        if (caller.role === 'leader') {
           if (target.company_id !== caller.companyId) {
-            return forbidden("Leader ch\u1EC9 c\xF3 quy\u1EC1n x\xF3a nh\xE2n s\u1EF1 trong c\xF4ng ty c\u1EE7a m\xECnh");
+            return forbidden(
+              'Leader ch\u1EC9 c\xF3 quy\u1EC1n x\xF3a nh\xE2n s\u1EF1 trong c\xF4ng ty c\u1EE7a m\xECnh',
+            );
           }
-          if (target.role !== "user") {
-            return forbidden("Leader ch\u1EC9 c\xF3 quy\u1EC1n x\xF3a t\xE0i kho\u1EA3n Nh\xE2n vi\xEAn (user)");
+          if (target.role !== 'user') {
+            return forbidden(
+              'Leader ch\u1EC9 c\xF3 quy\u1EC1n x\xF3a t\xE0i kho\u1EA3n Nh\xE2n vi\xEAn (user)',
+            );
           }
           if (caller.teamId && target.team_id && target.team_id !== caller.teamId) {
-            return forbidden("Leader ch\u1EC9 c\xF3 quy\u1EC1n x\xF3a nh\xE2n vi\xEAn thu\u1ED9c nh\xF3m m\xECnh ph\u1EE5 tr\xE1ch");
+            return forbidden(
+              'Leader ch\u1EC9 c\xF3 quy\u1EC1n x\xF3a nh\xE2n vi\xEAn thu\u1ED9c nh\xF3m m\xECnh ph\u1EE5 tr\xE1ch',
+            );
           }
         }
         await Promise.all([
           fetch(`${env.SUPABASE_URL}/rest/v1/device_bindings?user_id=eq.${targetUserId}`, {
-            method: "DELETE",
-            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
+            method: 'DELETE',
+            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
           }),
           fetch(`${env.SUPABASE_URL}/rest/v1/hwid_reset_requests?user_id=eq.${targetUserId}`, {
-            method: "DELETE",
-            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-          })
+            method: 'DELETE',
+            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+          }),
         ]);
         await fetch(`${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${targetUserId}`, {
-          method: "DELETE",
-          headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
+          method: 'DELETE',
+          headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
         });
         await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users/${targetUserId}`, {
-          method: "DELETE",
-          headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
+          method: 'DELETE',
+          headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
         });
         try {
           if (env.RETUBEMATRIX_KV) {
             await Promise.all([
               env.RETUBEMATRIX_KV.delete(`binding:${targetUserId}`),
-              env.RETUBEMATRIX_KV.delete(`adm_auth:${targetUserId}`)
+              env.RETUBEMATRIX_KV.delete(`adm_auth:${targetUserId}`),
             ]);
           }
-        } catch (_) {
-        }
+        } catch (_) {}
         return json({
           success: true,
-          message: `\u0110\xE3 x\xF3a ng\u01B0\u1EDDi d\xF9ng ${target.email} kh\u1ECFi h\u1EC7 th\u1ED1ng th\xE0nh c\xF4ng!`
+          message: `\u0110\xE3 x\xF3a ng\u01B0\u1EDDi d\xF9ng ${target.email} kh\u1ECFi h\u1EC7 th\u1ED1ng th\xE0nh c\xF4ng!`,
         });
       }
-      if (url.pathname === "/v1/admin/users/reset-hwid" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/users/reset-hwid' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n reset HWID ng\u01B0\u1EDDi d\xF9ng");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden('B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n reset HWID ng\u01B0\u1EDDi d\xF9ng');
         }
         const body = await request.json().catch(() => ({}));
         const { user_id } = body;
-        if (!user_id) return badRequest("Thi\u1EBFu user_id");
+        if (!user_id) return badRequest('Thi\u1EBFu user_id');
         const userRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${user_id}&select=id,email,role,company_id,team_id`,
-          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
         );
-        const targetProfiles = await userRes.json().catch(() => []) || [];
+        const targetProfiles = (await userRes.json().catch(() => [])) || [];
         if (!targetProfiles || targetProfiles.length === 0) {
-          return badRequest("Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng");
+          return badRequest('Kh\xF4ng t\xECm th\u1EA5y t\xE0i kho\u1EA3n ng\u01B0\u1EDDi d\xF9ng');
         }
         const target = targetProfiles[0];
-        if (caller.role === "admin") {
+        if (caller.role === 'admin') {
           if (target.company_id !== caller.companyId) {
-            return forbidden("Admin ch\u1EC9 c\xF3 quy\u1EC1n reset m\xE1y cho nh\xE2n s\u1EF1 thu\u1ED9c c\xF4ng ty m\xECnh");
-          }
-          if (target.role === "owner" || target.role === "admin" && target.id !== caller.userId) {
-            return forbidden("Admin kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p can thi\u1EC7p m\xE1y c\u1EE7a Owner ho\u1EB7c Admin kh\xE1c");
-          }
-        } else if (caller.role === "leader") {
-          if (target.company_id !== caller.companyId || target.role !== "user") {
             return forbidden(
-              "Leader ch\u1EC9 c\xF3 quy\u1EC1n reset m\xE1y cho Nh\xE2n vi\xEAn (user) trong c\xF4ng ty m\xECnh"
+              'Admin ch\u1EC9 c\xF3 quy\u1EC1n reset m\xE1y cho nh\xE2n s\u1EF1 thu\u1ED9c c\xF4ng ty m\xECnh',
+            );
+          }
+          if (target.role === 'owner' || (target.role === 'admin' && target.id !== caller.userId)) {
+            return forbidden(
+              'Admin kh\xF4ng \u0111\u01B0\u1EE3c ph\xE9p can thi\u1EC7p m\xE1y c\u1EE7a Owner ho\u1EB7c Admin kh\xE1c',
+            );
+          }
+        } else if (caller.role === 'leader') {
+          if (target.company_id !== caller.companyId || target.role !== 'user') {
+            return forbidden(
+              'Leader ch\u1EC9 c\xF3 quy\u1EC1n reset m\xE1y cho Nh\xE2n vi\xEAn (user) trong c\xF4ng ty m\xECnh',
             );
           }
         }
         await fetch(`${env.SUPABASE_URL}/rest/v1/device_bindings?user_id=eq.${user_id}`, {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
-          body: JSON.stringify({ is_active: false, updated_at: (/* @__PURE__ */ new Date()).toISOString() })
+          body: JSON.stringify({
+            is_active: false,
+            updated_at: /* @__PURE__ */ new Date().toISOString(),
+          }),
         });
         try {
           if (env.RETUBEMATRIX_KV) {
             await env.RETUBEMATRIX_KV.delete(`binding:${user_id}`);
           }
-        } catch (_) {
-        }
+        } catch (_) {}
         return json({
           success: true,
-          message: "\u0110\xE3 gi\u1EA3i ph\xF3ng m\xE1y cho ng\u01B0\u1EDDi d\xF9ng th\xE0nh c\xF4ng! Ng\u01B0\u1EDDi d\xF9ng c\xF3 th\u1EC3 \u0111\u0103ng nh\u1EADp tr\xEAn m\xE1y m\u1EDBi."
+          message:
+            '\u0110\xE3 gi\u1EA3i ph\xF3ng m\xE1y cho ng\u01B0\u1EDDi d\xF9ng th\xE0nh c\xF4ng! Ng\u01B0\u1EDDi d\xF9ng c\xF3 th\u1EC3 \u0111\u0103ng nh\u1EADp tr\xEAn m\xE1y m\u1EDBi.',
         });
       }
-      if (url.pathname === "/v1/admin/devices" && request.method === "GET") {
+      if (url.pathname === '/v1/admin/devices' && request.method === 'GET') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem th\xF4ng tin thi\u1EBFt b\u1ECB");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden(
+            'B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem th\xF4ng tin thi\u1EBFt b\u1ECB',
+          );
         }
-        const compFilter = caller.role === "owner" ? "" : `&company_id=eq.${caller.companyId}`;
+        const compFilter = caller.role === 'owner' ? '' : `&company_id=eq.${caller.companyId}`;
         const [devRes, reqRes] = await Promise.all([
           fetch(
             `${env.SUPABASE_URL}/rest/v1/device_bindings?is_active=eq.true&select=id,user_id,company_id,device_name,os_info,client_version,hwid_hash,last_ip,last_heartbeat_at,user_profiles(full_name,email,role),companies(name)&order=last_heartbeat_at.desc${compFilter}`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-          ).then((r) => r.json()).catch(() => []),
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(
             `${env.SUPABASE_URL}/rest/v1/hwid_reset_requests?status=eq.pending&select=id,user_id,company_id,reason,new_hwid_hash,created_at,user_profiles(full_name,email),companies(name)&order=created_at.desc${compFilter}`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-          ).then((r) => r.json()).catch(() => [])
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
         ]);
         const rawDevices = Array.isArray(devRes) ? devRes : [];
         const rawResets = Array.isArray(reqRes) ? reqRes : [];
         const devices = rawDevices.map((d) => ({
           id: d.id,
           user_id: d.user_id,
-          user_name: d.user_profiles?.full_name || d.user_profiles?.email || "Nh\xE2n vi\xEAn",
-          user_email: d.user_profiles?.email || "",
-          user_role: d.user_profiles?.role || "user",
-          company_name: d.companies?.name || "C\xF4ng Ty",
-          device_name: d.device_name || "Windows Desktop",
-          os_info: d.os_info || "Windows 11",
-          client_version: d.client_version || "0.20.16",
+          user_name: d.user_profiles?.full_name || d.user_profiles?.email || 'Nh\xE2n vi\xEAn',
+          user_email: d.user_profiles?.email || '',
+          user_role: d.user_profiles?.role || 'user',
+          company_name: d.companies?.name || 'C\xF4ng Ty',
+          device_name: d.device_name || 'Windows Desktop',
+          os_info: d.os_info || 'Windows 11',
+          client_version: d.client_version || '0.20.16',
           hwid_hash: d.hwid_hash,
-          last_ip: d.last_ip || "127.0.0.1",
-          last_heartbeat_at: d.last_heartbeat_at
+          last_ip: d.last_ip || '127.0.0.1',
+          last_heartbeat_at: d.last_heartbeat_at,
         }));
         const pendingResets = rawResets.map((r) => ({
           id: r.id,
           user_id: r.user_id,
-          user_name: r.user_profiles?.full_name || r.user_profiles?.email || "Nh\xE2n vi\xEAn",
-          user_email: r.user_profiles?.email || "",
-          company_name: r.companies?.name || "C\xF4ng Ty",
+          user_name: r.user_profiles?.full_name || r.user_profiles?.email || 'Nh\xE2n vi\xEAn',
+          user_email: r.user_profiles?.email || '',
+          company_name: r.companies?.name || 'C\xF4ng Ty',
           reason: r.reason,
           new_hwid_hash: r.new_hwid_hash,
-          created_at: r.created_at
+          created_at: r.created_at,
         }));
         return json({ success: true, devices, pending_resets: pendingResets });
       }
-      if (url.pathname === "/v1/admin/devices/review-reset" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/devices/review-reset' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin") {
-          return forbidden("Ch\u1EC9 Owner ho\u1EB7c Admin m\u1EDBi c\xF3 quy\u1EC1n ph\xEA duy\u1EC7t \u0111\u1ED5i m\xE1y");
+        if (caller.role !== 'owner' && caller.role !== 'admin') {
+          return forbidden(
+            'Ch\u1EC9 Owner ho\u1EB7c Admin m\u1EDBi c\xF3 quy\u1EC1n ph\xEA duy\u1EC7t \u0111\u1ED5i m\xE1y',
+          );
         }
         const body = await request.json().catch(() => ({}));
         const { request_id, approved } = body;
         if (!request_id || approved === void 0)
-          return badRequest("Thi\u1EBFu request_id ho\u1EB7c approved status");
-        if (caller.role === "admin") {
+          return badRequest('Thi\u1EBFu request_id ho\u1EB7c approved status');
+        if (caller.role === 'admin') {
           const reqCheckRes = await fetch(
             `${env.SUPABASE_URL}/rest/v1/hwid_reset_requests?id=eq.${request_id}&select=company_id`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
           );
-          const reqChecks = await reqCheckRes.json().catch(() => []) || [];
+          const reqChecks = (await reqCheckRes.json().catch(() => [])) || [];
           if (!reqChecks.length || reqChecks[0].company_id !== caller.companyId) {
-            return forbidden("Admin ch\u1EC9 c\xF3 quy\u1EC1n ph\xEA duy\u1EC7t \u0111\u1ED5i m\xE1y cho nh\xE2n s\u1EF1 trong c\xF4ng ty m\xECnh");
+            return forbidden(
+              'Admin ch\u1EC9 c\xF3 quy\u1EC1n ph\xEA duy\u1EC7t \u0111\u1ED5i m\xE1y cho nh\xE2n s\u1EF1 trong c\xF4ng ty m\xECnh',
+            );
           }
         }
         const rpcRes = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/review_hwid_reset_request`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
           body: JSON.stringify({
             p_request_id: request_id,
             p_approved: approved,
-            p_notes: approved ? "Duy\u1EC7t qua Web SaaS Master Control" : "T\u1EEB ch\u1ED1i b\u1EDFi Qu\u1EA3n tr\u1ECB vi\xEAn"
-          })
+            p_notes: approved
+              ? 'Duy\u1EC7t qua Web SaaS Master Control'
+              : 'T\u1EEB ch\u1ED1i b\u1EDFi Qu\u1EA3n tr\u1ECB vi\xEAn',
+          }),
         });
         if (!rpcRes.ok) {
           if (approved) {
             const reqDataRes = await fetch(
               `${env.SUPABASE_URL}/rest/v1/hwid_reset_requests?id=eq.${request_id}&select=user_id`,
               {
-                headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
-              }
+                headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+              },
             );
             const reqList = await reqDataRes.json();
             const targetUserId = reqList && reqList[0]?.user_id;
@@ -4769,113 +4985,126 @@ var index_default = {
               await fetch(
                 `${env.SUPABASE_URL}/rest/v1/device_bindings?user_id=eq.${targetUserId}`,
                 {
-                  method: "PATCH",
+                  method: 'PATCH',
                   headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                     apikey: serviceKey,
-                    Authorization: `Bearer ${serviceKey}`
+                    Authorization: `Bearer ${serviceKey}`,
                   },
-                  body: JSON.stringify({ is_active: false })
-                }
+                  body: JSON.stringify({ is_active: false }),
+                },
               );
               try {
                 if (env.RETUBEMATRIX_KV) {
                   await env.RETUBEMATRIX_KV.delete(`binding:${targetUserId}`);
                 }
-              } catch (_) {
-              }
+              } catch (_) {}
             }
           }
           await fetch(`${env.SUPABASE_URL}/rest/v1/hwid_reset_requests?id=eq.${request_id}`, {
-            method: "PATCH",
+            method: 'PATCH',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
+              Authorization: `Bearer ${serviceKey}`,
             },
             body: JSON.stringify({
-              status: approved ? "approved" : "rejected",
-              updated_at: (/* @__PURE__ */ new Date()).toISOString()
-            })
+              status: approved ? 'approved' : 'rejected',
+              updated_at: /* @__PURE__ */ new Date().toISOString(),
+            }),
           });
           return json({
             success: true,
-            message: approved ? "\u0110\xE3 ph\xEA duy\u1EC7t \u0111\u1ED5i m\xE1y" : "\u0110\xE3 t\u1EEB ch\u1ED1i y\xEAu c\u1EA7u \u0111\u1ED5i m\xE1y"
+            message: approved
+              ? '\u0110\xE3 ph\xEA duy\u1EC7t \u0111\u1ED5i m\xE1y'
+              : '\u0110\xE3 t\u1EEB ch\u1ED1i y\xEAu c\u1EA7u \u0111\u1ED5i m\xE1y',
           });
         }
         const rpcResult = await rpcRes.json();
         return json(rpcResult);
       }
-      if (url.pathname === "/v1/admin/devices/unbind" && request.method === "POST") {
+      if (url.pathname === '/v1/admin/devices/unbind' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin") {
-          return forbidden("Ch\u1EC9 Owner ho\u1EB7c Admin m\u1EDBi c\xF3 quy\u1EC1n h\u1EE7y li\xEAn k\u1EBFt thi\u1EBFt b\u1ECB");
+        if (caller.role !== 'owner' && caller.role !== 'admin') {
+          return forbidden(
+            'Ch\u1EC9 Owner ho\u1EB7c Admin m\u1EDBi c\xF3 quy\u1EC1n h\u1EE7y li\xEAn k\u1EBFt thi\u1EBFt b\u1ECB',
+          );
         }
         const body = await request.json().catch(() => ({}));
         const { binding_id } = body;
-        if (!binding_id) return badRequest("Thi\u1EBFu binding_id");
-        if (caller.role === "admin") {
+        if (!binding_id) return badRequest('Thi\u1EBFu binding_id');
+        if (caller.role === 'admin') {
           const bindCheckRes = await fetch(
             `${env.SUPABASE_URL}/rest/v1/device_bindings?id=eq.${binding_id}&select=company_id,user_id`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
           );
-          const bindChecks = await bindCheckRes.json().catch(() => []) || [];
+          const bindChecks = (await bindCheckRes.json().catch(() => [])) || [];
           if (!bindChecks.length || bindChecks[0].company_id !== caller.companyId) {
-            return forbidden("Admin ch\u1EC9 c\xF3 quy\u1EC1n h\u1EE7y li\xEAn k\u1EBFt thi\u1EBFt b\u1ECB trong c\xF4ng ty m\xECnh");
+            return forbidden(
+              'Admin ch\u1EC9 c\xF3 quy\u1EC1n h\u1EE7y li\xEAn k\u1EBFt thi\u1EBFt b\u1ECB trong c\xF4ng ty m\xECnh',
+            );
           }
         }
         await fetch(`${env.SUPABASE_URL}/rest/v1/device_bindings?id=eq.${binding_id}`, {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
-          body: JSON.stringify({ is_active: false, updated_at: (/* @__PURE__ */ new Date()).toISOString() })
+          body: JSON.stringify({
+            is_active: false,
+            updated_at: /* @__PURE__ */ new Date().toISOString(),
+          }),
         });
-        return json({ success: true, message: "\u0110\xE3 h\u1EE7y li\xEAn k\u1EBFt m\xE1y th\xE0nh c\xF4ng" });
+        return json({
+          success: true,
+          message: '\u0110\xE3 h\u1EE7y li\xEAn k\u1EBFt m\xE1y th\xE0nh c\xF4ng',
+        });
       }
-      if (url.pathname === "/v1/admin/analytics" && request.method === "GET") {
+      if (url.pathname === '/v1/admin/analytics' && request.method === 'GET') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem b\xE1o c\xE1o doanh thu");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden('B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n xem b\xE1o c\xE1o doanh thu');
         }
-        const compFilter = caller.role === "owner" ? "" : `&company_id=eq.${caller.companyId}`;
+        const compFilter = caller.role === 'owner' ? '' : `&company_id=eq.${caller.companyId}`;
         const anaRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/channel_revenue_daily?select=id,company_id,report_date,views,watch_time_hours,rpm,cpm,estimated_revenue,estimated_revenue_vnd,managed_channels(channel_name),companies(name)&order=report_date.desc&limit=50${compFilter}`,
-          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+          { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
         );
-        const rawAna = await anaRes.json().catch(() => []) || [];
-        const analytics = Array.isArray(rawAna) ? rawAna.map((a) => ({
-          id: a.id,
-          channel_name: a.managed_channels?.channel_name || "YouTube Studio",
-          company_name: a.companies?.name || "C\xF4ng Ty",
-          report_date: a.report_date,
-          views: a.views,
-          watch_time_hours: a.watch_time_hours,
-          rpm: a.rpm,
-          cpm: a.cpm,
-          estimated_revenue: a.estimated_revenue,
-          estimated_revenue_vnd: a.estimated_revenue_vnd
-        })) : [];
+        const rawAna = (await anaRes.json().catch(() => [])) || [];
+        const analytics = Array.isArray(rawAna)
+          ? rawAna.map((a) => ({
+              id: a.id,
+              channel_name: a.managed_channels?.channel_name || 'YouTube Studio',
+              company_name: a.companies?.name || 'C\xF4ng Ty',
+              report_date: a.report_date,
+              views: a.views,
+              watch_time_hours: a.watch_time_hours,
+              rpm: a.rpm,
+              cpm: a.cpm,
+              estimated_revenue: a.estimated_revenue,
+              estimated_revenue_vnd: a.estimated_revenue_vnd,
+            }))
+          : [];
         return json({ success: true, analytics });
       }
-      if (url.pathname === "/v1/auth/register" && request.method === "POST") {
+      if (url.pathname === '/v1/auth/register' && request.method === 'POST') {
         let body;
         try {
           body = await request.json();
         } catch {
-          return badRequest("Invalid JSON body");
+          return badRequest('Invalid JSON body');
         }
         const {
           email,
@@ -4883,101 +5112,112 @@ var index_default = {
           full_name,
           company_code_or_license,
           hwid_hash,
-          cpu_id = "UNKNOWN_CPU",
-          motherboard_uuid = "UNKNOWN_MB",
-          machine_guid = "UNKNOWN_GUID",
-          device_name = "Windows Desktop",
-          os_info = "Windows 10/11 x64",
-          client_version = "0.20.16"
+          cpu_id = 'UNKNOWN_CPU',
+          motherboard_uuid = 'UNKNOWN_MB',
+          machine_guid = 'UNKNOWN_GUID',
+          device_name = 'Windows Desktop',
+          os_info = 'Windows 10/11 x64',
+          client_version = '0.20.16',
         } = body;
         if (!email || !password) {
-          return badRequest("Vui l\xF2ng \u0111i\u1EC1n \u0111\u1EE7 email v\xE0 m\u1EADt kh\u1EA9u");
+          return badRequest(
+            'Vui l\xF2ng \u0111i\u1EC1n \u0111\u1EE7 email v\xE0 m\u1EADt kh\u1EA9u',
+          );
         }
         const cleanEmail = email.trim().toLowerCase();
-        const codeOrLic = (company_code_or_license || "").trim();
+        const codeOrLic = (company_code_or_license || '').trim();
         if (!codeOrLic) {
           const adminCreateRes2 = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users`, {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
+              Authorization: `Bearer ${serviceKey}`,
             },
             body: JSON.stringify({
               email: cleanEmail,
               password,
               email_confirm: true,
-              user_metadata: { full_name: full_name || cleanEmail.split("@")[0] }
-            })
+              user_metadata: { full_name: full_name || cleanEmail.split('@')[0] },
+            }),
           });
           if (!adminCreateRes2.ok) {
             const errData = await adminCreateRes2.json().catch(() => ({}));
-            return badRequest(errData.msg || errData.message || "Kh\xF4ng th\u1EC3 t\u1EA1o t\xE0i kho\u1EA3n");
+            return badRequest(
+              errData.msg || errData.message || 'Kh\xF4ng th\u1EC3 t\u1EA1o t\xE0i kho\u1EA3n',
+            );
           }
           const newUser2 = await adminCreateRes2.json();
           const userId2 = newUser2.id;
           const profileInsertRes = await fetch(`${env.SUPABASE_URL}/rest/v1/user_profiles`, {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               apikey: serviceKey,
               Authorization: `Bearer ${serviceKey}`,
-              Prefer: "resolution=merge-duplicates"
+              Prefer: 'resolution=merge-duplicates',
             },
             body: JSON.stringify({
               id: userId2,
               company_id: null,
-              role: "user",
-              full_name: full_name || cleanEmail.split("@")[0],
+              role: 'user',
+              full_name: full_name || cleanEmail.split('@')[0],
               email: cleanEmail,
               commission_rate: 0,
-              is_active: false
-            })
+              is_active: false,
+            }),
           });
           if (!profileInsertRes.ok) {
             const profErr = await profileInsertRes.text();
-            return internalError("L\u1ED7i t\u1EA1o h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng: " + profErr);
+            return internalError(
+              'L\u1ED7i t\u1EA1o h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng: ' + profErr,
+            );
           }
           return json({
             success: true,
-            status: "pending_approval",
+            status: 'pending_approval',
             pending_approval: true,
-            message: "\u0110\u0103ng k\xFD th\xE0nh c\xF4ng! T\xE0i kho\u1EA3n c\u1EE7a b\u1EA1n \u0111ang \u1EDF tr\u1EA1ng th\xE1i ch\u1EDD duy\u1EC7t. Vui l\xF2ng li\xEAn h\u1EC7 Master Owner \u0111\u1EC3 \u0111\u01B0\u1EE3c c\u1EA5p quy\u1EC1n v\xE0 ph\xE2n b\u1ED5 v\xE0o c\xF4ng ty.",
+            message:
+              '\u0110\u0103ng k\xFD th\xE0nh c\xF4ng! T\xE0i kho\u1EA3n c\u1EE7a b\u1EA1n \u0111ang \u1EDF tr\u1EA1ng th\xE1i ch\u1EDD duy\u1EC7t. Vui l\xF2ng li\xEAn h\u1EC7 Master Owner \u0111\u1EC3 \u0111\u01B0\u1EE3c c\u1EA5p quy\u1EC1n v\xE0 ph\xE2n b\u1ED5 v\xE0o c\xF4ng ty.',
             user: {
               id: userId2,
               email: cleanEmail,
-              full_name: full_name || cleanEmail.split("@")[0],
-              role: "user",
+              full_name: full_name || cleanEmail.split('@')[0],
+              role: 'user',
               company_id: null,
-              is_active: false
+              is_active: false,
             },
-            user_id: userId2
+            user_id: userId2,
           });
         }
         if (!hwid_hash) {
           return badRequest(
-            "Vui l\xF2ng cung c\u1EA5p th\xF4ng tin ph\u1EA7n c\u1EE9ng m\xE1y (hwid_hash) khi \u0111\u0103ng k\xFD theo c\xF4ng ty/license"
+            'Vui l\xF2ng cung c\u1EA5p th\xF4ng tin ph\u1EA7n c\u1EE9ng m\xE1y (hwid_hash) khi \u0111\u0103ng k\xFD theo c\xF4ng ty/license',
           );
         }
         let companyId = null;
-        const role = "user";
+        const role = 'user';
         const licRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/licenses?license_key=eq.${encodeURIComponent(codeOrLic)}&status=eq.active&select=id,company_id,max_seats,used_seats,expires_at`,
           {
             headers: {
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
-            }
-          }
+              Authorization: `Bearer ${serviceKey}`,
+            },
+          },
         );
         const licenses = await licRes.json();
         if (licenses && licenses.length > 0) {
           const lic = licenses[0];
           if (new Date(lic.expires_at).getTime() < Date.now()) {
-            return badRequest("M\xE3 License n\xE0y \u0111\xE3 h\u1EBFt h\u1EA1n s\u1EED d\u1EE5ng");
+            return badRequest(
+              'M\xE3 License n\xE0y \u0111\xE3 h\u1EBFt h\u1EA1n s\u1EED d\u1EE5ng',
+            );
           }
           if (lic.used_seats >= lic.max_seats) {
-            return badRequest(`License \u0111\xE3 \u0111\u1EA1t gi\u1EDBi h\u1EA1n s\u1ED1 m\xE1y t\u1ED1i \u0111a (${lic.max_seats} m\xE1y)`);
+            return badRequest(
+              `License \u0111\xE3 \u0111\u1EA1t gi\u1EDBi h\u1EA1n s\u1ED1 m\xE1y t\u1ED1i \u0111a (${lic.max_seats} m\xE1y)`,
+            );
           }
           companyId = lic.company_id;
         } else {
@@ -4986,51 +5226,55 @@ var index_default = {
             {
               headers: {
                 apikey: serviceKey,
-                Authorization: `Bearer ${serviceKey}`
-              }
-            }
+                Authorization: `Bearer ${serviceKey}`,
+              },
+            },
           );
           const companies = await compRes.json();
           if (companies && companies.length > 0) {
             companyId = companies[0].id;
           } else {
-            return badRequest("M\xE3 c\xF4ng ty ho\u1EB7c License Key kh\xF4ng h\u1EE3p l\u1EC7 ho\u1EB7c \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a");
+            return badRequest(
+              'M\xE3 c\xF4ng ty ho\u1EB7c License Key kh\xF4ng h\u1EE3p l\u1EC7 ho\u1EB7c \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a',
+            );
           }
         }
         const adminCreateRes = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
           body: JSON.stringify({
             email: cleanEmail,
             password,
             email_confirm: true,
-            user_metadata: { full_name: full_name || cleanEmail.split("@")[0] }
-          })
+            user_metadata: { full_name: full_name || cleanEmail.split('@')[0] },
+          }),
         });
         if (!adminCreateRes.ok) {
           const errData = await adminCreateRes.json().catch(() => ({}));
-          return badRequest(errData.msg || errData.message || "Kh\xF4ng th\u1EC3 t\u1EA1o t\xE0i kho\u1EA3n");
+          return badRequest(
+            errData.msg || errData.message || 'Kh\xF4ng th\u1EC3 t\u1EA1o t\xE0i kho\u1EA3n',
+          );
         }
         const newUser = await adminCreateRes.json();
         const userId = newUser.id;
         const rpcRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/rpc/setup_registered_profile_and_bind`,
           {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
+              Authorization: `Bearer ${serviceKey}`,
             },
             body: JSON.stringify({
               p_user_id: userId,
               p_company_id: companyId,
               p_role: role,
-              p_full_name: full_name || email.split("@")[0],
+              p_full_name: full_name || email.split('@')[0],
               p_email: email,
               p_hwid_hash: hwid_hash,
               p_cpu_id: cpu_id,
@@ -5038,71 +5282,82 @@ var index_default = {
               p_machine_guid: machine_guid,
               p_device_name: device_name,
               p_os_info: os_info,
-              p_client_version: client_version
-            })
-          }
+              p_client_version: client_version,
+            }),
+          },
         );
         const rpcData = await rpcRes.json();
         if (!rpcRes.ok || !rpcData.success) {
-          return badRequest(rpcData.error || "L\u1ED7i khi k\xEDch ho\u1EA1t thi\u1EBFt b\u1ECB cho t\xE0i kho\u1EA3n m\u1EDBi");
+          return badRequest(
+            rpcData.error ||
+              'L\u1ED7i khi k\xEDch ho\u1EA1t thi\u1EBFt b\u1ECB cho t\xE0i kho\u1EA3n m\u1EDBi',
+          );
         }
         return json({
           success: true,
-          message: "\u0110\u0103ng k\xFD t\xE0i kho\u1EA3n v\xE0 kh\xF3a thi\u1EBFt b\u1ECB th\xE0nh c\xF4ng! B\u1EA1n c\xF3 th\u1EC3 \u0111\u0103ng nh\u1EADp ngay.",
-          user_id: userId
+          message:
+            '\u0110\u0103ng k\xFD t\xE0i kho\u1EA3n v\xE0 kh\xF3a thi\u1EBFt b\u1ECB th\xE0nh c\xF4ng! B\u1EA1n c\xF3 th\u1EC3 \u0111\u0103ng nh\u1EADp ngay.',
+          user_id: userId,
         });
       }
-      if (url.pathname === "/v1/auth/login" && request.method === "POST") {
+      if (url.pathname === '/v1/auth/login' && request.method === 'POST') {
         let body;
         try {
           body = await request.json();
         } catch {
-          return badRequest("Invalid JSON body");
+          return badRequest('Invalid JSON body');
         }
         const { email, password, hwid_hash } = body;
         if (!email || !password) {
-          return badRequest("Vui l\xF2ng cung c\u1EA5p email v\xE0 m\u1EADt kh\u1EA9u");
+          return badRequest('Vui l\xF2ng cung c\u1EA5p email v\xE0 m\u1EADt kh\u1EA9u');
         }
         const cleanEmail = email.trim().toLowerCase();
         const authUrl = `${env.SUPABASE_URL}/auth/v1/token?grant_type=password`;
         const authRes = await fetch(authUrl, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            apikey: env.SUPABASE_ANON_KEY
+            'Content-Type': 'application/json',
+            apikey: env.SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ email: cleanEmail, password })
+          body: JSON.stringify({ email: cleanEmail, password }),
         });
         if (!authRes.ok) {
           const errData = await authRes.json().catch(() => ({}));
           return unauthorized(
-            errData.error_description || errData.msg || "T\xE0i kho\u1EA3n ho\u1EB7c m\u1EADt kh\u1EA9u kh\xF4ng ch\xEDnh x\xE1c",
-            "AUTH_FAILED"
+            errData.error_description ||
+              errData.msg ||
+              'T\xE0i kho\u1EA3n ho\u1EB7c m\u1EADt kh\u1EA9u kh\xF4ng ch\xEDnh x\xE1c',
+            'AUTH_FAILED',
           );
         }
         const authData = await authRes.json();
         const userId = authData.user?.id;
         if (!userId) {
-          return internalError("Kh\xF4ng l\u1EA5y \u0111\u01B0\u1EE3c \u0111\u1ECBnh danh ng\u01B0\u1EDDi d\xF9ng sau khi x\xE1c th\u1EF1c");
+          return internalError(
+            'Kh\xF4ng l\u1EA5y \u0111\u01B0\u1EE3c \u0111\u1ECBnh danh ng\u01B0\u1EDDi d\xF9ng sau khi x\xE1c th\u1EF1c',
+          );
         }
         const profileRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${userId}&select=id,role,company_id,full_name,email,is_active,companies(id,is_active)`,
           {
             headers: {
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
-            }
-          }
+              Authorization: `Bearer ${serviceKey}`,
+            },
+          },
         );
         const profiles = await profileRes.json().catch(() => []);
         const profile = profiles && profiles[0];
-        const isOwnerAccount = profile?.role === "owner" || isMasterOwner(userId, cleanEmail, profile?.role) || cleanEmail === "dungdong333@gmail.com";
+        const isOwnerAccount =
+          profile?.role === 'owner' ||
+          isMasterOwner(userId, cleanEmail, profile?.role) ||
+          cleanEmail === 'dungdong333@gmail.com';
         if (isOwnerAccount) {
           return json({
             success: true,
-            status: "active",
-            role: "owner",
-            user_role: "owner",
+            status: 'active',
+            role: 'owner',
+            user_role: 'owner',
             owner_bypass: true,
             access_token: authData.access_token,
             refresh_token: authData.refresh_token,
@@ -5111,72 +5366,90 @@ var index_default = {
             user: {
               id: userId,
               email: authData.user?.email || cleanEmail,
-              full_name: profile?.full_name || "Ti\u1EBFn D\u0169ng (Master Owner)",
-              role: "owner",
-              company_id: profile?.company_id || "e51f4953-587e-4a5e-af09-e76471ca0326",
-              user_metadata: authData.user?.user_metadata
+              full_name: profile?.full_name || 'Ti\u1EBFn D\u0169ng (Master Owner)',
+              role: 'owner',
+              company_id: profile?.company_id || 'e51f4953-587e-4a5e-af09-e76471ca0326',
+              user_metadata: authData.user?.user_metadata,
             },
             device: {
               success: true,
-              status: "active",
+              status: 'active',
               bound: true,
-              role: "owner",
+              role: 'owner',
               owner_bypass: true,
-              full_name: profile?.full_name || "Ti\u1EBFn D\u0169ng (Master Owner)",
-              company_id: profile?.company_id || "e51f4953-587e-4a5e-af09-e76471ca0326",
-              company_name: "RETubeMatrix HQ",
-              company_code: "RTM-HQ",
+              full_name: profile?.full_name || 'Ti\u1EBFn D\u0169ng (Master Owner)',
+              company_id: profile?.company_id || 'e51f4953-587e-4a5e-af09-e76471ca0326',
+              company_name: 'RETubeMatrix HQ',
+              company_code: 'RTM-HQ',
               commission_rate: 0,
-              tier: "enterprise",
+              tier: 'enterprise',
               mask_revenue_from_staff: false,
               cross_leader_collaboration: true,
               features: {
                 unlimited_seats: true,
                 bkt_daily_quota: 9999,
                 owner_unrestricted: true,
-                max_browser_profiles: 999
-              }
-            }
+                max_browser_profiles: 999,
+              },
+            },
           });
         }
         if (!profile) {
-          return forbidden("Kh\xF4ng t\xECm th\u1EA5y h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng trong h\u1EC7 th\u1ED1ng.", "ACCOUNT_DISABLED");
+          return forbidden(
+            'Kh\xF4ng t\xECm th\u1EA5y h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng trong h\u1EC7 th\u1ED1ng.',
+            'ACCOUNT_DISABLED',
+          );
         }
-        if (profile.is_active === false || profile.companies && profile.companies.is_active === false) {
-          return forbidden("T\xE0i kho\u1EA3n ho\u1EB7c doanh nghi\u1EC7p \u0111\xE3 b\u1ECB t\u1EA1m kh\xF3a.", "ACCOUNT_DISABLED");
+        if (
+          profile.is_active === false ||
+          (profile.companies && profile.companies.is_active === false)
+        ) {
+          return forbidden(
+            'T\xE0i kho\u1EA3n ho\u1EB7c doanh nghi\u1EC7p \u0111\xE3 b\u1ECB t\u1EA1m kh\xF3a.',
+            'ACCOUNT_DISABLED',
+          );
         }
-        const effectiveRole = profile.role || "user";
+        const effectiveRole = profile.role || 'user';
         if (hwid_hash) {
-          const clientIp = request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
+          const clientIp =
+            request.headers.get('cf-connecting-ip') ||
+            request.headers.get('x-real-ip') ||
+            request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+            null;
           const rpcRes = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/verify_or_bind_device`, {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
+              Authorization: `Bearer ${serviceKey}`,
             },
             body: JSON.stringify({
               p_user_id: userId,
               p_hwid_hash: hwid_hash,
-              p_cpu_id: body.cpu_id || body.device_info?.cpu_id || "UNKNOWN_CPU",
-              p_motherboard_uuid: body.motherboard_uuid || body.device_info?.motherboard_uuid || "UNKNOWN_MB",
-              p_machine_guid: body.machine_guid || body.device_info?.machine_guid || "UNKNOWN_GUID",
-              p_device_name: body.device_name || body.device_info?.device_name || "Windows Desktop",
-              p_os_info: body.os_info || body.device_info?.os_info || "Windows 10/11 x64",
-              p_client_version: body.client_version || body.device_info?.client_version || "0.20.16",
-              p_ip: clientIp
-            })
+              p_cpu_id: body.cpu_id || body.device_info?.cpu_id || 'UNKNOWN_CPU',
+              p_motherboard_uuid:
+                body.motherboard_uuid || body.device_info?.motherboard_uuid || 'UNKNOWN_MB',
+              p_machine_guid: body.machine_guid || body.device_info?.machine_guid || 'UNKNOWN_GUID',
+              p_device_name: body.device_name || body.device_info?.device_name || 'Windows Desktop',
+              p_os_info: body.os_info || body.device_info?.os_info || 'Windows 10/11 x64',
+              p_client_version:
+                body.client_version || body.device_info?.client_version || '0.20.16',
+              p_ip: clientIp,
+            }),
           });
           if (!rpcRes.ok) {
             const rpcErr = await rpcRes.text();
-            return internalError("L\u1ED7i h\u1EC7 th\u1ED1ng khi r\xE0ng bu\u1ED9c thi\u1EBFt b\u1ECB (RPC failed)", rpcErr);
+            return internalError(
+              'L\u1ED7i h\u1EC7 th\u1ED1ng khi r\xE0ng bu\u1ED9c thi\u1EBFt b\u1ECB (RPC failed)',
+              rpcErr,
+            );
           }
           const rpcData = await rpcRes.json();
           if (!rpcData.success) {
             return forbidden(
-              rpcData.error || "Kh\xF4ng th\u1EC3 k\xEDch ho\u1EA1t thi\u1EBFt b\u1ECB",
-              rpcData.code || "BINDING_REJECTED",
-              { ...rpcData, user_id: userId }
+              rpcData.error || 'Kh\xF4ng th\u1EC3 k\xEDch ho\u1EA1t thi\u1EBFt b\u1ECB',
+              rpcData.code || 'BINDING_REJECTED',
+              { ...rpcData, user_id: userId },
             );
           }
           try {
@@ -5187,18 +5460,17 @@ var index_default = {
                   hwid_hash,
                   role: rpcData.role || effectiveRole,
                   bound_at: Date.now(),
-                  clientIp
+                  clientIp,
                 }),
-                { expirationTtl: 86400 }
+                { expirationTtl: 86400 },
               );
             }
-          } catch (_) {
-          }
+          } catch (_) {}
           return json({
             success: true,
             role: rpcData.role || effectiveRole,
             user_role: rpcData.role || effectiveRole,
-            status: rpcData.status || "active",
+            status: rpcData.status || 'active',
             access_token: authData.access_token,
             refresh_token: authData.refresh_token,
             expires_in: authData.expires_in,
@@ -5209,19 +5481,19 @@ var index_default = {
               full_name: profile.full_name,
               role: rpcData.role || effectiveRole,
               company_id: profile.company_id,
-              user_metadata: authData.user.user_metadata
+              user_metadata: authData.user.user_metadata,
             },
             device: {
               ...rpcData,
-              role: rpcData.role || effectiveRole
-            }
+              role: rpcData.role || effectiveRole,
+            },
           });
         }
         return json({
           success: true,
           role: effectiveRole,
           user_role: effectiveRole,
-          status: "active",
+          status: 'active',
           access_token: authData.access_token,
           refresh_token: authData.refresh_token,
           expires_in: authData.expires_in,
@@ -5232,95 +5504,116 @@ var index_default = {
             full_name: profile.full_name,
             role: effectiveRole,
             company_id: profile.company_id,
-            user_metadata: authData.user.user_metadata
+            user_metadata: authData.user.user_metadata,
           },
           device: {
             success: true,
             role: effectiveRole,
-            company_id: profile.company_id
-          }
+            company_id: profile.company_id,
+          },
         });
       }
-      if (url.pathname === "/v1/auth/verify-device" && request.method === "POST") {
+      if (url.pathname === '/v1/auth/verify-device' && request.method === 'POST') {
         let body;
         try {
           body = await request.json();
         } catch {
-          return badRequest("Invalid JSON body");
+          return badRequest('Invalid JSON body');
         }
         const { email, password, hwid_hash } = body;
-        const cpu_id = body.cpu_id || body.device_info?.cpu_id || "UNKNOWN_CPU";
-        const motherboard_uuid = body.motherboard_uuid || body.device_info?.motherboard_uuid || "UNKNOWN_MB";
-        const machine_guid = body.machine_guid || body.device_info?.machine_guid || "UNKNOWN_GUID";
-        const device_name = body.device_name || body.device_info?.device_name || "Windows Desktop";
-        const os_info = body.os_info || body.device_info?.os_info || "Windows 10/11 x64";
-        const client_version = body.client_version || body.device_info?.client_version || "0.20.16";
+        const cpu_id = body.cpu_id || body.device_info?.cpu_id || 'UNKNOWN_CPU';
+        const motherboard_uuid =
+          body.motherboard_uuid || body.device_info?.motherboard_uuid || 'UNKNOWN_MB';
+        const machine_guid = body.machine_guid || body.device_info?.machine_guid || 'UNKNOWN_GUID';
+        const device_name = body.device_name || body.device_info?.device_name || 'Windows Desktop';
+        const os_info = body.os_info || body.device_info?.os_info || 'Windows 10/11 x64';
+        const client_version = body.client_version || body.device_info?.client_version || '0.20.16';
         if (!email) {
-          return badRequest("Missing required field: email");
+          return badRequest('Missing required field: email');
         }
-        const isMaster = (email || "").trim().toLowerCase() === "dungdong333@gmail.com";
+        const isMaster = (email || '').trim().toLowerCase() === 'dungdong333@gmail.com';
         if (!hwid_hash && !isMaster) {
-          return badRequest("Missing required field: hwid_hash");
+          return badRequest('Missing required field: hwid_hash');
         }
         if (!password) {
-          return badRequest("Missing required field: password");
+          return badRequest('Missing required field: password');
         }
         const authUrl = `${env.SUPABASE_URL}/auth/v1/token?grant_type=password`;
         const authRes = await fetch(authUrl, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            apikey: env.SUPABASE_ANON_KEY
+            'Content-Type': 'application/json',
+            apikey: env.SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ email: email.trim().toLowerCase(), password })
+          body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
         });
         if (!authRes.ok) {
           const errData = await authRes.json().catch(() => ({}));
           return unauthorized(
-            errData.error_description || errData.msg || "T\xE0i kho\u1EA3n ho\u1EB7c m\u1EADt kh\u1EA9u kh\xF4ng ch\xEDnh x\xE1c",
-            "AUTH_FAILED"
+            errData.error_description ||
+              errData.msg ||
+              'T\xE0i kho\u1EA3n ho\u1EB7c m\u1EADt kh\u1EA9u kh\xF4ng ch\xEDnh x\xE1c',
+            'AUTH_FAILED',
           );
         }
         const authData = await authRes.json();
         const userId = authData.user?.id;
         if (!userId) {
-          return internalError("Kh\xF4ng l\u1EA5y \u0111\u01B0\u1EE3c \u0111\u1ECBnh danh ng\u01B0\u1EDDi d\xF9ng sau khi x\xE1c th\u1EF1c");
+          return internalError(
+            'Kh\xF4ng l\u1EA5y \u0111\u01B0\u1EE3c \u0111\u1ECBnh danh ng\u01B0\u1EDDi d\xF9ng sau khi x\xE1c th\u1EF1c',
+          );
         }
-        const clientIp = request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
+        const clientIp =
+          request.headers.get('cf-connecting-ip') ||
+          request.headers.get('x-real-ip') ||
+          request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+          null;
         const profileRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${userId}&select=id,role,company_id,full_name,email,is_active,companies(id,is_active)`,
           {
             headers: {
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
-            }
-          }
+              Authorization: `Bearer ${serviceKey}`,
+            },
+          },
         );
         const profiles = await profileRes.json().catch(() => []);
         const profile = profiles && profiles[0];
-        const isOwnerAccount = profile?.role === "owner" || (authData.user.email || "").toLowerCase() === "dungdong333@gmail.com" || (email || "").toLowerCase() === "dungdong333@gmail.com";
+        const isOwnerAccount =
+          profile?.role === 'owner' ||
+          (authData.user.email || '').toLowerCase() === 'dungdong333@gmail.com' ||
+          (email || '').toLowerCase() === 'dungdong333@gmail.com';
         if (!isOwnerAccount) {
           if (!profile) {
-            return forbidden("Kh\xF4ng t\xECm th\u1EA5y h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng trong h\u1EC7 th\u1ED1ng.", "ACCOUNT_DISABLED");
+            return forbidden(
+              'Kh\xF4ng t\xECm th\u1EA5y h\u1ED3 s\u01A1 ng\u01B0\u1EDDi d\xF9ng trong h\u1EC7 th\u1ED1ng.',
+              'ACCOUNT_DISABLED',
+            );
           }
-          if (profile.is_active === false || profile.companies && profile.companies.is_active === false) {
-            return forbidden("T\xE0i kho\u1EA3n ho\u1EB7c doanh nghi\u1EC7p \u0111\xE3 b\u1ECB t\u1EA1m kh\xF3a.", "ACCOUNT_DISABLED");
+          if (
+            profile.is_active === false ||
+            (profile.companies && profile.companies.is_active === false)
+          ) {
+            return forbidden(
+              'T\xE0i kho\u1EA3n ho\u1EB7c doanh nghi\u1EC7p \u0111\xE3 b\u1ECB t\u1EA1m kh\xF3a.',
+              'ACCOUNT_DISABLED',
+            );
           }
           if (!profile.company_id) {
             return forbidden(
-              "T\xE0i kho\u1EA3n ch\u01B0a \u0111\u01B0\u1EE3c g\xE1n v\xE0o doanh nghi\u1EC7p n\xE0o. Vui l\xF2ng li\xEAn h\u1EC7 qu\u1EA3n tr\u1ECB vi\xEAn.",
-              "ACCOUNT_DISABLED"
+              'T\xE0i kho\u1EA3n ch\u01B0a \u0111\u01B0\u1EE3c g\xE1n v\xE0o doanh nghi\u1EC7p n\xE0o. Vui l\xF2ng li\xEAn h\u1EC7 qu\u1EA3n tr\u1ECB vi\xEAn.',
+              'ACCOUNT_DISABLED',
             );
           }
         }
         if (isOwnerAccount) {
           try {
             await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/verify_or_bind_device`, {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
                 apikey: serviceKey,
-                Authorization: `Bearer ${serviceKey}`
+                Authorization: `Bearer ${serviceKey}`,
               },
               body: JSON.stringify({
                 p_user_id: userId,
@@ -5331,34 +5624,32 @@ var index_default = {
                 p_device_name: device_name,
                 p_os_info: os_info,
                 p_client_version: client_version,
-                p_ip: clientIp
-              })
+                p_ip: clientIp,
+              }),
             });
-          } catch (_) {
-          }
+          } catch (_) {}
           if (env.RETUBEMATRIX_KV && authData.access_token) {
             try {
               const ownerCtx = {
                 userId,
                 email: authData.user.email,
-                role: "owner",
-                companyId: profile?.company_id || "e51f4953-587e-4a5e-af09-e76471ca0326",
-                fullName: profile?.full_name || "Ti\u1EBFn D\u0169ng (Master Owner)",
-                teamId: null
+                role: 'owner',
+                companyId: profile?.company_id || 'e51f4953-587e-4a5e-af09-e76471ca0326',
+                fullName: profile?.full_name || 'Ti\u1EBFn D\u0169ng (Master Owner)',
+                teamId: null,
               };
               await env.RETUBEMATRIX_KV.put(
                 `adm_auth:${authData.access_token.slice(-32)}`,
                 JSON.stringify(ownerCtx),
-                { expirationTtl: 7 * 86400 }
+                { expirationTtl: 7 * 86400 },
               );
-            } catch (_) {
-            }
+            } catch (_) {}
           }
           return json({
             success: true,
-            status: "active",
-            role: "owner",
-            user_role: "owner",
+            status: 'active',
+            role: 'owner',
+            user_role: 'owner',
             owner_bypass: true,
             access_token: authData.access_token,
             refresh_token: authData.refresh_token,
@@ -5367,38 +5658,38 @@ var index_default = {
             user: {
               id: userId,
               email: authData.user.email,
-              user_metadata: authData.user.user_metadata
+              user_metadata: authData.user.user_metadata,
             },
             device: {
               success: true,
-              status: "active",
+              status: 'active',
               bound: true,
-              role: "owner",
+              role: 'owner',
               owner_bypass: true,
-              full_name: profile?.full_name || "Ti\u1EBFn D\u0169ng (Master Owner)",
-              company_id: profile?.company_id || "e51f4953-587e-4a5e-af09-e76471ca0326",
-              company_name: "RETubeMatrix HQ",
-              company_code: "RTM-HQ",
+              full_name: profile?.full_name || 'Ti\u1EBFn D\u0169ng (Master Owner)',
+              company_id: profile?.company_id || 'e51f4953-587e-4a5e-af09-e76471ca0326',
+              company_name: 'RETubeMatrix HQ',
+              company_code: 'RTM-HQ',
               commission_rate: 0,
-              tier: "enterprise",
+              tier: 'enterprise',
               mask_revenue_from_staff: false,
               cross_leader_collaboration: true,
               features: {
                 unlimited_seats: true,
                 bkt_daily_quota: 9999,
                 owner_unrestricted: true,
-                max_browser_profiles: 999
-              }
-            }
+                max_browser_profiles: 999,
+              },
+            },
           });
         }
         const rpcUrl = `${env.SUPABASE_URL}/rest/v1/rpc/verify_or_bind_device`;
         const rpcRes = await fetch(rpcUrl, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
           body: JSON.stringify({
             p_user_id: userId,
@@ -5409,19 +5700,22 @@ var index_default = {
             p_device_name: device_name,
             p_os_info: os_info,
             p_client_version: client_version,
-            p_ip: clientIp
-          })
+            p_ip: clientIp,
+          }),
         });
         if (!rpcRes.ok) {
           const rpcErr = await rpcRes.text();
-          return internalError("L\u1ED7i h\u1EC7 th\u1ED1ng khi r\xE0ng bu\u1ED9c thi\u1EBFt b\u1ECB (RPC failed)", rpcErr);
+          return internalError(
+            'L\u1ED7i h\u1EC7 th\u1ED1ng khi r\xE0ng bu\u1ED9c thi\u1EBFt b\u1ECB (RPC failed)',
+            rpcErr,
+          );
         }
         const rpcData = await rpcRes.json();
         if (!rpcData.success) {
           return forbidden(
-            rpcData.error || "Kh\xF4ng th\u1EC3 k\xEDch ho\u1EA1t thi\u1EBFt b\u1ECB",
-            rpcData.code || "BINDING_REJECTED",
-            { ...rpcData, user_id: userId }
+            rpcData.error || 'Kh\xF4ng th\u1EC3 k\xEDch ho\u1EA1t thi\u1EBFt b\u1ECB',
+            rpcData.code || 'BINDING_REJECTED',
+            { ...rpcData, user_id: userId },
           );
         }
         try {
@@ -5429,18 +5723,18 @@ var index_default = {
             await env.RETUBEMATRIX_KV.put(
               `binding:${userId}`,
               JSON.stringify({ hwid_hash, role: rpcData.role, bound_at: Date.now(), clientIp }),
-              { expirationTtl: 86400 }
+              { expirationTtl: 86400 },
             );
           }
         } catch (kvErr) {
-          console.error("KV cache error:", kvErr);
+          console.error('KV cache error:', kvErr);
         }
-        const effectiveRole = rpcData?.role || profile?.role || "user";
+        const effectiveRole = rpcData?.role || profile?.role || 'user';
         return json({
           success: true,
           role: effectiveRole,
           user_role: effectiveRole,
-          status: rpcData?.status || "active",
+          status: rpcData?.status || 'active',
           access_token: authData.access_token,
           refresh_token: authData.refresh_token,
           expires_in: authData.expires_in,
@@ -5448,86 +5742,107 @@ var index_default = {
           user: {
             id: userId,
             email: authData.user.email,
-            user_metadata: authData.user.user_metadata
+            user_metadata: authData.user.user_metadata,
           },
           device: {
             ...rpcData,
-            role: effectiveRole
-          }
+            role: effectiveRole,
+          },
         });
       }
-      if ((url.pathname === "/v1/auth/request-hwid-reset" || url.pathname === "/v1/auth/request-device-change") && request.method === "POST") {
+      if (
+        (url.pathname === '/v1/auth/request-hwid-reset' ||
+          url.pathname === '/v1/auth/request-device-change') &&
+        request.method === 'POST'
+      ) {
         let body;
         try {
           body = await request.json();
         } catch {
-          return badRequest("Invalid JSON body");
+          return badRequest('Invalid JSON body');
         }
         const { user_id, new_hwid_hash, new_device_info, reason } = body;
         if (!user_id || !new_hwid_hash || !reason) {
-          return badRequest("Thi\u1EBFu th\xF4ng tin user_id, new_hwid_hash ho\u1EB7c l\xFD do \u0111\u1ED5i m\xE1y");
+          return badRequest(
+            'Thi\u1EBFu th\xF4ng tin user_id, new_hwid_hash ho\u1EB7c l\xFD do \u0111\u1ED5i m\xE1y',
+          );
         }
         const rpcUrl = `${env.SUPABASE_URL}/rest/v1/rpc/submit_hwid_reset_request`;
         const rpcRes = await fetch(rpcUrl, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
           body: JSON.stringify({
             p_user_id: user_id,
             p_new_hwid_hash: new_hwid_hash,
             p_new_device_info: new_device_info || {},
-            p_reason: reason
-          })
+            p_reason: reason,
+          }),
         });
         if (!rpcRes.ok) {
           const errText = await rpcRes.text();
-          return internalError("L\u1ED7i g\u1EEDi y\xEAu c\u1EA7u \u0111\u1ED5i m\xE1y", errText);
+          return internalError('L\u1ED7i g\u1EEDi y\xEAu c\u1EA7u \u0111\u1ED5i m\xE1y', errText);
         }
         const rpcResult = await rpcRes.json();
         return json(rpcResult);
       }
-      if (url.pathname === "/v1/device/heartbeat" && request.method === "POST") {
+      if (url.pathname === '/v1/device/heartbeat' && request.method === 'POST') {
         let body;
         try {
           body = await request.json();
         } catch {
-          return badRequest("Invalid JSON body");
+          return badRequest('Invalid JSON body');
         }
         const userId = body.user_id || body.userId;
         const hwidHash = body.hwid_hash || body.hwidHash;
         if (!userId || !hwidHash) {
-          return badRequest("Thi\u1EBFu th\xF4ng tin user_id ho\u1EB7c hwid_hash");
+          return badRequest('Thi\u1EBFu th\xF4ng tin user_id ho\u1EB7c hwid_hash');
         }
         const profileRes = await fetch(
           `${env.SUPABASE_URL}/rest/v1/user_profiles?id=eq.${userId}&select=id,role,company_id,is_active,companies(id,is_active)`,
           {
             headers: {
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
-            }
-          }
+              Authorization: `Bearer ${serviceKey}`,
+            },
+          },
         );
-        const profiles = await profileRes.json().catch(() => []) || [];
+        const profiles = (await profileRes.json().catch(() => [])) || [];
         const profile = profiles[0];
         if (!profile) {
-          return forbidden("T\xE0i kho\u1EA3n \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a.", "SESSION_REVOKED", {
-            message: "T\xE0i kho\u1EA3n \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a."
-          });
+          return forbidden(
+            'T\xE0i kho\u1EA3n \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a.',
+            'SESSION_REVOKED',
+            {
+              message: 'T\xE0i kho\u1EA3n \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a.',
+            },
+          );
         }
         const isOwner = isMasterOwner(profile.id, void 0, profile.role);
         if (!isOwner) {
-          if (profile.is_active === false || profile.companies && profile.companies.is_active === false) {
-            return forbidden("T\xE0i kho\u1EA3n \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a.", "SESSION_REVOKED", {
-              message: "T\xE0i kho\u1EA3n \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a."
-            });
+          if (
+            profile.is_active === false ||
+            (profile.companies && profile.companies.is_active === false)
+          ) {
+            return forbidden(
+              'T\xE0i kho\u1EA3n \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a.',
+              'SESSION_REVOKED',
+              {
+                message: 'T\xE0i kho\u1EA3n \u0111\xE3 b\u1ECB v\xF4 hi\u1EC7u h\xF3a.',
+              },
+            );
           }
         }
-        const clientIp = request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
+        const clientIp =
+          request.headers.get('cf-connecting-ip') ||
+          request.headers.get('x-real-ip') ||
+          request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+          null;
         const patchBody = {
-          last_heartbeat_at: (/* @__PURE__ */ new Date()).toISOString()
+          last_heartbeat_at: /* @__PURE__ */ new Date().toISOString(),
         };
         if (clientIp) {
           patchBody.last_ip = clientIp;
@@ -5535,46 +5850,50 @@ var index_default = {
         await fetch(
           `${env.SUPABASE_URL}/rest/v1/device_bindings?user_id=eq.${userId}&hwid_hash=eq.${hwidHash}&is_active=eq.true`,
           {
-            method: "PATCH",
+            method: 'PATCH',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               apikey: serviceKey,
-              Authorization: `Bearer ${serviceKey}`
+              Authorization: `Bearer ${serviceKey}`,
             },
-            body: JSON.stringify(patchBody)
-          }
+            body: JSON.stringify(patchBody),
+          },
         );
-        const effectiveRole = isOwner ? "owner" : profile.role || "user";
-        const effectiveCompanyId = profile.company_id || (isOwner ? "e51f4953-587e-4a5e-af09-e76471ca0326" : null);
+        const effectiveRole = isOwner ? 'owner' : profile.role || 'user';
+        const effectiveCompanyId =
+          profile.company_id || (isOwner ? 'e51f4953-587e-4a5e-af09-e76471ca0326' : null);
         return json({
           success: true,
           timestamp: Date.now(),
           user_role: effectiveRole,
           role: effectiveRole,
-          company_id: effectiveCompanyId
+          company_id: effectiveCompanyId,
         });
       }
-      if (url.pathname === "/v1/auth/refresh" && request.method === "POST") {
+      if (url.pathname === '/v1/auth/refresh' && request.method === 'POST') {
         let body;
         try {
           body = await request.json();
         } catch {
-          return badRequest("Invalid JSON body");
+          return badRequest('Invalid JSON body');
         }
         const { refresh_token } = body;
         if (!refresh_token) {
-          return badRequest("Thi\u1EBFu refresh_token");
+          return badRequest('Thi\u1EBFu refresh_token');
         }
         const authRes = await fetch(`${env.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            apikey: env.SUPABASE_ANON_KEY
+            'Content-Type': 'application/json',
+            apikey: env.SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ refresh_token })
+          body: JSON.stringify({ refresh_token }),
         });
         if (!authRes.ok) {
-          return unauthorized("Refresh token kh\xF4ng h\u1EE3p l\u1EC7 ho\u1EB7c \u0111\xE3 h\u1EBFt h\u1EA1n", "TOKEN_EXPIRED");
+          return unauthorized(
+            'Refresh token kh\xF4ng h\u1EE3p l\u1EC7 ho\u1EB7c \u0111\xE3 h\u1EBFt h\u1EA1n',
+            'TOKEN_EXPIRED',
+          );
         }
         const authData = await authRes.json();
         return json({
@@ -5582,42 +5901,45 @@ var index_default = {
           access_token: authData.access_token,
           refresh_token: authData.refresh_token,
           expires_in: authData.expires_in,
-          token: authData.access_token
+          token: authData.access_token,
         });
       }
-      if (url.pathname === "/v1/telemetry/studio-analytics" && request.method === "POST") {
+      if (url.pathname === '/v1/telemetry/studio-analytics' && request.method === 'POST') {
         const rawBody = await request.text();
-        const signature = request.headers.get("x-signature") || request.headers.get("x-rtm-signature") || request.headers.get("x-hub-signature-256");
+        const signature =
+          request.headers.get('x-signature') ||
+          request.headers.get('x-rtm-signature') ||
+          request.headers.get('x-hub-signature-256');
         if (!signature) {
           return unauthorized(
-            "Missing required HMAC signature header (x-signature)",
-            "MISSING_SIGNATURE"
+            'Missing required HMAC signature header (x-signature)',
+            'MISSING_SIGNATURE',
           );
         }
         const expectedSig = await computeHmacSha256(rawBody, env.SHARED_TELEMETRY_HMAC_SECRET);
-        const cleanSig = signature.replace(/^sha256=/, "").toLowerCase();
+        const cleanSig = signature.replace(/^sha256=/, '').toLowerCase();
         if (!timingSafeEqual(expectedSig.toLowerCase(), cleanSig)) {
-          return unauthorized("Invalid HMAC signature", "INVALID_SIGNATURE");
+          return unauthorized('Invalid HMAC signature', 'INVALID_SIGNATURE');
         }
         let payload;
         try {
           payload = JSON.parse(rawBody);
         } catch {
-          return badRequest("Invalid JSON body");
+          return badRequest('Invalid JSON body');
         }
-        const timestampHeader = request.headers.get("x-timestamp");
+        const timestampHeader = request.headers.get('x-timestamp');
         const reqTimestamp = timestampHeader ? parseInt(timestampHeader, 10) : payload.timestamp;
         if (reqTimestamp) {
           const nowSec = Math.floor(Date.now() / 1e3);
           if (Math.abs(nowSec - reqTimestamp) > 300) {
             return unauthorized(
-              "Request timestamp out of allowed window (drift detected)",
-              "TIMESTAMP_DRIFT"
+              'Request timestamp out of allowed window (drift detected)',
+              'TIMESTAMP_DRIFT',
             );
           }
         }
         if (env.RETUBEMATRIX_KV) {
-          const clientIp = request.headers.get("cf-connecting-ip") || "unknown_ip";
+          const clientIp = request.headers.get('cf-connecting-ip') || 'unknown_ip';
           const rateLimitKeyId = payload.channel_id || payload.hwid_hash || clientIp;
           const currentMinute = Math.floor(Date.now() / 6e4);
           const kvRateLimitKey = `rl:telemetry:${rateLimitKeyId}:${currentMinute}`;
@@ -5627,24 +5949,25 @@ var index_default = {
             return json(
               {
                 success: false,
-                code: "RATE_LIMITED",
-                error: "Qu\xE1 t\u1EA3i t\u1EA7n su\u1EA5t g\u1EEDi telemetry (t\u1ED1i \u0111a 60 requests/ph\xFAt)"
+                code: 'RATE_LIMITED',
+                error:
+                  'Qu\xE1 t\u1EA3i t\u1EA7n su\u1EA5t g\u1EEDi telemetry (t\u1ED1i \u0111a 60 requests/ph\xFAt)',
               },
               429,
-              { "Retry-After": "60" }
+              { 'Retry-After': '60' },
             );
           }
           await env.RETUBEMATRIX_KV.put(kvRateLimitKey, (currentCount + 1).toString(), {
-            expirationTtl: 120
+            expirationTtl: 120,
           });
         }
         const rpcUrl = `${env.SUPABASE_URL}/rest/v1/rpc/ingest_studio_analytics`;
         const rpcRes = await fetch(rpcUrl, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
-            Authorization: `Bearer ${serviceKey}`
+            Authorization: `Bearer ${serviceKey}`,
           },
           body: JSON.stringify({
             p_company_id: payload.company_id || null,
@@ -5658,145 +5981,159 @@ var index_default = {
             p_estimated_revenue_vnd: payload.estimated_revenue_vnd || 0,
             p_rpm: payload.rpm || 0,
             p_cpm: payload.cpm || 0,
-            p_monetization_status: payload.monetization_status || "active"
-          })
+            p_monetization_status: payload.monetization_status || 'active',
+          }),
         });
         if (!rpcRes.ok) {
           const errText = await rpcRes.text();
-          return internalError("Kh\xF4ng th\u1EC3 n\u1EA1p d\u1EEF li\u1EC7u v\xE0o c\u01A1 s\u1EDF d\u1EEF li\u1EC7u Supabase", errText);
+          return internalError(
+            'Kh\xF4ng th\u1EC3 n\u1EA1p d\u1EEF li\u1EC7u v\xE0o c\u01A1 s\u1EDF d\u1EEF li\u1EC7u Supabase',
+            errText,
+          );
         }
         const rpcResult = await rpcRes.json().catch(() => ({ success: true }));
         return json({
           success: true,
-          message: "Studio analytics snapshot ingested successfully",
-          synced_at: (/* @__PURE__ */ new Date()).toISOString(),
-          result: rpcResult
+          message: 'Studio analytics snapshot ingested successfully',
+          synced_at: /* @__PURE__ */ new Date().toISOString(),
+          result: rpcResult,
         });
       }
-      if (url.pathname === "/v1/telemetry/sync-competitor" && request.method === "POST") {
+      if (url.pathname === '/v1/telemetry/sync-competitor' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
         const body = await request.json().catch(() => ({}));
         const {
-          action = "upsert",
+          action = 'upsert',
           channel_name,
           channel_url,
           youtube_channel_id,
-          primary_keyword = "",
+          primary_keyword = '',
           subscriber_count = 0,
           total_views = 0,
           total_videos = 0,
-          recent_5_videos = []
+          recent_5_videos = [],
         } = body;
         if (!channel_url) {
-          return badRequest("Vui l\xF2ng cung c\u1EA5p URL k\xEAnh \u0111\u1ED1i th\u1EE7 (channel_url)");
+          return badRequest(
+            'Vui l\xF2ng cung c\u1EA5p URL k\xEAnh \u0111\u1ED1i th\u1EE7 (channel_url)',
+          );
         }
-        const compId = caller.companyId || "e51f4953-587e-4a5e-af09-e76471ca0326";
+        const compId = caller.companyId || 'e51f4953-587e-4a5e-af09-e76471ca0326';
         const cleanUrl = channel_url.trim();
-        if (action === "delete") {
+        if (action === 'delete') {
           const delRes = await fetch(
             `${env.SUPABASE_URL}/rest/v1/user_competitor_channels?company_id=eq.${compId}&user_id=eq.${caller.userId}&channel_url=eq.${encodeURIComponent(cleanUrl)}`,
             {
-              method: "DELETE",
+              method: 'DELETE',
               headers: {
                 apikey: serviceKey,
-                Authorization: `Bearer ${serviceKey}`
-              }
-            }
+                Authorization: `Bearer ${serviceKey}`,
+              },
+            },
           );
           if (!delRes.ok) {
             const err = await delRes.text();
-            return internalError("L\u1ED7i x\xF3a k\xEAnh \u0111\u1ED1i th\u1EE7 tr\xEAn m\xE1y ch\u1EE7: " + err);
+            return internalError(
+              'L\u1ED7i x\xF3a k\xEAnh \u0111\u1ED1i th\u1EE7 tr\xEAn m\xE1y ch\u1EE7: ' + err,
+            );
           }
           return json({
             success: true,
-            message: "\u0110\xE3 h\u1EE7y theo d\xF5i v\xE0 x\xF3a \u0111\u1ED3ng b\u1ED9 k\xEAnh \u0111\u1ED1i th\u1EE7 th\xE0nh c\xF4ng",
-            channel_url: cleanUrl
+            message:
+              '\u0110\xE3 h\u1EE7y theo d\xF5i v\xE0 x\xF3a \u0111\u1ED3ng b\u1ED9 k\xEAnh \u0111\u1ED1i th\u1EE7 th\xE0nh c\xF4ng',
+            channel_url: cleanUrl,
           });
         }
         const upsertRes = await fetch(`${env.SUPABASE_URL}/rest/v1/user_competitor_channels`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
             Authorization: `Bearer ${serviceKey}`,
-            Prefer: "resolution=merge-duplicates"
+            Prefer: 'resolution=merge-duplicates',
           },
           body: JSON.stringify({
             company_id: compId,
             team_id: caller.teamId || null,
             user_id: caller.userId,
-            channel_name: channel_name || cleanUrl.split("/").pop() || "\u0110\u1ED1i th\u1EE7",
+            channel_name: channel_name || cleanUrl.split('/').pop() || '\u0110\u1ED1i th\u1EE7',
             channel_url: cleanUrl,
             youtube_channel_id: youtube_channel_id || null,
-            primary_keyword: String(primary_keyword || ""),
+            primary_keyword: String(primary_keyword || ''),
             subscriber_count: Number(subscriber_count) || 0,
             total_views: Number(total_views) || 0,
             total_videos: Number(total_videos) || 0,
             recent_5_videos: Array.isArray(recent_5_videos) ? recent_5_videos : [],
             is_active: true,
-            updated_at: (/* @__PURE__ */ new Date()).toISOString()
-          })
+            updated_at: /* @__PURE__ */ new Date().toISOString(),
+          }),
         });
         if (!upsertRes.ok) {
           const err = await upsertRes.text();
-          return internalError("L\u1ED7i l\u01B0u k\xEAnh \u0111\u1ED1i th\u1EE7 tr\xEAn m\xE1y ch\u1EE7: " + err);
+          return internalError(
+            'L\u1ED7i l\u01B0u k\xEAnh \u0111\u1ED1i th\u1EE7 tr\xEAn m\xE1y ch\u1EE7: ' + err,
+          );
         }
         return json({
           success: true,
-          message: "\u0110\xE3 \u0111\u1ED3ng b\u1ED9 k\xEAnh \u0111\u1ED1i th\u1EE7 th\xE0nh c\xF4ng",
-          channel_url: cleanUrl
+          message:
+            '\u0110\xE3 \u0111\u1ED3ng b\u1ED9 k\xEAnh \u0111\u1ED1i th\u1EE7 th\xE0nh c\xF4ng',
+          channel_url: cleanUrl,
         });
       }
-      if (url.pathname === "/v1/telemetry/sync-managed-channel" && request.method === "POST") {
+      if (url.pathname === '/v1/telemetry/sync-managed-channel' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
         const body = await request.json().catch(() => ({}));
         const {
-          action = "upsert",
+          action = 'upsert',
           channel_type,
           channel_name,
           youtube_channel_id,
           channel_url,
           profile_id,
           total_views = 0,
-          estimated_revenue = 0
+          estimated_revenue = 0,
         } = body;
         if (!channel_type || !youtube_channel_id) {
-          return badRequest("Vui l\xF2ng cung c\u1EA5p channel_type (target|test) v\xE0 youtube_channel_id");
+          return badRequest(
+            'Vui l\xF2ng cung c\u1EA5p channel_type (target|test) v\xE0 youtube_channel_id',
+          );
         }
-        const compId = caller.companyId || "e51f4953-587e-4a5e-af09-e76471ca0326";
-        if (action === "delete") {
+        const compId = caller.companyId || 'e51f4953-587e-4a5e-af09-e76471ca0326';
+        if (action === 'delete') {
           await fetch(
             `${env.SUPABASE_URL}/rest/v1/user_managed_channels?company_id=eq.${compId}&user_id=eq.${caller.userId}&youtube_channel_id=eq.${encodeURIComponent(youtube_channel_id)}&channel_type=eq.${channel_type}`,
             {
-              method: "DELETE",
+              method: 'DELETE',
               headers: {
                 apikey: serviceKey,
-                Authorization: `Bearer ${serviceKey}`
-              }
-            }
+                Authorization: `Bearer ${serviceKey}`,
+              },
+            },
           );
           return json({
             success: true,
-            message: "\u0110\xE3 x\xF3a k\xEAnh qu\u1EA3n l\xFD \u0111\u1ED3ng b\u1ED9 th\xE0nh c\xF4ng"
+            message:
+              '\u0110\xE3 x\xF3a k\xEAnh qu\u1EA3n l\xFD \u0111\u1ED3ng b\u1ED9 th\xE0nh c\xF4ng',
           });
         }
         const upsertRes = await fetch(`${env.SUPABASE_URL}/rest/v1/user_managed_channels`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             apikey: serviceKey,
             Authorization: `Bearer ${serviceKey}`,
-            Prefer: "resolution=merge-duplicates"
+            Prefer: 'resolution=merge-duplicates',
           },
           body: JSON.stringify({
             company_id: compId,
@@ -5810,114 +6147,118 @@ var index_default = {
             total_views: Number(total_views) || 0,
             estimated_revenue: Number(estimated_revenue) || 0,
             is_active: true,
-            updated_at: (/* @__PURE__ */ new Date()).toISOString()
-          })
+            updated_at: /* @__PURE__ */ new Date().toISOString(),
+          }),
         });
         if (!upsertRes.ok) {
           const err = await upsertRes.text();
-          return internalError("L\u1ED7i l\u01B0u k\xEAnh qu\u1EA3n l\xFD: " + err);
+          return internalError('L\u1ED7i l\u01B0u k\xEAnh qu\u1EA3n l\xFD: ' + err);
         }
         return json({
           success: true,
-          message: "\u0110\xE3 \u0111\u1ED3ng b\u1ED9 k\xEAnh qu\u1EA3n l\xFD th\xE0nh c\xF4ng"
+          message: '\u0110\xE3 \u0111\u1ED3ng b\u1ED9 k\xEAnh qu\u1EA3n l\xFD th\xE0nh c\xF4ng',
         });
       }
-      if (url.pathname === "/v1/telemetry/report-bkt-result" && request.method === "POST") {
+      if (url.pathname === '/v1/telemetry/report-bkt-result' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
         const body = await request.json().catch(() => ({}));
-        const { competitor_channel_url, status = "green" } = body;
-        const compId = caller.companyId || "e51f4953-587e-4a5e-af09-e76471ca0326";
-        const isGreen = status === "green" || status === "completed";
+        const { competitor_channel_url, status = 'green' } = body;
+        const compId = caller.companyId || 'e51f4953-587e-4a5e-af09-e76471ca0326';
+        const isGreen = status === 'green' || status === 'completed';
         if (competitor_channel_url) {
-          const field = isGreen ? "videos_tested_green" : "videos_tested_red";
+          const field = isGreen ? 'videos_tested_green' : 'videos_tested_red';
           const queryUrl = `${env.SUPABASE_URL}/rest/v1/user_competitor_channels?company_id=eq.${compId}&user_id=eq.${caller.userId}&channel_url=eq.${encodeURIComponent(competitor_channel_url)}`;
           const getRes = await fetch(queryUrl, {
-            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
+            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
           });
           const list = await getRes.json().catch(() => []);
           if (list && list.length > 0) {
             const current = list[0];
             const newVal = (Number(current[field]) || 0) + 1;
             await fetch(queryUrl, {
-              method: "PATCH",
+              method: 'PATCH',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
                 apikey: serviceKey,
-                Authorization: `Bearer ${serviceKey}`
+                Authorization: `Bearer ${serviceKey}`,
               },
-              body: JSON.stringify({ [field]: newVal, updated_at: (/* @__PURE__ */ new Date()).toISOString() })
+              body: JSON.stringify({
+                [field]: newVal,
+                updated_at: /* @__PURE__ */ new Date().toISOString(),
+              }),
             });
           }
         }
         return json({
           success: true,
-          message: "\u0110\xE3 ghi nh\u1EADn k\u1EBFt qu\u1EA3 test BKT th\xE0nh c\xF4ng",
-          status: isGreen ? "green" : "red"
+          message: '\u0110\xE3 ghi nh\u1EADn k\u1EBFt qu\u1EA3 test BKT th\xE0nh c\xF4ng',
+          status: isGreen ? 'green' : 'red',
         });
       }
-      if (url.pathname === "/v1/telemetry/report-upload" && request.method === "POST") {
+      if (url.pathname === '/v1/telemetry/report-upload' && request.method === 'POST') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
         const body = await request.json().catch(() => ({}));
         const { target_youtube_channel_id } = body;
-        const compId = caller.companyId || "e51f4953-587e-4a5e-af09-e76471ca0326";
+        const compId = caller.companyId || 'e51f4953-587e-4a5e-af09-e76471ca0326';
         if (target_youtube_channel_id) {
           const queryUrl = `${env.SUPABASE_URL}/rest/v1/user_managed_channels?company_id=eq.${compId}&user_id=eq.${caller.userId}&youtube_channel_id=eq.${encodeURIComponent(target_youtube_channel_id)}&channel_type=eq.target`;
           const getRes = await fetch(queryUrl, {
-            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
+            headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
           });
           const list = await getRes.json().catch(() => []);
           if (list && list.length > 0) {
             const current = list[0];
             await fetch(queryUrl, {
-              method: "PATCH",
+              method: 'PATCH',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
                 apikey: serviceKey,
-                Authorization: `Bearer ${serviceKey}`
+                Authorization: `Bearer ${serviceKey}`,
               },
               body: JSON.stringify({
                 videos_uploaded_today: (Number(current.videos_uploaded_today) || 0) + 1,
                 videos_uploaded_week: (Number(current.videos_uploaded_week) || 0) + 1,
                 videos_uploaded_month: (Number(current.videos_uploaded_month) || 0) + 1,
-                updated_at: (/* @__PURE__ */ new Date()).toISOString()
-              })
+                updated_at: /* @__PURE__ */ new Date().toISOString(),
+              }),
             });
           }
         }
         return json({
           success: true,
-          message: "\u0110\xE3 ghi nh\u1EADn xu\u1EA5t b\u1EA3n video l\xEAn K\xEAnh \u0110\xEDch th\xE0nh c\xF4ng"
+          message:
+            '\u0110\xE3 ghi nh\u1EADn xu\u1EA5t b\u1EA3n video l\xEAn K\xEAnh \u0110\xEDch th\xE0nh c\xF4ng',
         });
       }
-      if (url.pathname === "/v1/admin/work-reports" && request.method === "GET") {
+      if (url.pathname === '/v1/admin/work-reports' && request.method === 'GET') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        let userFilter = "";
-        let compFilter = "";
-        if (caller.role === "owner") {
-          const queryComp = url.searchParams.get("company_id");
+        let userFilter = '';
+        let compFilter = '';
+        if (caller.role === 'owner') {
+          const queryComp = url.searchParams.get('company_id');
           if (queryComp) {
             userFilter = `&company_id=eq.${queryComp}`;
             compFilter = `&company_id=eq.${queryComp}`;
           }
-        } else if (caller.role === "admin") {
+        } else if (caller.role === 'admin') {
           userFilter = `&company_id=eq.${caller.companyId}`;
           compFilter = `&company_id=eq.${caller.companyId}`;
-        } else if (caller.role === "leader") {
+        } else if (caller.role === 'leader') {
           userFilter = `&company_id=eq.${caller.companyId}&or=(team_id.eq.${caller.teamId},id.eq.${caller.userId})`;
           compFilter = `&company_id=eq.${caller.companyId}`;
         } else {
@@ -5927,16 +6268,22 @@ var index_default = {
         const [usersRes, managedRes, compRes] = await Promise.all([
           fetch(
             `${env.SUPABASE_URL}/rest/v1/user_profiles?select=id,full_name,email,role,company_id,team_id,assigned_niche,companies(id,name,code)&order=created_at.asc${userFilter}`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-          ).then((r) => r.json()).catch(() => []),
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(
             `${env.SUPABASE_URL}/rest/v1/user_managed_channels?is_active=eq.true${compFilter}&order=created_at.desc`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-          ).then((r) => r.json()).catch(() => []),
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(
             `${env.SUPABASE_URL}/rest/v1/user_competitor_channels?is_active=eq.true${compFilter}&order=created_at.desc`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-          ).then((r) => r.json()).catch(() => [])
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
         ]);
         const usersList = Array.isArray(usersRes) ? usersRes : [];
         const managedList = Array.isArray(managedRes) ? managedRes : [];
@@ -5944,8 +6291,8 @@ var index_default = {
         const reports = usersList.map((u) => {
           const userManaged = managedList.filter((m) => m.user_id === u.id);
           const userCompetitors = competitorList.filter((c) => c.user_id === u.id);
-          const targetChannels = userManaged.filter((m) => m.channel_type === "target");
-          const testChannels = userManaged.filter((m) => m.channel_type === "test");
+          const targetChannels = userManaged.filter((m) => m.channel_type === 'target');
+          const testChannels = userManaged.filter((m) => m.channel_type === 'test');
           let uploadsToday = 0;
           let uploadsWeek = 0;
           let uploadsMonth = 0;
@@ -5965,16 +6312,16 @@ var index_default = {
             totalRed += Number(c.videos_tested_red) || 0;
           });
           const totalTested = totalGreen + totalRed;
-          const qualityScore = totalTested > 0 ? Math.round(totalGreen / totalTested * 100) : 100;
+          const qualityScore = totalTested > 0 ? Math.round((totalGreen / totalTested) * 100) : 100;
           return {
             user_id: u.id,
-            full_name: u.full_name || u.email?.split("@")[0] || "Th\xE0nh vi\xEAn",
+            full_name: u.full_name || u.email?.split('@')[0] || 'Th\xE0nh vi\xEAn',
             email: u.email,
             role: u.role,
             company_id: u.company_id,
-            company_name: u.companies?.name || "Doanh Nghi\u1EC7p",
+            company_name: u.companies?.name || 'Doanh Nghi\u1EC7p',
             team_id: u.team_id,
-            assigned_niche: u.assigned_niche || "T\u1ED5ng h\u1EE3p",
+            assigned_niche: u.assigned_niche || 'T\u1ED5ng h\u1EE3p',
             target_channels_count: targetChannels.length,
             target_channels: targetChannels.map((tc) => ({
               id: tc.id,
@@ -5985,7 +6332,7 @@ var index_default = {
               videos_uploaded_week: tc.videos_uploaded_week,
               videos_uploaded_month: tc.videos_uploaded_month,
               total_views: tc.total_views,
-              estimated_revenue: tc.estimated_revenue
+              estimated_revenue: tc.estimated_revenue,
             })),
             test_channels_count: testChannels.length,
             competitor_channels_count: userCompetitors.length,
@@ -6000,7 +6347,7 @@ var index_default = {
               total_videos: cc.total_videos,
               recent_5_videos: cc.recent_5_videos || [],
               videos_tested_green: cc.videos_tested_green,
-              videos_tested_red: cc.videos_tested_red
+              videos_tested_red: cc.videos_tested_red,
             })),
             videos_uploaded_today: uploadsToday,
             videos_uploaded_week: uploadsWeek,
@@ -6010,7 +6357,7 @@ var index_default = {
             total_views: totalViews,
             estimated_revenue_usd: totalRevenueUsd,
             estimated_revenue_vnd: totalRevenueUsd * 25e3,
-            quality_score: qualityScore
+            quality_score: qualityScore,
           };
         });
         const sortedForLeaderboard = [...reports].sort((a, b) => {
@@ -6033,51 +6380,61 @@ var index_default = {
           estimated_revenue_usd: item.estimated_revenue_usd,
           estimated_revenue_vnd: item.estimated_revenue_vnd,
           videos_uploaded_today: item.videos_uploaded_today,
-          quality_score: item.quality_score
+          quality_score: item.quality_score,
         }));
         return json({
           success: true,
           staff_reports: reports,
           leaderboard,
           total_monitored_competitors: competitorList.length,
-          total_target_channels: managedList.filter((m) => m.channel_type === "target").length,
-          total_test_channels: managedList.filter((m) => m.channel_type === "test").length
+          total_target_channels: managedList.filter((m) => m.channel_type === 'target').length,
+          total_test_channels: managedList.filter((m) => m.channel_type === 'test').length,
         });
       }
-      if (url.pathname === "/v1/admin/teams-comparison" && request.method === "GET") {
+      if (url.pathname === '/v1/admin/teams-comparison' && request.method === 'GET') {
         const { auth: caller, errorResponse } = await authenticateAdminCaller(
           request,
           env,
-          serviceKey
+          serviceKey,
         );
         if (errorResponse) return errorResponse;
-        if (caller.role !== "owner" && caller.role !== "admin" && caller.role !== "leader") {
-          return forbidden("B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n truy c\u1EADp b\xE1o c\xE1o so s\xE1nh \u0111\u1ED9i nh\xF3m");
+        if (caller.role !== 'owner' && caller.role !== 'admin' && caller.role !== 'leader') {
+          return forbidden(
+            'B\u1EA1n kh\xF4ng c\xF3 quy\u1EC1n truy c\u1EADp b\xE1o c\xE1o so s\xE1nh \u0111\u1ED9i nh\xF3m',
+          );
         }
-        const compFilter = caller.role === "owner" ? "" : `&company_id=eq.${caller.companyId}`;
+        const compFilter = caller.role === 'owner' ? '' : `&company_id=eq.${caller.companyId}`;
         const [teamsRes, usersRes, managedRes, compRes] = await Promise.all([
           fetch(
             `${env.SUPABASE_URL}/rest/v1/teams?select=id,name,company_id,leader_id,created_at${compFilter}`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-          ).then((r) => r.json()).catch(() => []),
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(
             `${env.SUPABASE_URL}/rest/v1/user_profiles?select=id,full_name,email,role,company_id,team_id${compFilter}`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-          ).then((r) => r.json()).catch(() => []),
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(
             `${env.SUPABASE_URL}/rest/v1/user_managed_channels?is_active=eq.true${compFilter}`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-          ).then((r) => r.json()).catch(() => []),
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
           fetch(
             `${env.SUPABASE_URL}/rest/v1/user_competitor_channels?is_active=eq.true${compFilter}`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-          ).then((r) => r.json()).catch(() => [])
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+          )
+            .then((r) => r.json())
+            .catch(() => []),
         ]);
         const teamsList = Array.isArray(teamsRes) ? teamsRes : [];
         const usersList = Array.isArray(usersRes) ? usersRes : [];
         const managedList = Array.isArray(managedRes) ? managedRes : [];
         const competitorList = Array.isArray(compRes) ? compRes : [];
-        const leaders = usersList.filter((u) => u.role === "leader");
+        const leaders = usersList.filter((u) => u.role === 'leader');
         const teamStats = [];
         if (teamsList.length > 0) {
           teamsList.forEach((t) => {
@@ -6085,7 +6442,7 @@ var index_default = {
             const userIds = new Set(teamUsers.map((u) => u.id));
             const teamManaged = managedList.filter((m) => userIds.has(m.user_id));
             const teamCompetitors = competitorList.filter((c) => userIds.has(c.user_id));
-            const targetChannels = teamManaged.filter((m) => m.channel_type === "target");
+            const targetChannels = teamManaged.filter((m) => m.channel_type === 'target');
             let uploadsToday = 0;
             let totalViews = 0;
             let totalRevUsd = 0;
@@ -6101,13 +6458,13 @@ var index_default = {
               red += Number(c.videos_tested_red) || 0;
             });
             const tested = green + red;
-            const qualityRate = tested > 0 ? Math.round(green / tested * 100) : 100;
-            const leader = teamUsers.find((u) => u.id === t.leader_id || u.role === "leader");
+            const qualityRate = tested > 0 ? Math.round((green / tested) * 100) : 100;
+            const leader = teamUsers.find((u) => u.id === t.leader_id || u.role === 'leader');
             teamStats.push({
               team_id: t.id,
-              team_name: t.name || "\u0110\u1ED9i Nh\xF3m",
-              leader_name: leader?.full_name || "Ch\u01B0a ch\u1EC9 \u0111\u1ECBnh Leader",
-              leader_email: leader?.email || "",
+              team_name: t.name || '\u0110\u1ED9i Nh\xF3m',
+              leader_name: leader?.full_name || 'Ch\u01B0a ch\u1EC9 \u0111\u1ECBnh Leader',
+              leader_email: leader?.email || '',
               members_count: teamUsers.length,
               target_channels_count: targetChannels.length,
               competitor_channels_count: teamCompetitors.length,
@@ -6117,14 +6474,14 @@ var index_default = {
               revenue_vnd: totalRevUsd * 25e3,
               videos_tested_green: green,
               videos_tested_red: red,
-              quality_rate: qualityRate
+              quality_rate: qualityRate,
             });
           });
         } else if (leaders.length > 0) {
           leaders.forEach((lead, idx) => {
             const teamManaged = managedList.filter((m) => m.user_id === lead.id);
             const teamCompetitors = competitorList.filter((c) => c.user_id === lead.id);
-            const targetChannels = teamManaged.filter((m) => m.channel_type === "target");
+            const targetChannels = teamManaged.filter((m) => m.channel_type === 'target');
             let uploadsToday = 0;
             let totalViews = 0;
             let totalRevUsd = 0;
@@ -6140,10 +6497,10 @@ var index_default = {
               red += Number(c.videos_tested_red) || 0;
             });
             const tested = green + red;
-            const qualityRate = tested > 0 ? Math.round(green / tested * 100) : 100;
+            const qualityRate = tested > 0 ? Math.round((green / tested) * 100) : 100;
             teamStats.push({
               team_id: lead.id,
-              team_name: `Nh\xF3m Leader ${lead.full_name || "Nh\xF3m " + (idx + 1)}`,
+              team_name: `Nh\xF3m Leader ${lead.full_name || 'Nh\xF3m ' + (idx + 1)}`,
               leader_name: lead.full_name || lead.email,
               leader_email: lead.email,
               members_count: 1,
@@ -6155,46 +6512,51 @@ var index_default = {
               revenue_vnd: totalRevUsd * 25e3,
               videos_tested_green: green,
               videos_tested_red: red,
-              quality_rate: qualityRate
+              quality_rate: qualityRate,
             });
           });
         }
         const evaluatedTeams = teamStats.map((team) => {
           const notes = [];
-          if (team.quality_rate >= 95) notes.push("Ki\u1EC3m duy\u1EC7t BKT s\u1EA1ch xu\u1EA5t s\u1EAFc (\u226595%)");
+          if (team.quality_rate >= 95)
+            notes.push('Ki\u1EC3m duy\u1EC7t BKT s\u1EA1ch xu\u1EA5t s\u1EAFc (\u226595%)');
           if (team.target_channels_count > 0)
             notes.push(`V\u1EADn h\xE0nh ${team.target_channels_count} k\xEAnh \u0111\xEDch`);
           if (team.videos_uploaded_today > 0)
             notes.push(`\u0110\u0103ng ${team.videos_uploaded_today} video h\xF4m nay`);
           return {
             ...team,
-            evaluation: notes.length > 0 ? notes.join(" \u2022 ") : "\u0110ang thi\u1EBFt l\u1EADp k\xEAnh v\xE0 s\u1EA3n xu\u1EA5t ban \u0111\u1EA7u"
+            evaluation:
+              notes.length > 0
+                ? notes.join(' \u2022 ')
+                : '\u0110ang thi\u1EBFt l\u1EADp k\xEAnh v\xE0 s\u1EA3n xu\u1EA5t ban \u0111\u1EA7u',
           };
         });
         return json({
           success: true,
-          teams_comparison: evaluatedTeams
+          teams_comparison: evaluatedTeams,
         });
       }
       return json(
         {
           success: false,
-          code: "NOT_FOUND",
-          error: `Route not found: ${request.method} ${url.pathname}`
+          code: 'NOT_FOUND',
+          error: `Route not found: ${request.method} ${url.pathname}`,
         },
-        404
+        404,
       );
     } catch (err) {
       const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
-      return internalError("Unhandled gateway exception: " + msg);
+      return internalError('Unhandled gateway exception: ' + msg);
     }
-  }
+  },
 };
+
 export {
+  getAdminAuthContext,
+  index_default as default,
+  isMasterOwner,
   MASTER_OWNER_EMAIL,
   MASTER_OWNER_ID,
-  index_default as default,
-  getAdminAuthContext,
-  isMasterOwner
 };
 //# sourceMappingURL=index.js.map

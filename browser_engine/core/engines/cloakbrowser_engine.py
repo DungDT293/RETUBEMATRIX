@@ -27,7 +27,13 @@ class CloakBrowserEngine(BaseBrowserEngine):
             "--disable-dev-shm-usage",
             '--js-flags="--max-old-space-size=256 --expose-gc"',
             "--disable-component-update",
+            "--disable-quic",
         ]
+        if spec.proxy:
+            args.extend([
+                "--disable-http2",
+                "--dns-over-https-mode=off",
+            ])
         if spec.mute_audio:
             args.append("--mute-audio")
         seed = options.get("fingerprint_seed")

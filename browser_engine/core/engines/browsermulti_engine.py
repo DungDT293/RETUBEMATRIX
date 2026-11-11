@@ -202,6 +202,7 @@ class BrowserMultiEngine(BaseBrowserEngine):
             "--no-default-browser-check",
             "--disable-session-crashed-bubble",
             "--webrtc-ip-handling-policy=disable_non_proxied_udp",
+            "--disable-quic",
             "--lang=vi-VN",
             "--homepage=https://www.google.com",
             "--renderer-process-limit=2",
@@ -210,6 +211,11 @@ class BrowserMultiEngine(BaseBrowserEngine):
             '--js-flags="--max-old-space-size=256 --expose-gc"',
             "--disable-component-update",
         ]
+        if spec.proxy:
+            args.extend([
+                "--disable-http2",
+                "--dns-over-https-mode=off",
+            ])
         if not options.get("restore_profile_window_placement"):
             args.extend(spec.window_args())
         elif options.get("start_maximized"):
