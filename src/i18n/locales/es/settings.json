@@ -11,7 +11,7 @@
     "ai": "Funciones de IA",
     "network": "Red y autenticación",
     "system": "Sistema",
-    "about": "Acerca de",
+    "about": "Acerca de y versión",
     "pluginStore": "Plugin Store"
   },
   "search": {
@@ -850,8 +850,8 @@
     "cliOpenGuide": "Abrir guía de CLI"
   },
   "about": {
-    "title": "Acerca de",
-    "description": "Información de la aplicación",
+    "title": "Acerca de y versión",
+    "description": "Información de la aplicación y comprobación de nuevas actualizaciones",
     "appDesc": "Herramienta de vídeo todo en uno: descarga, edita, sigue canales y resume con IA",
     "checkingUpdates": "Buscando actualizaciones...",
     "versionAvailable": "v{{version}} disponible",

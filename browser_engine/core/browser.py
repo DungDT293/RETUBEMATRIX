@@ -1050,7 +1050,19 @@ class CloakSession:
                     raise RuntimeError(proxy_error)
                 proxy_config = playwright_proxy_config(proxy, proxy_scheme)
             spec = BrowserLaunchSpec(**{**spec.__dict__, "proxy": proxy_config})
-        launch_args = engine.build_launch_args(spec)
+        launch_args = list(engine.build_launch_args(spec))
+        # Low-end hardware optimization flags (4GB - 8GB RAM, CPU 2-4 cores)
+        low_end_flags = [
+            "--renderer-process-limit=2",
+            "--disable-background-networking",
+            "--disable-dev-shm-usage",
+            '--js-flags="--max-old-space-size=256 --expose-gc"',
+            "--disable-component-update",
+        ]
+        for flag in low_end_flags:
+            flag_key = flag.split("=")[0]
+            if not any(arg == flag or arg.startswith(flag_key + "=") for arg in launch_args):
+                launch_args.append(flag)
         self._launch_args = list(launch_args)
         launch_options = _profile_launch_options(profile_data)
         logger.info("Browser launch flags | profile=%s | engine=%s | args=%s", profile_name, engine.engine_id, launch_args)

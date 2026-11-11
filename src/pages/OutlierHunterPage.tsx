@@ -1,28 +1,41 @@
 import {
+  ArrowUpDown,
+  Bookmark,
+  BookmarkCheck,
+  Clock,
   Compass,
   Copy,
   Download,
   ExternalLink,
+  Film,
   Flame,
+  Globe,
   Layers,
-  Lightbulb,
+  Loader2,
   RefreshCw,
   Search,
+  SlidersHorizontal,
   Sparkles,
   Tag,
   Target,
   Trash2,
   TrendingUp,
   Tv,
-  Users,
   X,
-  Zap,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Page } from '@/components/layout';
+import { CompetitorAiStudioModal } from '@/components/outliers/CompetitorAiStudioModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -39,76 +52,199 @@ import {
   type CompetitorVideo,
   clearAllOutlierVideos,
   deleteOutlierVideo,
+  extractVideoSeoTags,
+  fetchLiveTrendingTopics,
   findKeywordGoldmines,
   getOutlierSettings,
   getOutlierVideos,
   type KeywordGoldmine,
+  type LiveTrendingTopic,
   type OutlierHunterSettings,
   type OutlierVideo,
   triggerOutlierScan,
+  updateOutlierVideoStatus,
 } from '@/contexts/outliers/outliers-client';
 import { cn } from '@/lib/utils';
 import { openExternalUrl } from '@/utils/open-url';
 
-// Mô hình IKIGAI: 3 Nhóm ngách lớn theo chỉ dẫn chiến lược
-export const IKIGAI_CATEGORIES = [
+export type MarketType = 'viet' | 'foreign';
+
+export interface ForeignCountry {
+  code: string;
+  name: string;
+  nativeName: string;
+}
+
+export const FOREIGN_COUNTRIES: ForeignCountry[] = [
+  { code: 'US', name: 'Hoa Kỳ / Toàn Cầu (US / Global)', nativeName: 'United States / Global' },
+  { code: 'JP', name: 'Nhật Bản (JP)', nativeName: 'Japan' },
+  { code: 'KR', name: 'Hàn Quốc (KR)', nativeName: 'Korea' },
+  { code: 'TH', name: 'Thái Lan (TH)', nativeName: 'Thailand' },
+  { code: 'UK', name: 'Vương Quốc Anh (UK)', nativeName: 'United Kingdom' },
+  { code: 'DE', name: 'Đức (DE)', nativeName: 'Deutschland' },
+  { code: 'FR', name: 'Pháp (FR)', nativeName: 'France' },
+  { code: 'ID', name: 'Indonesia (ID)', nativeName: 'Indonesia' },
+  { code: 'BR', name: 'Brazil (BR)', nativeName: 'Brasil' },
+  { code: 'TW', name: 'Đài Loan (TW)', nativeName: 'Taiwan' },
+];
+
+export interface StandardNiche {
+  id: string;
+  nameViet: string;
+  nameForeign: string;
+  descViet: string;
+  descForeign: string;
+  defaultQueryViet: string;
+  queriesForeign: Record<string, string>;
+}
+
+export const STANDARDIZED_NICHES: StandardNiche[] = [
   {
-    id: 'high_cpm',
-    title: 'Nhóm 1: CPM Cao (Tài chính, Công nghệ, Kinh doanh, Giáo dục)',
-    subtitle: 'CPM rất cao ($5-$30+) nhưng cạnh tranh khốc liệt, đòi hỏi kiến thức chuyên sâu.',
-    color: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/30 text-emerald-400',
-    badge: 'CPM $5 - $30+',
-    niches: [
-      { name: 'Tài chính cá nhân', val: 'tài chính cá nhân quản lý tiền' },
-      { name: 'Đầu tư chứng khoán/Crypto', val: 'đầu tư chứng khoán cho người mới' },
-      { name: 'Công nghệ & AI Tools', val: 'công nghệ ai phần mềm tự động hóa' },
-      { name: 'Kinh doanh & Khởi nghiệp', val: 'kinh doanh online khởi nghiệp vốn ít' },
-      { name: 'Giáo dục & Kỹ năng số', val: 'kỹ năng tự học lập trình thiết kế' },
-    ],
+    id: 'review_phim',
+    nameViet: 'Review Phim',
+    nameForeign: 'Movie Recap / Film Explained',
+    descViet: 'Tóm tắt phim, phân tích phim nhanh',
+    descForeign: 'Fast film recaps, movie explained',
+    defaultQueryViet: 'tóm tắt phim review phim hay',
+    queriesForeign: {
+      US: 'movie recap film explained',
+      UK: 'movie recap film explained',
+      JP: '映画 要約 あらすじ 解説',
+      KR: '영화 요약 결말포함',
+      TH: 'สปอยหนัง หนังเต็มเรื่อง',
+      DE: 'filmzusammenfassung film erklärt',
+      FR: 'résumé de film film expliqué',
+      ID: 'alur cerita film review',
+      BR: 'resumo do filme filme explicado',
+      TW: '電影解說 幾分鐘看電影',
+    },
   },
   {
-    id: 'massive_view',
-    title: 'Nhóm 2: View Lớn (Giải trí, Nhạc, Gaming, ASMR, Động vật)',
-    subtitle: 'CPM thấp hơn ($0.5-$2) nhưng lượng view bùng nổ khổng lồ, dễ tiếp cận số đông.',
-    color: 'from-amber-500/20 to-orange-500/10 border-amber-500/30 text-amber-400',
-    badge: 'View Khổng Lồ',
-    niches: [
-      { name: 'Hài hước & Giải trí', val: 'hài hước tình huống vui nhộn' },
-      { name: 'Nhạc Lofi Chill', val: 'nhạc lofi chill học bài thư giãn' },
-      { name: 'Gaming Highlights', val: 'gaming highlight khoảnh khắc hài hước' },
-      { name: 'ASMR & Satisfying', val: 'asmr satisfying âm thanh thư giãn ngủ ngon' },
-      { name: 'Thú cưng & Động vật', val: 'mèo chó đáng yêu hài hước' },
-    ],
+    id: 'nhac',
+    nameViet: 'Nhạc Remix & Lofi',
+    nameForeign: 'Speed Up & Slowed Reverb / BGM',
+    descViet: 'Speed up, remix, lofi không lời, 8D audio, nhạc nền edit',
+    descForeign: 'Speed up songs, slowed reverb, no copyright bgm',
+    defaultQueryViet: 'nhạc speed up remix lofi không lời 8d audio',
+    queriesForeign: {
+      US: 'speed up songs slowed reverb no copyright bgm',
+      UK: 'speed up songs slowed reverb no copyright bgm',
+      JP: '作業用bgm 著作権フリー speed up',
+      KR: '플레이리스트 노동요 speed up',
+      TH: 'เพลง speed up เพลงฮิต',
+      DE: 'speed up songs lofi no copyright bgm',
+      FR: 'speed up musique no copyright bgm',
+      ID: 'lagu speed up remix no copyright bgm',
+      BR: 'musica speed up remix no copyright bgm',
+      TW: '無版權音樂 speed up bgm',
+    },
   },
   {
-    id: 'global_view',
-    title: 'Nhóm 3: View Ngoại / Ít Phụ Thuộc Ngôn Ngữ (Nấu ăn, Nhạc nền, Timelapse)',
-    subtitle: 'Rất hợp kéo view quốc tế (US, EU, JP), dễ mở rộng và làm đều đặn lâu dài.',
-    color: 'from-sky-500/20 to-indigo-500/10 border-sky-500/30 text-sky-400',
-    badge: 'View Ngoại Global',
-    niches: [
-      {
-        name: 'Nấu ăn cho người ở 1 mình (Khuyên dùng)',
-        val: 'nấu ăn cho người ở 1 mình',
-        highlight: true,
-      },
-      { name: 'Món ăn sinh viên tiết kiệm', val: 'món ăn sinh viên nhanh gọn rẻ' },
-      { name: 'Nấu ăn Eat Clean giảm cân', val: 'nấu ăn eat clean đơn giản tại nhà' },
-      { name: 'Nhạc nền BGM không bản quyền', val: 'background music no copyright for vlog' },
-      {
-        name: 'Timelapse cảnh quan & nghệ thuật',
-        val: 'timelapse drawing painting nature landscape',
-      },
-    ],
+    id: 'asmr',
+    nameViet: 'ASMR & Satisfying',
+    nameForeign: 'Oddly Satisfying / Deep Clean ASMR',
+    descViet: 'Cắt xà phòng, phục hồi đồ cũ, làm sạch sâu, cát động lực',
+    descForeign: 'Oddly satisfying, deep cleaning asmr, restoration',
+    defaultQueryViet: 'asmr satisfying cắt xà phòng phục hồi đồ cũ làm sạch sâu',
+    queriesForeign: {
+      US: 'oddly satisfying deep cleaning asmr restoration',
+      UK: 'oddly satisfying deep cleaning asmr restoration',
+      JP: '音フェチ asmr 気持ちいい 掃除',
+      KR: '마음이 편안해지는 영상 asmr 청소',
+      TH: 'ฟินๆ asmr ทำความสะอาด',
+      DE: 'oddly satisfying asmr tiefenreinigung',
+      FR: 'oddly satisfying asmr nettoyage',
+      ID: 'oddly satisfying pembersihan asmr',
+      BR: 'oddly satisfying asmr limpeza',
+      TW: '解壓 asmr 深度清潔 修復',
+    },
+  },
+  {
+    id: 'su_that',
+    nameViet: 'Sự Thật & Bí Ẩn',
+    nameForeign: 'Mind-blowing Facts & Mysteries',
+    descViet: 'Top bí ẩn thế giới, khoa học vũ trụ, sự thật rùng mình, facts',
+    descForeign: 'Mind-blowing facts, unexplained mysteries, space facts',
+    defaultQueryViet: 'sự thật bí ẩn thế giới khoa học vũ trụ facts',
+    queriesForeign: {
+      US: 'mind blowing facts unexplained mysteries space',
+      UK: 'mind blowing facts unexplained mysteries space',
+      JP: '衝撃の事実 世界の謎 雑学',
+      KR: '흥미로운 사실 충격적인 미스터리',
+      TH: 'เรื่องแปลก ความจริงที่คุณไม่เคยรู้',
+      DE: 'unglaubliche fakten mysterien weltall',
+      FR: 'faits incroyables mystères univers',
+      ID: 'fakta mengejutkan misteri dunia',
+      BR: 'fatos incriveis misterios universo',
+      TW: '不可思議的事實 未解之謎 宇宙',
+    },
+  },
+  {
+    id: 'dong_vat',
+    nameViet: 'Động Vật Hài Hước',
+    nameForeign: 'Funny Pets & Animal Reactions',
+    descViet: 'Chó mèo hài, cứu hộ động vật, khoảnh khắc thú cưng',
+    descForeign: 'Funny pets, cat dog clips, animal reactions',
+    defaultQueryViet: 'chó mèo hài hước cứu hộ động vật thú cưng dễ thương',
+    queriesForeign: {
+      US: 'funny pets animals cats dogs moments',
+      UK: 'funny pets animals cats dogs moments',
+      JP: '面白い 動物 猫 犬 かわいい',
+      KR: '웃긴 동물 강아지 고양이 힐링',
+      TH: 'สัตว์เลี้ยงน่ารัก หมา แมว ฮาๆ',
+      DE: 'lustige tiere hunde katzen momente',
+      FR: 'animaux drôles chats chiens moments',
+      ID: 'hewan lucu anjing kucing ngakak',
+      BR: 'animais engracados caes gatos fofos',
+      TW: '搞笑動物 萌寵 貓狗 療癒',
+    },
+  },
+  {
+    id: 'manga_recap',
+    nameViet: 'AI Manga / Manhwa Recap',
+    nameForeign: 'AI Manga Recap & Webtoon Summary',
+    descViet: 'Tóm tắt truyện tranh voice AI, hoạt hình 2D',
+    descForeign: 'Manga recap, webtoon manhwa summary',
+    defaultQueryViet: 'tóm tắt truyện tranh manga manhwa anime recap',
+    queriesForeign: {
+      US: 'manga recap webtoon manhwa summary recap',
+      UK: 'manga recap webtoon manhwa summary recap',
+      JP: '漫画 要約 アニメ解説 マンガ',
+      KR: '웹툰 요약 만화 줄거리',
+      TH: 'สปอยมังงะ อนิเมะ ตอนเดียวจบ',
+      DE: 'manga recap webtoon zusammenfassung',
+      FR: 'manga recap résumé webtoon anime',
+      ID: 'recap manga manhwa alur cerita',
+      BR: 'recap manga manhwa resumo completo',
+      TW: '漫畫解說 動漫推薦 一口氣看完全部',
+    },
+  },
+  {
+    id: 'meo_vat_tech',
+    nameViet: 'Mẹo Vặt & Đồ Công Nghệ',
+    nameForeign: 'Smart Life Hacks & Gadgets Showcase',
+    descViet: 'Tech gadgets thông minh, mẹo vặt gia đình faceless',
+    descForeign: 'Smart gadgets, amazon life hacks, kitchen tools faceless',
+    defaultQueryViet: 'đồ công nghệ thông minh gadgets mẹo vặt cuộc sống',
+    queriesForeign: {
+      US: 'smart gadgets life hacks home appliances cool tech',
+      UK: 'smart gadgets life hacks home appliances cool tech',
+      JP: '便利グッズ ライフハック 家電',
+      KR: '꿀템 신박한 아이템 생활 꿀팁',
+      TH: 'ของใช้ในบ้าน อุปกรณ์ไอที เจ๋งๆ',
+      DE: 'smarte gadgets life hacks haushaltsgeräte',
+      FR: 'gadgets intelligents astuces maison high tech',
+      ID: 'gadget pintar life hacks perabotan rumah',
+      BR: 'gadgets inteligentes truques para casa',
+      TW: '實用黑科技 居家好物 生活小妙招',
+    },
   },
 ];
 
 /**
  * Định dạng thời gian đăng video tự nhiên chuẩn YouTube (ngày, tuần, tháng, năm trước)
- * Tránh hiển thị số giờ khổng lồ (ví dụ 48940h trước) gây khó hiểu cho người dùng.
  */
 function formatPublishedTime(hours?: number, uploadTs?: number): string {
-  // Ưu tiên dùng upload_timestamp (epoch seconds) để tính chính xác đến từng phút
   if (uploadTs && uploadTs > 0) {
     const nowSec = Math.floor(Date.now() / 1000);
     const diffSec = Math.max(0, nowSec - uploadTs);
@@ -137,7 +273,6 @@ function formatPublishedTime(hours?: number, uploadTs?: number): string {
     return `${years} năm trước`;
   }
 
-  // Fallback nếu chỉ có hours_published
   if (!hours || hours <= 0) return 'Mới đăng';
   if (hours < 1) {
     const mins = Math.max(1, Math.round(hours * 60));
@@ -176,10 +311,24 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [isClearing, setIsClearing] = useState<boolean>(false);
 
-  // Từ khóa ngách đang chọn (Mặc định: ngách mẫu của người dùng)
-  const [currentNiche, setCurrentNiche] = useState<string>('nấu ăn cho người ở 1 mình');
-  const [nicheInput, setNicheInput] = useState<string>('nấu ăn cho người ở 1 mình');
+  // Phân luồng Thị Trường: View Việt vs View Ngoại
+  const [market, setMarket] = useState<MarketType>('viet');
+  const [selectedForeignCountry, setSelectedForeignCountry] = useState<string>('US');
+
+  // Ngách chuẩn & Tìm kiếm
+  const [selectedNicheId, setSelectedNicheId] = useState<string | null>('review_phim');
+  const [currentNiche, setCurrentNiche] = useState<string>('Review Phim');
+  const [nicheInput, setNicheInput] = useState<string>('tóm tắt phim review phim hay');
   const [selectedFilterNiche, setSelectedFilterNiche] = useState<string>('all');
+
+  // Bộ lọc nhanh (Toolbar)
+  const [timeFilter, setTimeFilter] = useState<'24h' | '48h' | '7d' | 'all'>('24h');
+  const [formatFilter, setFormatFilter] = useState<'all' | 'shorts' | 'long'>('all');
+  const [sortBy, setSortBy] = useState<'vph' | 'sub_ratio' | 'views'>('vph');
+
+  // Real-time Trending Topics từ Google Trends RSS
+  const [liveTopics, setLiveTopics] = useState<LiveTrendingTopic[]>([]);
+  const [loadingTopics, setLoadingTopics] = useState<boolean>(false);
 
   // 4 Công cụ kiểm chứng
   const [activeTool, setActiveTool] = useState<
@@ -187,13 +336,13 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
   >('none');
 
   // Tool 1: YouTube Alphabet Autosuggest (a-z)
-  const [alphabetSeed, setAlphabetSeed] = useState<string>('nấu ăn cho người ở 1 mình');
+  const [alphabetSeed, setAlphabetSeed] = useState<string>('tóm tắt phim');
   const [isSearchingAlphabet, setIsSearchingAlphabet] = useState<boolean>(false);
   const [alphabetResults, setAlphabetResults] = useState<KeywordGoldmine[]>([]);
 
   // Tool 2: Google Trends
-  const [trendsKeyword, setTrendsKeyword] = useState<string>('nấu ăn cho người ở 1 mình');
-  const [trendsCompareKeyword, setTrendsCompareKeyword] = useState<string>('nấu ăn');
+  const [trendsKeyword, setTrendsKeyword] = useState<string>('tóm tắt phim');
+  const [trendsCompareKeyword, setTrendsCompareKeyword] = useState<string>('review phim');
   const [trendsGeo, setTrendsGeo] = useState<string>('VN');
 
   // Tool 4: Kênh đối thủ & VPH
@@ -201,6 +350,86 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
   const [competitorSort, setCompetitorSort] = useState<'popular' | 'latest'>('popular');
   const [isAnalyzingCompetitor, setIsAnalyzingCompetitor] = useState<boolean>(false);
   const [competitorVideos, setCompetitorVideos] = useState<CompetitorVideo[]>([]);
+
+  // AI Studio State
+  const [aiStudioOpen, setAiStudioOpen] = useState(false);
+  const [aiStudioPayload, setAiStudioPayload] = useState<{
+    title: string;
+    niche?: string;
+    competitorChannel?: string;
+    competitorKeywords?: string[];
+    competitorTags?: string[];
+    transcriptPreview?: string;
+  }>({ title: '' });
+
+  // Spy Tags State
+  const [videoTagsMap, setVideoTagsMap] = useState<Record<string, string[]>>({});
+  const [loadingTagsId, setLoadingTagsId] = useState<string | null>(null);
+  const [spyTagsModal, setSpyTagsModal] = useState<{
+    isOpen: boolean;
+    videoTitle: string;
+    videoId: string;
+    tags: string[];
+  }>({
+    isOpen: false,
+    videoTitle: '',
+    videoId: '',
+    tags: [],
+  });
+
+  const handleInspectTags = async (vid: OutlierVideo) => {
+    if (videoTagsMap[vid.id] && videoTagsMap[vid.id].length > 0) {
+      setSpyTagsModal({
+        isOpen: true,
+        videoTitle: vid.title,
+        videoId: vid.id,
+        tags: videoTagsMap[vid.id],
+      });
+      return;
+    }
+
+    setLoadingTagsId(vid.id);
+    try {
+      const url = `https://www.youtube.com/watch?v=${vid.id}`;
+      const res = await extractVideoSeoTags(url);
+      const extracted =
+        res.tags && res.tags.length > 0
+          ? res.tags
+          : [vid.niche, 'youtube viral', 'trending', vid.channel_name].filter(Boolean);
+
+      setVideoTagsMap((prev) => ({ ...prev, [vid.id]: extracted }));
+      setSpyTagsModal({
+        isOpen: true,
+        videoTitle: vid.title,
+        videoId: vid.id,
+        tags: extracted,
+      });
+    } catch (err) {
+      console.error('Lỗi extractVideoSeoTags:', err);
+      const fallback = [vid.niche, vid.channel_name, 'trending'].filter(Boolean);
+      setVideoTagsMap((prev) => ({ ...prev, [vid.id]: fallback }));
+      setSpyTagsModal({
+        isOpen: true,
+        videoTitle: vid.title,
+        videoId: vid.id,
+        tags: fallback,
+      });
+    } finally {
+      setLoadingTagsId(null);
+    }
+  };
+
+  const handleOpenAiStudio = (data: {
+    title: string;
+    niche?: string;
+    competitorChannel?: string;
+    competitorKeywords?: string[];
+    competitorTags?: string[];
+    transcriptPreview?: string;
+  }) => {
+    setAiStudioPayload(data);
+    setAiStudioOpen(true);
+  };
 
   // Tải dữ liệu ban đầu
   const loadData = useCallback(async () => {
@@ -216,15 +445,34 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     }
   }, []);
 
+  // Tải Real-time Trending Topics từ Google Trends RSS
+  const loadLiveTrendingTopics = useCallback(async (geo: string) => {
+    setLoadingTopics(true);
+    try {
+      const topics = await fetchLiveTrendingTopics(geo, 14);
+      setLiveTopics(topics);
+    } catch (err) {
+      console.warn('Lỗi tải live trending topics:', err);
+    } finally {
+      setLoadingTopics(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  // Xóa toàn bộ dữ liệu săn đề xuất cũ
+  useEffect(() => {
+    const geo = market === 'viet' ? 'VN' : selectedForeignCountry;
+    loadLiveTrendingTopics(geo);
+    setTrendsGeo(geo);
+  }, [market, selectedForeignCountry, loadLiveTrendingTopics]);
+
+  // Xóa toàn bộ dữ liệu video cũ
   const handleClearAllOldData = async () => {
     if (
       !window.confirm(
-        'Bạn có chắc chắn muốn xóa sạch toàn bộ dữ liệu săn đề xuất cũ để bắt đầu phương pháp mới?',
+        'Bạn có chắc chắn muốn xóa sạch toàn bộ danh sách video đề xuất để làm mới dữ liệu?',
       )
     ) {
       return;
@@ -234,9 +482,9 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
       await clearAllOutlierVideos();
       setVideos([]);
       toast.success({
-        title: 'Đã xóa sạch dữ liệu cũ',
+        title: 'Đã xóa dữ liệu cũ',
         description:
-          'Cơ sở dữ liệu video đề xuất cũ đã được làm trống 100%. Bạn có thể chọn ngách Ikigai và bắt đầu quét mới.',
+          'Bảng dữ liệu video đề xuất đã được làm trống. Bạn có thể chọn ngách và quét mới.',
       });
     } catch (err) {
       toast.error({
@@ -248,43 +496,49 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     }
   };
 
-  // Quét video đề xuất theo ngách (Hỗ trợ cả ngách đơn & Quét toàn bộ ngách Ikigai)
-  const handleScanNiche = async (targetNiche?: string) => {
-    const isScanAll = targetNiche === 'toàn bộ ngách ngon' || targetNiche === 'all';
-    const nicheToScan = isScanAll ? 'toàn bộ ngách ngon' : (targetNiche || currentNiche).trim();
-    if (!nicheToScan) {
+  // Quét video đề xuất theo ngách & thời gian thực
+  const handleScanNiche = async (
+    targetNiche?: string,
+    overrideTime?: '24h' | '48h' | '7d' | 'all',
+  ) => {
+    const isScanAll =
+      !targetNiche ||
+      targetNiche === 'all' ||
+      targetNiche === 'toàn bộ ngách' ||
+      targetNiche === 'toàn bộ ngách ngon';
+    const timeToUse = overrideTime || timeFilter;
+    const geoToUse = market === 'viet' ? 'VN' : selectedForeignCountry;
+    const nicheToScan = isScanAll ? 'all' : (targetNiche || nicheInput).trim();
+
+    if (!isScanAll && !nicheToScan) {
       toast.warning({
         title: 'Chưa nhập từ khóa ngách',
-        description: 'Vui lòng chọn hoặc nhập từ khóa ngách trước khi quét đề xuất.',
+        description: 'Vui lòng chọn ngách chuẩn hoặc nhập từ khóa trước khi quét.',
       });
       return;
     }
 
     setIsScanning(true);
     toast.info({
-      title: isScanAll
-        ? '⚡ Đang quét TOÀN BỘ ngách ngon Ikigai...'
-        : 'Đang quét đề xuất YouTube...',
+      title: isScanAll ? 'Đang quét toàn bộ ngách faceless...' : 'Đang quét video đột biến...',
       description: isScanAll
-        ? 'Hệ thống đang rà soát đồng loạt 7 ngách vàng Ikigai: Nấu ăn 1 mình, Món sinh viên, Tài chính, AI, Lofi, ASMR...'
-        : `Hệ thống đang truy quét các video bứt phá trong ngách: "${nicheToScan}".`,
+        ? `Hệ thống đang rà soát 7 ngách bùng nổ theo thị trường [${market === 'viet' ? 'Việt Nam' : geoToUse}] (${timeToUse})...`
+        : `Truy quét ngách "${nicheToScan}" (${timeToUse}, geo: ${geoToUse})...`,
     });
 
     try {
-      const updated = await triggerOutlierScan(nicheToScan);
+      const updated = await triggerOutlierScan(nicheToScan, timeToUse, geoToUse);
       setVideos(updated);
       setSelectedFilterNiche('all');
       if (updated.length > 0) {
         toast.success({
           title: 'Quét hoàn tất!',
-          description: isScanAll
-            ? `Đã săn thành công ${updated.length} video đột biến cực phẩm từ các ngách vàng Ikigai!`
-            : `Tìm thấy ${updated.length} video tiềm năng trong ngách "${nicheToScan}".`,
+          description: `Tìm thấy ${updated.length} video đột biến tiềm năng trong thị trường ${geoToUse}!`,
         });
       } else {
         toast.info({
           title: 'Kết quả quét ngách',
-          description: `Chưa tìm thấy video đạt ngưỡng bứt phá cao trong ngách "${nicheToScan}". Thử mở rộng từ khóa hoặc kiểm tra với YouTube A-Z.`,
+          description: `Chưa tìm thấy video đạt chuẩn bùng nổ (VPH > 50, View/Sub > 3x) trong khung giờ này. Thử nới rộng mốc thời gian hoặc chọn ngách khác.`,
         });
       }
     } catch (err) {
@@ -294,6 +548,56 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
       });
     } finally {
       setIsScanning(false);
+    }
+  };
+
+  // Chọn ngách chuẩn hóa
+  const handleSelectStandardNiche = (niche: StandardNiche) => {
+    setSelectedNicheId(niche.id);
+    let queryToUse = niche.defaultQueryViet;
+    let labelToUse = niche.nameViet;
+
+    if (market === 'foreign') {
+      labelToUse = niche.nameForeign;
+      queryToUse =
+        niche.queriesForeign[selectedForeignCountry] ||
+        niche.queriesForeign.US ||
+        niche.nameForeign;
+    }
+
+    setNicheInput(queryToUse);
+    setCurrentNiche(labelToUse);
+    setAlphabetSeed(queryToUse);
+    setTrendsKeyword(queryToUse);
+    handleScanNiche(queryToUse);
+  };
+
+  // Bấm vào chủ đề Live Trends (Google Trends RSS)
+  const handleSelectLiveTopic = (topicTitle: string) => {
+    setNicheInput(topicTitle);
+    setCurrentNiche(topicTitle);
+    setSelectedNicheId(null);
+    setAlphabetSeed(topicTitle);
+    setTrendsKeyword(topicTitle);
+    handleScanNiche(topicTitle);
+  };
+
+  // Theo dõi / Bỏ theo dõi kênh (Watchlist Toggle)
+  const handleToggleWatchlist = async (vid: OutlierVideo) => {
+    const isWatch = vid.status === 'watchlist';
+    const newStatus = isWatch ? 'discovered' : 'watchlist';
+    try {
+      await updateOutlierVideoStatus({ id: vid.id, status: newStatus });
+      setVideos((prev) => prev.map((v) => (v.id === vid.id ? { ...v, status: newStatus } : v)));
+      toast.success({
+        title: newStatus === 'watchlist' ? 'Đã thêm vào Watchlist' : 'Đã bỏ theo dõi kênh',
+        description:
+          newStatus === 'watchlist'
+            ? `Video và kênh "${vid.channel_name}" sẽ được Radar theo dõi và cập nhật gia tốc VPH định kỳ.`
+            : `Đã đưa video về danh sách bình thường.`,
+      });
+    } catch (err) {
+      toast.error({ title: 'Lỗi cập nhật', description: String(err) });
     }
   };
 
@@ -308,7 +612,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
       if (res.length > 0) {
         toast.success({
           title: 'Đào từ khóa thành công',
-          description: `Tìm thấy ${res.length} gợi ý từ khóa đuôi dài qua thuật toán Alphabet (A-Z).`,
+          description: `Tìm thấy ${res.length} gợi ý từ khóa đuôi dài qua thuật toán Alphabet A-Z.`,
         });
       }
     } catch (err) {
@@ -379,7 +683,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     }
   };
 
-  // Mở video trên YouTube (luôn mở trên trình duyệt hệ thống Chrome/Edge)
+  // Mở video trên YouTube
   const handleOpenYouTube = async (id: string) => {
     const url = `https://www.youtube.com/watch?v=${id}`;
     await openExternalUrl(url);
@@ -391,7 +695,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     try {
       await enqueueExternalUrl(url, { mediaType: 'video' });
       toast.success({
-        title: 'Đã đưa vào hàng đợi tải video sạch',
+        title: 'Đã đưa vào hàng đợi tải video',
         description: `Video "${vid.title.slice(0, 45)}..." sẽ được tải sạch và xóa bỏ metadata gốc.`,
       });
       if (onNavigate) {
@@ -413,6 +717,26 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     if (videoUrl) {
       sessionStorage.setItem('reup_input_video_path', videoUrl);
     }
+    let tags: string[] = [];
+    if (videoTagsMap[vid.id] && videoTagsMap[vid.id].length > 0) {
+      tags = videoTagsMap[vid.id];
+    } else if (vid.competitorTags && vid.competitorTags.length > 0) {
+      tags = vid.competitorTags;
+    } else if (vid.tags) {
+      try {
+        const parsed = JSON.parse(vid.tags);
+        if (Array.isArray(parsed)) tags = parsed;
+        else tags = [vid.tags];
+      } catch {
+        tags = vid.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean);
+      }
+    }
+    if (tags && tags.length > 0) {
+      sessionStorage.setItem('reup_input_video_tags', tags.join(', '));
+    }
     toast.info({
       title: 'Chuyển sang luồng Test BKT',
       description: `Đã đưa thông tin video "${vid.title.slice(0, 40)}..." sang Reup & Test BKT.`,
@@ -422,13 +746,43 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     }
   };
 
-  // Lọc video theo ngách đã chọn
-  const filteredVideos =
-    selectedFilterNiche === 'all'
-      ? videos
-      : videos.filter(
-          (v) => v.niche && v.niche.toLowerCase() === selectedFilterNiche.toLowerCase(),
-        );
+  // Bộ lọc và sắp xếp video kết quả
+  const filteredAndSortedVideos = useMemo(() => {
+    let result = [...videos];
+
+    // 1. Lọc theo Niche tag nếu có chọn filter pill
+    if (selectedFilterNiche !== 'all') {
+      result = result.filter(
+        (v) => v.niche && v.niche.toLowerCase() === selectedFilterNiche.toLowerCase(),
+      );
+    }
+
+    // 2. Lọc theo Định dạng (Format)
+    if (formatFilter === 'shorts') {
+      result = result.filter((v) => v.duration > 0 && v.duration <= 60);
+    } else if (formatFilter === 'long') {
+      result = result.filter((v) => v.duration > 60 || v.duration === 0);
+    }
+
+    // 3. Sắp xếp (Sort)
+    if (sortBy === 'vph') {
+      result.sort((a, b) => {
+        const vphA = a.avg_vph || (a.hours_published > 0 ? a.views / a.hours_published : 0);
+        const vphB = b.avg_vph || (b.hours_published > 0 ? b.views / b.hours_published : 0);
+        return vphB - vphA;
+      });
+    } else if (sortBy === 'sub_ratio') {
+      result.sort((a, b) => {
+        const ratioA = a.sub_outlier_ratio || (a.subscribers > 0 ? a.views / a.subscribers : 1);
+        const ratioB = b.sub_outlier_ratio || (b.subscribers > 0 ? b.views / b.subscribers : 1);
+        return ratioB - ratioA;
+      });
+    } else if (sortBy === 'views') {
+      result.sort((a, b) => b.views - a.views);
+    }
+
+    return result;
+  }, [videos, selectedFilterNiche, formatFilter, sortBy]);
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
@@ -441,11 +795,11 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
             </div>
             <div>
               <h1 className="text-lg font-bold gradient-text">
-                Săn Đề Xuất & Nghiên Cứu Ngách (Mô Hình Ikigai)
+                Săn Đề Xuất & Video Đột Biến (Outlier Hunter)
               </h1>
               <p className="text-xs text-muted-foreground">
-                Định vị ngách ít cạnh tranh qua 3 giao điểm Ikigai & Kiểm chứng bằng 4 công cụ thực
-                chiến
+                Radar phát hiện video bùng nổ VPH & đề xuất tự nhiên phân luồng View Việt / View
+                Ngoại
               </p>
             </div>
           </div>
@@ -460,195 +814,394 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
             className="text-xs gap-1.5 border-rose-500/40 text-rose-500 hover:bg-rose-500/10 hover:text-rose-400"
           >
             <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-            Xóa Sạch Dữ Liệu Cũ
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleScanNiche(currentNiche)}
-            disabled={isScanning}
-            className="text-xs gap-1.5 border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-medium"
-          >
-            <Flame className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />
-            Quét Ngách Này
+            Xóa Dữ Liệu Cũ
           </Button>
 
           <Button
             variant="default"
             size="sm"
-            onClick={() => handleScanNiche('toàn bộ ngách ngon')}
+            onClick={() => handleScanNiche('all')}
             disabled={isScanning}
             className="text-xs gap-1.5 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-amber-500 hover:from-violet-700 hover:to-amber-600 text-white font-bold shadow-md shadow-violet-500/20 px-3.5"
           >
-            <Zap className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />
-            {isScanning ? 'Đang Quét Toàn Bộ...' : '⚡ Quét Toàn Bộ Ngách Ngon'}
+            <Sparkles className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />
+            {isScanning ? 'Đang Quét Ngách...' : 'Quét Toàn Bộ Ngách'}
           </Button>
         </div>
       </header>
 
       {/* Main Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {/* KHỐI 1: TƯ DUY NGÁCH THEO MÔ HÌNH IKIGAI NHẬT BẢN */}
-        <Card className="p-5 border-border/50 bg-card/60 backdrop-blur-sm relative overflow-hidden">
-          <div className="flex items-center justify-between mb-3.5">
+        {/* KHỐI 1: CỤM CHUYỂN ĐỔI THỊ TRƯỜNG & CHỌN NGÁCH CPM/RPM CAO */}
+        <Card className="p-5 border-border/50 bg-card/60 backdrop-blur-sm space-y-4">
+          {/* Cụm Chuyển Đổi Thị Trường: View Việt vs View Ngoại */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-border/40">
             <div className="flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-amber-400" />
-              <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">
-                Tư Duy Ngách Theo Mô Hình Ikigai (3 Giao Điểm Chiến Lược)
-              </h2>
-            </div>
-            <Badge variant="outline" className="border-amber-500/40 text-amber-400 text-xs">
-              Triết Lý Nhật Bản
-            </Badge>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs mb-4">
-            <div className="p-3.5 rounded-xl border border-blue-500/30 bg-blue-500/5">
-              <div className="flex items-center gap-2 font-bold text-blue-400 mb-1">
-                <Users className="w-4 h-4" />
-                1. Nhu Cầu Người Xem
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                Lượng tìm kiếm đủ lớn, khán giả có nỗi đau hoặc nhu cầu giải trí, học hỏi thực tế.
-              </p>
+              <Globe className="w-4 h-4 text-primary" />
+              <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+                Thị Trường Mục Tiêu:
+              </span>
             </div>
 
-            <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
-              <div className="flex items-center gap-2 font-bold text-emerald-400 mb-1">
-                <Layers className="w-4 h-4" />
-                2. Khả Năng Làm Đều Lâu Dài
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                Khả thi trong khâu sản xuất, không cạn kiệt ý tưởng, có thể sản xuất video đều đặn
-                mỗi tuần.
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5">
-              <div className="flex items-center gap-2 font-bold text-amber-400 mb-1">
-                <Zap className="w-4 h-4" />
-                3. Đường Kiếm Tiền (Monetization)
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                Rõ ràng về nguồn thu: CPM quảng cáo YouTube cao, tiếp thị liên kết (Affiliate), hoặc
-                bán dịch vụ.
-              </p>
-            </div>
-          </div>
-
-          {/* Phân tích 3 nhóm ngách lớn */}
-          <div className="space-y-2.5">
-            <div className="text-xs font-semibold text-muted-foreground">
-              Chọn nhanh ngách gợi ý theo 3 phân nhóm chiến lược:
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              {IKIGAI_CATEGORIES.map((cat) => (
-                <div
-                  key={cat.id}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex p-1 rounded-lg bg-muted/60 border border-border/50">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMarket('viet');
+                    setSelectedNicheId('review_phim');
+                    setCurrentNiche('Review Phim');
+                    setNicheInput('tóm tắt phim review phim hay');
+                  }}
                   className={cn(
-                    'p-3.5 rounded-xl border bg-card/40 transition-all flex flex-col justify-between',
-                    cat.color,
+                    'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+                    market === 'viet'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
-                  <div>
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className="font-bold text-xs">{cat.title.split(':')[0]}</span>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-current">
-                        {cat.badge}
-                      </Badge>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground mb-3 leading-snug">
-                      {cat.subtitle}
-                    </p>
-                  </div>
+                  View Việt (Việt Nam)
+                </button>
 
-                  <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border/40">
-                    {cat.niches.map((n) => {
-                      const isSelected = currentNiche.toLowerCase() === n.val.toLowerCase();
-                      return (
-                        <button
-                          key={n.val}
-                          type="button"
-                          onClick={() => {
-                            setCurrentNiche(n.val);
-                            setNicheInput(n.val);
-                            setAlphabetSeed(n.val);
-                            setTrendsKeyword(n.val);
-                            handleScanNiche(n.val);
-                          }}
-                          className={cn(
-                            'text-[11px] px-2.5 py-1 rounded-lg border transition-all text-left',
-                            isSelected
-                              ? 'bg-primary text-primary-foreground font-semibold border-primary shadow-sm'
-                              : n.highlight
-                                ? 'border-amber-500/50 bg-amber-500/10 text-amber-300 font-medium hover:bg-amber-500/20'
-                                : 'border-border/60 bg-background/50 hover:bg-muted text-foreground',
-                          )}
-                        >
-                          {n.name}
-                        </button>
-                      );
-                    })}
-                  </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMarket('foreign');
+                    setSelectedNicheId('review_phim');
+                    setCurrentNiche('Movie Recap / Film Explained');
+                    const targetQ =
+                      STANDARDIZED_NICHES[0].queriesForeign[selectedForeignCountry] ||
+                      'movie recap film explained';
+                    setNicheInput(targetQ);
+                  }}
+                  className={cn(
+                    'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+                    market === 'foreign'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  View Ngoại (Quốc Tế)
+                </button>
+              </div>
+
+              {market === 'foreign' && (
+                <div className="flex items-center gap-1.5">
+                  <Select
+                    value={selectedForeignCountry}
+                    onValueChange={(val) => {
+                      setSelectedForeignCountry(val);
+                      if (selectedNicheId) {
+                        const n = STANDARDIZED_NICHES.find((item) => item.id === selectedNicheId);
+                        if (n) {
+                          const q = n.queriesForeign[val] || n.queriesForeign.US || n.nameForeign;
+                          setNicheInput(q);
+                        }
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="text-xs h-8 w-56 bg-background/80 border-primary/40 font-medium">
+                      <SelectValue placeholder="Chọn quốc gia mục tiêu" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FOREIGN_COUNTRIES.map((c) => (
+                        <SelectItem key={c.code} value={c.code} className="text-xs">
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              ))}
+              )}
+            </div>
+          </div>
+
+          {/* Cụm Chọn Ngách CPM/RPM Cao (Faceless / Dễ Nổ View) */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-amber-400" />
+                Ngách Chuẩn Hóa CPM/RPM Cao (Faceless / Bùng Nổ View):
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                Bấm vào ngách để nạp từ khóa & tự động quét
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+              {STANDARDIZED_NICHES.map((n) => {
+                const isSelected = selectedNicheId === n.id;
+                const displayName = market === 'viet' ? n.nameViet : n.nameForeign;
+                const displayDesc = market === 'viet' ? n.descViet : n.descForeign;
+
+                return (
+                  <button
+                    key={n.id}
+                    type="button"
+                    onClick={() => handleSelectStandardNiche(n)}
+                    className={cn(
+                      'p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between group cursor-pointer relative overflow-hidden',
+                      isSelected
+                        ? 'border-primary bg-primary/10 shadow-sm ring-1 ring-primary/40'
+                        : 'border-border/60 bg-background/40 hover:bg-muted/50 hover:border-border',
+                    )}
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                        {displayName}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground line-clamp-2 mt-0.5 leading-tight">
+                        {displayDesc}
+                      </p>
+                    </div>
+
+                    <div className="mt-2 pt-1.5 border-t border-border/30 flex items-center justify-between">
+                      <span className="text-[9px] font-semibold text-amber-400">Faceless</span>
+                      <Flame className="w-3 h-3 text-muted-foreground group-hover:text-amber-400 transition-colors" />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Real-time Trending Topics (Google Trends RSS) */}
+          <div className="pt-2 border-t border-border/40 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-xs font-bold text-foreground">
+                  Chủ Đề Thịnh Hành Hôm Nay (Live Trends -{' '}
+                  {market === 'viet' ? 'Việt Nam' : selectedForeignCountry}):
+                </span>
+                {loadingTopics && (
+                  <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+                )}
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const geo = market === 'viet' ? 'VN' : selectedForeignCountry;
+                  loadLiveTrendingTopics(geo);
+                }}
+                disabled={loadingTopics}
+                className="h-6 px-2 text-[10px] gap-1 text-muted-foreground hover:text-foreground"
+              >
+                <RefreshCw className={cn('w-2.5 h-2.5', loadingTopics && 'animate-spin')} />
+                Làm mới xu hướng
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
+              {liveTopics.length === 0 && !loadingTopics ? (
+                <span className="text-[11px] text-muted-foreground italic">
+                  Chưa có dữ liệu xu hướng tức thời cho quốc gia này.
+                </span>
+              ) : (
+                liveTopics.map((topic, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => handleSelectLiveTopic(topic.title)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition-all cursor-pointer group"
+                    title={`Lưu lượng tìm kiếm: ${topic.traffic}. Bấm để quét ngay video bứt phá!`}
+                  >
+                    <span>{topic.title}</span>
+                    {topic.traffic && (
+                      <span className="text-[10px] text-emerald-400/80 font-mono bg-emerald-500/20 px-1.5 py-0.2 rounded-full">
+                        {topic.traffic}
+                      </span>
+                    )}
+                  </button>
+                ))
+              )}
             </div>
           </div>
         </Card>
 
-        {/* KHỐI 2: TÌM KIẾM NGÁCH & THANH 4 CÔNG CỤ KIỂM CHỨNG KEYWORD */}
-        <Card className="p-5 border-border/50 bg-card/60 backdrop-blur-sm">
-          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 justify-between pb-4 border-b border-border/40 mb-4">
-            {/* Input ngách tùy ý */}
-            <div className="flex-1 flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <Input
-                  value={nicheInput}
-                  onChange={(e) => setNicheInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      setCurrentNiche(nicheInput);
-                      setAlphabetSeed(nicheInput);
-                      setTrendsKeyword(nicheInput);
-                      handleScanNiche(nicheInput);
-                    }
-                  }}
-                  placeholder="Nhập ngách bé muốn kiểm chứng (Ví dụ: nấu ăn cho người ở 1 mình)..."
-                  className="pl-9 h-10 text-xs bg-background/60"
-                />
-              </div>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => {
-                  setCurrentNiche(nicheInput);
-                  setAlphabetSeed(nicheInput);
-                  setTrendsKeyword(nicheInput);
-                  handleScanNiche(nicheInput);
+        {/* KHỐI 2: THANH TÌM KIẾM, BỘ LỌC THỜI GIAN THỰC & 4 CÔNG CỤ KIỂM CHỨNG */}
+        <Card className="p-5 border-border/50 bg-card/60 backdrop-blur-sm space-y-4">
+          {/* Hàng 1: Ô nhập từ khóa tùy ý */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <Input
+                value={nicheInput}
+                onChange={(e) => setNicheInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setCurrentNiche(nicheInput);
+                    handleScanNiche(nicheInput);
+                  }
                 }}
-                disabled={isScanning}
-                className="h-10 text-xs px-4"
-              >
-                Đặt Ngách
-              </Button>
+                placeholder="Nhập từ khóa ngách hoặc chủ đề tùy chỉnh muốn truy quét..."
+                className="pl-9 h-10 text-xs bg-background/60"
+              />
             </div>
 
-            {/* Đang nghiên cứu ngách nào */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-muted-foreground">Ngách hiện tại:</span>
-              <Badge className="bg-primary/20 text-primary border-primary/30 text-xs font-semibold px-2.5 py-1">
-                {currentNiche}
-              </Badge>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                setCurrentNiche(nicheInput);
+                handleScanNiche(nicheInput);
+              }}
+              disabled={isScanning}
+              className="h-10 text-xs px-5 font-semibold gap-1.5"
+            >
+              <Search className="w-3.5 h-3.5" />
+              Săn Video Đột Biến
+            </Button>
+          </div>
+
+          {/* Hàng 2: Thanh Công Cụ Lọc Nhanh (Thời Gian, Định Dạng, Sắp Xếp) */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/40 text-xs">
+            {/* Lọc Thời Gian */}
+            <div className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground font-medium">Thời gian:</span>
+              <div className="inline-flex p-0.5 rounded-lg bg-muted/60 border border-border/50">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTimeFilter('24h');
+                    handleScanNiche(nicheInput, '24h');
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all',
+                    timeFilter === '24h'
+                      ? 'bg-amber-500 text-white shadow-sm font-semibold'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  24 Giờ Qua (Bùng Nổ)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTimeFilter('48h');
+                    handleScanNiche(nicheInput, '48h');
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all',
+                    timeFilter === '48h'
+                      ? 'bg-primary text-primary-foreground shadow-sm font-semibold'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  48 Giờ Qua
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTimeFilter('7d');
+                    handleScanNiche(nicheInput, '7d');
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all',
+                    timeFilter === '7d'
+                      ? 'bg-primary text-primary-foreground shadow-sm font-semibold'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  7 Ngày Qua
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTimeFilter('all');
+                    handleScanNiche(nicheInput, 'all');
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all',
+                    timeFilter === 'all'
+                      ? 'bg-primary text-primary-foreground shadow-sm font-semibold'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  Tất Cả
+                </button>
+              </div>
+            </div>
+
+            {/* Lọc Định Dạng */}
+            <div className="flex items-center gap-1.5">
+              <Film className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground font-medium">Định dạng:</span>
+              <div className="inline-flex p-0.5 rounded-lg bg-muted/60 border border-border/50">
+                <button
+                  type="button"
+                  onClick={() => setFormatFilter('all')}
+                  className={cn(
+                    'px-2 py-1 rounded-md text-[11px] font-medium transition-all',
+                    formatFilter === 'all'
+                      ? 'bg-primary text-primary-foreground shadow-sm font-semibold'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  Tất Cả
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormatFilter('shorts')}
+                  className={cn(
+                    'px-2 py-1 rounded-md text-[11px] font-medium transition-all',
+                    formatFilter === 'shorts'
+                      ? 'bg-primary text-primary-foreground shadow-sm font-semibold'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  Shorts
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormatFilter('long')}
+                  className={cn(
+                    'px-2 py-1 rounded-md text-[11px] font-medium transition-all',
+                    formatFilter === 'long'
+                      ? 'bg-primary text-primary-foreground shadow-sm font-semibold'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  Video Dài
+                </button>
+              </div>
+            </div>
+
+            {/* Sắp Xếp */}
+            <div className="flex items-center gap-1.5">
+              <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground font-medium">Sắp xếp:</span>
+              <Select
+                value={sortBy}
+                onValueChange={(v) => setSortBy(v as 'vph' | 'sub_ratio' | 'views')}
+              >
+                <SelectTrigger className="text-xs h-7 w-44 bg-background/80">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vph" className="text-xs">
+                    VPH cao nhất
+                  </SelectItem>
+                  <SelectItem value="sub_ratio" className="text-xs">
+                    View/Sub đột biến nhất
+                  </SelectItem>
+                  <SelectItem value="views" className="text-xs">
+                    Lượt xem nhiều nhất
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          {/* 4 Công cụ kiểm chứng theo mô tả của người dùng */}
-          <div className="space-y-2">
+          {/* Hàng 3: 4 Công Cụ Kiểm Chứng Chuyên Sâu */}
+          <div className="pt-3 border-t border-border/40 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                4 Công Cụ Kiểm Chứng Keyword & Nghiên Cứu Ngách (Thực Chiến):
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <SlidersHorizontal className="w-3.5 h-3.5" />4 Công Cụ Kiểm Chứng Keyword & Nghiên
+                Cứu Ngách:
               </span>
               <span className="text-[11px] text-muted-foreground">
                 Bấm vào từng công cụ để mở bảng phân tích chi tiết
@@ -662,16 +1215,16 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                 size="sm"
                 onClick={() => {
                   setActiveTool(activeTool === 'alphabet' ? 'none' : 'alphabet');
-                  setAlphabetSeed(currentNiche);
+                  setAlphabetSeed(nicheInput || currentNiche);
                   if (alphabetResults.length === 0) {
                     handleSearchAlphabet();
                   }
                 }}
-                className="text-xs justify-start gap-2 h-auto py-2.5"
+                className="text-xs justify-start gap-2 h-auto py-2"
               >
-                <Tag className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                <Tag className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
                 <div className="text-left">
-                  <div className="font-semibold leading-tight">1. YouTube A-Z</div>
+                  <div className="font-semibold leading-tight text-xs">1. YouTube A-Z</div>
                   <div className="text-[10px] opacity-70">Gợi ý từ khóa đuôi dài</div>
                 </div>
               </Button>
@@ -682,13 +1235,13 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                 size="sm"
                 onClick={() => {
                   setActiveTool(activeTool === 'trends' ? 'none' : 'trends');
-                  setTrendsKeyword(currentNiche);
+                  setTrendsKeyword(nicheInput || currentNiche);
                 }}
-                className="text-xs justify-start gap-2 h-auto py-2.5"
+                className="text-xs justify-start gap-2 h-auto py-2"
               >
-                <TrendingUp className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                 <div className="text-left">
-                  <div className="font-semibold leading-tight">2. Google Trends</div>
+                  <div className="font-semibold leading-tight text-xs">2. Google Trends</div>
                   <div className="text-[10px] opacity-70">YouTube Search 12T</div>
                 </div>
               </Button>
@@ -699,17 +1252,17 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                 size="sm"
                 onClick={() => {
                   setActiveTool(activeTool === 'gap' ? 'none' : 'gap');
-                  setAlphabetSeed(currentNiche);
+                  setAlphabetSeed(nicheInput || currentNiche);
                   if (alphabetResults.length === 0) {
                     handleSearchAlphabet();
                   }
                 }}
-                className="text-xs justify-start gap-2 h-auto py-2.5"
+                className="text-xs justify-start gap-2 h-auto py-2"
               >
-                <Target className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                <Target className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />
                 <div className="text-left">
-                  <div className="font-semibold leading-tight">3. Content Gap</div>
-                  <div className="text-[10px] opacity-70">Cầu cao - Ít video đáp ứng</div>
+                  <div className="font-semibold leading-tight text-xs">3. Content Gap</div>
+                  <div className="text-[10px] opacity-70">Cầu cao - Ít video</div>
                 </div>
               </Button>
 
@@ -720,23 +1273,23 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                 onClick={() => {
                   setActiveTool(activeTool === 'competitor' ? 'none' : 'competitor');
                 }}
-                className="text-xs justify-start gap-2 h-auto py-2.5"
+                className="text-xs justify-start gap-2 h-auto py-2"
               >
-                <Tv className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                <Tv className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />
                 <div className="text-left">
-                  <div className="font-semibold leading-tight">4. Kênh Đối Thủ & VPH</div>
+                  <div className="font-semibold leading-tight text-xs">4. Đối Thủ & VPH</div>
                   <div className="text-[10px] opacity-70">Đo view mỗi giờ (VPH)</div>
                 </div>
               </Button>
             </div>
           </div>
 
-          {/* VÙNG HIỂN THỊ NỘI DUNG 4 CÔNG CỤ KHI ĐƯỢC CHỌN */}
+          {/* VÙNG HIỂN THỊ NỘI DUNG 4 CÔNG CỤ KHI ĐƯỢC MỞ */}
           {activeTool !== 'none' && (
-            <div className="mt-4 pt-4 border-t border-border/50 bg-background/40 rounded-xl p-4">
+            <div className="mt-3 pt-3 border-t border-border/50 bg-background/40 rounded-xl p-4">
               {/* TOOL 1: YOUTUBE ALPHABET AUTOSUGGEST (A-Z) */}
               {activeTool === 'alphabet' && (
-                <div className="space-y-3.5">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
@@ -744,8 +1297,8 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                         1. Thanh Gợi Ý YouTube Alphabet (Autosuggest A-Z)
                       </h3>
                       <p className="text-[11px] text-muted-foreground">
-                        Tự động thêm từng chữ cái (a, b, c... z) vào từ khóa để tìm các ngách nhỏ
-                        đuôi dài ít cạnh tranh.
+                        Tự động ghép nối từng chữ cái (a, b, c... z) để tìm các ngách nhỏ đuôi dài
+                        ít cạnh tranh.
                       </p>
                     </div>
                     <Button
@@ -763,7 +1316,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                       value={alphabetSeed}
                       onChange={(e) => setAlphabetSeed(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSearchAlphabet()}
-                      placeholder="Nhập từ khóa hạt giống (Ví dụ: nấu ăn)..."
+                      placeholder="Nhập từ khóa hạt giống (Ví dụ: review phim hay, tech gadgets)..."
                       className="text-xs h-9"
                     />
                     <Button
@@ -780,7 +1333,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                   </div>
 
                   {alphabetResults.length > 0 && (
-                    <div className="border border-border/50 rounded-lg overflow-hidden max-h-72 overflow-y-auto">
+                    <div className="border border-border/50 rounded-lg overflow-hidden max-h-64 overflow-y-auto">
                       <table className="w-full text-xs text-left">
                         <thead className="bg-muted/50 text-muted-foreground border-b border-border/40">
                           <tr>
@@ -814,7 +1367,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                                 >
                                   {kw.competition ||
                                     (kw.word_count >= 5
-                                      ? 'Ít cạnh tranh (Ngách rất nhỏ)'
+                                      ? 'Ít cạnh tranh (Ngách siêu nhỏ)'
                                       : 'Cạnh tranh vừa')}
                                 </span>
                               </td>
@@ -858,9 +1411,9 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                 </div>
               )}
 
-              {/* TOOL 2: GOOGLE TRENDS YOUTUBE SEARCH 12 THÁNG */}
+              {/* TOOL 2: GOOGLE TRENDS */}
               {activeTool === 'trends' && (
-                <div className="space-y-3.5">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
@@ -889,7 +1442,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                         value={trendsKeyword}
                         onChange={(e) => setTrendsKeyword(e.target.value)}
                         className="text-xs h-9 mt-1"
-                        placeholder="Ví dụ: nấu ăn cho người ở 1 mình"
+                        placeholder="Ví dụ: tóm tắt phim"
                       />
                     </div>
 
@@ -901,7 +1454,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                         value={trendsCompareKeyword}
                         onChange={(e) => setTrendsCompareKeyword(e.target.value)}
                         className="text-xs h-9 mt-1"
-                        placeholder="Ví dụ: nấu ăn"
+                        placeholder="Ví dụ: review phim"
                       />
                     </div>
 
@@ -919,20 +1472,22 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                           <SelectItem value="GLOBAL">Toàn cầu (Worldwide)</SelectItem>
                           <SelectItem value="JP">Nhật Bản (JP)</SelectItem>
                           <SelectItem value="KR">Hàn Quốc (KR)</SelectItem>
+                          <SelectItem value="TH">Thái Lan (TH)</SelectItem>
+                          <SelectItem value="GB">Vương Quốc Anh (GB)</SelectItem>
+                          <SelectItem value="DE">Đức (DE)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="text-[11px] text-muted-foreground">
-                      Tham số tra cứu:{' '}
-                      <code className="text-emerald-400">gprop=youtube & date=today 12-m</code>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                      gprop=youtube & date=today 12-m
                     </span>
                     <Button
                       size="sm"
                       onClick={handleOpenGoogleTrends}
-                      className="text-xs h-9 px-4 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className="text-xs h-8 px-4 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                       Mở Google Trends (YouTube Search)
@@ -941,9 +1496,9 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                 </div>
               )}
 
-              {/* TOOL 3: CONTENT GAP (CẦU CAO - ÍT VIDEO ĐÁP ỨNG) */}
+              {/* TOOL 3: CONTENT GAP */}
               {activeTool === 'gap' && (
-                <div className="space-y-3.5">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
@@ -951,8 +1506,8 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                         3. Đo Lường Content Gap (Nhu Cầu Cao - Thiếu Video Phục Vụ)
                       </h3>
                       <p className="text-[11px] text-muted-foreground">
-                        Mô phỏng tính năng "Research" trong YouTube Studio: Phát hiện các từ khóa
-                        người xem tìm kiếm nhiều nhưng nguồn cung video hiện có còn trống.
+                        Phát hiện các từ khóa người xem tìm kiếm nhiều nhưng nguồn cung video hiện
+                        có còn ít hoặc cũ.
                       </p>
                     </div>
                     <Button
@@ -968,18 +1523,19 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div className="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-xs">
                       <div className="font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" />🔥 Content Gap Rất Cao
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Content Gap Rất Cao
                       </div>
                       <p className="text-muted-foreground text-[11px]">
                         Lượng tìm kiếm tăng vọt, các video hiện có chất lượng thấp hoặc đã quá cũ
-                        (2-3 năm trước). <strong>Khuyên làm ngay!</strong>
+                        (2-3 năm trước). Khuyên làm ngay!
                       </p>
                     </div>
 
                     <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs">
                       <div className="font-bold text-amber-400 mb-1 flex items-center gap-1.5">
                         <TrendingUp className="w-3.5 h-3.5" />
-                        ⚖️ Content Gap Trung Bình
+                        Content Gap Trung Bình
                       </div>
                       <p className="text-muted-foreground text-[11px]">
                         Có sự cạnh tranh vừa phải từ các kênh nhỏ. Cần góc nhìn mới lạ hoặc cải tiến
@@ -990,16 +1546,16 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                     <div className="p-3 rounded-lg border border-rose-500/30 bg-rose-500/10 text-xs">
                       <div className="font-bold text-rose-400 mb-1 flex items-center gap-1.5">
                         <X className="w-3.5 h-3.5" />
-                        ⚠️ Bão Hòa Nội Dung
+                        Bão Hòa Nội Dung
                       </div>
                       <p className="text-muted-foreground text-[11px]">
-                        Quá nhiều kênh lớn thống trị từ khóa chung chung (ví dụ "nấu ăn"). Phải thu
-                        hẹp về ngách bé hơn nữa.
+                        Quá nhiều kênh lớn thống trị từ khóa chung chung. Phải thu hẹp về ngách bé
+                        hơn nữa bằng YouTube A-Z.
                       </p>
                     </div>
                   </div>
 
-                  <div className="text-[11px] text-muted-foreground bg-muted/40 p-3 rounded-lg flex items-center justify-between">
+                  <div className="text-[11px] text-muted-foreground bg-muted/40 p-2.5 rounded-lg flex items-center justify-between">
                     <span>
                       Đang đánh giá Content Gap cho ngách:{' '}
                       <strong className="text-foreground">{currentNiche}</strong>
@@ -1009,7 +1565,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                       size="sm"
                       onClick={() => {
                         setActiveTool('alphabet');
-                        setAlphabetSeed(currentNiche);
+                        setAlphabetSeed(nicheInput || currentNiche);
                         handleSearchAlphabet();
                       }}
                       className="text-xs h-7 px-3 gap-1"
@@ -1022,7 +1578,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
 
               {/* TOOL 4: KÊNH ĐỐI THỦ & VPH */}
               {activeTool === 'competitor' && (
-                <div className="space-y-3.5">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
@@ -1030,8 +1586,8 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                         4. Phân Tích Kênh Đối Thủ & VPH (Views Per Hour)
                       </h3>
                       <p className="text-[11px] text-muted-foreground">
-                        Vào kênh đối thủ, quét tab video sắp xếp theo "Phổ biến nhất" hoặc "Mới
-                        nhất", đo lượng view theo giờ (VPH) và điểm từ khóa.
+                        Truy cập kênh đối thủ, quét tab video phổ biến hoặc mới nhất, đo lượng view
+                        theo giờ (VPH) và điểm từ khóa.
                       </p>
                     </div>
                     <Button
@@ -1079,7 +1635,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                   </div>
 
                   {competitorVideos.length > 0 && (
-                    <div className="border border-border/50 rounded-lg overflow-hidden max-h-72 overflow-y-auto">
+                    <div className="border border-border/50 rounded-lg overflow-hidden max-h-64 overflow-y-auto">
                       <table className="w-full text-xs text-left">
                         <thead className="bg-muted/50 text-muted-foreground border-b border-border/40">
                           <tr>
@@ -1122,15 +1678,36 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                                 </span>
                               </td>
                               <td className="py-2 px-3 text-right">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleOpenYouTube(cv.id)}
-                                  className="h-7 px-2 text-[10px] gap-1"
-                                >
-                                  <ExternalLink className="w-3 h-3" />
-                                  Xem
-                                </Button>
+                                <div className="flex items-center justify-end gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleOpenAiStudio({
+                                        title: cv.title,
+                                        niche:
+                                          selectedFilterNiche !== 'all'
+                                            ? selectedFilterNiche
+                                            : undefined,
+                                        competitorChannel: cv.uploader,
+                                      })
+                                    }
+                                    className="h-7 px-2 text-[10px] gap-1 border-purple-500/40 text-purple-400 hover:bg-purple-500/10"
+                                    title="Tối ưu AI theo đối thủ"
+                                  >
+                                    <Sparkles className="w-3 h-3" />
+                                    AI Studio
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleOpenYouTube(cv.id)}
+                                    className="h-7 px-2 text-[10px] gap-1"
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                    Xem
+                                  </Button>
+                                </div>
                               </td>
                             </tr>
                           ))}
@@ -1144,23 +1721,23 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
           )}
         </Card>
 
-        {/* KHỐI 3: DANH SÁCH VIDEO ĐỀ XUẤT ĐỘT BIẾN TRONG NGÁCH */}
+        {/* KHỐI 3: DANH SÁCH VIDEO ĐỀ XUẤT ĐỘT BIẾN */}
         <div className="space-y-3.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-bold text-foreground">Danh Sách Video Đột Biến:</h2>
               <Badge variant="outline" className="text-xs border-amber-500/40 text-amber-400">
                 {selectedFilterNiche === 'all' ? 'Tất cả các ngách' : selectedFilterNiche} (
-                {filteredVideos.length} video)
+                {filteredAndSortedVideos.length} video)
               </Badge>
             </div>
 
             <span className="text-xs text-muted-foreground">
-              Tự động tính toán VPH & Đột biến View/Sub
+              Tự động tính toán VPH & Đột biến View/Sub theo thời gian thực
             </span>
           </div>
 
-          {/* Thanh phân loại ngách (Filter Pills) khi có nhiều ngách */}
+          {/* Filter Pills khi có nhiều ngách */}
           {videos.length > 0 && (
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
               <button
@@ -1197,47 +1774,46 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
             </div>
           )}
 
-          {videos.length === 0 ? (
+          {filteredAndSortedVideos.length === 0 ? (
             <Card className="p-12 text-center border-dashed border-border/60 bg-card/30 flex flex-col items-center justify-center">
               <Compass className="w-10 h-10 text-muted-foreground/40 mb-3" />
               <h3 className="text-sm font-semibold text-foreground mb-1">
-                Chưa có dữ liệu video đề xuất cho ngách này
+                Chưa có dữ liệu video đề xuất cho bộ lọc hiện tại
               </h3>
               <p className="text-xs text-muted-foreground max-w-md mb-5 leading-relaxed">
-                Hệ thống đã sẵn sàng tìm kiếm video đột biến theo thuật toán Outlier Kép. Bạn có thể
-                quét riêng ngách <strong>"{currentNiche}"</strong> hoặc bấm{' '}
-                <strong>"Quét Toàn Bộ Ngách Ngon"</strong> để hệ thống tự động rà soát qua 7 ngách
-                vàng Ikigai.
+                Hệ thống sẵn sàng săn video bùng nổ theo chuẩn thời gian thực (VPH &gt; 50, View/Sub
+                &gt; 3x). Hãy bấm nút quét dưới đây hoặc chọn một ngách chuẩn.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-2.5">
                 <Button
                   size="sm"
-                  onClick={() => handleScanNiche('toàn bộ ngách ngon')}
+                  onClick={() => handleScanNiche('all')}
                   disabled={isScanning}
                   className="text-xs gap-1.5 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-amber-500 hover:from-violet-700 hover:to-amber-600 text-white font-bold shadow-md shadow-violet-500/20 px-4"
                 >
-                  <Zap className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />⚡ Quét Toàn Bộ
-                  Ngách Ngon (Khuyên Dùng)
+                  <Sparkles className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />
+                  Quét Toàn Bộ Ngách ({market === 'viet' ? 'View Việt' : selectedForeignCountry})
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleScanNiche(currentNiche)}
+                  onClick={() => handleScanNiche(nicheInput)}
                   disabled={isScanning}
                   className="text-xs gap-1.5 border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-medium"
                 >
                   <Flame className={cn('w-3.5 h-3.5', isScanning && 'animate-spin')} />
-                  Quét riêng: "{currentNiche}"
+                  Quét ngách: "{currentNiche}"
                 </Button>
               </div>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredVideos.map((vid) => {
+              {filteredAndSortedVideos.map((vid) => {
                 const subRatio =
                   vid.sub_outlier_ratio || (vid.subscribers > 0 ? vid.views / vid.subscribers : 1);
                 const vph =
                   vid.avg_vph || (vid.hours_published > 0 ? vid.views / vid.hours_published : 0);
+                const isWatch = vid.status === 'watchlist';
 
                 return (
                   <Card
@@ -1317,7 +1893,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                         <div>
                           <div className="text-[10px] text-muted-foreground">Đột Biến Sub</div>
                           <div className="text-xs font-bold text-amber-400 font-mono">
-                            {subRatio.toFixed(1)}x
+                            Đột biến {subRatio.toFixed(1)}x View/Sub
                           </div>
                         </div>
 
@@ -1328,16 +1904,62 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                           </div>
                         </div>
                       </div>
+
+                      {/* Spy Tags (VidIQ) Pill & Quick Actions */}
+                      <div className="flex items-center justify-between mb-3 px-1">
+                        <button
+                          type="button"
+                          onClick={() => handleInspectTags(vid)}
+                          disabled={loadingTagsId === vid.id}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 transition-all cursor-pointer group"
+                          title="Bấm để xem nhanh danh sách thẻ Tags hoặc sao chép"
+                        >
+                          <Tag className="w-3 h-3 text-teal-400 group-hover:scale-110 transition-transform" />
+                          {loadingTagsId === vid.id ? (
+                            <span className="flex items-center gap-1 text-[10px] text-teal-300">
+                              <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                              Đang bóc tách...
+                            </span>
+                          ) : (
+                            <span>
+                              {videoTagsMap[vid.id]
+                                ? `${videoTagsMap[vid.id].length} tags`
+                                : 'Bóc tách Tags (VidIQ)'}
+                            </span>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const tagsToCopy = videoTagsMap[vid.id] || [
+                              vid.niche,
+                              vid.channel_name,
+                              'trending',
+                            ];
+                            navigator.clipboard.writeText(tagsToCopy.join(', '));
+                            toast.success({
+                              title: 'Đã sao chép thẻ tags',
+                              description: `${tagsToCopy.length} tags đã được copy dạng dấu phẩy (,).`,
+                            });
+                          }}
+                          className="text-[10px] text-muted-foreground hover:text-teal-300 flex items-center gap-1 transition-colors"
+                          title="Sao chép nhanh tất cả tags dạng dấu phẩy"
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>Chép nhanh</span>
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex items-center justify-between pt-2 border-t border-border/40 gap-1.5">
-                      <div className="flex items-center gap-1.5">
+                    {/* Action Buttons: 5 Nút Tác Vụ 1-Click Chuẩn Hóa */}
+                    <div className="flex flex-wrap items-center justify-between pt-2 border-t border-border/40 gap-1.5">
+                      <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleOpenYouTube(vid.id)}
-                          className="h-8 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                          className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
                           title="Mở trên YouTube"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -1348,32 +1970,92 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteVideo(vid.id)}
-                          className="h-8 px-2 text-xs gap-1 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                          className="h-7 px-2 text-xs gap-1 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
                           title="Xóa khỏi danh sách"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </Button>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {/* Nút 1: Theo dõi kênh này */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleToggleWatchlist(vid)}
+                          className={cn(
+                            'h-7 px-2 text-xs gap-1 transition-all',
+                            isWatch
+                              ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20'
+                              : 'border-border text-muted-foreground hover:text-foreground',
+                          )}
+                          title={
+                            isWatch
+                              ? 'Đang theo dõi trong Watchlist'
+                              : 'Thêm kênh này vào Watchlist theo dõi'
+                          }
+                        >
+                          {isWatch ? (
+                            <BookmarkCheck className="w-3 h-3 text-emerald-400" />
+                          ) : (
+                            <Bookmark className="w-3 h-3" />
+                          )}
+                          <span>{isWatch ? 'Đang theo dõi' : 'Theo dõi kênh'}</span>
+                        </Button>
+
+                        {/* Nút 2: Bóc SEO Tags */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleInspectTags(vid)}
+                          className="h-7 px-2 text-xs gap-1 border-teal-500/40 text-teal-300 hover:bg-teal-500/10"
+                          title="Bóc tách thẻ Tags của video"
+                        >
+                          <Tag className="w-3 h-3 text-teal-400" />
+                          <span>Bóc SEO Tags</span>
+                        </Button>
+
+                        {/* Nút 3: AI Studio */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            handleOpenAiStudio({
+                              title: vid.title,
+                              niche: vid.niche,
+                              competitorChannel: vid.channel_name,
+                              competitorTags: videoTagsMap[vid.id] || [],
+                            })
+                          }
+                          className="h-7 px-2 text-xs gap-1 border-purple-500/40 text-purple-400 hover:bg-purple-500/10"
+                          title="Tối ưu AI theo đối thủ (Tiêu đề, Mô tả 4 tầng, Hook)"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          <span>AI Studio</span>
+                        </Button>
+
+                        {/* Nút 4: Reup & Test BKT */}
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleSendToBkt(vid)}
-                          className="h-8 px-2.5 text-xs gap-1 border-amber-500/40 text-amber-400 hover:bg-amber-500/10"
+                          className="h-7 px-2 text-xs gap-1 border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-medium"
+                          title="Chuyển video sang luồng Reup & Test BKT"
                         >
-                          <Flame className="w-3.5 h-3.5" />
-                          Test BKT
+                          <Flame className="w-3 h-3" />
+                          <span>Reup & Test BKT</span>
                         </Button>
 
+                        {/* Nút 5: Tải video */}
                         <Button
                           variant="default"
                           size="sm"
                           onClick={() => handleQuickDownload(vid)}
-                          className="h-8 px-3 text-xs gap-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                          className="h-7 px-2.5 text-xs gap-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                          title="Đưa video vào hàng đợi tải video sạch"
                         >
-                          <Download className="w-3.5 h-3.5" />
-                          Tải Video Sạch
+                          <Download className="w-3 h-3" />
+                          <span>Tải video</span>
                         </Button>
                       </div>
                     </div>
@@ -1384,6 +2066,122 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
           )}
         </div>
       </div>
+
+      {/* MODAL AI STUDIO TỐI ƯU THEO ĐỐI THỦ */}
+      <CompetitorAiStudioModal
+        isOpen={aiStudioOpen}
+        onClose={() => setAiStudioOpen(false)}
+        initialTitle={aiStudioPayload.title}
+        initialNiche={aiStudioPayload.niche}
+        initialCompetitorChannel={aiStudioPayload.competitorChannel}
+        initialCompetitorKeywords={aiStudioPayload.competitorKeywords}
+        initialCompetitorTags={aiStudioPayload.competitorTags}
+        initialTranscriptPreview={aiStudioPayload.transcriptPreview}
+        onSendToBkt={(title, desc) => {
+          sessionStorage.setItem('reup_input_video_title', title);
+          if (desc) {
+            sessionStorage.setItem('reup_input_video_description', desc);
+          }
+          if (aiStudioPayload.competitorTags && aiStudioPayload.competitorTags.length > 0) {
+            sessionStorage.setItem(
+              'reup_input_video_tags',
+              aiStudioPayload.competitorTags.join(', '),
+            );
+          }
+          toast.info({
+            title: 'Chuyển sang luồng Test BKT',
+            description: `Đã đưa thông tin video "${title.slice(0, 40)}..." sang Reup & Test BKT.`,
+          });
+          if (onNavigate) {
+            onNavigate('reup');
+          }
+        }}
+      />
+
+      {/* DIALOG XEM NHANH SPY TAGS ĐỐI THỦ (VIDIQ STYLE) */}
+      <Dialog
+        open={spyTagsModal.isOpen}
+        onOpenChange={(open) => !open && setSpyTagsModal((prev) => ({ ...prev, isOpen: false }))}
+      >
+        <DialogContent className="max-w-lg border-teal-500/40 bg-card p-5 space-y-4">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center border border-teal-500/30">
+                <Tag className="w-4 h-4" />
+              </div>
+              <div>
+                <DialogTitle className="text-sm font-bold text-foreground flex items-center gap-2">
+                  Thẻ Tags Đối Thủ (Chuẩn VidIQ)
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] bg-teal-500/15 text-teal-300 border-teal-500/40"
+                  >
+                    {spyTagsModal.tags.length} tags
+                  </Badge>
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                  {spyTagsModal.videoTitle}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="flex flex-wrap gap-1.5 p-3 rounded-lg border border-border/50 bg-background/50 max-h-60 overflow-y-auto">
+            {spyTagsModal.tags.map((tag, idx) => (
+              <button
+                type="button"
+                key={idx}
+                onClick={() => {
+                  navigator.clipboard.writeText(tag);
+                  toast.success({
+                    title: 'Đã sao chép tag',
+                    description: tag,
+                  });
+                }}
+                title="Bấm để sao chép tag này"
+                className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-teal-500/10 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30 transition-all"
+              >
+                <span>#{tag}</span>
+                <Copy className="w-2.5 h-2.5 opacity-60 hover:opacity-100" />
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between pt-2 border-t border-border/40 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(spyTagsModal.tags.join(', '));
+                toast.success({
+                  title: 'Đã sao chép tất cả Tags (,)',
+                  description: `Đã copy ${spyTagsModal.tags.length} thẻ tags. Dán trực tiếp vào ô Tags của YouTube Studio!`,
+                });
+              }}
+              className="text-xs h-8 px-3 gap-1.5 border-teal-500/40 text-teal-300 hover:bg-teal-500/20 font-medium"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              <span>Sao chép tất cả Tags (,)</span>
+            </Button>
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                handleOpenAiStudio({
+                  title: spyTagsModal.videoTitle,
+                  competitorTags: spyTagsModal.tags,
+                });
+                setSpyTagsModal((prev) => ({ ...prev, isOpen: false }));
+              }}
+              className="text-xs h-8 px-3 gap-1.5 bg-purple-600 hover:bg-purple-700 text-white font-medium"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Nạp vào AI Studio</span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

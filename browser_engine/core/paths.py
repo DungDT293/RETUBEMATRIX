@@ -15,25 +15,13 @@ def app_path(*parts: str) -> Path:
 
 
 def user_data_root() -> Path:
-    """Return a per-user writable fallback directory for RETubeMatrix browser data."""
-    override = (
-        os.environ.get("RETUBEMATRIX_BROWSER_DATA_DIR", "").strip()
-        or os.environ.get("REUPYTB_BROWSER_DATA_DIR", "").strip()
-        or os.environ.get("YOUWEE_BROWSER_DATA_DIR", "").strip()
-    )
+    """Return a per-user writable directory for RETubeMatrix browser data."""
+    override = os.environ.get("RETUBEMATRIX_BROWSER_DATA_DIR", "").strip()
     if override:
         return Path(override)
     base = os.environ.get("LOCALAPPDATA")
     if base:
-        retube_dir = Path(base) / "RETubeMatrix" / "browser_engine"
-        reup_dir = Path(base) / "reupytb" / "browser_engine"
-        # If RETubeMatrix directory already exists with profiles, use it
-        if (retube_dir / "profiles.json").exists() or (retube_dir / "profiles").exists():
-            return retube_dir
-        # Otherwise fallback to reupytb if it has existing profiles
-        if (reup_dir / "profiles.json").exists() or (reup_dir / "profiles").exists():
-            return reup_dir
-        return retube_dir
+        return Path(base) / "RETubeMatrix" / "browser_engine"
     return Path.home() / "AppData" / "Local" / "RETubeMatrix" / "browser_engine"
 
 
@@ -42,13 +30,8 @@ def user_data_path(*parts: str) -> Path:
 
 
 def profile_data_root() -> Path:
-    """Return one per-user profile root for source and frozen app launches."""
-    override = (
-        os.environ.get("RETUBEMATRIX_BROWSER_DATA_DIR", "").strip()
-        or os.environ.get("REUPYTB_BROWSER_DATA_DIR", "").strip()
-        or os.environ.get("YOUWEE_BROWSER_DATA_DIR", "").strip()
-        or os.environ.get("BROWSERMULTI_PROFILE_DATA_DIR", "").strip()
-    )
+    """Return the profile root for RETubeMatrix."""
+    override = os.environ.get("RETUBEMATRIX_BROWSER_DATA_DIR", "").strip()
     if override:
         return Path(override).expanduser()
     return user_data_root()
@@ -59,20 +42,8 @@ def profile_data_path(*parts: str) -> Path:
 
 
 def legacy_profile_data_roots() -> tuple[Path, ...]:
-    """Return compatible source/frozen roots without moving profile data."""
-    canonical = profile_data_root()
-    candidates = [app_root(), user_data_root()]
-    roots: list[Path] = []
-    for candidate in candidates:
-        try:
-            if candidate.resolve() == canonical.resolve():
-                continue
-        except OSError:
-            if candidate == canonical:
-                continue
-        if all(str(existing).casefold() != str(candidate).casefold() for existing in roots):
-            roots.append(candidate)
-    return tuple(roots)
+    """No legacy root fallback - RETubeMatrix profile storage is 100% isolated."""
+    return ()
 
 
 def profile_data_dir(profile_dir: str, root: str | Path | None = None) -> Path:

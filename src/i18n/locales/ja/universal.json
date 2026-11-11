@@ -16,7 +16,13 @@
     "urlCount_plural": "{{count}} 件の URL",
     "dropHint": "ここに URL または .txt ファイルをドロップ",
     "detectedMultiple": "{{count}} 件の URL を検出",
-    "clearInput": "クリア"
+    "clearInput": "クリア",
+    "channel": "Channel",
+    "channelHint": "Scan and download all videos from a YouTube channel",
+    "placeholderChannel": "Paste YouTube channel URL (e.g. https://www.youtube.com/@ChannelName)...",
+    "scanChannel": "Scan Channel",
+    "scanningChannel": "Scanning videos...",
+    "loadToQueue": "Add to Queue"
   },
   "page": {
     "quickSettings": "クイック設定",

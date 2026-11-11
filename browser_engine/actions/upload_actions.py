@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import random
@@ -100,6 +101,7 @@ class YouTubeUpload:
         video_path: str,
         title: str,
         description: str,
+        tags: str = "",
         thumbnail_path: str = None,
         visibility: str = "public",
         schedule_date: str = "",
@@ -333,19 +335,45 @@ class YouTubeUpload:
                 await random_delay(0.2, 0.4)
                 await page.keyboard.press("Control+a")
                 await page.keyboard.press("Backspace")
-                if len(description) > 150:
-                    # Description dài thì set DOM để tránh gõ quá lâu
-                    await page.evaluate("""(d) => {
-                        const db = document.querySelector('#description-textarea #textbox')
-                            || (document.querySelectorAll('ytcp-uploads-dialog #textbox')[1]);
-                        if (db) {
-                            db.innerText = d;
-                            db.dispatchEvent(new Event('input', { bubbles: true }));
-                            db.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
-                    }""", description)
-                else:
-                    await human_type(page, desc_box, description, typo_rate=0.01)
+                await random_delay(0.1, 0.3)
+
+                # Sử dụng Chromium CDP insert_text (nhanh, tức thì, kích hoạt chuẩn beforeinput & input cho Polymer)
+                inserted = False
+                try:
+                    await page.keyboard.insert_text(description)
+                    inserted = True
+                except Exception as ex_ins:
+                    logger.warning("keyboard.insert_text lỗi: %s", ex_ins)
+
+                await random_delay(0.3, 0.6)
+
+                # Kiểm tra lại xem text đã thực sự có trong desc_box chưa
+                cur_text = ""
+                try:
+                    cur_text = await desc_box.inner_text()
+                except Exception:
+                    pass
+
+                # Fallback nếu insert_text chưa ăn: dùng document.execCommand('insertText')
+                if not cur_text or not cur_text.strip():
+                    logger.info("desc_box chưa nhận text, kích hoạt fallback execCommand...")
+                    try:
+                        await desc_box.click()
+                        await page.evaluate("""(d) => {
+                            document.execCommand('insertText', false, d);
+                        }""", description)
+                    except Exception as ex_cmd:
+                        logger.warning("execCommand fallback lỗi: %s", ex_cmd)
+
+                # Kiểm tra fallback lần 2: nếu vẫn trống thì gõ phím trực tiếp
+                try:
+                    cur_text2 = await desc_box.inner_text()
+                    if not cur_text2 or not cur_text2.strip():
+                        logger.info("desc_box vẫn trống, thử gõ phím trực tiếp...")
+                        snippet = description[:1500]
+                        await page.keyboard.type(snippet)
+                except Exception:
+                    pass
             except Exception as exc:
                 logger.warning("Lỗi khi điền mô tả: %s", exc)
         await random_delay(0.5, 1.2)
@@ -374,25 +402,27 @@ class YouTubeUpload:
                     || document.querySelector('ytcp-uploads-dialog [id="scrollable-content"]')
                     || document.querySelector('#scrollable-content');
                 if (sc) {
-                    sc.scrollTop = sc.scrollHeight / 2;
+                    sc.scrollTop = sc.scrollHeight;
                 }
             }""")
         except Exception:
             pass
         await random_delay(0.5, 1.0)
 
-        # Đối tượng khán giả — name thực tế là VIDEO_MADE_FOR_KIDS_NOT_MFK
+        # Đối tượng khán giả — bắt buộc chọn "Không dành cho trẻ em" và kiểm tra aria-checked="true"
         audience_clicked = False
         for selector in [
             'tp-yt-paper-radio-button[name="VIDEO_MADE_FOR_KIDS_NOT_MFK"]',
             '[name="VIDEO_MADE_FOR_KIDS_NOT_MFK"]',
+            '#not-made-for-kids tp-yt-paper-radio-button',
             'tp-yt-paper-radio-button[name="NOT_MADE_FOR_KIDS"]',
         ]:
             try:
                 el = page.locator(selector).first
                 if await el.is_visible(timeout=3000):
+                    await el.scroll_into_view_if_needed()
                     await el.click()
-                    await random_delay(0.5, 1.0)
+                    await random_delay(0.4, 0.8)
                     checked = await el.get_attribute("aria-checked")
                     logger.info("Audience click (%s) aria-checked=%s", selector, checked)
                     if checked == "true":
@@ -419,6 +449,210 @@ class YouTubeUpload:
         if not audience_clicked:
             logger.warning("Không chọn được đối tượng khán giả")
 
+        # Tự động bấm nút 'Hiện thêm' ('Show more') và điền Thẻ (Tags)
+        if tags:
+            logger.info("Xử lý tự động điền thẻ Tags vào YouTube Studio...")
+            try:
+                # 1. Tách mảng tags bằng dấu phẩy và cắt gọn tối đa 480 ký tự
+                raw_tag_list = []
+                if isinstance(tags, list):
+                    raw_tag_list = [str(t).strip() for t in tags if str(t).strip()]
+                elif isinstance(tags, str):
+                    raw_str = tags.strip()
+                    if raw_str.startswith("[") and raw_str.endswith("]"):
+                        try:
+                            parsed = json.loads(raw_str)
+                            if isinstance(parsed, list):
+                                raw_tag_list = [str(t).strip() for t in parsed if str(t).strip()]
+                        except Exception:
+                            pass
+                    if not raw_tag_list:
+                        raw_tag_list = [t.strip() for t in raw_str.split(",") if t.strip()]
+
+                trimmed_tags: list[str] = []
+                current_len = 0
+                seen = set()
+                for tag in raw_tag_list:
+                    clean_tag = tag.strip().strip('"').strip("'").strip(",").strip()
+                    if not clean_tag or clean_tag.startswith("http://") or clean_tag.startswith("https://") or "youtube.com" in clean_tag:
+                        continue
+                    lower_tag = clean_tag.lower()
+                    if lower_tag in seen:
+                        continue
+                    seen.add(lower_tag)
+
+                    # Thuật toán đếm ký tự YouTube Studio:
+                    # - Mỗi ký tự: len(clean_tag)
+                    # - Cụm từ có khoảng trắng: YouTube bọc ngầm ngoặc kép (+2 ký tự)
+                    # - Dấu phẩy phân cách: +1 ký tự (kể từ thẻ thứ 2)
+                    # - Giới hạn an toàn 450 ký tự (biên phòng thủ 50 ký tự)
+                    quote_penalty = 2 if " " in clean_tag else 0
+                    comma_cost = 1 if trimmed_tags else 0
+                    cost = len(clean_tag) + quote_penalty + comma_cost
+
+                    if current_len + cost > 450:
+                        logger.info(
+                            "Đã đạt ngưỡng an toàn 450 ký tự tags YouTube Studio (%d + %d > 450). Dừng tại thẻ: '%s'",
+                            current_len, cost, clean_tag
+                        )
+                        break
+                    trimmed_tags.append(clean_tag)
+                    current_len += cost
+
+                if trimmed_tags:
+                    # 2. Tự động bấm nút 'Hiện thêm' ('Show more')
+                    toggle_selectors = [
+                        "ytcp-button#toggle-button",
+                        "#toggle-button",
+                        "tp-yt-paper-button:has-text('Hiện thêm')",
+                        "tp-yt-paper-button:has-text('Show more')",
+                        "button:has-text('Hiện thêm')",
+                        "button:has-text('Show more')",
+                    ]
+                    toggle_clicked = False
+                    for t_sel in toggle_selectors:
+                        try:
+                            t_btn = page.locator(t_sel).first
+                            if await t_btn.is_visible(timeout=2000):
+                                btn_txt = (await t_btn.inner_text() or "").lower()
+                                if "ít hơn" in btn_txt or "less" in btn_txt:
+                                    logger.info("Nút 'Hiện thêm' đã được mở rộng trước đó")
+                                    toggle_clicked = True
+                                    break
+                                await t_btn.scroll_into_view_if_needed()
+                                await t_btn.click()
+                                logger.info("Đã bấm nút 'Hiện thêm' ('Show more'): %s", t_sel)
+                                toggle_clicked = True
+                                await asyncio.sleep(1.0)
+                                break
+                        except Exception:
+                            continue
+
+                    if not toggle_clicked:
+                        # Fallback JS click
+                        try:
+                            js_res = await page.evaluate("""() => {
+                                const d = document.querySelector('ytcp-uploads-dialog') || document;
+                                const btn = d.querySelector('ytcp-button#toggle-button, #toggle-button, [id="toggle-button"]');
+                                if (btn) {
+                                    const txt = (btn.innerText || '').toLowerCase();
+                                    if (txt.includes('ít') || txt.includes('less')) return 'already_expanded';
+                                    btn.click();
+                                    return 'clicked_id';
+                                }
+                                const btns = d.querySelectorAll('tp-yt-paper-button, button, ytcp-button');
+                                for (const b of btns) {
+                                    const t = (b.innerText || '').toLowerCase();
+                                    if (t.includes('hiện thêm') || t.includes('show more')) {
+                                        b.click();
+                                        return 'clicked_text';
+                                    }
+                                }
+                                return 'not_found';
+                            }""")
+                            logger.info("Fallback JS click toggle-button: %s", js_res)
+                            await asyncio.sleep(0.8)
+                        except Exception as e:
+                            logger.debug("JS toggle click exception: %s", e)
+
+                    # 3. Cuộn trang xuống để lộ phần Thẻ (Tags)
+                    try:
+                        await page.evaluate("""() => {
+                            const sc = document.querySelector('ytcp-uploads-dialog #scrollable-content')
+                                || document.querySelector('ytcp-uploads-dialog [id="scrollable-content"]')
+                                || document.querySelector('#scrollable-content');
+                            if (sc) {
+                                sc.scrollTop = sc.scrollHeight;
+                            }
+                        }""")
+                    except Exception:
+                        pass
+                    await asyncio.sleep(0.8)
+
+                    # 4. Định vị ô nhập tags
+                    tag_input_selectors = [
+                        "#tags-container #text-input",
+                        "input#text-input[aria-label*='Thẻ']",
+                        "input#text-input[placeholder*='thẻ']",
+                        "input#text-input[placeholder*='tag']",
+                        "ytcp-chip-cloud[id='tags-container'] #text-input",
+                        "#tags-container input",
+                        "input#text-input[aria-label*='Tags' i]",
+                        "input#text-input[placeholder*='Tags' i]",
+                    ]
+                    tags_input = None
+                    for ti_sel in tag_input_selectors:
+                        try:
+                            el = page.locator(ti_sel).first
+                            if await el.count() > 0:
+                                await el.scroll_into_view_if_needed()
+                                if await el.is_visible(timeout=2500):
+                                    tags_input = el
+                                    logger.info("Định vị thành công ô nhập thẻ Tags: %s", ti_sel)
+                                    break
+                        except Exception:
+                            continue
+
+                    if not tags_input:
+                        # Fallback tìm trong uploads dialog
+                        try:
+                            dialog = page.locator("ytcp-uploads-dialog")
+                            for ti_sel in tag_input_selectors:
+                                el = dialog.locator(ti_sel).first
+                                if await el.count() > 0:
+                                    await el.scroll_into_view_if_needed()
+                                    if await el.is_visible(timeout=2500):
+                                        tags_input = el
+                                        logger.info("Định vị thành công ô nhập thẻ Tags trong dialog: %s", ti_sel)
+                                        break
+                        except Exception:
+                            pass
+
+                    # 5. Dùng cơ chế gõ phím Polymer chip: fill(tag) -> delay 150ms -> gõ ',' -> delay 150ms -> press('Enter')
+                    if tags_input:
+                        logger.info(
+                            "Bắt đầu nhập %d thẻ tags vào YouTube Studio (tổng độ dài an toàn: %d/450 ký tự)...",
+                            len(trimmed_tags), current_len
+                        )
+                        await tags_input.scroll_into_view_if_needed()
+                        await tags_input.click()
+                        await asyncio.sleep(0.15)
+                        # Dọn sạch text thô đang dở nếu có trong ô input
+                        await page.keyboard.press("Control+a")
+                        await page.keyboard.press("Backspace")
+                        await asyncio.sleep(0.15)
+                        applied_tags_count = 0
+                        for t in trimmed_tags:
+                            try:
+                                await tags_input.fill(t)
+                                await asyncio.sleep(0.15)
+                                await page.keyboard.press(",")
+                                await asyncio.sleep(0.15)
+                                await page.keyboard.press("Enter")
+                                await asyncio.sleep(0.15)
+
+                                # Kiểm tra an toàn: nếu text còn trong ô thì bấm Enter lại
+                                try:
+                                    val = await tags_input.input_value()
+                                    if val and val.strip():
+                                        await page.keyboard.press("Enter")
+                                        await asyncio.sleep(0.15)
+                                except Exception:
+                                    pass
+
+                                applied_tags_count += 1
+                            except Exception as ex_chip:
+                                logger.warning("Không thể gõ thẻ tag '%s': %s", t, ex_chip)
+
+                        logger.info(
+                            "Đã tạo thành công %d/%d chip thẻ tags trên YouTube Studio",
+                            applied_tags_count, len(trimmed_tags)
+                        )
+                    else:
+                        logger.warning("Không tìm thấy ô nhập thẻ tags trên YouTube Studio")
+            except Exception as exc:
+                logger.warning("Lỗi xử lý tự động điền thẻ tags: %s", exc)
+
         # Verify trạng thái radio và Next button sau khi click
         await random_delay(0.5, 1.0)
 
@@ -440,63 +674,33 @@ class YouTubeUpload:
         except Exception:
             logger.warning("Next button chưa enabled sau 8s — tiếp tục thử click")
 
-        # Click Next 3 lần để navigate qua các bước (Video elements -> Checks -> Visibility)
-        for step_name in ("Video elements", "Checks", "Visibility"):
-            logger.info("Next → %s", step_name)
+        # Tiến trình Next thông minh: đảm bảo chắc chắn chuyển đến bước REVIEW / Visibility
+        for attempt in range(5):
+            # Kiểm tra xem đã đến bước Visibility chưa (bằng kiểm tra radio visibility hoặc done-button)
+            on_visibility_step = await page.evaluate("""() => {
+                const d = document.querySelector('ytcp-uploads-dialog');
+                if (!d) return false;
+                const step = (d.getAttribute('workflow-step') || '').toUpperCase();
+                if (step === 'REVIEW' || step.includes('VISIBILITY') || step.includes('REVIEW')) return true;
+                const hasVisRadio = d.querySelector('tp-yt-paper-radio-button[name="PUBLIC"]') || d.querySelector('tp-yt-paper-radio-button[name="UNLISTED"]');
+                return hasVisRadio !== null && hasVisRadio.offsetParent !== null;
+            }""")
+            if on_visibility_step:
+                logger.info("Đã đến bước Chế độ hiển thị (Visibility) thành công!")
+                break
+
+            logger.info("Đang ở bước trước Visibility, bấm Next (lần %d)...", attempt + 1)
             try:
-                # 1. Thử click trực tiếp bằng Playwright locator
-                clicked = False
-                for sel in ['#next-button', 'ytcp-button#next-button', 'ytcp-uploads-dialog #next-button']:
-                    try:
-                        btn = page.locator(sel).first
-                        if await btn.is_visible(timeout=2000):
-                            dis = await btn.get_attribute("disabled") or await btn.get_attribute("aria-disabled") == "true"
-                            if not dis:
-                                await btn.click()
-                                clicked = True
-                                break
-                    except Exception:
-                        pass
-
-                # 2. Fallback qua JS event dispatch nếu Playwright click chưa kích hoạt
-                if not clicked:
-                    result = await page.evaluate("""() => {
-                        const dialog = document.querySelector('ytcp-uploads-dialog');
-                        if (!dialog) return 'no-dialog';
-
-                        let btn = dialog.querySelector('#next-button') || dialog.querySelector('ytcp-button#next-button');
-                        if (!btn) {
-                            const buttons = Array.from(dialog.querySelectorAll('ytcp-button'));
-                            btn = buttons.find(b => {
-                                const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
-                                return txt === 'next' || txt === 'tiếp theo';
-                            });
-                        }
-                        if (!btn) return 'not-found';
-
-                        if (btn.hasAttribute('disabled') || btn.getAttribute('aria-disabled') === 'true') {
-                            return 'disabled';
-                        }
-
-                        const events = ['mousedown', 'mouseup', 'click'];
-                        for (const evtName of events) {
-                            const evt = new MouseEvent(evtName, {
-                                bubbles: true, cancelable: true, view: window
-                            });
-                            btn.dispatchEvent(evt);
-                        }
-                        return 'dispatched';
-                    }""")
-                    logger.info("  JS Next dispatch result: %s", result)
-
-                await random_delay(2.0, 3.5)
-
-                step = await page.evaluate(
-                    "() => document.querySelector('ytcp-uploads-dialog')?.getAttribute('workflow-step') || 'unknown'"
-                )
-                logger.info("  workflow-step sau click: %s", step)
-            except Exception as exc:
-                logger.warning("Không click được Next (%s): %s", step_name, exc)
+                next_btn = page.locator("#next-button, ytcp-button#next-button").first
+                if await next_btn.is_visible(timeout=5000):
+                    await next_btn.scroll_into_view_if_needed()
+                    await next_btn.click()
+            except Exception:
+                await page.evaluate("""() => {
+                    const btn = document.querySelector('#next-button') || document.querySelector('ytcp-button#next-button');
+                    if (btn) btn.click();
+                }""")
+            await random_delay(2.0, 3.5)
 
         # Chế độ hiển thị
         vis = str(visibility or "public").strip().lower()
@@ -504,90 +708,83 @@ class YouTubeUpload:
 
         if vis == "schedule" and schedule_date and schedule_time:
             await _set_schedule(page, schedule_date, schedule_time)
-        elif vis == "unlisted":
-            try:
-                clicked = False
-                for r_name in ["Unlisted", "Không công khai"]:
-                    try:
-                        radio = page.get_by_role("radio", name=r_name).first
-                        if await radio.is_visible(timeout=2000):
-                            await radio.click()
-                            clicked = True
-                            break
-                    except Exception:
-                        pass
-                if not clicked:
-                    await page.locator('tp-yt-paper-radio-button[name="UNLISTED"], [name="UNLISTED"]').first.click()
-                await random_delay(0.8, 1.5)
-            except Exception as exc:
-                logger.warning("Không chọn được Unlisted: %s", exc)
-        elif vis == "private":
-            try:
-                clicked = False
-                for r_name in ["Private", "Riêng tư"]:
-                    try:
-                        radio = page.get_by_role("radio", name=r_name).first
-                        if await radio.is_visible(timeout=2000):
-                            await radio.click()
-                            clicked = True
-                            break
-                    except Exception:
-                        pass
-                if not clicked:
-                    await page.locator('tp-yt-paper-radio-button[name="PRIVATE"], [name="PRIVATE"]').first.click()
-                await random_delay(0.8, 1.5)
-            except Exception as exc:
-                logger.warning("Không chọn được Private: %s", exc)
         else:
-            try:
-                clicked = False
-                for r_name in ["Public", "Công khai"]:
-                    try:
-                        radio = page.get_by_role("radio", name=r_name).first
-                        if await radio.is_visible(timeout=2000):
-                            await radio.click()
-                            clicked = True
+            target_radio_name = "PUBLIC" if vis == "public" else ("PRIVATE" if vis == "private" else "UNLISTED")
+            radio_selected = False
+            for r_sel in [
+                f'tp-yt-paper-radio-button[name="{target_radio_name}"]',
+                f'[name="{target_radio_name}"]',
+            ]:
+                try:
+                    r_loc = page.locator(r_sel).first
+                    if await r_loc.is_visible(timeout=3000):
+                        await r_loc.scroll_into_view_if_needed()
+                        await r_loc.click()
+                        await random_delay(0.5, 1.0)
+                        checked = await r_loc.get_attribute("aria-checked")
+                        if checked == "true":
+                            radio_selected = True
+                            logger.info("Đã chọn chế độ hiển thị %s thành công (aria-checked=true)!", target_radio_name)
                             break
-                    except Exception:
-                        pass
-                if not clicked:
-                    await page.locator('tp-yt-paper-radio-button[name="PUBLIC"], [name="PUBLIC"]').first.click()
-                await random_delay(0.8, 1.5)
-            except Exception as exc:
-                logger.warning("Không chọn được Public: %s", exc)
+                except Exception:
+                    pass
+
+            if not radio_selected:
+                # Fallback JS click radio
+                res_vis = await page.evaluate(f"""() => {{
+                    const r = document.querySelector('tp-yt-paper-radio-button[name="{target_radio_name}"]');
+                    if (r) {{
+                        r.click();
+                        return 'clicked:' + r.getAttribute('aria-checked');
+                    }}
+                    return 'not-found';
+                }}""")
+                logger.info("Fallback JS visibility click: %s", res_vis)
 
         video_url = await _extract_video_url(page)
         if video_url:
             logger.info("URL video: %s", video_url)
 
-        # Publish / Schedule
+        # Publish / Schedule / Save
         done_clicked = False
-        try:
-            done_btn = page.locator("#done-button").first
-            await done_btn.wait_for(state="visible", timeout=15000)
-            await done_btn.click()
-            logger.info("Đã nhấn Publish/Schedule")
-            done_clicked = True
-        except Exception as exc:
-            logger.warning("Playwright done button thất bại: %s", exc)
+        for done_sel in [
+            "#done-button",
+            "ytcp-button#done-button",
+            "button:has-text('Publish')",
+            "button:has-text('Xuất bản')",
+            "button:has-text('Save')",
+            "button:has-text('Lưu')",
+            "button:has-text('Schedule')",
+            "button:has-text('Lên lịch')",
+        ]:
+            try:
+                btn = page.locator(done_sel).first
+                if await btn.is_visible(timeout=2000):
+                    await btn.scroll_into_view_if_needed()
+                    await btn.click()
+                    logger.info("Đã nhấn nút Publish/Lưu qua locator: %s", done_sel)
+                    done_clicked = True
+                    break
+            except Exception:
+                pass
 
         if not done_clicked:
             # Force-enable and click the done button via JS
             result = await page.evaluate("""() => {
-                const btn = document.querySelector('#done-button');
+                const btn = document.querySelector('#done-button') || document.querySelector('ytcp-button#done-button');
                 if (!btn) return 'not-found';
                 // Force-enable by removing disabled/hidden attributes
                 btn.removeAttribute('disabled');
                 btn.removeAttribute('hidden');
                 btn.removeAttribute('aria-disabled');
                 btn.setAttribute('aria-disabled', 'false');
-                // Also try the inner button element
                 const innerBtn = btn.shadowRoot ? btn.shadowRoot.querySelector('button') : null;
                 if (innerBtn) {
                     innerBtn.removeAttribute('disabled');
                     innerBtn.removeAttribute('hidden');
+                    innerBtn.removeAttribute('aria-disabled');
+                    innerBtn.click();
                 }
-                // Dispatch click events
                 ['mousedown','mouseup','click'].forEach(n =>
                     btn.dispatchEvent(new MouseEvent(n, {bubbles: true, cancelable: true}))
                 );
@@ -597,23 +794,58 @@ class YouTubeUpload:
             if result == 'force-clicked':
                 done_clicked = True
 
+        # Chờ xác nhận đã lưu thành công và dialog đóng / share dialog hiện
+        saved_successfully = False
         try:
-            await page.wait_for_selector("ytcp-video-share-dialog", timeout=30000)
-            logger.info("Video đã được đăng / lên lịch thành công")
-            if not video_url:
-                video_url = await _extract_video_url(page)
-                if video_url:
-                    logger.info("URL video trích xuất từ hộp thoại xác nhận: %s", video_url)
-            for c_name in ["Close", "Đóng"]:
-                try:
-                    close_btn = page.get_by_role("button", name=c_name).first
-                    if await close_btn.is_visible(timeout=3000):
-                        await close_btn.click()
-                        break
-                except Exception:
-                    pass
+            # Chờ hoặc là xuất hiện share dialog, hoặc là uploads-dialog biến mất
+            share_dialog = page.locator("ytcp-video-share-dialog").first
+            if await share_dialog.is_visible(timeout=10000):
+                logger.info("Hộp thoại chia sẻ video xuất hiện — video đã lưu thành công!")
+                saved_successfully = True
+            else:
+                # Chờ uploads dialog đóng
+                await page.wait_for_selector("ytcp-uploads-dialog", state="hidden", timeout=15000)
+                logger.info("Upload dialog đã đóng — video đã xuất bản thành công!")
+                saved_successfully = True
         except Exception:
-            logger.warning("Không phát hiện hộp thoại xác nhận")
+            logger.info("Kiểm tra lại trạng thái uploads dialog sau khi bấm Save...")
+
+        # Nếu dialog vẫn chưa đóng, thử click nút Lưu lần nữa để chắc chắn không bị kẹt ở Draft
+        try:
+            dialog_still_open = await page.locator("ytcp-uploads-dialog").first.is_visible(timeout=1500)
+            if dialog_still_open:
+                logger.warning("Upload dialog vẫn đang mở! Thử click lại nút Lưu/Done...")
+                await page.evaluate("""() => {
+                    const btn = document.querySelector('#done-button') || document.querySelector('ytcp-button#done-button');
+                    if (btn) btn.click();
+                }""")
+                await random_delay(2.0, 3.5)
+        except Exception:
+            pass
+
+        # Đóng hộp thoại chia sẻ nếu có
+        for c_name in ["Close", "Đóng"]:
+            try:
+                close_btn = page.get_by_role("button", name=c_name).first
+                if await close_btn.is_visible(timeout=2000):
+                    await close_btn.click()
+                    break
+            except Exception:
+                pass
+
+        # Cho phép YouTube hoàn tất sync backend 2-3 giây trước khi thoát
+        await random_delay(2.0, 3.5)
+
+        # Kiểm tra trung thực: nếu uploads dialog vẫn mở và chưa xuất bản thành công -> ném lỗi rõ ràng
+        dialog_still_open = False
+        try:
+            dialog_still_open = await page.locator("ytcp-uploads-dialog").first.is_visible(timeout=1500)
+        except Exception:
+            pass
+
+        if dialog_still_open and not saved_successfully:
+            logger.error("Hộp thoại tải lên vẫn mở sau khi bấm Lưu/Xuất bản. Video chưa hoàn tất lưu!")
+            raise RuntimeError("YouTube Studio chưa hoàn tất lưu/xuất bản video (video bị lưu tạm dạng Bản nháp).")
 
         if not video_url:
             await random_delay(1.5, 2.5)

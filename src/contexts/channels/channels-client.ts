@@ -9,6 +9,7 @@ import type {
   BktTestJob,
   ChannelStats,
   ChannelVideo,
+  DailyReportStats,
   DownloadProgress,
   FollowedChannel,
   MultiBrowserProfile,
@@ -292,13 +293,16 @@ export async function toggleChannelAutoDownload(
 
 export async function updateChannelBktConfig(input: {
   channelId: string;
-  bktTestMode: number;
+  bktTestMode: boolean | number;
   bktProfileId: string | null;
 }): Promise<void> {
   await invoke('update_channel_bkt_config', {
     channelId: input.channelId,
-    bktTestMode: input.bktTestMode,
+    channel_id: input.channelId,
+    bktTestMode: Boolean(input.bktTestMode),
+    bkt_test_mode: Boolean(input.bktTestMode),
     bktProfileId: input.bktProfileId,
+    bkt_profile_id: input.bktProfileId,
   });
 }
 
@@ -311,6 +315,22 @@ export async function triggerBktTestVideo(input: {
     channelVideoId: input.channelVideoId,
     channelId: input.channelId ?? null,
     bktProfileId: input.bktProfileId ?? null,
+  });
+}
+
+export async function triggerBktTestVideosBatch(
+  items: Array<{
+    channelVideoId: string;
+    channelId?: string | null;
+    bktProfileId?: string | null;
+  }>,
+): Promise<number> {
+  return await invoke<number>('trigger_bkt_test_videos_batch', {
+    items: items.map((i) => ({
+      channel_video_id: i.channelVideoId,
+      channel_id: i.channelId ?? null,
+      bkt_profile_id: i.bktProfileId ?? null,
+    })),
   });
 }
 
@@ -358,4 +378,33 @@ export async function dispatchBatchBktTest(
   payload: BktBatchDispatchRequest,
 ): Promise<BktDispatchResult> {
   return await invoke<BktDispatchResult>('dispatch_batch_bkt_test', { payload });
+}
+
+export async function getChannelVideoFilepath(videoId: string): Promise<string | null> {
+  return await invoke<string | null>('get_channel_video_filepath', { videoId });
+}
+
+export async function publishBktJobToMain(jobId: string): Promise<string> {
+  return await invoke<string>('publish_bkt_job_to_main_cmd', { jobId });
+}
+
+export async function recheckBktJob(jobId: string): Promise<void> {
+  return await invoke<void>('recheck_bkt_job_cmd', { jobId });
+}
+
+export async function getDailyReportStats(date?: string): Promise<DailyReportStats> {
+  return await invoke<DailyReportStats>('get_daily_report_stats', {
+    date: date ?? null,
+    dateFilter: date ?? null,
+  });
+}
+
+export async function waitBktJobCompletion(
+  jobId: string,
+  timeoutSecs?: number,
+): Promise<BktTestJob> {
+  return await invoke<BktTestJob>('wait_bkt_job_completion', {
+    jobId,
+    timeoutSecs: timeoutSecs ?? 1800,
+  });
 }

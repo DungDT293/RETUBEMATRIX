@@ -657,7 +657,9 @@ def normalize_proxy_input(value: str | None, proxy_scheme: str | None = "") -> s
     if scheme:
         return canonical_proxy_with_scheme(raw, scheme)
     explicit = proxy_scheme_from_input(raw)
-    return canonical_proxy_with_scheme(raw, explicit) if explicit else raw
+    if explicit:
+        return canonical_proxy_with_scheme(raw, explicit)
+    return canonical_proxy_with_scheme(raw, "http")
 
 
 def normalize_legacy_proxy_input(value: str | None) -> str:

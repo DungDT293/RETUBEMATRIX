@@ -1,3 +1,4 @@
+import { listen } from '@tauri-apps/api/event';
 import {
   AlertTriangle,
   ArrowDownUp,
@@ -21,7 +22,7 @@ import {
   Wand2,
   X,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,10 +34,23 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
-import { checkBktCopyrightStatus, triggerBktTestVideo } from '@/contexts/channels/channels-client';
-import type { ChannelVideo } from '@/lib/types';
+import {
+  checkBktCopyrightStatus,
+  dispatchBatchBktTest,
+  getChannelVideoFilepath,
+  toggleChannelAutoDownload,
+  updateChannelBktConfig,
+  waitBktJobCompletion,
+} from '@/contexts/channels/channels-client';
+import { useChannels } from '@/contexts/channels-context';
+import type { BktTestJob, ChannelVideo, FollowedChannel } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { formatDuration, formatUploadDateTime } from '@/pages/channels/channelUtils';
+import {
+  adaptCompetitorDescription,
+  getBestAutoPilotTitle,
+  getCompanionThumbnailPath,
+} from '@/utils/reup-auto-pilot';
 
 interface ChannelVideoAccordionProps {
   channelName: string;
@@ -49,6 +63,7 @@ interface ChannelVideoAccordionProps {
   onDownloadSelected: (videos: ChannelVideo[]) => void;
   isDownloading: boolean;
   onDeleteVideo?: (videoId: string) => void;
+  channel?: FollowedChannel;
 }
 
 type FilterType = 'all' | 'video' | 'shorts' | 'stream';
@@ -69,6 +84,7 @@ function formatCompactViews(count?: number): string | null {
 }
 
 export function ChannelVideoAccordion({
+  channelName,
   videos,
   isLoading,
   selectedVideoIds,
@@ -77,8 +93,10 @@ export function ChannelVideoAccordion({
   onDeselectAll,
   onDownloadSelected,
   isDownloading,
+  channel,
 }: ChannelVideoAccordionProps) {
   const toast = useToast();
+  const { followedChannels, refreshChannels } = useChannels();
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [timeFilter, setTimeFilter] = useState<TimeFilterOption>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,7 +104,275 @@ export function ChannelVideoAccordion({
   const [testingVideoId, setTestingVideoId] = useState<string | null>(null);
   const [checkingVideoId, setCheckingVideoId] = useState<string | null>(null);
   const [isBatchTestingBkt, setIsBatchTestingBkt] = useState<boolean>(false);
+  const [isSequentialTop5Running, setIsSequentialTop5Running] = useState<boolean>(false);
+  const [sequentialProgressText, setSequentialProgressText] = useState<string>('');
   const [videoOverrides, setVideoOverrides] = useState<Record<string, Partial<ChannelVideo>>>({});
+
+  // Lắng nghe realtime tiến trình BKT test từ background
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    listen<BktTestJob>('bkt-test-job-updated', (event) => {
+      const job = event.payload;
+      if (!job) return;
+      const targetRef = job.sourceRefId;
+      if (!targetRef) return;
+
+      setVideoOverrides((prev) => {
+        const current = prev[targetRef] || {};
+        let resolvedStatus: 'pending' | 'green_clean' | 'red_matched' | undefined =
+          current.bkt_check_status;
+        if (job.status === 'green_clean') resolvedStatus = 'green_clean';
+        else if (job.status === 'red_matched') resolvedStatus = 'red_matched';
+        else if (job.status === 'failed') resolvedStatus = 'red_matched';
+        else if (
+          job.status === 'checking' ||
+          job.status === 'uploading' ||
+          job.status === 'reuping'
+        ) {
+          resolvedStatus = 'pending';
+        }
+
+        return {
+          ...prev,
+          [targetRef]: {
+            ...current,
+            is_bkt_test: true,
+            bkt_check_status: resolvedStatus,
+            bkt_restriction:
+              job.restriction ||
+              job.errorMessage ||
+              (job.status === 'checking' ? 'Studio đang quét Content ID...' : undefined),
+          },
+        };
+      });
+    }).then((fn) => {
+      unlisten = fn;
+    });
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
+
+  const handleRunSequentialTop5AutoPilot = async () => {
+    if (isSequentialTop5Running) return;
+
+    // 1. Sắp xếp danh sách video theo thời gian đăng mới nhất (loại bỏ video live/stream chưa phát)
+    const validVideos = videos.filter((v) => {
+      const vt = (v.video_type || '').toLowerCase();
+      return vt !== 'live' && vt !== 'stream' && !v.url.includes('/live/');
+    });
+
+    const sortedNewest = [...validVideos].sort((a, b) => {
+      const timeA = a.upload_timestamp ?? (a.upload_date ? parseInt(a.upload_date, 10) : 0) ?? 0;
+      const timeB = b.upload_timestamp ?? (b.upload_date ? parseInt(b.upload_date, 10) : 0) ?? 0;
+      return timeB - timeA;
+    });
+
+    const top5 = sortedNewest.slice(0, 5);
+    if (top5.length === 0) {
+      toast.warning({
+        title: 'Chưa có video khả dụng',
+        message: 'Kênh đối thủ này chưa có video nào khả dụng để chạy quy trình.',
+      });
+      return;
+    }
+
+    const resolvedChannel = channel || followedChannels.find((c) => c.name === channelName);
+    const targetProfileId = resolvedChannel?.bkt_profile_id || null;
+
+    if (!targetProfileId) {
+      toast.warning({
+        title: 'Chưa cấu hình Kênh Đích',
+        message:
+          'Vui lòng gán Hồ Sơ Kênh Đích (Target Profile) cho kênh đối thủ này trước khi chạy quy trình xuất bản.',
+      });
+      return;
+    }
+
+    setIsSequentialTop5Running(true);
+    toast.info({
+      title: 'Bắt đầu Chu trình Reup Tuần Tự Top 5 (FIFO)',
+      message:
+        'Đang xử lý lần lượt từng video trong Top 5 mới nhất để tối ưu dung lượng ổ cứng (1-by-1).',
+    });
+
+    let successCount = 0;
+    let redCount = 0;
+
+    try {
+      for (let idx = 0; idx < top5.length; idx++) {
+        const v = top5[idx];
+        const stepIndex = idx + 1;
+        const total = top5.length;
+        const targetId = v.id || v.video_id;
+
+        setSequentialProgressText(`[${stepIndex}/${total}] Chuẩn bị...`);
+
+        setVideoOverrides((prev) => ({
+          ...prev,
+          [targetId]: {
+            status: 'downloading',
+            is_bkt_test: true,
+            bkt_check_status: 'pending',
+            bkt_restriction: `[${stepIndex}/${total}] Đang xử lý tuần tự...`,
+          },
+          [v.video_id]: {
+            status: 'downloading',
+            is_bkt_test: true,
+            bkt_check_status: 'pending',
+            bkt_restriction: `[${stepIndex}/${total}] Đang xử lý tuần tự...`,
+          },
+        }));
+
+        // BƯỚC 1: Kiểm tra xem video đã có trên ổ cứng chưa
+        let filePath = await getChannelVideoFilepath(v.video_id);
+        if (!filePath) {
+          setSequentialProgressText(`[${stepIndex}/${total}] Đang tải video...`);
+          setVideoOverrides((prev) => ({
+            ...prev,
+            [targetId]: { bkt_restriction: `[${stepIndex}/${total}] Đang tải video về máy...` },
+            [v.video_id]: { bkt_restriction: `[${stepIndex}/${total}] Đang tải video về máy...` },
+          }));
+
+          // Gọi tải duy nhất 1 video này
+          onDownloadSelected([v]);
+
+          // Chờ cho đến khi file tải xong và xuất hiện trên đĩa (tối đa 180s)
+          let attempts = 0;
+          while (!filePath && attempts < 90) {
+            await new Promise((r) => setTimeout(r, 2000));
+            filePath = await getChannelVideoFilepath(v.video_id);
+            attempts++;
+          }
+        }
+
+        if (!filePath) {
+          console.error(`Không thể tải video: ${v.title}`);
+          setVideoOverrides((prev) => ({
+            ...prev,
+            [targetId]: { bkt_restriction: `[${stepIndex}/${total}] Lỗi tải video về máy` },
+            [v.video_id]: { bkt_restriction: `[${stepIndex}/${total}] Lỗi tải video về máy` },
+          }));
+          continue;
+        }
+
+        // BƯỚC 2: AI Tối ưu hóa Tiêu đề, Mô tả, Hashtag (Hỗ trợ Thái, Lào, CJK, Việt, Quốc tế, <=95 ký tự)
+        setSequentialProgressText(`[${stepIndex}/${total}] Reup Lv.1 & Gửi Studio...`);
+        const aiTitle = getBestAutoPilotTitle(v.title);
+        const adaptedDesc = adaptCompetitorDescription({
+          originalDescription: '',
+          targetChannelName: resolvedChannel?.name || channelName,
+          videoTitle: aiTitle,
+          includeFairUseDisclaimer: true,
+        });
+        const thumbPath = getCompanionThumbnailPath(filePath);
+
+        // BƯỚC 3: Gửi BKT Job tuần tự
+        const dispatchRes = await dispatchBatchBktTest({
+          items: [
+            {
+              videoTitle: v.title,
+              videoPath: filePath,
+              videoSourceType: 'channel_video',
+              sourceRefId: targetId,
+              mainTargetProfileId: targetProfileId,
+              autoPublishMain: true,
+              targetTitle: aiTitle,
+              targetDescription: adaptedDesc,
+              thumbnailPath: thumbPath,
+            },
+          ],
+          targetTestChannelId: undefined,
+          sequential: true,
+        });
+
+        const dispatchedJob = dispatchRes.results?.[0];
+        if (!dispatchedJob?.success || !dispatchedJob.jobId) {
+          console.error(`Lỗi điều phối BKT cho video ${v.title}:`, dispatchedJob?.error);
+          continue;
+        }
+
+        const jobId = dispatchedJob.jobId;
+        setSequentialProgressText(`[${stepIndex}/${total}] Studio đang quét Content ID...`);
+        setVideoOverrides((prev) => ({
+          ...prev,
+          [targetId]: {
+            bkt_restriction: `[${stepIndex}/${total}] Studio đang quét Content ID & chuẩn bị đăng Kênh Đích...`,
+          },
+          [v.video_id]: {
+            bkt_restriction: `[${stepIndex}/${total}] Studio đang quét Content ID & chuẩn bị đăng Kênh Đích...`,
+          },
+        }));
+
+        // BƯỚC 4: Chờ hoàn thành BKT & Tự động xuất bản & Tự động xóa file giải phóng ổ cứng
+        try {
+          const finishedJob = await waitBktJobCompletion(jobId, 900);
+          if (finishedJob.status === 'green_clean') {
+            successCount++;
+            setVideoOverrides((prev) => ({
+              ...prev,
+              [targetId]: {
+                bkt_check_status: 'green_clean',
+                bkt_restriction: `[${stepIndex}/${total}] Sạch Bản Quyền và đã đăng Kênh Đích! (Đã dọn sạch ổ đĩa)`,
+              },
+              [v.video_id]: {
+                bkt_check_status: 'green_clean',
+                bkt_restriction: `[${stepIndex}/${total}] Sạch Bản Quyền và đã đăng Kênh Đích! (Đã dọn sạch ổ đĩa)`,
+              },
+            }));
+            toast.success({
+              title: `Video ${stepIndex}/${total} Hoàn tất!`,
+              message: `"${aiTitle}" đã sạch bản quyền và xuất bản lên Kênh Đích! File gốc, reup và thumbnail đã được xóa an toàn để tối ưu bộ nhớ.`,
+            });
+          } else if (finishedJob.status === 'red_matched') {
+            redCount++;
+            setVideoOverrides((prev) => ({
+              ...prev,
+              [targetId]: {
+                bkt_check_status: 'red_matched',
+                bkt_restriction: `[${stepIndex}/${total}] Dính bản quyền: ${finishedJob.restriction || ''} (Đã dọn file tạm)`,
+              },
+              [v.video_id]: {
+                bkt_check_status: 'red_matched',
+                bkt_restriction: `[${stepIndex}/${total}] Dính bản quyền: ${finishedJob.restriction || ''} (Đã dọn file tạm)`,
+              },
+            }));
+            toast.warning({
+              title: `Video ${stepIndex}/${total} Dính Bản Quyền`,
+              message: `"${v.title}" bị hạn chế bởi Content ID. Đã dừng xuất bản và dọn dẹp file tạm.`,
+            });
+          }
+        } catch (waitErr) {
+          console.error(`Lỗi khi chờ BKT video ${v.title}:`, waitErr);
+        }
+      }
+
+      // BƯỚC 5: Sau khi xong 5 video mới nhất -> Chuyển kênh sang chế độ Real-time RSS Polling tự động!
+      if (resolvedChannel?.id) {
+        await toggleChannelAutoDownload(resolvedChannel.id, true);
+        await updateChannelBktConfig({
+          channelId: resolvedChannel.id,
+          bktTestMode: true,
+          bktProfileId: targetProfileId,
+        });
+        await refreshChannels();
+        toast.success({
+          title: 'Hoàn tất Toàn bộ Chu trình Top 5!',
+          message: `Đã xử lý xong: ${successCount} video đăng thành công, ${redCount} video cảnh báo. Kênh đối thủ đã được tự động kích hoạt Real-time RSS Polling để tiếp tục theo dõi các video tương lai!`,
+        });
+      }
+    } catch (err) {
+      console.error('Lỗi quy trình tuần tự Top 5:', err);
+      toast.error({
+        title: 'Lỗi thực thi quy trình tuần tự',
+        message: String(err),
+      });
+    } finally {
+      setIsSequentialTop5Running(false);
+      setSequentialProgressText('');
+    }
+  };
 
   const handleBatchBktSelected = async () => {
     const selectedList = filteredAndSortedVideos.filter((v) => selectedVideoIds.has(v.video_id));
@@ -95,36 +381,96 @@ export function ChannelVideoAccordion({
     setIsBatchTestingBkt(true);
     let successCount = 0;
     const newOverrides: Record<string, Partial<ChannelVideo>> = {};
+    const toDownloadList: ChannelVideo[] = [];
+    const bktItemsToDispatch: Array<{
+      videoTitle: string;
+      videoPath: string;
+      videoSourceType: string;
+      sourceRefId: string;
+      mainTargetProfileId: string | null;
+      autoPublishMain: boolean;
+      targetTitle: string;
+      targetDescription: string;
+      thumbnailPath: string | null;
+    }> = [];
 
-    for (const v of selectedList) {
-      try {
-        await triggerBktTestVideo({
-          channelVideoId: v.id || v.video_id,
-          channelId: v.channel_id || null,
-        });
-        successCount++;
-        newOverrides[v.id || v.video_id] = {
-          is_bkt_test: true,
-          bkt_check_status: 'pending',
-          bkt_restriction: 'Đang xếp hàng test kênh BKT...',
-        };
-        newOverrides[v.video_id] = {
-          is_bkt_test: true,
-          bkt_check_status: 'pending',
-          bkt_restriction: 'Đang xếp hàng test kênh BKT...',
-        };
-      } catch (err) {
-        console.error('Batch BKT test item failed:', err);
+    try {
+      for (const v of selectedList) {
+        const filePath = await getChannelVideoFilepath(v.video_id);
+        if (filePath) {
+          const aiTitle = getBestAutoPilotTitle(v.title);
+          const adaptedDesc = adaptCompetitorDescription({
+            originalDescription: '',
+            targetChannelName: channel?.name || channelName,
+            videoTitle: aiTitle,
+            includeFairUseDisclaimer: true,
+          });
+          const thumbPath = getCompanionThumbnailPath(filePath);
+          const targetProfileId = channel?.bkt_profile_id || null;
+
+          bktItemsToDispatch.push({
+            videoTitle: v.title,
+            videoPath: filePath,
+            videoSourceType: 'channel_video',
+            sourceRefId: v.id || v.video_id,
+            mainTargetProfileId: targetProfileId,
+            autoPublishMain: Boolean(targetProfileId),
+            targetTitle: aiTitle,
+            targetDescription: adaptedDesc,
+            thumbnailPath: thumbPath,
+          });
+
+          newOverrides[v.id || v.video_id] = {
+            is_bkt_test: true,
+            bkt_check_status: 'pending',
+            bkt_restriction: 'Đang gửi lên Kênh Test BKT...',
+          };
+          newOverrides[v.video_id] = {
+            is_bkt_test: true,
+            bkt_check_status: 'pending',
+            bkt_restriction: 'Đang gửi lên Kênh Test BKT...',
+          };
+        } else {
+          toDownloadList.push(v);
+        }
       }
+
+      if (bktItemsToDispatch.length > 0) {
+        const dispatchRes = await dispatchBatchBktTest({
+          items: bktItemsToDispatch,
+          targetTestChannelId: undefined,
+        });
+        successCount = dispatchRes.totalDispatched;
+      }
+
+      if (toDownloadList.length > 0) {
+        onDownloadSelected(toDownloadList);
+        for (const v of toDownloadList) {
+          newOverrides[v.id || v.video_id] = {
+            status: 'downloading',
+            is_bkt_test: true,
+            bkt_check_status: 'pending',
+            bkt_restriction: 'Đang tải video về máy...',
+          };
+          newOverrides[v.video_id] = {
+            status: 'downloading',
+            is_bkt_test: true,
+            bkt_check_status: 'pending',
+            bkt_restriction: 'Đang tải video về máy...',
+          };
+        }
+      }
+    } catch (err) {
+      console.error('Batch BKT test item failed:', err);
     }
 
     setVideoOverrides((prev) => ({ ...prev, ...newOverrides }));
     setIsBatchTestingBkt(false);
 
-    if (successCount > 0) {
+    if (successCount > 0 || toDownloadList.length > 0) {
       toast.success({
-        title: 'Đã gửi sang Kênh Test Bản Quyền',
-        description: `Đã đưa ${successCount}/${selectedList.length} video vào hàng đợi Reup & Test BKT.`,
+        title: 'Đã kích hoạt BKT Test',
+        description: `Đã đưa ${successCount} video vào Kênh Test BKT${toDownloadList.length > 0 ? ` (và đang tải ${toDownloadList.length} video)` : ''}.`,
       });
     } else {
       toast.error({
@@ -136,28 +482,86 @@ export function ChannelVideoAccordion({
 
   const handleTriggerBktTest = async (videoId: string, dbId?: string, channelId?: string) => {
     const targetId = dbId || videoId;
+    const targetVideo = videos.find((v) => v.id === targetId || v.video_id === videoId);
+    if (!targetVideo) return;
+
+    const resolvedChannel =
+      channel || (channelId ? followedChannels.find((c) => c.id === channelId) : undefined);
+
     setTestingVideoId(targetId);
     try {
-      await triggerBktTestVideo({
-        channelVideoId: targetId,
-        channelId: channelId || null,
+      const filePath = await getChannelVideoFilepath(videoId);
+      if (!filePath) {
+        toast.info({
+          title: 'Đang tải video về máy...',
+          message:
+            'Video chưa có sẵn trên máy. Đang bắt đầu tải video để chuẩn bị chạy Reup & Test BKT.',
+        });
+        onDownloadSelected([targetVideo]);
+        setVideoOverrides((prev) => ({
+          ...prev,
+          [targetId]: {
+            status: 'downloading',
+            is_bkt_test: true,
+            bkt_check_status: 'pending',
+            bkt_restriction: 'Đang tải video về máy...',
+          },
+          [videoId]: {
+            status: 'downloading',
+            is_bkt_test: true,
+            bkt_check_status: 'pending',
+            bkt_restriction: 'Đang tải video về máy...',
+          },
+        }));
+        return;
+      }
+
+      const aiTitle = getBestAutoPilotTitle(targetVideo.title);
+      const adaptedDesc = adaptCompetitorDescription({
+        originalDescription: '',
+        targetChannelName: resolvedChannel?.name || channelName,
+        videoTitle: aiTitle,
+        includeFairUseDisclaimer: true,
       });
+      const thumbPath = getCompanionThumbnailPath(filePath);
+      const targetProfileId = resolvedChannel?.bkt_profile_id || null;
+
+      await dispatchBatchBktTest({
+        items: [
+          {
+            videoTitle: targetVideo.title,
+            videoPath: filePath,
+            videoSourceType: 'channel_video',
+            sourceRefId: targetId,
+            mainTargetProfileId: targetProfileId,
+            autoPublishMain: Boolean(targetProfileId),
+            targetTitle: aiTitle,
+            targetDescription: adaptedDesc,
+            thumbnailPath: thumbPath,
+          },
+        ],
+        targetTestChannelId: undefined,
+      });
+
       setVideoOverrides((prev) => ({
         ...prev,
         [targetId]: {
           is_bkt_test: true,
           bkt_check_status: 'pending',
-          bkt_restriction: 'Đang xếp hàng test kênh BKT...',
+          bkt_restriction: 'Đang chạy Reup Lv.1 & gửi lên Kênh Test BKT...',
         },
         [videoId]: {
           is_bkt_test: true,
           bkt_check_status: 'pending',
-          bkt_restriction: 'Đang xếp hàng test kênh BKT...',
+          bkt_restriction: 'Đang chạy Reup Lv.1 & gửi lên Kênh Test BKT...',
         },
       }));
+
       toast.success({
         title: 'Kích hoạt Test BKT thành công',
-        message: 'Đã đưa video vào hàng đợi Reup Pipeline v1 & kiểm tra kênh BKT.',
+        message: targetProfileId
+          ? `Đang chạy Reup Lv.1, upload test và sẽ tự động đăng lên Kênh Đích (${targetProfileId}) khi Sạch Bản Quyền!`
+          : 'Đang chạy Reup Lv.1 và kiểm tra bản quyền ngầm trên Kênh Test BKT.',
       });
     } catch (e) {
       console.error('Trigger BKT test failed:', e);
@@ -368,22 +772,22 @@ export function ChannelVideoAccordion({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="newest" className="text-xs">
-                  🕒 Mới nhất
+                  Mới nhất
                 </SelectItem>
                 <SelectItem value="views_desc" className="text-xs">
-                  ⚡ Xem nhiều nhất (Viral)
+                  Xem nhiều nhất (Viral)
                 </SelectItem>
                 <SelectItem value="duration_desc" className="text-xs">
-                  ⌛ Dài nhất (Thời lượng)
+                  Dài nhất (Thời lượng)
                 </SelectItem>
                 <SelectItem value="duration_asc" className="text-xs">
-                  ⏱️ Ngắn nhất (Thời lượng)
+                  Ngắn nhất (Thời lượng)
                 </SelectItem>
                 <SelectItem value="oldest" className="text-xs">
-                  ⏳ Cũ nhất
+                  Cũ nhất
                 </SelectItem>
                 <SelectItem value="title_asc" className="text-xs">
-                  🔤 Tiêu đề A-Z
+                  Tiêu đề A-Z
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -419,7 +823,7 @@ export function ChannelVideoAccordion({
               className="h-8 text-xs gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Tải {selectedCount} video sạch</span>
+              <span>Tải {selectedCount} video</span>
             </Button>
 
             {selectedCount > 0 && (
@@ -439,6 +843,26 @@ export function ChannelVideoAccordion({
                 <span>Test BKT ({selectedCount})</span>
               </Button>
             )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRunSequentialTop5AutoPilot}
+              disabled={isSequentialTop5Running || filteredAndSortedVideos.length === 0}
+              className="h-8 text-xs gap-1.5 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 font-semibold"
+              title="Tự động lấy 5 video mới nhất, tải lần lượt 1-by-1 -> Reup Lv.1 -> Test BKT Studio -> Đăng Kênh Đích -> Tự động xóa file giải phóng ổ cứng sau mỗi video -> Kích hoạt Real-time Polling"
+            >
+              {isSequentialTop5Running ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-500" />
+              ) : (
+                <PlaySquare className="w-3.5 h-3.5 text-emerald-500" />
+              )}
+              <span>
+                {isSequentialTop5Running
+                  ? sequentialProgressText
+                  : 'Reup Tuần Tự Top 5 (Tối Ưu Đĩa)'}
+              </span>
+            </Button>
           </div>
         </div>
       </div>
@@ -637,7 +1061,7 @@ export function ChannelVideoAccordion({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-1.5 mt-1.5 text-[11px] text-muted-foreground">
-                    {/* KHÂU 1: Risk Status Badge (Xanh / Đỏ) */}
+                    {/* KHÂU 1: Risk Status Badge (Kênh nguồn: An toàn / Đỏ rủi ro) */}
                     {video.risk_status === 'red' ? (
                       <Badge
                         variant="outline"
@@ -645,21 +1069,23 @@ export function ChannelVideoAccordion({
                         title={video.risk_reason || 'Rủi ro bản quyền cao hoặc trùng lặp lịch sử'}
                       >
                         <ShieldAlert className="w-3 h-3 text-red-400" />
-                        <span>Đỏ - Rủi ro / Chặn</span>
+                        <span>Kênh nguồn: Rủi ro / Chặn</span>
                       </Badge>
                     ) : (
                       <Badge
                         variant="outline"
                         className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1"
-                        title={video.risk_reason || 'Kênh ngách an toàn / Nội dung sạch'}
+                        title={
+                          video.risk_reason || 'Kênh ngách an toàn / Chưa phát hiện tiền sử gậy'
+                        }
                       >
                         <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                        <span>Xanh - Sạch & An toàn</span>
+                        <span>Kênh nguồn: An toàn</span>
                       </Badge>
                     )}
 
-                    {/* KHÂU 3: Pipeline Reup Level */}
-                    {video.reup_pipeline_level === 1 && (
+                    {/* KHÂU 3: Pipeline Reup Level (Chỉ hiển thị khi đã tải về máy và xử lý) */}
+                    {isDownloaded && video.reup_pipeline_level === 1 && (
                       <Badge
                         variant="outline"
                         className="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1"
@@ -669,7 +1095,7 @@ export function ChannelVideoAccordion({
                         <span>Pipeline Lv.1 (5%)</span>
                       </Badge>
                     )}
-                    {video.reup_pipeline_level === 2 && (
+                    {isDownloaded && video.reup_pipeline_level === 2 && (
                       <Badge
                         variant="outline"
                         className="bg-purple-500/15 text-purple-400 border border-purple-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1"
@@ -771,27 +1197,29 @@ export function ChannelVideoAccordion({
 
                 {/* Status Badge & Action */}
                 <div className="flex-shrink-0 flex items-center gap-1.5 flex-wrap justify-end">
-                  {/* Nút bấm Test trên kênh BKT cho video Màu Đỏ */}
-                  {video.risk_status === 'red' && !video.is_bkt_test && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        handleTriggerBktTest(video.video_id, video.id, video.channel_id)
-                      }
-                      disabled={testingVideoId === (video.id || video.video_id)}
-                      className="h-7 px-2 text-[11px] gap-1 border-amber-500/30 text-amber-500 hover:bg-amber-500/10 font-medium"
-                      title="Tải về, chạy Reup Pipeline v1 và tải lên kênh BKT để test nhận diện"
-                    >
-                      <FlaskConical
-                        className={cn(
-                          'w-3 h-3 text-amber-500',
-                          testingVideoId === (video.id || video.video_id) && 'animate-spin',
-                        )}
-                      />
-                      <span>Test BKT</span>
-                    </Button>
-                  )}
+                  {/* Nút bấm Test trên kênh BKT */}
+                  {(video.risk_status === 'red' || isDownloaded) &&
+                    video.bkt_check_status !== 'green_clean' &&
+                    video.bkt_check_status !== 'pending' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleTriggerBktTest(video.video_id, video.id, video.channel_id)
+                        }
+                        disabled={testingVideoId === (video.id || video.video_id)}
+                        className="h-7 px-2 text-[11px] gap-1 border-amber-500/30 text-amber-500 hover:bg-amber-500/10 font-medium"
+                        title="Tải về (nếu chưa có), chạy Reup Pipeline Lv.1 và tải lên kênh BKT để test nhận diện"
+                      >
+                        <FlaskConical
+                          className={cn(
+                            'w-3 h-3 text-amber-500',
+                            testingVideoId === (video.id || video.video_id) && 'animate-spin',
+                          )}
+                        />
+                        <span>Test BKT</span>
+                      </Button>
+                    )}
 
                   {isDownloaded ? (
                     <Badge

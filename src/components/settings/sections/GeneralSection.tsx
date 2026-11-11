@@ -32,8 +32,7 @@ import {
   loadLibraryDeleteFileBehavior,
   saveLibraryDeleteFileBehavior,
 } from '@/lib/library-delete-behavior';
-import type { ThemeName } from '@/lib/themes';
-import { themes } from '@/lib/themes';
+import { themeGradients, themes } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { SettingsCard, SettingsDivider, SettingsRow, SettingsSection } from '../SettingsSection';
 
@@ -51,18 +50,6 @@ interface CliShortcutStatus {
   note_key: 'path_not_in_path' | 'linux_system_installed' | 'unsupported' | null;
   note_path: string | null;
 }
-
-// Gradient backgrounds for theme preview
-const themeGradients: Record<ThemeName, string> = {
-  rose: 'bg-gradient-to-br from-rose-400 via-rose-500 to-red-400',
-  crimson: 'bg-gradient-to-br from-red-600 via-rose-600 to-rose-700',
-  midnight: 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500',
-  aurora: 'bg-gradient-to-br from-emerald-400 via-cyan-500 to-blue-500',
-  sunset: 'bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500',
-  ocean: 'bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-500',
-  forest: 'bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500',
-  candy: 'bg-gradient-to-br from-pink-500 via-rose-500 to-red-500',
-};
 
 interface GeneralSectionProps {
   highlightId?: string | null;

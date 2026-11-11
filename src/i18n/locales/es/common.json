@@ -20,7 +20,11 @@
     "profiles": "Perfiles de navegador",
     "dashboard": "Panel de control",
     "reup": "Reup & BKT Test",
-    "outliers": "Cazador de Sugerencias"
+    "outliers": "Cazador de Sugerencias",
+    "saas": "Gestión del sistema",
+    "saasOwner": "Gestión del sistema",
+    "saasAdmin": "Gestión de empresa",
+    "saasLeader": "Gestión de equipo"
   },
   "language": {
     "en": "English",

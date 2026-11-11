@@ -22,6 +22,11 @@ class CloakBrowserEngine(BaseBrowserEngine):
             *spec.window_args(),
             f"--force-device-scale-factor={float(options.get('scale_factor', 1.0)):.4f}",
             f"--homepage={options.get('homepage', 'https://www.google.com/')}",
+            "--renderer-process-limit=2",
+            "--disable-background-networking",
+            "--disable-dev-shm-usage",
+            '--js-flags="--max-old-space-size=256 --expose-gc"',
+            "--disable-component-update",
         ]
         if spec.mute_audio:
             args.append("--mute-audio")

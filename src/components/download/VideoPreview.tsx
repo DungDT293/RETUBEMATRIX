@@ -29,6 +29,11 @@ interface VideoInfo {
   description: string | null;
   is_playlist: boolean;
   playlist_count: number | null;
+  tags?: string[] | null;
+  categories?: string[] | null;
+  channel_follower_count?: number | null;
+  like_count?: number | null;
+  comment_count?: number | null;
 }
 
 interface FormatOption {

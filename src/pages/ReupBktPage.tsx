@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-dialog';
 import {
   AlertTriangle,
@@ -35,6 +36,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -52,12 +54,20 @@ import {
   getMultibrowserProfiles,
 } from '@/contexts/channels/channels-client';
 import { useDownload } from '@/contexts/download-context';
-import type { BktTestChannel, MultiBrowserProfile, ReupPipelineResult } from '@/lib/types';
+import type {
+  BktTestChannel,
+  BktTestJob,
+  MultiBrowserProfile,
+  ReupPipelineResult,
+} from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { workTelemetryService } from '@/services/workTelemetryService';
 import {
-  buildAutoPilotDescription,
+  adaptCompetitorDescription,
   getBestAutoPilotTitle,
   getCompanionThumbnailPath,
+  HOOK_BANK_EN,
+  HOOK_BANK_VI,
 } from '@/utils/reup-auto-pilot';
 
 export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void } = {}) {
@@ -73,6 +83,15 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [pipelineResult, setPipelineResult] = useState<ReupPipelineResult | null>(null);
   const [processError, setProcessError] = useState<string | null>(null);
+  const [reupProgress, setReupProgress] = useState<{
+    percent: number;
+    speed?: string;
+    fps?: number;
+    eta_seconds?: number;
+    status: string;
+  } | null>(null);
+  const [activeBackgroundJob, setActiveBackgroundJob] = useState<BktTestJob | null>(null);
+  const [isLoginRequiredError, setIsLoginRequiredError] = useState<boolean>(false);
 
   // ================= BKT UPLOAD STATE =================
   const [profiles, setProfiles] = useState<MultiBrowserProfile[]>([]);
@@ -90,6 +109,13 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
   const [uploadDescription, setUploadDescription] = useState<string>(
     'Test copyright check on BKT shadow channel (Unlisted mode)',
   );
+  const [uploadTags, setUploadTags] = useState<string>(() => {
+    try {
+      return sessionStorage.getItem('reup_input_video_tags') || '';
+    } catch {
+      return '';
+    }
+  });
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadResult, setUploadResult] = useState<{
     success: boolean;
@@ -210,13 +236,13 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
               ? profData[0].id
               : '';
         });
-      } else if (profData.length > 0 && !selectedProfileId) {
-        setSelectedProfileId(profData[0].id);
+      } else if (profData.length > 0) {
+        setSelectedProfileId((prev) => prev || profData[0].id);
       }
     } catch (err) {
       console.error('Failed to load profiles:', err);
     }
-  }, [selectedProfileId]);
+  }, []);
 
   // Tự động nhận diện file thumbnail (.jpg) đi kèm khi có video
   useEffect(() => {
@@ -233,6 +259,8 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
   useEffect(() => {
     const candidateTitle = sessionStorage.getItem('reup_input_video_title');
     const candidatePath = sessionStorage.getItem('reup_input_video_path');
+    const candidateDesc = sessionStorage.getItem('reup_input_video_description');
+    const candidateTags = sessionStorage.getItem('reup_input_video_tags');
     if (candidateTitle) {
       setUploadTitle(candidateTitle);
       sessionStorage.removeItem('reup_input_video_title');
@@ -241,12 +269,116 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       setInputVideoPath(candidatePath);
       setUploadVideoPath(candidatePath);
       sessionStorage.removeItem('reup_input_video_path');
+      const compThumb = getCompanionThumbnailPath(candidatePath);
+      if (compThumb) {
+        setUploadThumbnailPath(compThumb);
+      }
+      if (!candidateDesc) {
+        invoke<string | null>('read_companion_description', { videoPath: candidatePath })
+          .then((d) => {
+            if (d?.trim()) {
+              setUploadDescription(d.trim());
+            }
+          })
+          .catch(() => {});
+      }
+    }
+    if (candidateDesc) {
+      setUploadDescription(candidateDesc);
+      sessionStorage.removeItem('reup_input_video_description');
+    }
+    if (candidateTags) {
+      setUploadTags(candidateTags);
+      sessionStorage.removeItem('reup_input_video_tags');
     }
   }, []);
 
   useEffect(() => {
     loadProfiles();
   }, [loadProfiles]);
+
+  // Lắng nghe tiến trình FFmpeg và BKT Test Background Jobs
+  useEffect(() => {
+    let unlistenProgress: (() => void) | undefined;
+    let unlistenJob: (() => void) | undefined;
+
+    listen<{
+      percent: number;
+      speed?: string;
+      fps?: number;
+      eta_seconds?: number;
+      status: string;
+    }>('reup-pipeline-progress', (event) => {
+      if (event.payload) {
+        setReupProgress(event.payload);
+      }
+    }).then((fn) => {
+      unlistenProgress = fn;
+    });
+
+    listen<BktTestJob>('bkt-test-job-updated', (event) => {
+      const job = event.payload;
+      if (!job) return;
+      setActiveBackgroundJob(job);
+      if (
+        job.errorMessage?.toLowerCase().includes('đăng nhập') ||
+        job.errorMessage?.toLowerCase().includes('login') ||
+        job.errorMessage?.toLowerCase().includes('google sign in')
+      ) {
+        setIsLoginRequiredError(true);
+      }
+      if (job.status === 'green_clean') {
+        setStudioStatus({
+          status: 'green_clean',
+          restriction: 'Sạch Bản Quyền (Video không có cảnh báo bản quyền trong Studio)',
+          checked_at: new Date().toLocaleTimeString('vi-VN'),
+        });
+      } else if (job.status === 'red_matched') {
+        setStudioStatus({
+          status: 'red_matched',
+          restriction: job.restriction || job.errorMessage || 'Phát hiện khiếu nại Content ID',
+          checked_at: new Date().toLocaleTimeString('vi-VN'),
+        });
+      }
+    }).then((fn) => {
+      unlistenJob = fn;
+    });
+
+    return () => {
+      if (unlistenProgress) unlistenProgress();
+      if (unlistenJob) unlistenJob();
+    };
+  }, []);
+
+  const handleOpenProfileStudio = async (profileId?: string) => {
+    const targetId = profileId || selectedProfileId;
+    if (!targetId) {
+      toast.warning({
+        title: 'Chưa chọn Hồ sơ',
+        description: 'Vui lòng chọn một Hồ sơ trình duyệt trước.',
+      });
+      return;
+    }
+    try {
+      await invoke('launch_multibrowser_profile', {
+        profileId: targetId,
+        profile_id: targetId,
+        targetUrl: 'https://studio.youtube.com/',
+        target_url: 'https://studio.youtube.com/',
+      });
+      setIsLoginRequiredError(false);
+      toast.success({
+        title: 'Đang mở YouTube Studio',
+        description:
+          'Đang kích hoạt Chromium và mở YouTube Studio trong hồ sơ đã chọn để bạn kiểm tra hoặc đăng nhập.',
+      });
+    } catch (err) {
+      toast.error({
+        title: 'Không thể mở trình duyệt',
+        description: String(err),
+      });
+    }
+  };
 
   const handleQuickDownloadUrl = async (url: string) => {
     try {
@@ -289,6 +421,18 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
           const filename = selected.split(/[\\/]/).pop() || 'Video Test';
           setUploadTitle(filename.replace(/\.[^/.]+$/, ''));
         }
+        // Tự động tìm thumbnail và mô tả (.description) đi kèm nếu có
+        const compThumb = getCompanionThumbnailPath(selected);
+        if (compThumb) {
+          setUploadThumbnailPath(compThumb);
+        }
+        invoke<string | null>('read_companion_description', { videoPath: selected })
+          .then((d) => {
+            if (d?.trim()) {
+              setUploadDescription(d.trim());
+            }
+          })
+          .catch(() => {});
       }
     } catch (err) {
       console.error('Pick video error:', err);
@@ -309,7 +453,20 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       if (typeof selected === 'string') {
         setUploadVideoPath(selected);
         const filename = selected.split(/[\\/]/).pop() || 'Video Test';
-        setUploadTitle(filename.replace(/\.[^/.]+$/, ''));
+        if (!uploadTitle) {
+          setUploadTitle(filename.replace(/\.[^/.]+$/, ''));
+        }
+        const compThumb = getCompanionThumbnailPath(selected);
+        if (compThumb) {
+          setUploadThumbnailPath(compThumb);
+        }
+        invoke<string | null>('read_companion_description', { videoPath: selected })
+          .then((d) => {
+            if (d?.trim()) {
+              setUploadDescription(d.trim());
+            }
+          })
+          .catch(() => {});
       }
     } catch (err) {
       console.error('Pick upload video error:', err);
@@ -336,6 +493,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
     setIsProcessing(true);
     setProcessError(null);
     setPipelineResult(null);
+    setReupProgress({ percent: 0, status: 'Đang chuẩn bị lệnh render FFmpeg...' });
 
     try {
       const ext = inputVideoPath.split('.').pop() || 'mp4';
@@ -369,6 +527,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       });
     } finally {
       setIsProcessing(false);
+      setReupProgress(null);
     }
   };
 
@@ -403,6 +562,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
           video_path: uploadVideoPath,
           title: uploadTitle.trim() || 'Test Video Reup',
           description: uploadDescription,
+          tags: uploadTags.trim() || undefined,
           thumbnail_path: uploadThumbnailPath.trim() || undefined,
           visibility: 'unlisted', // Cố định Unlisted để an toàn
         },
@@ -452,11 +612,98 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       overrideTitle?: string,
       overrideDesc?: string,
       overrideThumb?: string,
+      overrideTags?: string,
     ) => {
-      const targetVideo = (overrideVideoPath || uploadVideoPath).trim();
-      const targetTitle = (overrideTitle || uploadTitle).trim() || 'Video Reup Official';
-      const targetDesc = overrideDesc || uploadDescription;
-      const targetThumb = (overrideThumb || uploadThumbnailPath).trim() || undefined;
+      const targetVideo = (
+        overrideVideoPath ||
+        uploadVideoPath ||
+        pipelineResult?.output_path ||
+        inputVideoPath
+      ).trim();
+
+      // 1. TIÊU ĐỀ: Đảm bảo sinh hoặc bảo toàn bởi AI 95/5 (bảo toàn 95% từ khóa gốc + Hook CTR cao)
+      let candidateTitle = (overrideTitle || uploadTitle).trim();
+      if (
+        !candidateTitle ||
+        candidateTitle === 'Video Reup Official' ||
+        candidateTitle.startsWith('Video Test')
+      ) {
+        const rawFilename = (targetVideo || inputVideoPath).split(/[\\/]/).pop() || 'Video';
+        candidateTitle = rawFilename.replace(/_reup_(v1|v2)_\d+/i, '').replace(/\.[^/.]+$/, '');
+      }
+
+      // Trích xuất mảng tags từ uploadTags hoặc overrideTags
+      const effectiveTagsStr = overrideTags !== undefined ? overrideTags : uploadTags;
+      const parsedTags = effectiveTagsStr
+        ? effectiveTagsStr
+            .split(/[,#]/)
+            .map((t) => t.trim())
+            .filter((t) => t.length > 0)
+        : undefined;
+
+      const hasHook =
+        Object.values(HOOK_BANK_VI).some((group) =>
+          group.templates.some((tpl) => candidateTitle.includes(tpl.replace(/[—|]/g, '').trim())),
+        ) ||
+        Object.values(HOOK_BANK_EN).some((group) =>
+          group.templates.some((tpl) => candidateTitle.includes(tpl.replace(/[—|]/g, '').trim())),
+        );
+
+      const targetTitle =
+        (overrideTitle
+          ? overrideTitle.trim()
+          : hasHook
+            ? candidateTitle
+            : getBestAutoPilotTitle(candidateTitle, 0, undefined, parsedTags)) ||
+        candidateTitle ||
+        'Video Reup Official';
+
+      if (targetTitle !== uploadTitle) {
+        setUploadTitle(targetTitle);
+      }
+
+      // 2. MÔ TẢ: Đảm bảo mô tả SEO chuẩn đa tầng (Bảo toàn 100% Tracklist/Timestamps + Thay thế Kênh đích + Fair Use)
+      let rawDesc = (overrideDesc !== undefined ? overrideDesc : uploadDescription).trim();
+      if (rawDesc.includes('Test copyright check')) {
+        rawDesc = '';
+      }
+
+      const targetProf = profiles.find((p) => p.id === mainProfileId);
+      const targetChannelName =
+        targetProf?.youtube_preferred_channel || targetProf?.profile_name || '';
+
+      const targetDesc = adaptCompetitorDescription({
+        videoTitle: targetTitle,
+        originalDescription: rawDesc,
+        targetChannelName,
+        includeFairUseDisclaimer: true,
+        extraHashtags: parsedTags,
+      });
+
+      if (targetDesc !== uploadDescription) {
+        setUploadDescription(targetDesc);
+      }
+
+      // 3. THUMBNAIL: Tự động nạp file ảnh bìa (.jpg) đi kèm nếu chưa có
+      let targetThumb = (overrideThumb || uploadThumbnailPath || '').trim();
+      if (!targetThumb || /_reup_(v1|v2)_\d+\.jpg$/i.test(targetThumb)) {
+        const companion =
+          (inputVideoPath ? getCompanionThumbnailPath(inputVideoPath) : null) ||
+          (targetVideo
+            ? getCompanionThumbnailPath(targetVideo.replace(/_reup_(v1|v2)_\d+\.[^/.]+$/i, '.mp4'))
+            : null);
+        if (companion) {
+          targetThumb = companion;
+        }
+      }
+
+      if (targetThumb && targetThumb !== uploadThumbnailPath) {
+        setUploadThumbnailPath(targetThumb);
+      }
+
+      // 4. TAGS
+      const targetTags =
+        (overrideTags !== undefined ? overrideTags : uploadTags).trim() || undefined;
 
       if (!mainProfileId) {
         toast.warning({
@@ -493,13 +740,19 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
             video_path: targetVideo,
             title: targetTitle,
             description: targetDesc,
-            thumbnail_path: targetThumb,
+            tags: targetTags,
+            thumbnail_path: targetThumb || undefined,
             visibility: mainVisibility,
           },
         });
 
         setMainPublishResult(res);
         if (res.success) {
+          // Telemetry: Báo cáo video xuất bản lên kênh đích
+          workTelemetryService.reportUpload({
+            channel_id: mainProfileId,
+          });
+
           toast.success({
             title: 'Xuất bản Kênh Chính thành công!',
             description: `Video đã được đăng lên Kênh Chính (${mainVisibility}). URL: ${res.video_url || 'YouTube Studio'}`,
@@ -525,10 +778,14 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
     [
       mainProfileId,
       uploadVideoPath,
+      inputVideoPath,
+      pipelineResult?.output_path,
       uploadTitle,
       uploadDescription,
+      uploadTags,
       uploadThumbnailPath,
       mainVisibility,
+      profiles,
       toast,
     ],
   );
@@ -561,6 +818,13 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
         if (res.status === 'green_clean') {
           setAutoPollSeconds(null);
           setPollRetryCount(0);
+
+          // Telemetry: Báo cáo video test BKT Xanh (sạch)
+          workTelemetryService.reportBktResult({
+            competitor_channel_url: uploadResult?.video_url,
+            status: 'green',
+          });
+
           toast.success({
             title: 'Sạch Bản Quyền (Clean)',
             description: 'YouTube Studio xác nhận không có bất kỳ hạn chế bản quyền nào.',
@@ -573,6 +837,13 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
         } else if (res.status === 'red_matched') {
           setAutoPollSeconds(null);
           setPollRetryCount(0);
+
+          // Telemetry: Báo cáo video test BKT Đỏ (dính bản quyền)
+          workTelemetryService.reportBktResult({
+            competitor_channel_url: uploadResult?.video_url,
+            status: 'red',
+          });
+
           toast.error({
             title: 'Dính Bản Quyền (Content ID)',
             description:
@@ -638,6 +909,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
   }, [
     selectedProfileId,
     uploadResult?.youtube_video_id,
+    uploadResult?.video_url,
     pollRetryCount,
     autoPublishMain,
     mainProfileId,
@@ -705,13 +977,42 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       });
       const filename = inputVideoPath.split(/[\\/]/).pop() || 'Video';
       const rawTitle = uploadTitle.trim() || filename.replace(/\.[^/.]+$/, '');
-      const optTitle = getBestAutoPilotTitle(rawTitle);
+      const parsedTags = uploadTags
+        ? uploadTags
+            .split(/[,#]/)
+            .map((t) => t.trim())
+            .filter((t) => t.length > 0)
+        : undefined;
+
+      const optTitle = getBestAutoPilotTitle(rawTitle, 0, undefined, parsedTags);
       setUploadTitle(optTitle);
 
-      const optDesc = buildAutoPilotDescription({
+      // Đọc file .description đồng hành nếu có
+      let compDesc = '';
+      try {
+        const d = await invoke<string | null>('read_companion_description', {
+          videoPath: inputVideoPath,
+        });
+        if (d?.trim()) {
+          compDesc = d.trim();
+        }
+      } catch {
+        // ignore
+      }
+
+      const activeDesc =
+        compDesc || (uploadDescription.includes('Test copyright check') ? '' : uploadDescription);
+
+      const targetProf = profiles.find((p) => p.id === (mainProfileId || selectedProfileId));
+      const targetChannelName =
+        targetProf?.youtube_preferred_channel || targetProf?.profile_name || '';
+
+      const optDesc = adaptCompetitorDescription({
         videoTitle: optTitle,
-        originalDescription: uploadDescription.includes('Test copyright') ? '' : uploadDescription,
-        includeDisclaimer: true,
+        originalDescription: activeDesc,
+        targetChannelName,
+        includeFairUseDisclaimer: true,
+        extraHashtags: parsedTags,
       });
       setUploadDescription(optDesc);
 
@@ -740,6 +1041,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
           video_path: reupRes.output_path,
           title: optTitle,
           description: optDesc,
+          tags: uploadTags.trim() || undefined,
           thumbnail_path: compThumb || undefined,
           visibility: 'unlisted',
         },
@@ -1068,6 +1370,29 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                   </Button>
                 </div>
 
+                {/* Progress bar khi đang xử lý */}
+                {isProcessing && reupProgress && (
+                  <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 space-y-2.5 animate-in fade-in">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-foreground flex items-center gap-1.5">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                        {reupProgress.status || 'Đang render video...'}
+                      </span>
+                      <span className="font-mono font-bold text-primary">
+                        {reupProgress.percent.toFixed(1)}%
+                      </span>
+                    </div>
+                    <Progress value={reupProgress.percent} className="h-2 bg-muted/60" />
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground font-mono">
+                      <span>Tốc độ: {reupProgress.speed || 'N/A'}</span>
+                      {reupProgress.fps !== undefined && <span>FPS: {reupProgress.fps}</span>}
+                      {reupProgress.eta_seconds !== undefined && (
+                        <span>Còn lại: ~{Math.ceil(reupProgress.eta_seconds)}s</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {processError && (
                   <div className="p-3.5 rounded-lg border border-red-500/30 bg-red-500/10 text-xs text-red-400 flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -1164,6 +1489,101 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
 
           {/* ================= TAB 2: BKT SHADOW TEST ================= */}
           <TabsContent value="bkt_upload" className="space-y-5">
+            {/* Real-time Background Task Monitor Banner */}
+            {activeBackgroundJob &&
+              (activeBackgroundJob.status === 'queued' ||
+                activeBackgroundJob.status === 'reuping' ||
+                activeBackgroundJob.status === 'uploading' ||
+                activeBackgroundJob.status === 'checking') && (
+                <Card className="p-4 border-primary/40 bg-primary/5 backdrop-blur-sm space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Tiến Trình Chạy Ngầm BKT Đang Hoạt Động</span>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className="border-primary/40 text-primary text-[10px] font-mono uppercase"
+                    >
+                      {activeBackgroundJob.status}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-foreground font-medium truncate">
+                    Video: {activeBackgroundJob.videoTitle}
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-[11px] pt-1">
+                    <div
+                      className={cn(
+                        'p-2 rounded border text-center font-medium',
+                        activeBackgroundJob.status === 'queued'
+                          ? 'bg-primary/20 border-primary text-primary'
+                          : 'bg-muted/30 border-border/30 text-muted-foreground',
+                      )}
+                    >
+                      1. Xếp hàng
+                    </div>
+                    <div
+                      className={cn(
+                        'p-2 rounded border text-center font-medium',
+                        activeBackgroundJob.status === 'reuping'
+                          ? 'bg-primary/20 border-primary text-primary'
+                          : 'bg-muted/30 border-border/30 text-muted-foreground',
+                      )}
+                    >
+                      2. Render Reup
+                    </div>
+                    <div
+                      className={cn(
+                        'p-2 rounded border text-center font-medium',
+                        activeBackgroundJob.status === 'uploading'
+                          ? 'bg-primary/20 border-primary text-primary'
+                          : 'bg-muted/30 border-border/30 text-muted-foreground',
+                      )}
+                    >
+                      3. Tải lên Unlisted
+                    </div>
+                    <div
+                      className={cn(
+                        'p-2 rounded border text-center font-medium',
+                        activeBackgroundJob.status === 'checking'
+                          ? 'bg-primary/20 border-primary text-primary'
+                          : 'bg-muted/30 border-border/30 text-muted-foreground',
+                      )}
+                    >
+                      4. Quét Studio Content ID
+                    </div>
+                  </div>
+                  {activeBackgroundJob.restriction && (
+                    <div className="text-[11px] text-muted-foreground">
+                      Chi tiết: {activeBackgroundJob.restriction}
+                    </div>
+                  )}
+                </Card>
+              )}
+
+            {/* Cảnh báo chưa đăng nhập Google Studio */}
+            {isLoginRequiredError && (
+              <div className="p-3.5 rounded-lg border border-red-500/30 bg-red-500/10 text-xs text-red-400 flex items-center justify-between gap-3 animate-in fade-in">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                  <span>
+                    Hồ sơ trình duyệt chưa đăng nhập tài khoản Google / YouTube Studio. Vui lòng mở
+                    Studio để đăng nhập trước khi chạy test BKT.
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleOpenProfileStudio()}
+                  className="h-7 px-3 text-xs gap-1.5 whitespace-nowrap"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Đăng Nhập Studio Ngay</span>
+                </Button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column: BKT Upload Configuration */}
               <div className="lg:col-span-2 space-y-5">
@@ -1196,77 +1616,115 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
 
                   {/* 1. Chọn Profile Browser Multi BKT */}
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-medium flex items-center gap-1.5">
-                      <Globe className="w-3.5 h-3.5 text-primary" />
-                      Hồ sơ Browser Multi đích (Kênh BKT đã đăng nhập YouTube)
-                    </Label>
-                    <Select
-                      value={selectedProfileId}
-                      onValueChange={(val) => {
-                        handleChangeBktProfileId(val);
-                        setStudioStatus(null);
-                        setAutoPollSeconds(null);
-                        setPollRetryCount(0);
-                      }}
-                    >
-                      <SelectTrigger className="h-9 text-xs bg-muted/40 border-border/50">
-                        <SelectValue
-                          placeholder={
-                            profiles.length === 0 ? 'Chưa có profile nào...' : 'Chọn Profile...'
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {bktChannels.length > 0 && (
-                          <div className="px-2 py-1 text-[10px] font-semibold text-primary uppercase tracking-wider">
-                            Kênh Test Bản Quyền (Giới hạn 15 video/ngày)
-                          </div>
-                        )}
-                        {bktChannels.map((bc) => (
-                          <SelectItem key={`bkt-${bc.id}`} value={bc.profileId} className="text-xs">
-                            <span className="font-medium text-foreground">{bc.name}</span>
-                            <span
-                              className={cn(
-                                'text-[10px] ml-2 font-mono',
-                                bc.remainingQuota <= 0
-                                  ? 'text-rose-400'
-                                  : bc.remainingQuota <= 3
-                                    ? 'text-amber-400'
-                                    : 'text-emerald-400',
-                              )}
-                            >
-                              (Còn {bc.remainingQuota}/{bc.dailyQuota} lượt)
-                            </span>
-                          </SelectItem>
-                        ))}
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-medium flex items-center gap-1.5">
+                        <Globe className="w-3.5 h-3.5 text-primary" />
+                        Hồ sơ Browser Multi đích (Kênh BKT đã đăng nhập YouTube)
+                      </Label>
+                      {selectedProfileId && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenProfileStudio()}
+                          className="h-6 px-2 text-[11px] text-primary hover:text-primary hover:bg-primary/10 gap-1"
+                          title="Mở trực tiếp YouTube Studio của hồ sơ này"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          <span>Mở Studio</span>
+                        </Button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <Select
+                          value={selectedProfileId}
+                          onValueChange={(val) => {
+                            handleChangeBktProfileId(val);
+                            setStudioStatus(null);
+                            setAutoPollSeconds(null);
+                            setPollRetryCount(0);
+                            setIsLoginRequiredError(false);
+                          }}
+                        >
+                          <SelectTrigger className="h-9 text-xs bg-muted/40 border-border/50">
+                            <SelectValue
+                              placeholder={
+                                profiles.length === 0 ? 'Chưa có profile nào...' : 'Chọn Profile...'
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {bktChannels.length > 0 && (
+                              <div className="px-2 py-1 text-[10px] font-semibold text-primary uppercase tracking-wider">
+                                Kênh Test Bản Quyền (Giới hạn 15 video/ngày)
+                              </div>
+                            )}
+                            {bktChannels.map((bc) => (
+                              <SelectItem
+                                key={`bkt-${bc.id}`}
+                                value={bc.profileId}
+                                className="text-xs"
+                              >
+                                <span className="font-medium text-foreground">{bc.name}</span>
+                                <span
+                                  className={cn(
+                                    'text-[10px] ml-2 font-mono',
+                                    bc.remainingQuota <= 0
+                                      ? 'text-rose-400'
+                                      : bc.remainingQuota <= 3
+                                        ? 'text-amber-400'
+                                        : 'text-emerald-400',
+                                  )}
+                                >
+                                  (Còn {bc.remainingQuota}/{bc.dailyQuota} lượt)
+                                </span>
+                              </SelectItem>
+                            ))}
 
-                        {profiles.length > 0 && (
-                          <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-1 border-t border-border/30">
-                            Tất cả Hồ sơ Profile
-                          </div>
-                        )}
-                        {profiles.length === 0 && bktChannels.length === 0 ? (
-                          <SelectItem value="__none__" disabled className="text-xs">
-                            Chưa có profile nào. Tạo tại Quản lý Profile.
-                          </SelectItem>
-                        ) : (
-                          profiles.map((p) => (
-                            <SelectItem key={p.id} value={p.id} className="text-xs">
-                              <span className="font-medium text-foreground">{p.profile_name}</span>
-                              {p.proxy ? (
-                                <span className="text-[10px] text-muted-foreground ml-2">
-                                  (Proxy: {p.proxy})
-                                </span>
-                              ) : (
-                                <span className="text-[10px] text-muted-foreground ml-2">
-                                  (IP Trực tiếp)
-                                </span>
-                              )}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
+                            {profiles.length > 0 && (
+                              <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-1 border-t border-border/30">
+                                Tất cả Hồ sơ Profile
+                              </div>
+                            )}
+                            {profiles.length === 0 && bktChannels.length === 0 ? (
+                              <SelectItem value="__none__" disabled className="text-xs">
+                                Chưa có profile nào. Tạo tại Quản lý Profile.
+                              </SelectItem>
+                            ) : (
+                              profiles.map((p) => (
+                                <SelectItem key={p.id} value={p.id} className="text-xs">
+                                  <span className="font-medium text-foreground">
+                                    {p.profile_name}
+                                  </span>
+                                  {p.proxy ? (
+                                    <span className="text-[10px] text-muted-foreground ml-2">
+                                      (Proxy: {p.proxy})
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] text-muted-foreground ml-2">
+                                      (IP Trực tiếp)
+                                    </span>
+                                  )}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenProfileStudio()}
+                        disabled={!selectedProfileId}
+                        className="h-9 px-3 text-xs gap-1.5 border-border/60 hover:border-primary/50 text-foreground"
+                        title="Mở YouTube Studio trên hồ sơ này"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Mở Studio</span>
+                      </Button>
+                    </div>
                   </div>
 
                   {/* 2. File video cần test */}
@@ -1348,6 +1806,23 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                         onChange={(e) => setUploadDescription(e.target.value)}
                         rows={2}
                         className="text-xs bg-muted/40 resize-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-medium">
+                          Thẻ Tags (cách nhau bởi dấu phẩy):
+                        </Label>
+                        <span className="text-[10px] text-muted-foreground">
+                          Tối đa 480 ký tự • Tự động tạo chip khi upload
+                        </span>
+                      </div>
+                      <Input
+                        value={uploadTags}
+                        onChange={(e) => setUploadTags(e.target.value)}
+                        placeholder="ví dụ: review phim, tom tat phim, phim hay 2025..."
+                        className="h-8 text-xs bg-muted/40"
                       />
                     </div>
                   </div>
@@ -1650,6 +2125,14 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                   : '')
               }
               activeThumbnailPath={uploadThumbnailPath}
+              activeTags={
+                uploadTags
+                  ? uploadTags
+                      .split(',')
+                      .map((t) => t.trim())
+                      .filter(Boolean)
+                  : undefined
+              }
               onApplyTitle={(title) => {
                 setUploadTitle(title);
                 toast.success({

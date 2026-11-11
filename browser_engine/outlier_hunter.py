@@ -4,6 +4,7 @@ import json
 import time
 import shutil
 import subprocess
+import platform
 import statistics
 import logging
 from typing import Dict, List, Tuple, Optional
@@ -135,10 +136,28 @@ COPYRIGHT_BLACKLIST = [
     "official trailer", "teaser trailer", "trailer", "movie clip", "premier league", "nba", "ufc", "wwe"
 ]
 
+CONTENT_EXCLUSION_KEYWORDS = [
+    # Tiếng Việt: vlog, daily vlog, tâm sự, người thật, street interview...
+    "vlog", "daily vlog", "nhật ký cuộc sống", "phỏng vấn đường phố", 
+    "street interview", "talkshow", "mukbang người thật", "mukbang", 
+    "livestream tâm sự", "tâm sự", "đập hộp", "unboxing người thật", 
+    "review đồ ăn người thật", "vlog gia đình", "family vlog", "lifestyle vlog", 
+    "travel vlog", "vlog du lịch", "vlog cuộc sống", "podcast người thật",
+    "chuyện tình cảm", "trò chuyện cùng", "hỏi đáp", "q&a", 
+    "chia sẻ cuộc sống", "tập gym vlog", "đi chợ vlog", "nấu ăn vlog người thật",
+    "vlog ẩm thực người thật", "nhật ký",
+    
+    # Tiếng Anh & Quốc tế: daily vlog, facecam, talk, interview...
+    "day in the life", "grwm", "get ready with me", "vlogger", 
+    "street talk", "public interview", "irl stream", "irl vlog", 
+    "storytime", "face reveal", "personal vlog", "weekly vlog"
+]
+
 def is_reup_safe_and_valid_small_channel(video: Dict, settings: Dict) -> Tuple[bool, str]:
     """
-    5 LỚP BẢO VỆ CHỐNG BẢN QUYỀN NẶNG & CHỐNG KÊNH LỚN / LỖI PARSE SUB
+    6 LỚP BẢO VỆ CHỐNG BẢN QUYỀN NẶNG, CONTENT NGƯỜI THẬT & CHỐNG KÊNH LỚN / LỖI PARSE SUB
     """
+    import re
     title_lower = (video.get("title") or "").lower()
     channel_lower = (video.get("channel") or video.get("uploader") or video.get("channel_name") or "").lower()
     duration = safe_int(video.get("duration"), 0)
@@ -148,6 +167,15 @@ def is_reup_safe_and_valid_small_channel(video: Dict, settings: Dict) -> Tuple[b
         raw_subs_candidate = video.get("subscribers")
     raw_subs = safe_int(raw_subs_candidate, -1)
     is_live = bool(video.get("is_live", False) or video.get("was_live", False))
+
+    # 0. CHỐT CHẶN 0: LOẠI BỎ TRIỆT ĐỂ CONTENT NGƯỜI THẬT / VLOG / TALKSHOW (Không thể scale faceless)
+    for excl in CONTENT_EXCLUSION_KEYWORDS:
+        if " " in excl:
+            if excl in title_lower or excl in channel_lower:
+                return False, f"Loại trừ content cá nhân/vlog không scale faceless được: '{excl}'"
+        else:
+            if re.search(r'\b' + re.escape(excl) + r'\b', title_lower):
+                return False, f"Loại trừ content cá nhân/vlog không scale faceless được: '{excl}'"
 
     # 1. CHỐT CHẶN 1: TỪ KHÓA GAMESHOW / TRUYỀN HÌNH / NHÀ ĐÀI / MV CHÍNH THỐNG
     for bad_word in COPYRIGHT_BLACKLIST:
@@ -244,11 +272,25 @@ def evaluate_outlier_candidate(
     if engagement_rate < min_eng and comments < min_cmt:
         return None, f"Nghi vấn Ads/Buff: Engagement={engagement_rate*100:.2f}%, Cmt={comments}"
 
-    # Vận tốc View Trung bình (VPH)
+    # Vận tốc View Trung bình (VPH) & Chuẩn bùng nổ thời gian thực
     avg_vph = views / hours
-    min_vph = safe_float(settings.get("min_vph"), 0.5)
-    if avg_vph < min_vph and sub_outlier < 2.5:
-        return None, f"Vận tốc view yếu: {avg_vph:.1f} VPH (<{min_vph} VPH)"
+    if hours <= 28.0:
+        if avg_vph < 50.0:
+            return None, f"Video 24h chưa đạt ngưỡng VPH bùng nổ: {avg_vph:.1f} VPH (<50.0 VPH)"
+        if raw_subs <= 100_000 and sub_outlier < 3.0:
+            return None, f"Video 24h kênh <100K sub chưa đạt đột biến 3x: {sub_outlier:.1f}x (<3.0x)"
+    elif hours <= 52.0:
+        if avg_vph < 30.0:
+            return None, f"Video 48h chưa đạt vận tốc bùng nổ: {avg_vph:.1f} VPH (<30.0 VPH)"
+        if raw_subs <= 100_000 and sub_outlier < 2.5:
+            return None, f"Video 48h kênh <100K sub chưa đạt đột biến: {sub_outlier:.1f}x (<2.5x)"
+    elif hours <= 172.0:
+        if avg_vph < 15.0:
+            return None, f"Video 7 ngày chưa đạt vận tốc: {avg_vph:.1f} VPH (<15.0 VPH)"
+    else:
+        min_vph = safe_float(settings.get("min_vph"), 2.0)
+        if avg_vph < min_vph and sub_outlier < 2.5:
+            return None, f"Vận tốc view yếu: {avg_vph:.1f} VPH (<{min_vph} VPH)"
 
     # QUAN TRỌNG: Loại trừ chính video đang xét và các video Shorts (<min_dur) khỏi mẫu tính Median
     valid_recent_views = [
@@ -530,6 +572,94 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
     if not raw_url:
         return []
 
+    ytdlp_bin = get_ytdlp_bin()
+    if not os.path.exists(ytdlp_bin) and not shutil.which(ytdlp_bin):
+        raise RuntimeError(f"Không tìm thấy công cụ yt-dlp tại: {ytdlp_bin}")
+
+    # 0. Nếu đầu vào là một video cụ thể (hoặc video ID 11 ký tự): trích xuất đầy đủ tags ẩn và metadata
+    is_single_video = (
+        "watch?v=" in raw_url
+        or "youtu.be/" in raw_url
+        or "/shorts/" in raw_url
+        or (len(raw_url) == 11 and not raw_url.startswith("@") and "/" not in raw_url)
+    )
+    if is_single_video:
+        video_url = raw_url
+        if len(raw_url) == 11 and not raw_url.startswith("http"):
+            video_url = f"https://www.youtube.com/watch?v={raw_url}"
+        elif not video_url.startswith("http"):
+            video_url = f"https://{video_url}"
+
+        cmd_vid = [
+            ytdlp_bin,
+            "--dump-json",
+            "--no-warnings",
+            video_url
+        ]
+        try:
+            res_vid = subprocess.run(
+                cmd_vid,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="ignore",
+                timeout=30,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if platform.system() == "Windows" else 0
+            )
+            if res_vid.returncode == 0 and res_vid.stdout.strip():
+                raw = json.loads(res_vid.stdout.strip().splitlines()[0])
+                vid_id = raw.get("id") or ""
+                views = safe_int(raw.get("view_count"), 0)
+                now_ts = int(time.time())
+                upload_ts = raw.get("timestamp")
+                if not upload_ts and raw.get("upload_date"):
+                    try:
+                        t_str = raw.get("upload_date")
+                        t_struct = time.strptime(t_str, "%Y%m%d")
+                        upload_ts = int(time.mktime(t_struct))
+                    except Exception:
+                        upload_ts = None
+                hours_published = max((now_ts - upload_ts) / 3600.0, 1.0) if upload_ts else 24.0
+                vph = round(views / hours_published, 1)
+                title = raw.get("title") or "Untitled Video"
+
+                raw_tags = raw.get("tags") or []
+                if isinstance(raw_tags, str):
+                    tags = [raw_tags]
+                elif isinstance(raw_tags, list):
+                    tags = [str(t).strip() for t in raw_tags if str(t).strip()]
+                else:
+                    tags = []
+
+                raw_cats = raw.get("categories") or []
+                if isinstance(raw_cats, str):
+                    categories = [raw_cats]
+                elif isinstance(raw_cats, list):
+                    categories = [str(c).strip() for c in raw_cats if str(c).strip()]
+                else:
+                    categories = []
+
+                return [{
+                    "id": vid_id,
+                    "title": title,
+                    "thumbnail_url": raw.get("thumbnail") or f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg",
+                    "url": f"https://www.youtube.com/watch?v={vid_id}",
+                    "views": views,
+                    "duration": safe_int(raw.get("duration"), 0),
+                    "hours_published": round(hours_published, 1),
+                    "vph": vph,
+                    "keyword_score": 92,
+                    "uploader": raw.get("uploader") or raw.get("channel") or "Đối thủ",
+                    "tags": tags,
+                    "categories": categories,
+                    "channel_follower_count": safe_int(raw.get("channel_follower_count"), 0),
+                    "like_count": safe_int(raw.get("like_count"), 0),
+                    "comment_count": safe_int(raw.get("comment_count"), 0),
+                }]
+        except Exception as e:
+            logger.error(f"Lỗi thực thi yt-dlp khi phân tích video đối thủ {video_url}: {e}")
+            raise RuntimeError(f"Lỗi chạy yt-dlp: {e}")
+
     # 1. Chuẩn hóa URL kênh đối thủ (hỗ trợ @handle, URL có tham số ?si=..., hoặc thiếu https://)
     if raw_url.startswith("@"):
         clean_url = f"https://www.youtube.com/{raw_url}"
@@ -564,10 +694,6 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
     else:
         target_url += "?view=0&sort=dd"
 
-    ytdlp_bin = get_ytdlp_bin()
-    if not os.path.exists(ytdlp_bin) and not shutil.which(ytdlp_bin):
-        raise RuntimeError(f"Không tìm thấy công cụ yt-dlp tại: {ytdlp_bin}")
-
     cmd = [
         ytdlp_bin,
         "--dump-json",
@@ -578,7 +704,15 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
     ]
 
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=35)
+        res = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="ignore",
+            timeout=35,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if platform.system() == "Windows" else 0
+        )
     except Exception as e:
         logger.error(f"Lỗi thực thi yt-dlp khi phân tích kênh đối thủ {channel_url}: {e}")
         raise RuntimeError(f"Lỗi chạy yt-dlp: {e}")
@@ -631,6 +765,22 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
         vph_bonus = 10 if vph > 100 else (5 if vph > 20 else 0)
         keyword_score = min(base_score + len_bonus + word_bonus + num_bonus + vph_bonus, 98)
 
+        raw_tags = raw.get("tags") or []
+        if isinstance(raw_tags, str):
+            tags = [raw_tags]
+        elif isinstance(raw_tags, list):
+            tags = [str(t).strip() for t in raw_tags if str(t).strip()]
+        else:
+            tags = []
+
+        raw_cats = raw.get("categories") or []
+        if isinstance(raw_cats, str):
+            categories = [raw_cats]
+        elif isinstance(raw_cats, list):
+            categories = [str(c).strip() for c in raw_cats if str(c).strip()]
+        else:
+            categories = []
+
         videos.append({
             "id": vid_id,
             "title": title,
@@ -642,6 +792,8 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
             "vph": vph,
             "keyword_score": keyword_score,
             "uploader": raw.get("uploader") or raw.get("channel") or raw.get("playlist_channel") or "Đối thủ",
+            "tags": tags,
+            "categories": categories,
         })
 
     if not videos and res.returncode != 0:
@@ -771,15 +923,267 @@ def analyze_video_hook_and_transcript(video_id: str) -> Dict:
     }
 
 
-IKIGAI_GOLDEN_NICHES = [
-    {"name": "Nấu ăn 1 mình", "query": "nấu ăn cho người ở 1 mình", "category": "Nhóm 3: View Ngoại / Dễ Làm"},
-    {"name": "Món sinh viên tiết kiệm", "query": "món ăn sinh viên tiết kiệm", "category": "Nhóm 3: View Ngoại / Dễ Làm"},
-    {"name": "Tài chính cá nhân", "query": "quản lý tài chính cá nhân", "category": "Nhóm 1: CPM Cao / Giáo Dục"},
-    {"name": "Công nghệ & AI Tools", "query": "công cụ ai kiếm tiền", "category": "Nhóm 1: CPM Cao / Giáo Dục"},
-    {"name": "Nhạc Lofi Chill", "query": "nhạc lofi chill học bài", "category": "Nhóm 2: View Khủng / Dễ Scale"},
-    {"name": "ASMR Satisfying", "query": "asmr satisfying âm thanh thư giãn", "category": "Nhóm 2: View Khủng / Dễ Scale"},
-    {"name": "Nhạc nền BGM không bản quyền", "query": "nhạc nền no copyright bgm", "category": "Nhóm 3: View Ngoại / Dễ Làm"},
+# -------------------------------------------------------------
+# HỆ THỐNG NGÁCH CHUẨN HÓA: VIEW VIỆT & VIEW NGOẠI (FACELESS)
+# -------------------------------------------------------------
+
+STANDARDIZED_NICHES_VIET = [
+    {
+        "id": "review_phim",
+        "name": "Review Phim",
+        "description": "Tóm tắt phim, phân tích phim nhanh",
+        "query": "tóm tắt phim review phim hay",
+        "category": "View Việt",
+    },
+    {
+        "id": "nhac",
+        "name": "Nhạc Remix & Lofi",
+        "description": "Speed up, remix, lofi không lời, 8D audio, nhạc nền edit",
+        "query": "nhạc speed up remix lofi không lời 8d audio",
+        "category": "View Việt",
+    },
+    {
+        "id": "asmr",
+        "name": "ASMR & Satisfying",
+        "description": "Cắt xà phòng, phục hồi đồ cũ, làm sạch sâu, cát động lực",
+        "query": "asmr satisfying cắt xà phòng phục hồi đồ cũ làm sạch sâu",
+        "category": "View Việt",
+    },
+    {
+        "id": "su_that",
+        "name": "Sự Thật & Bí Ẩn",
+        "description": "Top bí ẩn thế giới, khoa học vũ trụ, sự thật rùng mình, facts",
+        "query": "sự thật bí ẩn thế giới khoa học vũ trụ facts",
+        "category": "View Việt",
+    },
+    {
+        "id": "dong_vat",
+        "name": "Động Vật Hài Hước",
+        "description": "Chó mèo hài, cứu hộ động vật, khoảnh khắc thú cưng",
+        "query": "chó mèo hài hước cứu hộ động vật thú cưng dễ thương",
+        "category": "View Việt",
+    },
+    {
+        "id": "manga_recap",
+        "name": "AI Manga / Manhwa Recap",
+        "description": "Tóm tắt truyện tranh voice AI, hoạt hình 2D",
+        "query": "tóm tắt truyện tranh manga manhwa anime recap",
+        "category": "View Việt",
+    },
+    {
+        "id": "meo_vat_tech",
+        "name": "Mẹo Vặt & Đồ Công Nghệ",
+        "description": "Tech gadgets thông minh, mẹo vặt gia đình faceless",
+        "query": "đồ công nghệ thông minh gadgets mẹo vặt cuộc sống",
+        "category": "View Việt",
+    },
 ]
+
+GEO_NICHES_FOREIGN = [
+    {
+        "id": "movie_recap",
+        "name": "Movie Recap / Film Explained",
+        "description": "Movie recap, film explained",
+        "category_vn": "Review Phim",
+        "queries": {
+            "GLOBAL": "movie recap film explained",
+            "US": "movie recap film explained",
+            "UK": "movie recap film explained",
+            "JP": "映画 要約 あらすじ 解説",
+            "KR": "영화 요약 결말포함",
+            "TH": "สปอยหนัง หนังเต็มเรื่อง",
+            "DE": "filmzusammenfassung film erklärt",
+            "FR": "résumé de film film expliqué",
+            "ID": "alur cerita film review",
+            "BR": "resumo do filme filme explicado",
+            "TW": "電影解說 幾分鐘看電影",
+        }
+    },
+    {
+        "id": "speed_up_music",
+        "name": "Speed Up & Slowed Reverb / BGM",
+        "description": "Speed up songs, slowed reverb, no copyright bgm",
+        "category_vn": "Nhạc",
+        "queries": {
+            "GLOBAL": "speed up songs slowed reverb no copyright bgm",
+            "US": "speed up songs slowed reverb no copyright bgm",
+            "UK": "speed up songs slowed reverb no copyright bgm",
+            "JP": "作業用bgm 著作権フリー speed up",
+            "KR": "플레이리스트 노동요 speed up",
+            "TH": "เพลง speed up เพลงฮิต",
+            "DE": "speed up songs lofi no copyright bgm",
+            "FR": "speed up musique no copyright bgm",
+            "ID": "lagu speed up remix no copyright bgm",
+            "BR": "musica speed up remix no copyright bgm",
+            "TW": "無版權音樂 speed up bgm",
+        }
+    },
+    {
+        "id": "oddly_satisfying",
+        "name": "Oddly Satisfying / Deep Clean ASMR",
+        "description": "Oddly satisfying, deep cleaning asmr, restoration",
+        "category_vn": "ASMR & Satisfying",
+        "queries": {
+            "GLOBAL": "oddly satisfying deep cleaning asmr restoration",
+            "US": "oddly satisfying deep cleaning asmr restoration",
+            "UK": "oddly satisfying deep cleaning asmr restoration",
+            "JP": "音フェチ asmr 気持ちいい 掃除",
+            "KR": "마음이 편안해지는 영상 asmr 청소",
+            "TH": "ฟินๆ asmr ทำความสะอาด",
+            "DE": "oddly satisfying asmr tiefenreinigung",
+            "FR": "oddly satisfying asmr nettoyage",
+            "ID": "oddly satisfying pembersihan asmr",
+            "BR": "oddly satisfying asmr limpeza",
+            "TW": "解壓 asmr 深度清潔 修復",
+        }
+    },
+    {
+        "id": "mindblowing_facts",
+        "name": "Mind-blowing Facts & Mysteries",
+        "description": "Mind-blowing facts, unexplained mysteries, space facts",
+        "category_vn": "Sự Thật & Bí Ẩn",
+        "queries": {
+            "GLOBAL": "mind blowing facts unexplained mysteries space",
+            "US": "mind blowing facts unexplained mysteries space",
+            "UK": "mind blowing facts unexplained mysteries space",
+            "JP": "衝撃の事実 世界の謎 雑学",
+            "KR": "흥미로운 사실 충격적인 미스터리",
+            "TH": "เรื่องแปลก ความจริงที่คุณไม่เคยรู้",
+            "DE": "unglaubliche fakten mysterien weltall",
+            "FR": "faits incroyables mystères univers",
+            "ID": "fakta mengejutkan misteri dunia",
+            "BR": "fatos incriveis misterios universo",
+            "TW": "不可思議的事實 未解之謎 宇宙",
+        }
+    },
+    {
+        "id": "funny_pets",
+        "name": "Funny Pets & Animal Reactions",
+        "description": "Funny pets, cat dog clips, animal reactions",
+        "category_vn": "Động Vật Hài Hước",
+        "queries": {
+            "GLOBAL": "funny pets animals cats dogs moments",
+            "US": "funny pets animals cats dogs moments",
+            "UK": "funny pets animals cats dogs moments",
+            "JP": "面白い 動物 猫 犬 かわいい",
+            "KR": "웃긴 동물 강아지 고양이 힐링",
+            "TH": "สัตว์เลี้ยงน่ารัก หมา แมว ฮาๆ",
+            "DE": "lustige tiere hunde katzen momente",
+            "FR": "animaux drôles chats chiens moments",
+            "ID": "hewan lucu anjing kucing ngakak",
+            "BR": "animais engracados caes gatos fofos",
+            "TW": "搞笑動物 萌寵 貓狗 療癒",
+        }
+    },
+    {
+        "id": "ai_manga_recap",
+        "name": "AI Manga Recap & Webtoon Summary",
+        "description": "Manga recap, webtoon manhwa summary",
+        "category_vn": "AI Manga / Manhwa Recap",
+        "queries": {
+            "GLOBAL": "manga recap webtoon manhwa summary recap",
+            "US": "manga recap webtoon manhwa summary recap",
+            "UK": "manga recap webtoon manhwa summary recap",
+            "JP": "漫画 要約 アニメ解説 マンガ",
+            "KR": "웹툰 요약 만화 줄거리",
+            "TH": "สปอยมังงะ อนิเมะ ตอนเดียวจบ",
+            "DE": "manga recap webtoon zusammenfassung",
+            "FR": "manga recap résumé webtoon anime",
+            "ID": "recap manga manhwa alur cerita",
+            "BR": "recap manga manhwa resumo completo",
+            "TW": "漫畫解說 動漫推薦 一口氣看完全部",
+        }
+    },
+    {
+        "id": "smart_gadgets",
+        "name": "Smart Life Hacks & Gadgets Showcase",
+        "description": "Smart gadgets, amazon life hacks, kitchen tools faceless",
+        "category_vn": "Mẹo Vặt & Đồ Công Nghệ",
+        "queries": {
+            "GLOBAL": "smart gadgets life hacks home appliances cool tech",
+            "US": "smart gadgets life hacks home appliances cool tech",
+            "UK": "smart gadgets life hacks home appliances cool tech",
+            "JP": "便利グッズ ライフハック 家電",
+            "KR": "꿀템 신박한 아이템 생활 꿀팁",
+            "TH": "ของใช้ในบ้าน อุปกรณ์ไอที เจ๋งๆ",
+            "DE": "smarte gadgets life hacks haushaltsgeräte",
+            "FR": "gadgets intelligents astuces maison high tech",
+            "ID": "gadget pintar life hacks perabotan rumah",
+            "BR": "gadgets inteligentes truques para casa",
+            "TW": "實用黑科技 居家好物 生活小妙招",
+        }
+    },
+]
+
+
+def fetch_live_trending_topics(geo: str = "VN", limit: int = 20) -> List[Dict]:
+    """
+    Cào Trending Topics thời gian thực từ Google Trends Daily RSS theo mã quốc gia (geo).
+    Hỗ trợ: VN, US, TH, JP, KR, GB, DE, FR, ID, BR, TW...
+    """
+    clean_geo = (geo or "VN").strip().upper()
+    url = f"https://trends.google.com/trending/rss?geo={clean_geo}"
+    try:
+        import urllib.request
+        import xml.etree.ElementTree as ET
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+        )
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            xml_data = resp.read()
+        root = ET.fromstring(xml_data)
+        ns = {"ht": "https://trends.google.com/trending/rss"}
+        topics = []
+        for item in root.findall(".//item"):
+            title_el = item.find("title")
+            title = title_el.text.strip() if title_el is not None and title_el.text else ""
+            traffic_el = item.find("ht:approx_traffic", ns)
+            traffic = traffic_el.text.strip() if traffic_el is not None and traffic_el.text else ""
+            pub_el = item.find("pubDate")
+            pub_date = pub_el.text.strip() if pub_el is not None and pub_el.text else ""
+            desc_el = item.find("description")
+            desc = desc_el.text.strip() if desc_el is not None and desc_el.text else ""
+            
+            if title:
+                topics.append({
+                    "title": title,
+                    "traffic": traffic,
+                    "pub_date": pub_date,
+                    "geo": clean_geo,
+                    "description": desc,
+                })
+                if len(topics) >= limit:
+                    break
+        return topics
+    except Exception as e:
+        logger.warning(f"Lỗi fetch_live_trending_topics cho geo={clean_geo}: {e}")
+        return []
+
+
+def get_niche_query_for_market(niche_key_or_name: str, geo: str = "VN") -> Tuple[str, str]:
+    """
+    Trả về (label, search_query) theo ngách và mã quốc gia geo.
+    Nếu geo == 'VN': tìm trong STANDARDIZED_NICHES_VIET.
+    Nếu geo != 'VN': tìm trong GEO_NICHES_FOREIGN.
+    Nếu không khớp ngách chuẩn nào, trả về chính (niche_key_or_name, niche_key_or_name).
+    """
+    clean = (niche_key_or_name or "").strip().lower()
+    clean_geo = (geo or "VN").strip().upper()
+
+    if clean_geo == "VN":
+        for item in STANDARDIZED_NICHES_VIET:
+            if clean in (item["id"].lower(), item["name"].lower()):
+                return item["name"], item["query"]
+    else:
+        for item in GEO_NICHES_FOREIGN:
+            queries = item.get("queries") or {}
+            target_query = queries.get(clean_geo) or queries.get("GLOBAL") or item.get("name")
+            cat_vn = item.get("category_vn", "").lower()
+            if clean in (item["id"].lower(), item["name"].lower(), cat_vn):
+                return item["name"], target_query
+
+    return niche_key_or_name, niche_key_or_name
 
 
 def _scan_single_query(
@@ -787,19 +1191,54 @@ def _scan_single_query(
     niche_label: str,
     settings: Dict,
     channel_cache: Dict[str, List[Dict]],
+    time_range: str = "all",
     limit: int = 15
 ) -> List[Dict]:
     ytdlp_bin = get_ytdlp_bin()
     if not shutil.which(ytdlp_bin) and not os.path.exists(ytdlp_bin):
         raise FileNotFoundError(f"Không tìm thấy file thực thi yt-dlp tại '{ytdlp_bin}'.")
 
-    cmd = [
-        ytdlp_bin,
-        "--dump-json",
-        "--playlist-end", str(limit),
-        "--no-warnings",
-        f"ytsearch{limit}:{query_text}"
-    ]
+    import urllib.parse
+    clean_time = (time_range or "all").lower().strip()
+    
+    if clean_time in ("24h", "today", "now-24h", "24"):
+        encoded = urllib.parse.quote(query_text)
+        target_url = f"https://www.youtube.com/results?search_query={encoded}&sp=CAMSAggC"
+        cmd = [
+            ytdlp_bin,
+            "--dump-json",
+            "--playlist-end", str(limit),
+            "--no-warnings",
+            target_url
+        ]
+    elif clean_time in ("48h", "now-48h", "48"):
+        encoded = urllib.parse.quote(query_text)
+        target_url = f"https://www.youtube.com/results?search_query={encoded}&sp=CAMSAggD"
+        cmd = [
+            ytdlp_bin,
+            "--dump-json",
+            "--playlist-end", str(limit),
+            "--no-warnings",
+            target_url
+        ]
+    elif clean_time in ("7d", "week", "this_week", "now-7d", "7"):
+        encoded = urllib.parse.quote(query_text)
+        target_url = f"https://www.youtube.com/results?search_query={encoded}&sp=CAMSAggD"
+        cmd = [
+            ytdlp_bin,
+            "--dump-json",
+            "--playlist-end", str(limit),
+            "--no-warnings",
+            target_url
+        ]
+    else:
+        cmd = [
+            ytdlp_bin,
+            "--dump-json",
+            "--playlist-end", str(limit),
+            "--no-warnings",
+            f"ytsearch{limit}:{query_text}"
+        ]
 
     try:
         res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=45)
@@ -835,10 +1274,34 @@ def _scan_single_query(
         upload_ts = upload_ts or (now_ts - 86400)
         hours_published = max((now_ts - upload_ts) / 3600.0, 1.0)
 
+        # Giới hạn theo time_range:
+        if clean_time in ("24h", "today", "now-24h", "24") and hours_published > 28.0:
+            continue
+        if clean_time in ("48h", "now-48h", "48") and hours_published > 52.0:
+            continue
+        if clean_time in ("7d", "week", "this_week", "now-7d", "7") and hours_published > 172.0:
+            continue
+
         raw_subs_cand = raw.get("channel_follower_count")
         if raw_subs_cand is None:
             raw_subs_cand = raw.get("subscribers") or raw.get("uploader_subscribers") or raw.get("channel_subscribers")
         parsed_subs = parse_subscribers(raw_subs_cand)
+
+        raw_tags = raw.get("tags") or []
+        if isinstance(raw_tags, str):
+            raw_tags = [raw_tags]
+        elif isinstance(raw_tags, list):
+            raw_tags = [str(t).strip() for t in raw_tags if str(t).strip()]
+        else:
+            raw_tags = []
+
+        raw_categories = raw.get("categories") or []
+        if isinstance(raw_categories, str):
+            raw_categories = [raw_categories]
+        elif isinstance(raw_categories, list):
+            raw_categories = [str(c).strip() for c in raw_categories if str(c).strip()]
+        else:
+            raw_categories = []
 
         video_candidate = {
             "id": vid_id,
@@ -861,9 +1324,11 @@ def _scan_single_query(
             "hours_published": hours_published,
             "is_live": bool(raw.get("is_live", False) or raw.get("was_live", False)),
             "was_live": bool(raw.get("was_live", False)),
+            "tags": raw_tags,
+            "categories": raw_categories,
         }
 
-        # 0. Chốt chặn bảo vệ bản quyền & kênh nhỏ
+        # 0. Chốt chặn bảo vệ bản quyền, content người thật & kênh nhỏ
         safe, safe_reason = is_reup_safe_and_valid_small_channel(video_candidate, settings)
         if not safe:
             logger.debug(f"Bỏ qua '{video_candidate['title'][:40]}': {safe_reason}")
@@ -899,7 +1364,7 @@ def _scan_single_query(
 
         evaluation, reason = evaluate_outlier_candidate(video_candidate, recent_videos, settings)
         if evaluation:
-            logger.info(f" [OUTLIER DISCOVERED] '{video_candidate['title']}' | Niche: {niche_label} | Sub: {video_candidate['subscribers']} | View: {video_candidate['views']} | SubRatio: {evaluation['sub_outlier_ratio']}x")
+            logger.info(f"[OUTLIER DISCOVERED] '{video_candidate['title']}' | Niche: {niche_label} | Sub: {video_candidate['subscribers']} | View: {video_candidate['views']} | SubRatio: {evaluation['sub_outlier_ratio']}x")
             
             auto_dl = settings.get("auto_download", False)
             init_status = "discovered"
@@ -942,6 +1407,8 @@ def _scan_single_query(
                 "hook_analysis": "",
                 "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "last_ping_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "tags": json.dumps(video_candidate["tags"], ensure_ascii=False),
+                "categories": json.dumps(video_candidate["categories"], ensure_ascii=False),
             }
             discovered.append(outlier_record)
         else:
@@ -953,43 +1420,58 @@ def _scan_single_query(
 def hunt_niche_outliers(
     target_niche: str, 
     settings: Dict, 
+    time_range: str = "all",
+    geo: str = "VN",
     channel_cache: Optional[Dict[str, List[Dict]]] = None
 ) -> List[Dict]:
     """
     TẦNG 1 & TẦNG 2: Quét video ngách theo thời gian và đánh giá Outlier Kép.
-    Hỗ trợ cả chế độ: Quét 1 ngách đơn lẻ HOẶC Quét Toàn Bộ Ngách Ngon Ikigai.
+    Hỗ trợ cả chế độ: Quét 1 ngách đơn lẻ HOẶC Quét Toàn Bộ Ngách theo Thị trường (View Việt / View Ngoại).
     """
     if channel_cache is None:
         channel_cache = {}
 
-    clean_niche = target_niche.strip()
-    is_scan_all = not clean_niche or clean_niche.lower() in ("all", "tất cả", "tất cả các ngách", "toàn bộ", "toàn bộ ngách ngon")
+    clean_niche = (target_niche or "").strip()
+    clean_geo = (geo or "VN").strip().upper()
+    is_scan_all = not clean_niche or clean_niche.lower() in ("all", "tất cả", "tất cả các ngách", "toàn bộ", "toàn bộ ngách ngon", "toàn bộ ngách")
 
     all_discovered = []
     seen_ids = set()
 
     if is_scan_all:
-        logger.info("⚡ Bắt đầu quét TOÀN BỘ CÁC NGÁCH NGON IKIGAI...")
-        for niche_item in IKIGAI_GOLDEN_NICHES:
+        logger.info(f"Bat dau quet TOAN BO NGACH cho thi truong geo='{clean_geo}', time='{time_range}'...")
+        if clean_geo == "VN":
+            niches_to_scan = [(item["name"], item["query"]) for item in STANDARDIZED_NICHES_VIET]
+        else:
+            niches_to_scan = []
+            for item in GEO_NICHES_FOREIGN:
+                queries = item.get("queries") or {}
+                query_text = queries.get(clean_geo) or queries.get("GLOBAL") or item.get("name")
+                niches_to_scan.append((item["name"], query_text))
+
+        for name, query_text in niches_to_scan:
             found = _scan_single_query(
-                query_text=niche_item["query"],
-                niche_label=f"{niche_item['name']}",
+                query_text=query_text,
+                niche_label=name,
                 settings=settings,
                 channel_cache=channel_cache,
-                limit=12
+                time_range=time_range,
+                limit=10
             )
             for item in found:
                 if item["id"] not in seen_ids:
                     seen_ids.add(item["id"])
                     all_discovered.append(item)
     else:
-        logger.info(f"Bắt đầu săn video đột biến cho ngách Ikigai: '{clean_niche}'")
+        label, query_text = get_niche_query_for_market(clean_niche, geo=clean_geo)
+        logger.info(f"Bat dau san video dot bien cho ngach '{label}' (query: '{query_text}', geo: '{clean_geo}', time: '{time_range}')")
         found = _scan_single_query(
-            query_text=clean_niche,
-            niche_label=clean_niche,
+            query_text=query_text,
+            niche_label=label,
             settings=settings,
             channel_cache=channel_cache,
-            limit=30
+            time_range=time_range,
+            limit=25
         )
         for item in found:
             if item["id"] not in seen_ids:

@@ -204,6 +204,11 @@ class BrowserMultiEngine(BaseBrowserEngine):
             "--webrtc-ip-handling-policy=disable_non_proxied_udp",
             "--lang=vi-VN",
             "--homepage=https://www.google.com",
+            "--renderer-process-limit=2",
+            "--disable-background-networking",
+            "--disable-dev-shm-usage",
+            '--js-flags="--max-old-space-size=256 --expose-gc"',
+            "--disable-component-update",
         ]
         if not options.get("restore_profile_window_placement"):
             args.extend(spec.window_args())

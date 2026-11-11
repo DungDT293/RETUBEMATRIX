@@ -16,7 +16,13 @@
     "urlCount_plural": "{{count}} URL manzillari",
     "dropHint": "URL manzillari yoki .txt faylini shu yerga tashlang",
     "detectedMultiple": "{{count}} URL manzillari aniqlandi",
-    "clearInput": "Tozalash"
+    "clearInput": "Tozalash",
+    "channel": "Channel",
+    "channelHint": "Scan and download all videos from a YouTube channel",
+    "placeholderChannel": "Paste YouTube channel URL (e.g. https://www.youtube.com/@ChannelName)...",
+    "scanChannel": "Scan Channel",
+    "scanningChannel": "Scanning videos...",
+    "loadToQueue": "Add to Queue"
   },
   "page": {
     "quickSettings": "Tez sozlamalar",

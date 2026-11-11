@@ -1606,6 +1606,8 @@ pub async fn download_video(
     args.push("--write-thumbnail".to_string());
     args.push("--convert-thumbnails".to_string());
     args.push("jpg".to_string());
+    // Luôn ghi file mô tả gốc (.description) cùng thư mục và cùng tên với video để phục vụ Reup & AI thay thế tên kênh
+    args.push("--write-description".to_string());
 
     if embed_thumbnail.unwrap_or(false) {
         args.push("--embed-thumbnail".to_string());
@@ -1666,7 +1668,9 @@ pub async fn download_video(
     // Try to get yt-dlp path (prioritizes bundled version for stability)
     if let Some((binary_path, _)) = get_ytdlp_path(&app).await {
         // Build extended PATH with deno/bun locations for JavaScript runtime support
-        let home_dir = std::env::var("HOME").unwrap_or_else(|_| "/Users".to_string());
+        let home_dir = std::env::var("HOME")
+            .or_else(|_| std::env::var("USERPROFILE"))
+            .unwrap_or_else(|_| ".".to_string());
         let mut path_entries: Vec<std::path::PathBuf> = std::env::var_os("PATH")
             .map(|paths| std::env::split_paths(&paths).collect())
             .unwrap_or_default();

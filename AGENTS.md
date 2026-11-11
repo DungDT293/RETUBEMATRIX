@@ -100,6 +100,7 @@ All must pass before a commit succeeds.
 - **Action buttons**: `rounded-md`, `border border-dashed`, hover effects
 - **Time range**: amber color scheme (`bg-amber-500/10 text-amber-600 dark:text-amber-400`), Scissors icon
 - **AI/Summary**: purple color scheme (`bg-purple-500/10 text-purple-500`), Sparkles icon
+- **No-Gimmick / Clean UI & Emoji Ban**: TUYỆT ĐỐI KHÔNG thêm emoji hoặc các biểu tượng trang trí rối mắt (🍳, 💰, 🤖, 🎧, ✨, 🎮, 🐾, 📱, ⚡, 🚀, 🔥, 💎, 📥, 🏷️, ➕, 🎯...) vào giao diện người dùng, nhãn nút, thẻ ngách, tiêu đề hay trong các tin nhắn trao đổi. Chỉ sử dụng icon SVG đơn sắc tối giản chuẩn Lucide khi thực sự cần thiết cho công năng. Giữ giao diện chuyên nghiệp, sạch sẽ, phẳng, tinh tế và không làm bẩn/rối mắt.
 
 ## Architecture Patterns
 
@@ -122,3 +123,7 @@ All must pass before a commit succeeds.
 - **IPC Contract & Tauri v2 Compatibility**: Command parameters in Tauri v2 default to camelCase in frontend JS invocations. When writing commands that receive configuration options (such as `update_channel_settings`), always ensure frontend passes both camelCase and snake_case. Always parse JSON outputs from Python runners safely, accepting both boolean flags and dictionary tombstones.
 - **Outlier Hunter Robustness**: Always inject `YTDLP_BIN` to the runner environment. If yt-dlp fails or is missing, raise a structured error — never swallow exceptions and return `discovered_videos: []`. Always parse subscriber strings with suffix multipliers (`K`, `M`, `B`, `N`, `Triệu`, `Nghìn`) to avoid misidentifying 340K subscriber channels as small 340-sub channels.
 - **Transcript Diagnostics**: Explicitly distinguish YouTube `RequestBlocked` / HTTP 429 rate limits from "video has no CC", providing actionable proxy advice to the user.
+
+## Mandatory Multi-Agent Orchestration Rule
+
+- **Bắt buộc kích hoạt Sub-Agents**: Với MỌI yêu cầu từ người dùng đối với dự án này, trợ lý chính BẮT BUỘC phải gọi các Sub-Agents (phân chia vai trò rõ ràng: Researcher, QA/Auditor, System Architect, Performance Optimizer) để lập kế hoạch chi tiết, phân tích song song và rà soát logic chéo trước và trong khi triển khai công việc. Đảm bảo không bỏ sót bất kỳ lỗi tiềm ẩn hoặc xung đột logic nào.

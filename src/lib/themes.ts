@@ -226,3 +226,15 @@ export const themes: Theme[] = [
 export const getTheme = (name: ThemeName): Theme => {
   return themes.find((t) => t.name === name) || themes[0];
 };
+
+// Gradient backgrounds for theme preview
+export const themeGradients: Record<ThemeName, string> = {
+  rose: 'bg-gradient-to-br from-rose-400 via-rose-500 to-red-400',
+  crimson: 'bg-gradient-to-br from-red-600 via-rose-600 to-rose-700',
+  midnight: 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500',
+  aurora: 'bg-gradient-to-br from-emerald-400 via-cyan-500 to-blue-500',
+  sunset: 'bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500',
+  ocean: 'bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-500',
+  forest: 'bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500',
+  candy: 'bg-gradient-to-br from-pink-500 via-rose-500 to-red-500',
+};

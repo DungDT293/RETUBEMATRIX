@@ -173,6 +173,7 @@ fn normalized_timeout_seconds(timeout_seconds: Option<u64>) -> u64 {
 
 fn ai_client(timeout_seconds: Option<u64>) -> Result<Client, AIError> {
     Client::builder()
+        .connect_timeout(Duration::from_secs(3))
         .timeout(Duration::from_secs(normalized_timeout_seconds(
             timeout_seconds,
         )))

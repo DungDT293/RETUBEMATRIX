@@ -762,7 +762,9 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
             demand_signal TEXT DEFAULT '',
             hook_analysis TEXT DEFAULT '',
             created_at TEXT NOT NULL,
-            last_ping_at TEXT NOT NULL
+            last_ping_at TEXT NOT NULL,
+            tags TEXT,
+            categories TEXT
         )",
         [],
     )
@@ -773,6 +775,8 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     conn.execute("ALTER TABLE outlier_videos ADD COLUMN hook_analysis TEXT DEFAULT ''", []).ok();
     conn.execute("ALTER TABLE outlier_videos ADD COLUMN acceleration_status TEXT DEFAULT ''", []).ok();
     conn.execute("ALTER TABLE outlier_videos ADD COLUMN view_velocity REAL DEFAULT 0.0", []).ok();
+    conn.execute("ALTER TABLE outlier_videos ADD COLUMN tags TEXT", []).ok();
+    conn.execute("ALTER TABLE outlier_videos ADD COLUMN categories TEXT", []).ok();
 
     conn.execute("CREATE INDEX IF NOT EXISTS idx_outlier_status ON outlier_videos(status)", []).ok();
     conn.execute("CREATE INDEX IF NOT EXISTS idx_outlier_momentum ON outlier_videos(momentum_score DESC)", []).ok();
@@ -828,6 +832,14 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     conn.execute("CREATE INDEX IF NOT EXISTS idx_bkt_test_jobs_channel ON bkt_test_jobs(test_channel_id)", []).ok();
     conn.execute("CREATE INDEX IF NOT EXISTS idx_bkt_test_jobs_status ON bkt_test_jobs(status)", []).ok();
     conn.execute("CREATE INDEX IF NOT EXISTS idx_bkt_test_jobs_date ON bkt_test_jobs(tested_date)", []).ok();
+
+    // Auto-Publish target profile columns migration
+    conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN main_target_profile_id TEXT", []).ok();
+    conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN auto_publish_main INTEGER DEFAULT 0", []).ok();
+    conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN target_title TEXT", []).ok();
+    conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN target_description TEXT", []).ok();
+    conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN target_tags TEXT", []).ok();
+    conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN thumbnail_path TEXT", []).ok();
 
     // Seamless migration: If legacy youwee.db exists, import existing data
     if let Some(parent) = app_data_dir.parent() {

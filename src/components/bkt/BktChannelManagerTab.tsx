@@ -7,6 +7,7 @@ import {
   Loader2,
   Plus,
   RefreshCw,
+  Send,
   ShieldAlert,
   ShieldCheck,
   Trash2,
@@ -44,6 +45,8 @@ import {
   getBktTestChannels,
   getBktTestJobs,
   getMultibrowserProfiles,
+  publishBktJobToMain,
+  recheckBktJob,
   saveBktTestChannel,
 } from '@/contexts/channels/channels-client';
 import type {
@@ -53,6 +56,7 @@ import type {
   MultiBrowserProfile,
 } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { workTelemetryService } from '@/services/workTelemetryService';
 
 export function BktChannelManagerTab() {
   const toast = useToast();
@@ -176,6 +180,16 @@ export function BktChannelManagerTab() {
       };
 
       await saveBktTestChannel(input);
+
+      // Telemetry: Đồng bộ kênh test lên Supabase
+      workTelemetryService.syncManagedChannel({
+        channel_type: 'test',
+        channel_id: input.profileId,
+        channel_title: input.name,
+        status: input.isActive ? 'active' : 'inactive',
+        action: 'upsert',
+      });
+
       toast.success({
         title: editingChannel ? 'Cập nhật thành công' : 'Thêm kênh test thành công',
         description: `Kênh test "${formName}" đã sẵn sàng kiểm tra bản quyền.`,
@@ -197,6 +211,15 @@ export function BktChannelManagerTab() {
     if (!confirm(`Bạn có chắc muốn xóa kênh test "${ch.name}" không?`)) return;
     try {
       await deleteBktTestChannel(ch.id);
+
+      // Telemetry: Đồng bộ xóa kênh test 1-1
+      workTelemetryService.syncManagedChannel({
+        channel_type: 'test',
+        channel_id: ch.profileId,
+        channel_title: ch.name,
+        action: 'delete',
+      });
+
       toast.success({
         title: 'Đã xóa kênh test',
         description: `Kênh "${ch.name}" đã được gỡ khỏi hệ thống.`,
@@ -228,6 +251,38 @@ export function BktChannelManagerTab() {
         title: 'Lỗi mở trình duyệt',
         description: String(err),
       });
+    }
+  };
+
+  const [publishingJobId, setPublishingJobId] = useState<string | null>(null);
+
+  const handlePublishToMain = async (jobId: string) => {
+    try {
+      setPublishingJobId(jobId);
+      toast.info({
+        title: 'Đang đăng sang Kênh Đích',
+        description: 'Trình duyệt đang khởi động và tải video lên Kênh Chính...',
+      });
+      const res = await publishBktJobToMain(jobId);
+      toast.success({ title: 'Thành công', description: res });
+      await loadData();
+    } catch (err) {
+      toast.error({ title: 'Lỗi đăng Kênh Đích', description: String(err) });
+    } finally {
+      setPublishingJobId(null);
+    }
+  };
+
+  const handleRecheckJob = async (jobId: string) => {
+    try {
+      toast.info({
+        title: 'Đang kiểm tra lại',
+        description: 'Khởi động phiên kiểm tra Studio...',
+      });
+      await recheckBktJob(jobId);
+      await loadData();
+    } catch (err) {
+      toast.error({ title: 'Lỗi', description: String(err) });
     }
   };
 
@@ -558,13 +613,45 @@ export function BktChannelManagerTab() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       {job.restriction && (
-                        <span className="text-[11px] text-muted-foreground max-w-[200px] truncate">
+                        <span
+                          className="text-[11px] text-muted-foreground max-w-[200px] truncate"
+                          title={job.restriction}
+                        >
                           {job.restriction}
                         </span>
                       )}
                       {statusBadge}
+                      {job.status === 'green_clean' && job.mainTargetProfileId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={publishingJobId === job.id}
+                          onClick={() => handlePublishToMain(job.id)}
+                          className="h-7 text-[11px] gap-1 bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                          title="Đăng video công khai sang Kênh Đích"
+                        >
+                          {publishingJobId === job.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Send className="w-3 h-3" />
+                          )}
+                          Đăng Kênh Đích
+                        </Button>
+                      )}
+                      {(job.status === 'pending' || job.status === 'checking') && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRecheckJob(job.id)}
+                          className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground"
+                          title="Quét lại trạng thái bản quyền trên YouTube Studio"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          Quét Lại
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );

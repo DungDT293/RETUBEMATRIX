@@ -7,6 +7,7 @@ import {
   Loader2,
   RefreshCw,
   Settings,
+  ShieldCheck,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -265,19 +266,19 @@ function AboutSettingsContent({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 {isAppUpdateAvailable && (
                   <Button
                     size="sm"
                     onClick={updater.downloadAndInstall}
                     disabled={updater.status === 'downloading' || updater.status === 'ready'}
-                    className="gap-1.5"
+                    className="gap-1.5 bg-primary text-primary-foreground shadow-md hover:bg-primary/90"
                   >
                     {updater.status === 'downloading' || updater.status === 'ready' ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
                         {updater.status === 'downloading'
-                          ? `${updater.progress ? Math.round((updater.progress.downloaded / updater.progress.total) * 100) : 0}%`
+                          ? `${updater.progress && updater.progress.total > 0 ? Math.round((updater.progress.downloaded / updater.progress.total) * 100) : 0}%`
                           : t('about.restarting')}
                       </>
                     ) : (
@@ -289,17 +290,66 @@ function AboutSettingsContent({
                   </Button>
                 )}
                 <Button
-                  variant="ghost"
-                  size="icon"
+                  variant="outline"
+                  size="sm"
                   onClick={() => void updater.checkForUpdate()}
                   disabled={isAppChecking}
-                  title={t('about.checkForUpdates')}
-                  className="h-9 w-9"
+                  className="gap-1.5 h-8 text-xs border-border/60 hover:bg-muted/60"
                 >
-                  <RefreshCw className={cn('w-4 h-4', isAppChecking && 'animate-spin')} />
+                  <RefreshCw className={cn('w-3.5 h-3.5', isAppChecking && 'animate-spin')} />
+                  <span>
+                    {isAppChecking ? t('about.checkingUpdates') : t('about.checkForUpdates')}
+                  </span>
                 </Button>
               </div>
             </div>
+
+            {/* Progress bar when downloading */}
+            {updater.status === 'downloading' && updater.progress && updater.progress.total > 0 && (
+              <div className="mt-4 pt-3 border-t border-border/30 space-y-1.5">
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                    Đang tải bản cập nhật...
+                  </span>
+                  <span className="font-mono font-medium text-foreground">
+                    {Math.round((updater.progress.downloaded / updater.progress.total) * 100)}% (
+                    {(updater.progress.downloaded / (1024 * 1024)).toFixed(1)} MB /{' '}
+                    {(updater.progress.total / (1024 * 1024)).toFixed(1)} MB)
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-muted/60 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary to-indigo-500 transition-all duration-300"
+                    style={{
+                      width: `${Math.round((updater.progress.downloaded / updater.progress.total) * 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Release Notes Preview when update is available */}
+            {isAppUpdateAvailable && updater.updateInfo && (
+              <div className="mt-4 p-3.5 rounded-xl bg-primary/5 border border-primary/20 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                    <Download className="w-3.5 h-3.5" />
+                    Bản cập nhật mới: v{updater.updateInfo.version}
+                  </span>
+                  {updater.updateInfo.date && (
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                      {new Date(updater.updateInfo.date).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+                {(updater.updateInfo.bodyVi || updater.updateInfo.body) && (
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-4">
+                    {updater.updateInfo.bodyVi || updater.updateInfo.body}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Quick Links */}
             <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-border/30">
@@ -352,7 +402,7 @@ function AboutSettingsContent({
           <div className="rounded-xl bg-muted/30 p-4 transition-all hover:bg-muted/40 border border-border/40">
             <div className="flex items-center gap-2.5 mb-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 font-bold">
-                ✓
+                <CheckCircle2 className="w-4 h-4" />
               </div>
               <p className="text-sm font-semibold">Bảo Vệ Kênh &amp; Phân Luồng 1-1</p>
             </div>
@@ -366,7 +416,7 @@ function AboutSettingsContent({
           <div className="rounded-xl bg-muted/30 p-4 transition-all hover:bg-muted/40 border border-border/40">
             <div className="flex items-center gap-2.5 mb-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/10 text-sky-500 font-bold">
-                ⚡
+                <ShieldCheck className="w-4 h-4" />
               </div>
               <p className="text-sm font-semibold">Tự Động Hóa Kiểm Tra BKT Studio</p>
             </div>

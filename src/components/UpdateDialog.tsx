@@ -2,16 +2,17 @@ import {
   ArrowRight,
   Check,
   Download,
-  Info,
   RefreshCw,
   Rocket,
   RotateCcw,
   Sparkles,
   X,
 } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { SimpleMarkdown } from '@/components/ui/simple-markdown';
+import { useToast } from '@/components/ui/toast';
 import type { UpdateInfo, UpdateProgress, UpdateStatus } from '@/hooks/useAppUpdater';
 import { cn } from '@/lib/utils';
 
@@ -31,7 +32,7 @@ interface UpdateDialogProps {
   onDownload: () => void;
   onRestart: () => void;
   onDismiss: () => void;
-  onRetry: () => void;
+  onRetry?: () => void;
 }
 
 export function UpdateDialog({
@@ -42,17 +43,28 @@ export function UpdateDialog({
   onDownload,
   onRestart,
   onDismiss,
-  onRetry,
 }: UpdateDialogProps) {
   const { t, i18n } = useTranslation('common');
+  const toast = useToast();
+  const lastErrorRef = useRef<string | null>(null);
 
-  // Only show dialog for specific states
-  if (
-    status === 'idle' ||
-    status === 'checking' ||
-    status === 'up-to-date' ||
-    status === 'external'
-  ) {
+  // Surface manual check or download errors as toasts without blocking the UI
+  useEffect(() => {
+    if (status === 'error' && error) {
+      if (lastErrorRef.current !== error) {
+        lastErrorRef.current = error;
+        toast.error({
+          title: t('update.error'),
+          description: error,
+        });
+      }
+    } else if (status !== 'error') {
+      lastErrorRef.current = null;
+    }
+  }, [status, error, toast, t]);
+
+  // Only open modal dialog when an update is available, downloading, or ready to restart
+  if (status !== 'available' && status !== 'downloading' && status !== 'ready') {
     return null;
   }
 
@@ -68,7 +80,7 @@ export function UpdateDialog({
   };
 
   const localizedBody = getLocalizedBody(updateInfo, i18n.language);
-  const canDismiss = status === 'available' || status === 'error';
+  const canDismiss = status === 'available';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-md animate-in fade-in duration-500">
@@ -94,16 +106,12 @@ export function UpdateDialog({
             <div
               className={cn(
                 'relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shadow-lg border border-white/10 text-white transform transition-transform duration-500',
-                status === 'error'
-                  ? 'bg-gradient-to-br from-red-500 to-red-600'
-                  : status === 'ready'
-                    ? 'bg-gradient-to-br from-green-500 to-green-600'
-                    : 'bg-gradient-to-br from-primary to-primary/80',
+                status === 'ready'
+                  ? 'bg-gradient-to-br from-green-500 to-green-600'
+                  : 'bg-gradient-to-br from-primary to-primary/80',
               )}
             >
-              {status === 'error' ? (
-                <Info className="w-6 h-6 sm:w-7 sm:h-7" />
-              ) : status === 'ready' ? (
+              {status === 'ready' ? (
                 <Check className="w-6 h-6 sm:w-7 sm:h-7" />
               ) : (
                 <Rocket className="w-6 h-6 sm:w-7 sm:h-7" />
@@ -113,14 +121,10 @@ export function UpdateDialog({
 
           <div className="flex-1 text-left">
             <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground mb-1.5">
-              {status === 'error'
-                ? t('update.error')
-                : status === 'ready'
-                  ? t('update.ready')
-                  : t('update.available')}
+              {status === 'ready' ? t('update.ready') : t('update.available')}
             </h2>
 
-            {updateInfo && status !== 'error' && (
+            {updateInfo && (
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/50 border border-border/50 text-xs sm:text-sm font-semibold shadow-sm backdrop-blur-md">
                 <span className="text-muted-foreground opacity-60 line-through decoration-muted-foreground/50">
                   v{updateInfo.currentVersion}
@@ -192,14 +196,6 @@ export function UpdateDialog({
               )}
             </div>
           )}
-
-          {status === 'error' && (
-            <div className="bg-destructive/10 rounded-2xl p-6 border border-destructive/20 text-center animate-in fade-in duration-500">
-              <p className="text-sm text-destructive font-semibold">
-                {error || t('update.errorGeneric')}
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Actions */}
@@ -242,25 +238,6 @@ export function UpdateDialog({
               {t('update.restartNow')}
               <RotateCcw className="w-4 h-4 ml-2" />
             </Button>
-          )}
-
-          {status === 'error' && (
-            <>
-              <Button
-                variant="ghost"
-                className="sm:w-1/3 h-12 rounded-xl font-medium"
-                onClick={onDismiss}
-              >
-                {t('update.dismiss')}
-              </Button>
-              <Button
-                onClick={onRetry}
-                className="sm:w-2/3 h-12 rounded-xl font-bold bg-foreground text-background hover:bg-foreground/90"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                {t('update.retry')}
-              </Button>
-            </>
           )}
         </div>
       </div>

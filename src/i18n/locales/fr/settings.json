@@ -9,7 +9,7 @@
     "ai": "Fonctionnalités IA",
     "network": "Réseau et auth",
     "system": "Système",
-    "about": "À propos",
+    "about": "À propos et version",
     "plugins": "Plugins",
     "pluginStore": "Plugin Store"
   },
@@ -777,8 +777,8 @@
     "cliOpenGuide": "Ouvrir le guide CLI"
   },
   "about": {
-    "title": "À propos",
-    "description": "Informations sur l'application",
+    "title": "À propos et version",
+    "description": "Informations sur l’application et vérification des mises à jour",
     "appDesc": "Boîte à outils vidéo tout-en-un - télécharger, éditer, suivre des chaînes et résumer avec l'IA",
     "checkingUpdates": "Vérification des mises à jour...",
     "versionAvailable": "v{{version}} disponible",

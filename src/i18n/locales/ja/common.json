@@ -20,7 +20,11 @@
     "profiles": "ブラウザプロファイル",
     "dashboard": "ダッシュボード",
     "reup": "Reup & BKT Test",
-    "outliers": "おすすめ発掘"
+    "outliers": "おすすめ発掘",
+    "saas": "システム管理",
+    "saasOwner": "システム管理",
+    "saasAdmin": "企業管理",
+    "saasLeader": "チーム管理"
   },
   "language": {
     "en": "English",

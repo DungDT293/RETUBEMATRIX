@@ -69,7 +69,7 @@ export function createDefaultDownloadSettings(saved: Partial<DownloadSettings>):
     audioBitrate: saved.audioBitrate || 'auto',
     concurrentDownloads: saved.concurrentDownloads || 1,
     playlistLimit: saved.playlistLimit || 0,
-    autoCheckUpdate: saved.autoCheckUpdate !== false,
+    autoCheckUpdate: saved.autoCheckUpdate === true,
     subtitleMode: saved.subtitleMode || 'off',
     subtitleLangs: saved.subtitleLangs || ['en', 'vi'],
     subtitleEmbed: saved.subtitleEmbed || false,

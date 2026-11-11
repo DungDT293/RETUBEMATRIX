@@ -1,7 +1,7 @@
 {
   "sidebar": {
     "youtube": "YouTube",
-    "universal": "Tải video sạch",
+    "universal": "Tải video",
     "gallery": "Gallery",
     "summary": "Tóm tắt AI",
     "processing": "Xử lý video",
@@ -20,7 +20,11 @@
     "profiles": "Quản lý Profile",
     "dashboard": "Tổng quan",
     "reup": "Reup & BKT Test",
-    "outliers": "Săn Đề Xuất"
+    "outliers": "Săn Đề Xuất",
+    "saas": "Quản trị hệ thống",
+    "saasOwner": "Quản trị hệ thống",
+    "saasAdmin": "Quản trị công ty",
+    "saasLeader": "Quản lý nhóm"
   },
   "language": {
     "en": "English",

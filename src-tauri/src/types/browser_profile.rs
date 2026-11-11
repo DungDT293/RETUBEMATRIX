@@ -75,6 +75,8 @@ pub struct MultiBrowserUploadParams {
     pub title: String,
     pub description: String,
     #[serde(default)]
+    pub tags: Option<String>,
+    #[serde(default)]
     pub thumbnail_path: Option<String>,
     #[serde(default)]
     pub visibility: Option<String>,
@@ -112,4 +114,8 @@ pub struct MultiBrowserProxyTestResult {
     pub org: Option<String>,
     #[serde(default)]
     pub error: Option<String>,
+    #[serde(default)]
+    pub scheme: Option<String>,
+    #[serde(default)]
+    pub canonical_url: Option<String>,
 }

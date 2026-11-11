@@ -20,7 +20,11 @@
     "profiles": "Профили браузера",
     "dashboard": "Панель управления",
     "reup": "Reup & BKT Test",
-    "outliers": "Охотник за Трендами"
+    "outliers": "Охотник за Трендами",
+    "saas": "Управление системой",
+    "saasOwner": "Управление системой",
+    "saasAdmin": "Управление компанией",
+    "saasLeader": "Управление командой"
   },
   "language": {
     "en": "English",

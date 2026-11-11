@@ -1,16 +1,24 @@
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import {
+  Activity,
   AlertTriangle,
   ArrowRight,
   CheckCircle2,
+  Clock,
   Cpu,
-  Folder,
+  Download,
   Layers,
   Link2,
+  Loader2,
+  Radio,
   RefreshCw,
+  Rocket,
   Server,
+  ShieldCheck,
   Tv,
   UserCheck,
+  Zap,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Page } from '@/components/layout/Sidebar';
@@ -22,7 +30,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { getDailyReportStats } from '@/contexts/channels/channels-client';
 import type {
+  DailyReportStats,
   FollowedChannel,
   MultiBrowserProfile,
   MultiBrowserStats,
@@ -61,13 +71,6 @@ const EMPTY_STATS: MultiBrowserStats = {
 
 type Tone = 'neutral' | 'primary' | 'success' | 'warning';
 
-const TONE_BAR: Record<Tone, string> = {
-  neutral: 'bg-muted-foreground/30',
-  primary: 'bg-primary',
-  success: 'bg-emerald-500',
-  warning: 'bg-amber-500',
-};
-
 const TONE_BADGE: Record<Tone, string> = {
   neutral: 'pill-neutral',
   primary: 'pill-info',
@@ -95,6 +98,16 @@ function formatDuration(seconds?: number) {
   if (hours > 0) return `${hours} giờ ${minutes} phút`;
   if (minutes > 0) return `${minutes} phút ${secs} giây`;
   return `${secs} giây`;
+}
+
+function formatBytes(bytes: number) {
+  if (!bytes || bytes <= 0) return '0 MB';
+  const gb = bytes / (1024 * 1024 * 1024);
+  if (gb >= 1) {
+    return `${gb.toFixed(2)} GB`;
+  }
+  const mb = bytes / (1024 * 1024);
+  return `${mb.toFixed(1)} MB`;
 }
 
 function statusLabel(status?: string) {
@@ -138,37 +151,6 @@ function runTone(status?: string): Tone {
   if (status === 'error') return 'warning';
   if (status === 'running') return 'primary';
   return 'neutral';
-}
-
-function StatCard({
-  title,
-  value,
-  hint,
-  tone,
-  badge,
-  delay,
-}: {
-  title: string;
-  value: number | string;
-  hint: string;
-  tone: Tone;
-  badge: string;
-  delay: number;
-}) {
-  return (
-    <div
-      className="surface-card relative overflow-hidden p-5 card-enter border border-border"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <span className={`absolute inset-y-3 left-0 w-[3px] rounded-r ${TONE_BAR[tone]}`} />
-      <div className="flex items-center justify-between gap-3">
-        <div className="text-xs font-medium text-muted-foreground">{title}</div>
-        <span className={`pill ${TONE_BADGE[tone]} text-[10px]`}>{badge}</span>
-      </div>
-      <div className="mt-3 stat-num text-3xl font-bold tracking-tight text-foreground">{value}</div>
-      <div className="mt-1.5 text-xs text-muted-foreground truncate">{hint}</div>
-    </div>
-  );
 }
 
 function RunDetailRow({ run }: { run: RunSummaryRecord }) {
@@ -241,347 +223,603 @@ function RunSessionCard({ session, index }: { session: RunSessionRecord; index: 
   );
 }
 
+let cachedStats: MultiBrowserStats | null = null;
+let cachedChannels: FollowedChannel[] | null = null;
+let cachedProfiles: MultiBrowserProfile[] | null = null;
+let cachedDailyStats: DailyReportStats | null = null;
+let cachedUpdatedAt = '';
+
 export function DashboardPage({ onNavigate }: DashboardPageProps) {
-  const [stats, setStats] = useState<MultiBrowserStats>(EMPTY_STATS);
-  const [channels, setChannels] = useState<FollowedChannel[]>([]);
-  const [profiles, setProfiles] = useState<MultiBrowserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [updatedAt, setUpdatedAt] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<'today' | 'yesterday' | '7days' | string>('today');
+  const [dailyStats, setDailyStats] = useState<DailyReportStats | null>(() => cachedDailyStats);
+  const [stats, setStats] = useState<MultiBrowserStats>(() => cachedStats || EMPTY_STATS);
+  const [channels, setChannels] = useState<FollowedChannel[]>(() => cachedChannels || []);
+  const [profiles, setProfiles] = useState<MultiBrowserProfile[]>(() => cachedProfiles || []);
+  const [timelineCategory, setTimelineCategory] = useState<
+    'all' | 'publish' | 'bkt' | 'download' | 'discovered'
+  >('all');
+  const [loading, setLoading] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<string>(() => cachedUpdatedAt);
   const [showRunDetails, setShowRunDetails] = useState(false);
 
-  const load = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
-      const [statsData, channelsData, profilesData] = await Promise.all([
+      setLoading(true);
+      const [dailyData, mbStats, chData, prData] = await Promise.all([
+        getDailyReportStats(timeFilter).catch((err) => {
+          console.warn('Lỗi getDailyReportStats:', err);
+          return null;
+        }),
         invoke<MultiBrowserStats>('get_multibrowser_stats').catch(() => EMPTY_STATS),
         invoke<FollowedChannel[]>('get_followed_channels').catch(() => []),
         invoke<MultiBrowserProfile[]>('get_multibrowser_profiles').catch(() => []),
       ]);
 
-      setStats({
+      if (dailyData) {
+        cachedDailyStats = dailyData;
+        setDailyStats(dailyData);
+      }
+
+      const mergedStats = {
         ...EMPTY_STATS,
-        ...statsData,
+        ...mbStats,
         run_summary: {
           ...EMPTY_STATS.run_summary,
-          ...(statsData.run_summary || {}),
+          ...(mbStats?.run_summary || {}),
         },
-      });
-      setChannels(channelsData);
-      setProfiles(profilesData);
-      setError('');
+      };
+
+      cachedStats = mergedStats;
+      cachedChannels = chData;
+      cachedProfiles = prData;
+
+      setStats(mergedStats);
+      setChannels(chData);
+      setProfiles(prData);
+
       const now = new Date();
-      setUpdatedAt(
-        now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-      );
+      const timeStr = now.toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+      cachedUpdatedAt = timeStr;
+      setUpdatedAt(timeStr);
     } catch (e) {
-      console.error('Lỗi khi tải thống kê:', e);
-      setError(String(e));
+      console.error('Lỗi khi tải dữ liệu dashboard:', e);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [timeFilter]);
 
+  // Tự động polling mỗi 5 giây + Lắng nghe sự kiện thời gian thực (Sub-second Sync)
   useEffect(() => {
-    load();
-    const interval = setInterval(load, 5000);
-    return () => clearInterval(interval);
-  }, [load]);
+    loadData();
+    const interval = setInterval(loadData, 5000);
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    const triggerDebouncedLoad = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        loadData();
+      }, 300);
+    };
+
+    const unlistenPromises = [
+      listen('bkt-test-job-updated', triggerDebouncedLoad),
+      listen('bkt-auto-published-main', triggerDebouncedLoad),
+      listen('channel-bkt-test-queued', triggerDebouncedLoad),
+      listen('channel-new-videos', triggerDebouncedLoad),
+      listen('download-completed', triggerDebouncedLoad),
+    ];
+
+    return () => {
+      clearInterval(interval);
+      if (debounceTimer) clearTimeout(debounceTimer);
+      unlistenPromises.forEach((p) => {
+        p.then((unlisten) => {
+          unlisten();
+        }).catch(() => {});
+      });
+    };
+  }, [loadData]);
+
+  // Bộ lọc timeline
+  const filteredEvents = useMemo(() => {
+    const events = dailyStats?.timelineEvents || [];
+    if (timelineCategory === 'all') return events;
+    if (timelineCategory === 'publish') {
+      return events.filter((e) => e.eventType === 'auto_publish');
+    }
+    if (timelineCategory === 'bkt') {
+      return events.filter((e) => e.eventType === 'bkt_test');
+    }
+    if (timelineCategory === 'download') {
+      return events.filter((e) => e.eventType === 'download');
+    }
+    if (timelineCategory === 'discovered') {
+      return events.filter((e) => e.eventType === 'discovered');
+    }
+    return events;
+  }, [dailyStats, timelineCategory]);
 
   const runSummary = stats.run_summary || EMPTY_STATS.run_summary;
   const recentRuns = runSummary?.recent_runs || [];
   const recentSessions = runSummary?.recent_sessions || [];
-  const lastSession = recentSessions[0] || null;
-
-  const cards = useMemo(
-    () => [
-      {
-        title: 'Tổng hồ sơ',
-        value: stats.total_profiles,
-        hint: 'Hồ sơ trong hệ thống',
-        tone: 'neutral' as Tone,
-        badge: 'Tổng',
-      },
-      {
-        title: 'Sẵn sàng chạy',
-        value: stats.ready ?? 0,
-        hint: 'Không đang chạy và không lỗi',
-        tone: 'success' as Tone,
-        badge: 'Ready',
-      },
-      {
-        title: 'Đang chạy',
-        value: stats.running,
-        hint: 'Trình duyệt đang mở',
-        tone: 'primary' as Tone,
-        badge: 'Live',
-      },
-      {
-        title: 'Lỗi hôm nay',
-        value: stats.error_today,
-        hint: stats.error_today > 0 ? 'Cần kiểm tra' : 'Mọi thứ ổn',
-        tone: stats.error_today > 0 ? ('warning' as Tone) : ('success' as Tone),
-        badge: 'Lỗi',
-      },
-      {
-        title: 'Thời gian hôm nay',
-        value: formatDuration(runSummary?.today_runtime_seconds),
-        hint: `${runSummary?.today_session_count || 0} phiên • ${runSummary?.today_run_count || 0} lượt chạy`,
-        tone: 'primary' as Tone,
-        badge: 'Runtime',
-      },
-      {
-        title: 'Trạng thái hệ thống',
-        value: 'Sẵn sàng',
-        hint: 'Engine cục bộ đang chạy',
-        tone: 'success' as Tone,
-        badge: 'Engine',
-      },
-    ],
-    [stats, runSummary],
-  );
 
   return (
-    <div className="h-full w-full min-w-0 overflow-auto">
-      <div className="w-full min-w-0 p-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="h-full w-full min-w-0 overflow-auto bg-background text-foreground">
+      <div className="w-full min-w-0 p-6 space-y-6 max-w-[1600px] mx-auto">
+        {/* HEADER VẬN HÀNH & TIME FILTER */}
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/50 pb-5">
           <div>
-            <div className="text-xs uppercase font-bold tracking-widest text-primary/80">
-              TỔNG QUAN HỆ THỐNG
+            <div className="flex items-center gap-2 text-xs uppercase font-bold tracking-widest text-primary">
+              <Activity className="w-3.5 h-3.5" />
+              BÁO CÁO HOẠT ĐỘNG SẢN XUẤT NỘI DUNG
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground mt-0.5">
-              Bảng điều khiển trung tâm
+              Bảng Điều Khiển Vận Hành Hằng Ngày
             </h1>
-            <p className="text-xs text-muted-foreground mt-1">
-              Theo dõi trạng thái profile, tài nguyên runtime và lịch sử phiên chạy tự động.
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Theo dõi trực tiếp chuỗi: Cào video đối thủ ➔ Tải về ➔ Test BKT Studio ➔ Xuất bản Kênh
+              Đích.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Filter Tabs: Hôm nay / Hôm qua / 7 ngày qua / Custom */}
+            <div className="flex items-center p-1 rounded-lg bg-muted/40 border border-border/60 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setTimeFilter('today')}
+                className={`px-3 py-1 rounded-md transition-colors ${
+                  timeFilter === 'today'
+                    ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Hôm nay
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimeFilter('yesterday')}
+                className={`px-3 py-1 rounded-md transition-colors ${
+                  timeFilter === 'yesterday'
+                    ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Hôm qua
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimeFilter('7days')}
+                className={`px-3 py-1 rounded-md transition-colors ${
+                  timeFilter === '7days'
+                    ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                7 ngày qua
+              </button>
+            </div>
+
+            <div className="text-xs text-muted-foreground hidden sm:block">
               {updatedAt ? (
                 <>
-                  Cập nhật: <span className="font-medium text-foreground">{updatedAt}</span>
+                  Cập nhật:{' '}
+                  <span className="font-mono text-foreground font-medium">{updatedAt}</span>
                 </>
               ) : (
-                'Đang tải dữ liệu...'
+                'Đang tải...'
               )}
-            </span>
+            </div>
+
             <button
               type="button"
-              onClick={load}
+              onClick={loadData}
               className="btn-ghost flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium"
-              title="Tải lại số liệu vận hành"
+              title="Làm mới báo cáo"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               Làm mới
             </button>
-            <button
-              type="button"
-              onClick={() => onNavigate('profiles')}
-              className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium"
-            >
-              <UserCheck className="w-3.5 h-3.5" />
-              Quản lý hồ sơ
-              <ArrowRight className="w-3.5 h-3.5 ml-1" />
-            </button>
           </div>
         </div>
 
-        {error && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-2.5 text-sm text-destructive flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
+        {/* 5 THẺ CHỈ SỐ KPI SẢN XUẤT TRỌNG TÂM */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* KPI 1: Video mới cào */}
+          <button
+            type="button"
+            onClick={() => onNavigate('channels')}
+            className="surface-card p-4 text-left relative overflow-hidden border border-border hover:border-sky-500/50 hover:bg-muted/20 transition group"
+          >
+            <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-sky-500" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">Video mới phát hiện</span>
+              <div className="w-7 h-7 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Radio className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              {dailyStats?.totalDiscoveredToday ?? 0}{' '}
+              <span className="text-xs font-normal text-muted-foreground">video</span>
+            </div>
+            <div className="mt-1 text-[11px] text-muted-foreground truncate">
+              Từ {channels.length} kênh đối thủ theo dõi
+            </div>
+          </button>
 
-        {/* 6 Stat Cards Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {cards.map((card, i) => (
-            <StatCard key={card.title} {...card} delay={i * 45} />
-          ))}
+          {/* KPI 2: Video đã tải về & Dung lượng */}
+          <button
+            type="button"
+            onClick={() => onNavigate('library')}
+            className="surface-card p-4 text-left relative overflow-hidden border border-border hover:border-blue-500/50 hover:bg-muted/20 transition group"
+          >
+            <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-blue-500" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">Đã tải về máy</span>
+              <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Download className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              {dailyStats?.totalDownloadedToday ?? 0}{' '}
+              <span className="text-xs font-normal text-muted-foreground">video</span>
+            </div>
+            <div className="mt-1 text-[11px] text-blue-400 font-medium truncate">
+              Dung lượng: {formatBytes(dailyStats?.totalDownloadSizeBytes ?? 0)}
+            </div>
+          </button>
+
+          {/* KPI 3: Kết quả kiểm tra Bản Quyền BKT */}
+          <button
+            type="button"
+            onClick={() => onNavigate('reup')}
+            className="surface-card p-4 text-left relative overflow-hidden border border-border hover:border-emerald-500/50 hover:bg-muted/20 transition group"
+          >
+            <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-emerald-500" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">
+                Kiểm tra Bản Quyền BKT
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              {dailyStats?.totalBktTestedToday ?? 0}{' '}
+              <span className="text-xs font-normal text-muted-foreground">đã test</span>
+            </div>
+            <div className="mt-1 flex items-center gap-1 text-[10px]">
+              <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold">
+                Sạch: {dailyStats?.bktCleanCount ?? 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-400 font-bold">
+                Dính: {dailyStats?.bktClaimedCount ?? 0}
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-bold">
+                Chờ: {dailyStats?.bktPendingCount ?? 0}
+              </span>
+            </div>
+          </button>
+
+          {/* KPI 4: Đã đăng Kênh Đích */}
+          <button
+            type="button"
+            onClick={() => onNavigate('profiles')}
+            className="surface-card p-4 text-left relative overflow-hidden border border-border hover:border-purple-500/50 hover:bg-muted/20 transition group"
+          >
+            <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-purple-500" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">Đã đăng Kênh Đích</span>
+              <div className="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Rocket className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              {dailyStats?.totalPublishedMainToday ?? 0}{' '}
+              <span className="text-xs font-normal text-muted-foreground">video</span>
+            </div>
+            <div className="mt-1 text-[11px] text-purple-400 font-medium truncate">
+              Xuất bản công khai lên Kênh Chính
+            </div>
+          </button>
+
+          {/* KPI 5: Quota test BKT còn lại */}
+          <div className="surface-card p-4 relative overflow-hidden border border-border">
+            <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-amber-500" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">Quota Test BKT Còn</span>
+              <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                <Zap className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              {dailyStats?.testQuotaRemaining ?? 0}{' '}
+              <span className="text-xs font-normal text-muted-foreground">
+                / {dailyStats?.testQuotaTotal ?? 0} slot
+              </span>
+            </div>
+            <div className="mt-1 text-[11px] text-muted-foreground truncate">
+              Đã dùng: {dailyStats?.testQuotaUsed ?? 0} slot • Reset 00:00
+            </div>
+          </div>
         </div>
 
-        {/* Chức năng 1: Bảng đối chiếu 1-1 Kênh đối thủ ↔ Kênh hệ thống */}
+        {/* TIẾN TRÌNH TỰ ĐỘNG HÓA TRONG NGÀY (DAILY PRODUCTION TIMELINE) */}
         <div className="surface-card p-5 border border-border rounded-xl space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                <Link2 className="w-4 h-4" />
+                <Clock className="w-4 h-4" />
               </div>
               <div>
                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                  Đối Chiếu 1-1: Kênh Đối Thủ ↔ Kênh Hệ Thống
-                  <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
-                    Chống đăng nhầm kênh
-                  </Badge>
+                  Tiến Trình Tự Động Hóa Trong Ngày
+                  <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Đảm bảo mỗi kênh đối thủ được cào video chỉ ánh xạ duy nhất vào 1 hồ sơ / kênh
-                  đích hệ thống.
+                  Dòng thời gian vận hành: Tải video, kiểm tra bản quyền BKT và xuất bản kênh đích (
+                  {dailyStats?.targetDate || 'Hôm nay'}).
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            {/* Filter Tabs cho Timeline */}
+            <div className="flex flex-wrap items-center gap-1.5 text-xs">
               <button
                 type="button"
-                onClick={() => onNavigate('channels')}
-                className="btn-ghost text-xs px-2.5 py-1.5 flex items-center gap-1.5"
+                onClick={() => setTimelineCategory('all')}
+                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                  timelineCategory === 'all'
+                    ? 'bg-primary/20 text-primary font-semibold border border-primary/40'
+                    : 'text-muted-foreground hover:bg-muted/40'
+                }`}
               >
-                <Tv className="w-3.5 h-3.5 text-primary" />
-                Quản lý Kênh
+                Tất cả ({dailyStats?.timelineEvents?.length ?? 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimelineCategory('publish')}
+                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                  timelineCategory === 'publish'
+                    ? 'bg-purple-500/20 text-purple-400 font-semibold border border-purple-500/40'
+                    : 'text-muted-foreground hover:bg-muted/40'
+                }`}
+              >
+                Xuất bản đích ({dailyStats?.totalPublishedMainToday ?? 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimelineCategory('bkt')}
+                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                  timelineCategory === 'bkt'
+                    ? 'bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/40'
+                    : 'text-muted-foreground hover:bg-muted/40'
+                }`}
+              >
+                Test BKT ({dailyStats?.totalBktTestedToday ?? 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimelineCategory('download')}
+                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                  timelineCategory === 'download'
+                    ? 'bg-blue-500/20 text-blue-400 font-semibold border border-blue-500/40'
+                    : 'text-muted-foreground hover:bg-muted/40'
+                }`}
+              >
+                Tải về ({dailyStats?.totalDownloadedToday ?? 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimelineCategory('discovered')}
+                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                  timelineCategory === 'discovered'
+                    ? 'bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/40'
+                    : 'text-muted-foreground hover:bg-muted/40'
+                }`}
+              >
+                Cào video ({dailyStats?.totalDiscoveredToday ?? 0})
               </button>
             </div>
           </div>
 
-          {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-1">
-            <div className="p-2.5 rounded-lg border border-border/60 bg-muted/20">
-              <div className="text-[10px] text-muted-foreground uppercase font-semibold">
-                Theo dõi
+          {/* Timeline Feed Container */}
+          <div className="max-h-[380px] overflow-y-auto pr-2 space-y-3">
+            {filteredEvents.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border/80 p-10 text-center text-xs text-muted-foreground">
+                <Clock className="w-8 h-8 mx-auto mb-2 text-muted-foreground/40" />
+                Chưa có hoạt động tự động hóa nào được ghi nhận trong khoảng thời gian này.
               </div>
-              <div className="text-lg font-bold text-foreground mt-0.5">{channels.length} kênh</div>
-            </div>
-            <div className="p-2.5 rounded-lg border border-border/60 bg-muted/20">
-              <div className="text-[10px] text-muted-foreground uppercase font-semibold">
-                Tổng video cào
-              </div>
-              <div className="text-lg font-bold text-primary mt-0.5">
-                {channels.reduce((acc, c) => acc + (c.total_videos || 0), 0)} video
-              </div>
-            </div>
-            <div className="p-2.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
-              <div className="text-[10px] text-emerald-500 uppercase font-semibold">
-                Đã khớp 1-1
-              </div>
-              <div className="text-lg font-bold text-emerald-500 mt-0.5">
-                {channels.filter((c) => c.bkt_profile_id).length} kênh
-              </div>
-            </div>
-            <div className="p-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5">
-              <div className="text-[10px] text-amber-500 uppercase font-semibold">
-                Chưa gán đích
-              </div>
-              <div className="text-lg font-bold text-amber-500 mt-0.5">
-                {channels.filter((c) => !c.bkt_profile_id).length} kênh
-              </div>
-            </div>
-            <div className="p-2.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
-              <div className="text-[10px] text-emerald-500 uppercase font-semibold">
-                Kênh sạch (Xanh)
-              </div>
-              <div className="text-lg font-bold text-emerald-500 mt-0.5">
-                {channels.filter((c) => !c.risk_status || c.risk_status === 'green').length}
-              </div>
-            </div>
-            <div className="p-2.5 rounded-lg border border-rose-500/20 bg-rose-500/5">
-              <div className="text-[10px] text-rose-500 uppercase font-semibold">
-                Khóa Đỏ (2 lỗi)
-              </div>
-              <div className="text-lg font-bold text-rose-500 mt-0.5">
-                {channels.filter((c) => c.risk_status === 'red').length}
-              </div>
-            </div>
-          </div>
+            ) : (
+              <div className="relative pl-6 space-y-3 border-l-2 border-border/60 ml-3">
+                {filteredEvents.map((ev) => {
+                  const isClean = ev.status === 'green_clean';
+                  const isClaim = ev.status === 'red_matched';
+                  const isPublish = ev.eventType === 'auto_publish';
+                  const isDownload = ev.eventType === 'download';
+                  const isDiscovered = ev.eventType === 'discovered';
 
-          {/* Mapping Table */}
-          <div className="border border-border/60 rounded-lg overflow-hidden bg-card">
-            <div className="max-h-[300px] overflow-y-auto">
+                  return (
+                    <div key={ev.id} className="relative group">
+                      {/* Node Bullet Icon */}
+                      <span
+                        className={`absolute -left-[31px] top-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] ring-4 ring-background ${
+                          isPublish
+                            ? 'bg-purple-500 text-white'
+                            : isClean
+                              ? 'bg-emerald-500 text-white'
+                              : isClaim
+                                ? 'bg-rose-500 text-white'
+                                : isDownload
+                                  ? 'bg-blue-500 text-white'
+                                  : isDiscovered
+                                    ? 'bg-sky-500 text-white'
+                                    : 'bg-amber-500 text-white'
+                        }`}
+                      >
+                        {isPublish ? (
+                          <Rocket className="w-2.5 h-2.5" />
+                        ) : isClean ? (
+                          <CheckCircle2 className="w-2.5 h-2.5" />
+                        ) : isClaim ? (
+                          <AlertTriangle className="w-2.5 h-2.5" />
+                        ) : isDownload ? (
+                          <Download className="w-2.5 h-2.5" />
+                        ) : isDiscovered ? (
+                          <Radio className="w-2.5 h-2.5" />
+                        ) : (
+                          <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                        )}
+                      </span>
+
+                      {/* Event Card */}
+                      <div className="p-3 rounded-lg border border-border/60 bg-muted/15 hover:bg-muted/30 transition-colors">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-mono text-muted-foreground font-semibold">
+                              {ev.time}
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className={`text-[10px] px-1.5 py-0 uppercase font-bold tracking-wider ${
+                                isPublish
+                                  ? 'border-purple-500/40 text-purple-400 bg-purple-500/10'
+                                  : isClean
+                                    ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
+                                    : isClaim
+                                      ? 'border-rose-500/40 text-rose-400 bg-rose-500/10'
+                                      : isDownload
+                                        ? 'border-blue-500/40 text-blue-400 bg-blue-500/10'
+                                        : isDiscovered
+                                          ? 'border-sky-500/40 text-sky-400 bg-sky-500/10'
+                                          : 'border-amber-500/40 text-amber-400 bg-amber-500/10'
+                              }`}
+                            >
+                              {isPublish
+                                ? 'Xuất bản đích'
+                                : isClean
+                                  ? 'BKT Sạch Bản Quyền'
+                                  : isClaim
+                                    ? 'BKT Dính Claim'
+                                    : isDownload
+                                      ? 'Tải video'
+                                      : isDiscovered
+                                        ? 'Cào video mới'
+                                        : 'BKT Đang Test'}
+                            </Badge>
+                          </div>
+                          {ev.channelName && (
+                            <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                              <Tv className="w-3 h-3 text-primary/70" /> {ev.channelName}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="mt-1 text-xs font-semibold text-foreground line-clamp-1">
+                          {ev.title}
+                        </div>
+
+                        {ev.details && (
+                          <div className="mt-1 text-[11px] text-muted-foreground/90 truncate">
+                            {ev.details}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* PHẦN DƯỚI: ĐỐI CHIẾU 1-1 KÊNH (7 PHẦN) + HẠ TẦNG ENGINE (5 PHẦN) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* CỘT TRÁI (7 cols): Đối Chiếu 1-1 Kênh Đối Thủ ↔ Kênh Đích */}
+          <div className="lg:col-span-7 surface-card p-5 border border-border rounded-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <Link2 className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                    Đối Chiếu 1-1: Kênh Đối Thủ ↔ Kênh Đích Hệ Thống
+                    <Badge
+                      variant="outline"
+                      className="text-[9px] text-emerald-400 border-emerald-500/30"
+                    >
+                      Chống đăng nhầm kênh
+                    </Badge>
+                  </h3>
+                  <div className="text-[11px] text-muted-foreground">
+                    Khớp 1-1: {channels.filter((c) => c.bkt_profile_id).length}/{channels.length}{' '}
+                    kênh • Kênh sạch:{' '}
+                    {channels.filter((c) => !c.risk_status || c.risk_status === 'green').length}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => onNavigate('channels')}
+                className="btn-ghost text-[11px] px-2.5 py-1 flex items-center gap-1 text-primary"
+              >
+                Quản lý Kênh <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Bảng ánh xạ rút gọn */}
+            <div className="border border-border/60 rounded-lg overflow-hidden bg-card max-h-[240px] overflow-y-auto">
               <table className="w-full text-xs text-left">
                 <thead className="bg-muted/40 text-muted-foreground uppercase text-[10px] font-semibold sticky top-0 border-b border-border/60 z-10 backdrop-blur-sm">
                   <tr>
-                    <th className="py-2.5 px-3">Kênh đối thủ (Scraped Source)</th>
-                    <th className="py-2.5 px-3">Hồ sơ / Kênh đích hệ thống</th>
-                    <th className="py-2.5 px-3 text-center">Video cào</th>
-                    <th className="py-2.5 px-3 text-center">Trạng thái rủi ro</th>
-                    <th className="py-2.5 px-3">Từ khóa đối chiếu</th>
-                    <th className="py-2.5 px-3 text-right">Khớp 1-1</th>
+                    <th className="py-2 px-3">Kênh đối thủ (Scraped)</th>
+                    <th className="py-2 px-3">Kênh đích hệ thống</th>
+                    <th className="py-2 px-3 text-center">Video cào</th>
+                    <th className="py-2 px-3 text-right">Khớp 1-1</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
                   {channels.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-muted-foreground">
-                        Chưa có kênh đối thủ nào được theo dõi. Hãy thêm kênh tại mục "Theo dõi
-                        Kênh".
+                      <td colSpan={4} className="py-6 text-center text-muted-foreground">
+                        Chưa có kênh đối thủ nào được theo dõi.
                       </td>
                     </tr>
                   ) : (
                     channels.map((ch) => {
                       const matchedProfile = profiles.find((p) => p.id === ch.bkt_profile_id);
-                      const isRed = ch.risk_status === 'red';
-                      const isYellow = ch.risk_status === 'yellow';
-
                       return (
-                        <tr key={ch.id} className="hover:bg-muted/30 transition-colors">
-                          <td className="py-2.5 px-3">
-                            <div className="flex items-center gap-2">
-                              {ch.thumbnail ? (
-                                <img
-                                  src={ch.thumbnail}
-                                  alt={ch.name}
-                                  className="w-6 h-6 rounded-full object-cover shrink-0"
-                                />
-                              ) : (
-                                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
-                                  {ch.name.substring(0, 1).toUpperCase()}
-                                </div>
-                              )}
-                              <div className="min-w-0 max-w-[200px]">
-                                <div className="font-semibold text-foreground truncate">
-                                  {ch.name}
-                                </div>
-                                <div className="text-[10px] text-muted-foreground truncate">
-                                  {ch.url}
-                                </div>
-                              </div>
-                            </div>
+                        <tr key={ch.id} className="hover:bg-muted/20 transition-colors">
+                          <td className="py-2 px-3 font-medium text-foreground truncate max-w-[180px]">
+                            {ch.name}
                           </td>
-                          <td className="py-2.5 px-3">
+                          <td className="py-2 px-3">
                             {matchedProfile ? (
-                              <div className="flex items-center gap-1.5 text-foreground font-medium">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                                <span className="truncate max-w-[160px]">
-                                  {matchedProfile.profile_name}
-                                </span>
-                                {matchedProfile.youtube_preferred_channel && (
-                                  <span className="text-[10px] text-muted-foreground">
-                                    ({matchedProfile.youtube_preferred_channel})
-                                  </span>
-                                )}
-                              </div>
+                              <span className="text-emerald-400 flex items-center gap-1 font-medium">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                {matchedProfile.profile_name}
+                              </span>
                             ) : (
-                              <div className="flex items-center gap-1 text-amber-500 font-medium text-[11px]">
-                                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                                <span>Chưa gán (Dễ nhầm lẫn)</span>
-                              </div>
+                              <span className="text-amber-500 text-[11px]">Chưa gán đích</span>
                             )}
                           </td>
-                          <td className="py-2.5 px-3 text-center font-mono font-semibold">
+                          <td className="py-2 px-3 text-center font-mono font-semibold">
                             {ch.total_videos || 0}
                           </td>
-                          <td className="py-2.5 px-3 text-center">
-                            {isRed ? (
-                              <Badge className="bg-rose-500/15 text-rose-500 border border-rose-500/30 text-[10px]">
-                                Đỏ (Khóa tải 2 lỗi)
-                              </Badge>
-                            ) : isYellow ? (
-                              <Badge className="bg-amber-500/15 text-amber-500 border border-amber-500/30 text-[10px]">
-                                Vàng (Có video dính)
-                              </Badge>
-                            ) : (
-                              <Badge className="bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 text-[10px]">
-                                Xanh (Sạch)
-                              </Badge>
-                            )}
-                          </td>
-                          <td className="py-2.5 px-3 text-muted-foreground truncate max-w-[150px]">
-                            {ch.filter_include_keywords || 'Tất cả từ khóa'}
-                          </td>
-                          <td className="py-2.5 px-3 text-right">
+                          <td className="py-2 px-3 text-right">
                             {matchedProfile ? (
                               <Badge
                                 variant="outline"
-                                className="text-emerald-500 border-emerald-500/30 text-[10px]"
+                                className="text-emerald-400 border-emerald-500/30 text-[9px]"
                               >
                                 ✓ Khớp 1-1
                               </Badge>
@@ -603,188 +841,88 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
               </table>
             </div>
           </div>
-        </div>
 
-        {/* Lower Grid: Sessions, System Info, Errors */}
-        <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr_360px]">
-          {/* Card 1: Recent Sessions */}
-          <button
-            type="button"
-            title="Mở chi tiết phiên auto gần nhất và lịch sử chạy."
-            onClick={() => setShowRunDetails(true)}
-            className="surface-card p-5 text-left card-enter transition hover:border-primary/50 hover:bg-muted/20 border border-border flex flex-col justify-between"
-            style={{ animationDelay: '260ms' }}
-          >
+          {/* CỘT PHẢI (5 cols): Hạ Tầng Engine & Runtime */}
+          <div className="lg:col-span-5 surface-card p-5 border border-border rounded-xl space-y-3 flex flex-col justify-between">
             <div>
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                    Phiên gần nhất
+              <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                    <Server className="w-3.5 h-3.5" />
                   </div>
-                  <div className="mt-1 text-base font-semibold text-foreground">
-                    Chi tiết lần chạy mới nhất
-                  </div>
-                </div>
-                <span className="pill pill-info text-xs">Bấm để xem</span>
-              </div>
-              {lastSession ? (
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-base font-semibold text-foreground">
-                        {actionLabel(lastSession.action)} •{' '}
-                        {lastSession.profile_count || lastSession.runs?.length || 0} hồ sơ
-                      </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {statusLabel(lastSession.status)} • {formatTime(lastSession.finished_at)}
-                      </div>
-                    </div>
-                    <span className={`pill ${TONE_BADGE[runTone(lastSession.status)]}`}>
-                      {formatDuration(lastSession.duration_seconds)}
-                    </span>
-                  </div>
-                  <div className="grid gap-2 text-xs sm:grid-cols-2">
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
-                      <span className="text-muted-foreground">Bắt đầu: </span>
-                      <span className="text-foreground font-medium">
-                        {formatTime(lastSession.started_at)}
-                      </span>
-                    </div>
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
-                      <span className="text-muted-foreground">Thời lượng: </span>
-                      <span className="text-foreground font-medium">
-                        {formatDuration(lastSession.duration_seconds)}
-                      </span>
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground">Hạ Tầng Engine & Runtime</h3>
+                    <div className="text-[11px] text-emerald-400 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Local Engine Đang Hoạt Động
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="rounded-lg border border-dashed border-border bg-muted/30 px-3 py-10 text-center text-xs text-muted-foreground">
-                  Chưa có phiên chạy nào được ghi nhận hôm nay.
-                </div>
-              )}
-            </div>
-            <div className="mt-4 pt-3 border-t border-border/50 text-[11px] text-muted-foreground flex items-center justify-between">
-              <span>Tổng số lượt chạy: {recentRuns.length}</span>
-              <span className="text-primary hover:underline">Xem tất cả →</span>
-            </div>
-          </button>
 
-          {/* Card 2: Runtime & Engine Info */}
-          <div
-            className="surface-card p-5 card-enter border border-border flex flex-col justify-between"
-            style={{ animationDelay: '350ms' }}
-          >
-            <div>
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                    Runtime & Môi trường
-                  </div>
-                  <div className="mt-1 text-base font-semibold text-foreground">
-                    Thông số hệ thống
-                  </div>
-                </div>
-                <span className="pill pill-success text-xs">Active</span>
-              </div>
-              <div className="space-y-2.5 text-xs">
-                <div className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <Server className="w-3.5 h-3.5" /> Hệ điều hành
-                  </span>
-                  <span className="font-semibold text-foreground">
-                    {stats.system_info?.os || 'Windows 10'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <Cpu className="w-3.5 h-3.5" /> Bộ nhớ RAM
-                  </span>
-                  <span className="font-semibold text-foreground">
-                    {stats.system_info?.ram || 'Khả dụng'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5" /> Python Engine
-                  </span>
-                  <span className="font-semibold text-foreground">
-                    Python {stats.system_info?.python || '3.11'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/20 px-3 py-2">
-                  <span className="text-muted-foreground flex items-center gap-1.5 truncate">
-                    <Folder className="w-3.5 h-3.5 shrink-0" /> Dữ liệu hồ sơ
-                  </span>
-                  <span
-                    className="font-mono text-[10px] text-muted-foreground truncate max-w-[180px]"
-                    title={stats.system_info?.data_dir}
-                  >
-                    {stats.system_info?.data_dir || '%LOCALAPPDATA%\\RETubeMatrix\\browser_engine'}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-border/50 text-[11px] text-muted-foreground">
-              Kho hồ sơ độc lập, bảo mật và lưu trữ riêng biệt trên máy.
-            </div>
-          </div>
-
-          {/* Card 3: Recent Errors & Profiles Needing Check */}
-          <div
-            className="surface-card p-5 card-enter border border-border flex flex-col justify-between"
-            style={{ animationDelay: '470ms' }}
-          >
-            <div>
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                    Lỗi gần nhất
-                  </div>
-                  <div className="mt-1 text-base font-semibold text-foreground">Cần kiểm tra</div>
-                </div>
                 <button
                   type="button"
-                  onClick={() => onNavigate('logs')}
-                  className="btn-ghost text-xs px-2 py-1"
+                  onClick={() => setShowRunDetails(true)}
+                  className="btn-ghost text-[11px] px-2 py-1 text-primary hover:underline"
                 >
-                  Xem log
+                  Chi tiết phiên →
                 </button>
               </div>
-              {(stats.recent_errors || []).length > 0 ? (
-                <div className="space-y-2">
-                  {(stats.recent_errors || []).map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-xs"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-foreground">{item.name}</span>
-                        <span className="text-[10px] text-muted-foreground">
-                          {formatTime(item.time)}
-                        </span>
-                      </div>
-                      <div className="mt-1 truncate text-destructive/90 text-[11px]">
-                        {item.error || 'Không có chi tiết lỗi'}
-                      </div>
-                    </div>
-                  ))}
+
+              {/* Hardware / Engine Spec Mini Grid */}
+              <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
+                <div className="p-2 rounded-lg border border-border/60 bg-muted/20">
+                  <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Server className="w-3 h-3" /> Hệ Điều Hành
+                  </div>
+                  <div className="font-semibold text-foreground mt-0.5">
+                    {stats.system_info?.os || 'Windows 10/11'}
+                  </div>
                 </div>
-              ) : (
-                <div className="rounded-lg border border-dashed border-border bg-muted/30 px-3 py-10 text-center text-xs text-muted-foreground">
-                  <CheckCircle2 className="w-6 h-6 mx-auto mb-2 text-emerald-500/70" />
-                  Mọi thứ đang hoạt động ổn định, không có lỗi gần đây.
+                <div className="p-2 rounded-lg border border-border/60 bg-muted/20">
+                  <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Cpu className="w-3 h-3" /> RAM Khả Dụng
+                  </div>
+                  <div className="font-semibold text-foreground mt-0.5">
+                    {stats.system_info?.ram || 'Khả dụng'}
+                  </div>
                 </div>
-              )}
+                <div className="p-2 rounded-lg border border-border/60 bg-muted/20">
+                  <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Layers className="w-3 h-3" /> Python Engine
+                  </div>
+                  <div className="font-semibold text-foreground mt-0.5">
+                    Python {stats.system_info?.python || '3.11'}
+                  </div>
+                </div>
+                <div className="p-2 rounded-lg border border-border/60 bg-muted/20">
+                  <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <UserCheck className="w-3 h-3" /> Tổng Hồ Sơ
+                  </div>
+                  <div className="font-semibold text-foreground mt-0.5">
+                    {stats.total_profiles || profiles.length} hồ sơ
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-border/50 text-[11px] text-muted-foreground">
-              Trạng thái tự động cập nhật mỗi 5 giây.
+
+            <div className="pt-2 text-[11px] text-muted-foreground flex items-center justify-between border-t border-border/50">
+              <span>
+                Đang mở: <strong className="text-primary">{stats.running || 0}</strong> • Sẵn sàng:{' '}
+                <strong className="text-emerald-400">{stats.ready || 0}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => onNavigate('profiles')}
+                className="text-primary hover:underline font-medium"
+              >
+                Quản lý hồ sơ →
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Session Details Modal */}
+      {/* MODAL CHI TIẾT PHIÊN CHẠY (RUN HISTORY) */}
       <Dialog open={showRunDetails} onOpenChange={setShowRunDetails}>
         <DialogContent className="max-w-4xl max-h-[86vh] overflow-hidden p-0">
           <DialogHeader className="border-b border-border px-6 py-4">
@@ -795,7 +933,7 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
               Lịch sử chạy gần nhất
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Hiển thị thời lượng, workflow, trạng thái và lỗi chi tiết.
+              Hiển thị thời lượng, workflow, trạng thái và lỗi chi tiết của từng phiên automation.
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[68vh] overflow-auto p-6 space-y-4">
@@ -813,7 +951,7 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                 </div>
               </div>
               <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 text-xs">
-                <div className="text-muted-foreground">Bản ghi gần nhất</div>
+                <div className="text-muted-foreground">Lượt chạy gần nhất</div>
                 <div className="mt-1 text-sm font-semibold text-foreground">
                   {recentRuns.length}
                 </div>

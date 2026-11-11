@@ -5,6 +5,7 @@ Bridge between RETubeMatrix (Tauri Rust backend) and anti-detect core & YouTube 
 """
 import sys
 import os
+import re
 import json
 import asyncio
 import logging
@@ -13,6 +14,7 @@ import time
 import base64
 import platform
 import shutil
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -236,58 +238,81 @@ def action_delete_profile(args):
 
 def action_test_proxy(args):
     import requests
+    from core.proxy_format import parse_proxy_input
+
     payload = get_payload(args)
     proxy_str = (payload.get("proxy") or "").strip()
     if not proxy_str:
-        print(json.dumps({"success": False, "error": "Proxy string is empty"}, ensure_ascii=False))
+        print(json.dumps({"success": False, "error": "Chưa nhập thông tin proxy"}, ensure_ascii=False))
         sys.stdout.flush()
         return
 
-    # Normalize proxy
-    scheme = "http"
-    target = proxy_str
-    if "://" in proxy_str:
-        scheme, target = proxy_str.split("://", 1)
-        scheme = scheme.lower()
-
-    proxies = {
-        "http": f"{scheme}://{target}",
-        "https": f"{scheme}://{target}",
-    }
-
-    try:
-        t0 = time.perf_counter()
-        resp = requests.get("https://api.ipify.org?format=json", proxies=proxies, timeout=8)
-        t1 = time.perf_counter()
-        latency_ms = int((t1 - t0) * 1000)
-
-        ip = resp.json().get("ip", "")
-
-        country = ""
-        city = ""
-        org = ""
-        try:
-            geo_resp = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city,isp,org", timeout=5)
-            if geo_resp.status_code == 200:
-                geo_data = geo_resp.json()
-                country = geo_data.get("country", "")
-                city = geo_data.get("city", "")
-                org = geo_data.get("isp") or geo_data.get("org", "")
-        except Exception:
-            pass
-
+    # Kiểm tra trường hợp người dùng chỉ nhập IP (thiếu port)
+    parts = proxy_str.split(":")
+    if len(parts) == 1 and "://" not in proxy_str:
         print(json.dumps({
-            "success": True,
-            "ip": ip,
-            "latency_ms": latency_ms,
-            "country": country,
-            "city": city,
-            "org": org,
+            "success": False,
+            "error": "Proxy thiếu Cổng (Port). Định dạng: IP:Port:User:Pass (Ví dụ: 103.178.232.220:20550:8br3DKhe:BazudNopAZcK)"
         }, ensure_ascii=False))
         sys.stdout.flush()
-    except Exception as e:
-        print(json.dumps({"success": False, "error": f"Kết nối thất bại: {e}"}, ensure_ascii=False))
+        return
+
+    parsed = parse_proxy_input(proxy_str)
+    if not parsed.candidates:
+        print(json.dumps({
+            "success": False,
+            "error": f"Định dạng proxy không hợp lệ: {proxy_str}. Định dạng chuẩn: IP:Port:User:Pass"
+        }, ensure_ascii=False))
         sys.stdout.flush()
+        return
+
+    # Thử lần lượt các giao thức ứng viên (HTTP / SOCKS5 / HTTPS)
+    last_err = ""
+    for cand in parsed.candidates:
+        if cand.scheme not in ("http", "socks5", "https"):
+            continue
+        try:
+            p_dict = {"http": cand.url, "https": cand.url}
+            t0 = time.perf_counter()
+            resp = requests.get("https://api.ipify.org?format=json", proxies=p_dict, timeout=7)
+            t1 = time.perf_counter()
+            latency_ms = int((t1 - t0) * 1000)
+
+            ip = resp.json().get("ip", "")
+            country = ""
+            city = ""
+            org = ""
+            try:
+                geo_resp = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city,isp,org", timeout=4)
+                if geo_resp.status_code == 200:
+                    geo_data = geo_resp.json()
+                    country = geo_data.get("country", "")
+                    city = geo_data.get("city", "")
+                    org = geo_data.get("isp") or geo_data.get("org", "")
+            except Exception:
+                pass
+
+            print(json.dumps({
+                "success": True,
+                "ip": ip,
+                "latency_ms": latency_ms,
+                "country": country,
+                "city": city,
+                "org": org,
+                "scheme": cand.scheme,
+                "canonical_url": cand.url,
+            }, ensure_ascii=False))
+            sys.stdout.flush()
+            return
+        except Exception as e:
+            last_err = str(e)
+            continue
+
+    print(json.dumps({
+        "success": False,
+        "error": f"Kết nối thất bại: {last_err}"
+    }, ensure_ascii=False))
+    sys.stdout.flush()
 
 
 def action_get_stats():
@@ -483,6 +508,55 @@ def action_arrange_windows(args):
         sys.stdout.flush()
 
 
+def _clean_profile_cache_dir(pdir_path: Path) -> float:
+    """Dọn dẹp an toàn các thư mục cache phình to trong User Data Dir mà không làm mất phiên đăng nhập."""
+    cleaned_mb = 0.0
+    cache_subdirs = [
+        "Cache",
+        "Code Cache",
+        "GPUCache",
+        "DawnCache",
+        "GrShaderCache",
+        "ShaderCache",
+        "Media Cache",
+        "blob_storage",
+        "Service Worker/CacheStorage",
+        "Service Worker/ScriptCache",
+    ]
+    search_roots = [pdir_path, pdir_path / "Default"]
+    protected_patterns = {
+        "cookies",
+        "login data",
+        "preferences",
+        "secure preferences",
+        "local storage",
+        "session storage",
+        "web data",
+        "history",
+        "bookmarks",
+        "network",
+        "transportsecurity",
+    }
+    for root in search_roots:
+        if not root.exists():
+            continue
+        for sub in cache_subdirs:
+            target = root / sub
+            if target.exists():
+                if any(prot in str(target).lower() for prot in protected_patterns):
+                    continue
+                try:
+                    size = sum(f.stat().st_size for f in target.rglob("*") if f.is_file())
+                    cleaned_mb += size / (1024 * 1024)
+                    if target.is_dir():
+                        shutil.rmtree(target, ignore_errors=True)
+                    else:
+                        target.unlink(missing_ok=True)
+                except Exception as clean_err:
+                    logger.debug("Lỗi dọn target %s: %s", target, clean_err)
+    return cleaned_mb
+
+
 def action_clean_cache(args):
     try:
         p_id = args.profile_id
@@ -496,28 +570,12 @@ def action_clean_cache(args):
         p_dir = p.get("profile_dir") or p.get("profile_name") or p_id if p else p_id
 
         pdir_path = profile_data_dir(p_dir)
-        cleaned_mb = 0.0
-        cache_subdirs = [
-            "Cache",
-            "Code Cache",
-            "GPUCache",
-            "DawnCache",
-            "Service Worker/CacheStorage",
-            "Service Worker/ScriptCache",
-        ]
-        for sub in cache_subdirs:
-            target = pdir_path / sub
-            if target.exists():
-                try:
-                    size = sum(f.stat().st_size for f in target.rglob("*") if f.is_file())
-                    cleaned_mb += size / (1024 * 1024)
-                    if target.is_dir():
-                        shutil.rmtree(target, ignore_errors=True)
-                    else:
-                        target.unlink(missing_ok=True)
-                except Exception:
-                    pass
-        print(json.dumps({"success": True, "message": f"Đã dọn dẹp cache ({round(cleaned_mb, 1)} MB). Phiên đăng nhập được bảo toàn."}, ensure_ascii=False))
+        cleaned_mb = _clean_profile_cache_dir(pdir_path)
+
+        print(json.dumps({
+            "success": True,
+            "message": f"Đã dọn dẹp cache an toàn ({round(cleaned_mb, 1)} MB). Phiên đăng nhập Google Studio được bảo toàn 100%."
+        }, ensure_ascii=False))
         sys.stdout.flush()
     except Exception as e:
         print(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False))
@@ -676,6 +734,12 @@ async def _async_open_profile(profile_id: str, target_url: str | None = None):
         except Exception:
             pass
         _clean_profile_locks(profile_dir)
+        # Tự động dọn dẹp blob_storage và cache nặng sau khi upload video để bảo toàn bộ nhớ
+        try:
+            pdir_path = profile_data_dir(profile_dir)
+            _clean_profile_cache_dir(pdir_path)
+        except Exception as cache_clean_err:
+            logger.debug("Tự động dọn cache sau upload gặp lỗi nhẹ: %s", cache_clean_err)
         update_profile(profile_id, last_run_status="stopped")
 
 
@@ -717,10 +781,6 @@ async def _async_upload_video(args):
     if not preferred_channel:
         preferred_channel = profile.get("youtube_preferred_channel", "")
 
-    # Auto tag appending for Shorts if video is short
-    if tags:
-        description = f"{description}\n\nTags: {tags}"
-
     _clean_profile_locks(profile_dir, force_kill_live=True)
     update_profile(profile_id, last_run_status="running")
     t0 = time.time()
@@ -742,6 +802,7 @@ async def _async_upload_video(args):
             video_path=video_path,
             title=title,
             description=description,
+            tags=tags,
             thumbnail_path=thumbnail_path if thumbnail_path and os.path.exists(thumbnail_path) else None,
             visibility=visibility,
             schedule_date=schedule_date,
@@ -808,18 +869,27 @@ async def _async_upload_video(args):
         except Exception:
             pass
         _clean_profile_locks(profile_dir)
+        # Tự động dọn dẹp blob_storage và cache nặng sau khi upload video để bảo toàn bộ nhớ
+        try:
+            pdir_path = profile_data_dir(profile_dir)
+            _clean_profile_cache_dir(pdir_path)
+        except Exception as cache_clean_err:
+            logger.debug("Tự động dọn cache sau upload gặp lỗi nhẹ: %s", cache_clean_err)
         update_profile(profile_id, last_run_status="stopped")
 
 
 async def _async_check_copyright_status(args):
     """
     Check copyright / restrictions / monetization for videos in YouTube Studio.
-    Payload: {"profile_id": str, "video_ids": [str], "preferred_channel": str}
+    Payload: {"profile_id": str, "video_ids": [str], "video_title": str, "poll_in_session": bool, "max_poll_seconds": int}
     """
     t0 = time.time()
     payload = get_payload(args)
     profile_id = str(payload.get("profile_id") or "").strip() or str(args.profile_id or "").strip()
     video_ids = payload.get("video_ids") or []
+    video_title = payload.get("video_title") or getattr(args, "video_title", None)
+    poll_in_session = bool(payload.get("poll_in_session", False))
+    max_poll_seconds = int(payload.get("max_poll_seconds", 1800))
     preferred_channel = str(payload.get("preferred_channel") or "").strip()
 
     if not profile_id:
@@ -851,223 +921,24 @@ async def _async_check_copyright_status(args):
             profile_data=profile,
         )
 
-        logger.info("Mở YouTube Studio để kiểm tra bản quyền Content ID...")
-
-        # Hàm trích xuất bảng video từ DOM hiện tại (hỗ trợ cả tab Videos và Shorts)
-        async def extract_table_rows():
-            return await page.evaluate("""() => {
-                const results = {};
-                const rows = document.querySelectorAll('ytcp-video-row');
-                rows.forEach(row => {
-                    let vid = '';
-                    // 1. Thử lấy video ID từ liên kết edit hoặc shorts
-                    const link = row.querySelector('a[href*="/video/"]');
-                    if (link) {
-                        const m = link.getAttribute('href').match(/\\/video\\/([^\\/\\?]+)/);
-                        if (m) vid = m[1];
-                    }
-                    if (!vid) {
-                        const linkShort = row.querySelector('a[href*="/shorts/"]');
-                        if (linkShort) {
-                            const m = linkShort.getAttribute('href').match(/\\/shorts\\/([^\\/\\?]+)/);
-                            if (m) vid = m[1];
-                        }
-                    }
-                    if (!vid) {
-                        const linkYt = row.querySelector('a[href*="youtu.be/"]');
-                        if (linkYt) {
-                            const m = linkYt.getAttribute('href').match(/youtu\\.be\\/([^\\/\\?]+)/);
-                            if (m) vid = m[1];
-                        }
-                    }
-                    if (!vid) {
-                        vid = row.getAttribute('video-id') || '';
-                    }
-
-                    const titleEl = row.querySelector('#video-title, .video-title-text, #title');
-                    const title = titleEl ? (titleEl.innerText || titleEl.textContent || '').trim() : '';
-
-                    // 2. Tìm cột Hạn chế (Restrictions) đa năng
-                    const restrCell = row.querySelector(
-                        '#restrictions, ytcp-table-cell-restrictions, .tablecell-restrictions, .table-cell-restrictions, [cell-id="restrictions"], .restrictions-column'
-                    );
-                    let restrictions = '';
-                    if (restrCell) {
-                        const badge = restrCell.querySelector('yt-formatted-string, .restriction-text, yt-button-shape, button');
-                        restrictions = badge ? (badge.innerText || badge.textContent || '').trim() : (restrCell.innerText || restrCell.textContent || '').trim();
-                    }
-
-                    // 3. Tìm cột Kiếm tiền (Monetization)
-                    const monetCell = row.querySelector(
-                        '#monetization, ytcp-table-cell-monetization, .tablecell-monetization, .table-cell-monetization, [cell-id="monetization"]'
-                    );
-                    let monetization = '';
-                    if (monetCell) {
-                        monetization = (monetCell.innerText || monetCell.textContent || '').trim();
-                    }
-
-                    if (vid) {
-                        results[vid] = { title, restrictions, monetization };
-                    }
-                });
-                return results;
-            }""")
-
-        # Bước 1: Mở YouTube Studio và điều hướng chính xác vào tab Content (Nội dung)
-        logger.info("Mở YouTube Studio để kiểm tra bản quyền Content ID...")
-        await page.goto("https://studio.youtube.com/", timeout=45000)
-        try:
-            await page.wait_for_load_state("domcontentloaded", timeout=15000)
-        except Exception:
-            pass
-        await asyncio.sleep(3.0)
-
-        # Kiểm tra nếu profile chưa đăng nhập Google/YouTube Studio (bị chuyển hướng sang trang đăng nhập)
-        curr_url_check = page.url.lower()
-        if any(sig in curr_url_check for sig in ["accounts.google.com", "servicelogin", "signin", "v3/signin"]):
-            err_msg = (
-                "Hồ sơ trình duyệt chưa đăng nhập YouTube Studio. "
-                "Vui lòng vào 'Quản lý Profile' hoặc bấm biểu tượng mở trình duyệt trên Kênh Test "
-                "để đăng nhập tài khoản Google/YouTube Studio trước khi quét bản quyền."
-            )
-            logger.error(err_msg)
-            print(json.dumps({"success": False, "error": err_msg, "not_logged_in": True}, ensure_ascii=False))
-            sys.stdout.flush()
-            return
-
-        # Đảm bảo điều hướng vào trang Content (Videos)
-        if "/videos" not in page.url:
-            try:
-                content_link = page.locator("a[href*='/videos']").first
-                if await content_link.is_visible(timeout=5000):
-                    await content_link.click()
-                    await asyncio.sleep(4.0)
-                else:
-                    curr_url = page.url.split("?")[0].rstrip("/")
-                    target_url = f"{curr_url}/videos/upload" if "/channel/" in curr_url else "https://studio.youtube.com/videos/upload"
-                    await page.goto(target_url, timeout=25000)
-                    await asyncio.sleep(4.0)
-            except Exception as exc:
-                logger.warning("Không điều hướng được qua content_link: %s", exc)
-
-        dom_results = await extract_table_rows()
-        logger.info("Quét tab Videos: tìm thấy %d video", len(dom_results))
-
-        # Bước 2: Nếu có target_ids chưa tìm thấy, quét tiếp tab Shorts (vì video ngắn tự động vào Shorts)
-        target_ids = list(video_ids) if video_ids else []
-        missing_ids = [vid for vid in target_ids if vid not in dom_results]
-
-        if missing_ids or not target_ids:
-            logger.info("Kiểm tra tab Shorts trên YouTube Studio...")
-            try:
-                shorts_tab = page.locator('tp-yt-paper-tab, [role="tab"]').filter(has_text="Shorts").first
-                if await shorts_tab.is_visible(timeout=3000):
-                    await shorts_tab.click()
-                    await asyncio.sleep(3.5)
-                    shorts_results = await extract_table_rows()
-                    logger.info("Quét tab Shorts: tìm thấy %d video", len(shorts_results))
-                    dom_results.update(shorts_results)
-                else:
-                    await page.goto("https://studio.youtube.com/videos/short", timeout=20000)
-                    await asyncio.sleep(3.5)
-                    shorts_results = await extract_table_rows()
-                    dom_results.update(shorts_results)
-            except Exception as exc:
-                logger.warning("Không thể chuyển sang tab Shorts: %s", exc)
-
-        # Bước 3: Nếu vẫn chưa thấy video, kiểm tra trực tiếp qua trang chi tiết video (/video/<id>/edit)
-        missing_ids = [vid for vid in target_ids if vid not in dom_results]
-        for vid in missing_ids:
-            logger.info("Quét trang chi tiết trực tiếp cho video ID: %s", vid)
-            try:
-                await page.goto(f"https://studio.youtube.com/video/{vid}/edit", timeout=25000)
-                await asyncio.sleep(4.0)
-                detail_info = await page.evaluate("""() => {
-                    const titleEl = document.querySelector('#title-textarea #textbox, [aria-label*="Title" i], #textbox');
-                    const title = titleEl ? (titleEl.innerText || titleEl.textContent || '').trim() : '';
-
-                    // Quét các thành phần hạn chế / checks
-                    const textAll = (document.body.innerText || '').toLowerCase();
-                    let restr = '';
-                    if (textAll.includes('checks complete. no issues found') || textAll.includes('no issues found')) {
-                        restr = 'None';
-                    } else if (textAll.includes('copyright-protected content') || textAll.includes('copyright claim') || textAll.includes('khiếu nại bản quyền')) {
-                        restr = 'Copyright';
-                    } else if (textAll.includes('checking') || textAll.includes('đang kiểm tra') || textAll.includes('checks in progress')) {
-                        restr = 'Checking';
-                    }
-                    return { title, restrictions: restr, monetization: '' };
-                }""")
-                if detail_info.get("restrictions"):
-                    dom_results[vid] = detail_info
-            except Exception as exc:
-                logger.warning("Không quét được trang chi tiết video %s: %s", vid, exc)
-
-        target_ids = list(video_ids) if video_ids else list(dom_results.keys())
-        classified = {}
-        for vid in target_ids:
-            found = dom_results.get(vid)
-            if not found:
-                classified[vid] = {
-                    "bkt_check_status": "pending",
-                    "bkt_restriction": "Chưa tìm thấy video trên bảng Studio (YouTube đang tải/xử lý)",
-                    "monetization": None,
-                }
-                continue
-
-            restr = (found.get("restrictions") or "").lower()
-            monet = (found.get("monetization") or "").lower()
-
-            # 1. Đang kiểm tra
-            if any(k in restr for k in ["checking", "đang kiểm tra", "processing", "đang xử lý", "min left", "phút còn lại"]):
-                classified[vid] = {
-                    "bkt_check_status": "pending",
-                    "bkt_restriction": found.get("restrictions") or "YouTube đang kiểm tra bản quyền (Checking...)",
-                    "monetization": found.get("monetization"),
-                }
-            # 2. Dính bản quyền Content ID / Bị chặn
-            elif any(k in restr for k in ["copyright", "bản quyền", "blocked", "bị chặn", "terms", "chính sách", "khiếu nại", "claim", "protected"]):
-                classified[vid] = {
-                    "bkt_check_status": "red_matched",
-                    "bkt_restriction": found.get("restrictions") or "Dính bản quyền Content ID (Copyright Claim)",
-                    "monetization": found.get("monetization"),
-                }
-            # 3. Sạch bản quyền: YouTube hiển thị 'None', 'Không có', hoặc dấu gạch ngang '—'
-            elif any(restr == m or m in restr for m in ["none", "không có", "không", "no issues found", "clean", "—", "–", "-"]):
-                if any(m in monet for m in ["limited", "hạn chế", "giới hạn"]):
-                    classified[vid] = {
-                        "bkt_check_status": "red_matched",
-                        "bkt_restriction": "Kiếm tiền bị hạn chế (Limited Monetization)",
-                        "monetization": found.get("monetization"),
-                    }
-                elif any(m in monet for m in ["ineligible", "không đủ điều kiện"]):
-                    classified[vid] = {
-                        "bkt_check_status": "red_matched",
-                        "bkt_restriction": "Không đủ điều kiện kiếm tiền do chính sách/bản quyền",
-                        "monetization": found.get("monetization"),
-                    }
-                else:
-                    classified[vid] = {
-                        "bkt_check_status": "green_clean",
-                        "bkt_restriction": "None / — (Sạch bản quyền, an toàn)",
-                        "monetization": found.get("monetization") or "On",
-                    }
-            else:
-                classified[vid] = {
-                    "bkt_check_status": "pending",
-                    "bkt_restriction": found.get("restrictions") or "Đang chờ YouTube cập nhật",
-                    "monetization": found.get("monetization"),
-                }
+        from actions.bkt_check import check_copyright_and_restrictions
+        res = await check_copyright_and_restrictions(
+            page,
+            video_ids=video_ids,
+            video_title=video_title,
+            poll_in_session=poll_in_session,
+            max_poll_seconds=max_poll_seconds,
+        )
 
         duration = time.time() - t0
-        print(json.dumps({"success": True, "results": classified}, ensure_ascii=False))
+        print(json.dumps(res, ensure_ascii=False))
         sys.stdout.flush()
 
         record_run(
             profile_id=profile_id,
             profile_name=profile.get("name", profile_id),
             action="check_copyright",
-            status="success",
+            status="success" if res.get("success") else "error",
             duration_seconds=duration,
         )
     except Exception as exc:
@@ -1087,6 +958,180 @@ async def _async_check_copyright_status(args):
         await session.close()
 
 
+def action_extract_channel_seo(args):
+    try:
+        from outlier_hunter import get_ytdlp_bin
+        payload = get_payload(args)
+        channel_url = (payload.get("channel_url") or payload.get("url") or getattr(args, "target_url", "") or "").strip()
+        if not channel_url:
+            print(json.dumps({"success": False, "error": "Thiếu URL kênh để trích xuất SEO"}, ensure_ascii=False))
+            sys.stdout.flush()
+            return
+
+        if channel_url.startswith("@"):
+            channel_url = f"https://www.youtube.com/{channel_url}"
+        elif not channel_url.startswith("http"):
+            if "youtube.com" in channel_url or "youtu.be" in channel_url:
+                channel_url = f"https://{channel_url}"
+            else:
+                channel_url = f"https://www.youtube.com/{channel_url}"
+
+        ytdlp_bin = get_ytdlp_bin()
+        if not shutil.which(ytdlp_bin) and not os.path.exists(ytdlp_bin):
+            print(json.dumps({"success": False, "error": f"Không tìm thấy file thực thi yt-dlp tại '{ytdlp_bin}'"}, ensure_ascii=False))
+            sys.stdout.flush()
+            return
+
+        cmd = [
+            ytdlp_bin,
+            "--skip-download",
+            "--playlist-items", "0",
+            "--dump-single-json",
+            "--no-warnings",
+            channel_url
+        ]
+
+        res = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=30,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if platform.system() == "Windows" else 0
+        )
+
+        if res.returncode != 0 or not res.stdout.strip():
+            err_msg = (res.stderr or "").strip() or f"yt-dlp thoát với mã {res.returncode}"
+            logger.error(f"Lỗi yt-dlp extract_channel_seo ({channel_url}): {err_msg}")
+            print(json.dumps({"success": False, "error": f"Lỗi yt-dlp: {err_msg}"}, ensure_ascii=False))
+            sys.stdout.flush()
+            return
+
+        data = json.loads(res.stdout)
+
+        # 1. Trích xuất từ khóa kênh (channel keywords cài trong YouTube Studio) từ tags / keywords
+        raw_kw = data.get("tags") or data.get("channel_keywords") or data.get("keywords") or []
+        if isinstance(raw_kw, str):
+            channel_keywords = [raw_kw.strip()] if raw_kw.strip() else []
+        elif isinstance(raw_kw, list):
+            channel_keywords = [str(k).strip() for k in raw_kw if str(k).strip()]
+        else:
+            channel_keywords = []
+
+        # 2. Tên kênh & lượt đăng ký & trạng thái xác minh
+        channel_name = data.get("channel") or data.get("title") or ""
+        subscribers = data.get("channel_follower_count") or 0
+        is_verified = bool(data.get("channel_is_verified", False))
+        resolved_channel_url = data.get("channel_url") or data.get("uploader_url") or channel_url
+
+        # 3. Trích xuất hashtags từ mô tả
+        description = data.get("description") or ""
+        hashtags = list(dict.fromkeys(re.findall(r'#[\w\d_]+', description)))
+
+        # 4. Tạo thẻ video mặc định từ channel_keywords và hashtags (loại bỏ trùng lặp, tối đa 25 tags)
+        default_tags = []
+        for kw in channel_keywords:
+            if kw and kw not in default_tags:
+                default_tags.append(kw)
+        for h in hashtags:
+            clean_h = h.lstrip("#").strip()
+            if clean_h and clean_h not in default_tags:
+                default_tags.append(clean_h)
+        default_tags = default_tags[:25]
+
+        print(json.dumps({
+            "success": True,
+            "channel_name": channel_name,
+            "channel_url": resolved_channel_url,
+            "subscribers": subscribers,
+            "is_verified": is_verified,
+            "channel_keywords": channel_keywords,
+            "default_tags": default_tags,
+            "hashtags": hashtags[:15],
+            "description": description,
+            "made_for_kids": False,
+        }, ensure_ascii=False))
+        sys.stdout.flush()
+    except Exception as e:
+        logger.error(f"Lỗi extract_channel_seo: {e}")
+        print(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False))
+        sys.stdout.flush()
+
+
+async def _async_configure_channel_settings(args):
+    t0 = time.time()
+    payload = get_payload(args)
+    profile_id = str(payload.get("profile_id") or "").strip() or str(args.profile_id or "").strip()
+    channel_keywords = payload.get("channel_keywords") or []
+    default_tags = payload.get("default_tags") or []
+    made_for_kids = bool(payload.get("made_for_kids", False))
+
+    if not profile_id:
+        print(json.dumps({"success": False, "error": "Thiếu profile_id để cấu hình kênh"}, ensure_ascii=False))
+        sys.stdout.flush()
+        return
+
+    profiles = load_profiles()
+    profile = next((p for p in profiles if (p.get("id") == profile_id or p.get("profile_name") == profile_id)), None)
+    if not profile:
+        print(json.dumps({"success": False, "error": f"Không tìm thấy hồ sơ: {profile_id}"}, ensure_ascii=False))
+        sys.stdout.flush()
+        return
+
+    name = profile.get("profile_name") or profile_id
+    profile_dir = profile.get("profile_dir") or name
+    proxy = profile.get("proxy") or ""
+    fingerprint_seed = profile.get("fingerprint_seed")
+
+    _clean_profile_locks(profile_dir, force_kill_live=True)
+
+    session = CloakSession()
+    try:
+        page = await session.start(
+            profile_name=name,
+            proxy=proxy,
+            fingerprint_seed=fingerprint_seed,
+            profile_dir_name=profile_dir,
+            profile_data=profile,
+        )
+
+        from actions.channel_settings import configure_channel_settings
+        result = await configure_channel_settings(
+            page=page,
+            channel_keywords=channel_keywords,
+            default_tags=default_tags,
+            made_for_kids=made_for_kids,
+        )
+
+        print(json.dumps(result, ensure_ascii=False))
+        sys.stdout.flush()
+
+        duration = time.time() - t0
+        record_run(
+            profile_id=profile_id,
+            profile_name=name,
+            action="configure_channel_settings",
+            status="success" if result.get("success") else "error",
+            duration_seconds=duration,
+        )
+    except Exception as exc:
+        duration = time.time() - t0
+        logger.error(f"Lỗi cấu hình kênh Studio: {exc}", exc_info=True)
+        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False))
+        sys.stdout.flush()
+        record_run(
+            profile_id=profile_id,
+            profile_name=name,
+            action="configure_channel_settings",
+            status="error",
+            duration_seconds=duration,
+            error=str(exc),
+        )
+    finally:
+        await session.close()
+
+
 def action_hunt_outliers(args):
     try:
         from outlier_hunter import hunt_niche_outliers
@@ -1098,9 +1143,11 @@ def action_hunt_outliers(args):
         
         settings = raw_data.get("settings") or {}
         target_niche = (raw_data.get("target_niche") or "").strip()
+        time_range = (raw_data.get("time_range") or "all").strip()
+        geo = (raw_data.get("geo") or "VN").strip()
 
-        logger.info(f"Yêu cầu săn video đột biến cho ngách: '{target_niche or 'TOÀN BỘ NGÁCH NGON IKIGAI'}'")
-        all_discovered = hunt_niche_outliers(target_niche, settings)
+        logger.info(f"Yêu cầu săn video đột biến: '{target_niche or 'TOÀN BỘ NGÁCH'}' | time: {time_range} | geo: {geo}")
+        all_discovered = hunt_niche_outliers(target_niche, settings, time_range=time_range, geo=geo)
         logger.info(f"Tìm thấy tổng cộng: {len(all_discovered)} video bứt phá")
 
         print(json.dumps({"success": True, "discovered_videos": all_discovered}, ensure_ascii=True))
@@ -1108,6 +1155,26 @@ def action_hunt_outliers(args):
     except Exception as e:
         logger.error(f"Lỗi action_hunt_outliers: {e}")
         print(json.dumps({"success": False, "error": str(e), "discovered_videos": []}, ensure_ascii=True))
+        sys.stdout.flush()
+
+
+def action_fetch_trending(args):
+    try:
+        from outlier_hunter import fetch_live_trending_topics
+        raw_data = {}
+        if args.data_b64:
+            raw_data = json.loads(base64.b64decode(args.data_b64).decode("utf-8"))
+        elif args.data:
+            raw_data = json.loads(args.data)
+
+        geo = (raw_data.get("geo") or "VN").strip()
+        limit = int(raw_data.get("limit") or 20)
+        topics = fetch_live_trending_topics(geo=geo, limit=limit)
+        print(json.dumps({"success": True, "topics": topics}, ensure_ascii=True))
+        sys.stdout.flush()
+    except Exception as e:
+        logger.error(f"Lỗi action_fetch_trending: {e}")
+        print(json.dumps({"success": False, "error": str(e), "topics": []}, ensure_ascii=True))
         sys.stdout.flush()
 
 
@@ -1195,6 +1262,72 @@ def action_analyze_competitor(args):
         sys.stdout.flush()
 
 
+async def _async_sync_channel_analytics(args):
+    """
+    Mở trình duyệt Profile kênh, vào YouTube Studio Analytics,
+    trích xuất số liệu doanh thu / views và gửi telemetry lên Edge Gateway.
+    """
+    from actions.channel_analytics import extract_studio_analytics_async, send_telemetry_to_gateway
+    from actions.bkt_check import setup_low_end_route_interception
+
+    profile_id = args.profile_id or ""
+    raw_data = {}
+    if args.data_b64:
+        raw_data = json.loads(base64.b64decode(args.data_b64).decode("utf-8"))
+    elif args.data:
+        raw_data = json.loads(args.data)
+
+    channel_url = raw_data.get("channel_url") or getattr(args, "target_url", None)
+    company_id = raw_data.get("company_id")
+    channel_id = raw_data.get("channel_id") or ""
+    channel_name = raw_data.get("channel_name") or ""
+
+    if not profile_id:
+        print(json.dumps({"success": False, "error": "Thiếu profile_id"}, ensure_ascii=True))
+        sys.stdout.flush()
+        return
+
+    p_dir = profile_data_dir(profile_id)
+    if not p_dir.exists():
+        print(json.dumps({"success": False, "error": f"Không tìm thấy thư mục profile: {p_dir}"}, ensure_ascii=True))
+        sys.stdout.flush()
+        return
+
+    try:
+        session = CloakSession(str(p_dir))
+        async with session:
+            page = await session.new_page()
+            # Bật route interception giảm RAM < 180MB
+            await setup_low_end_route_interception(page)
+
+            analytics_data = await extract_studio_analytics_async(page, channel_url=channel_url)
+
+            # Đóng gói telemetry và gửi lên Cloudflare Gateway nếu có company_id
+            if analytics_data.get("success") and company_id:
+                telemetry_payload = {
+                    "company_id": company_id,
+                    "channel_id": channel_id,
+                    "channel_name": channel_name,
+                    "report_date": analytics_data.get("report_date"),
+                    "views": analytics_data.get("views", 0),
+                    "watch_time_hours": analytics_data.get("watch_time_hours", 0.0),
+                    "subscribers_gained": analytics_data.get("subscribers_gained", 0),
+                    "estimated_revenue": analytics_data.get("estimated_revenue_usd", 0.0),
+                    "estimated_revenue_vnd": analytics_data.get("estimated_revenue_vnd", 0.0),
+                    "rpm": analytics_data.get("rpm", 0.0),
+                    "cpm": analytics_data.get("cpm", 0.0),
+                    "monetization_status": analytics_data.get("monetization_status", "active"),
+                }
+                send_telemetry_to_gateway(telemetry_payload)
+
+            print(json.dumps({"success": True, "analytics": analytics_data}, ensure_ascii=True))
+            sys.stdout.flush()
+    except Exception as e:
+        logger.error(f"Lỗi _async_sync_channel_analytics: {e}")
+        print(json.dumps({"success": False, "error": str(e)}, ensure_ascii=True))
+        sys.stdout.flush()
+
+
 def main():
     parser = argparse.ArgumentParser(description="RETubeMatrix Browser Engine Runner")
     parser.add_argument("--action", required=True, choices=[
@@ -1214,10 +1347,14 @@ def main():
         "update_profile_meta",
         "bulk_set_group",
         "hunt_outliers",
+        "fetch_trending",
         "ping_momentum",
         "find_goldmines",
         "analyze_hook",
         "analyze_competitor",
+        "extract_channel_seo",
+        "configure_channel_settings",
+        "sync_channel_analytics",
     ])
     parser.add_argument("--profile-id", default="")
     parser.add_argument("--target-url", default="")
@@ -1243,6 +1380,12 @@ def main():
         asyncio.run(_async_upload_video(args))
     elif args.action == "check_copyright_status":
         asyncio.run(_async_check_copyright_status(args))
+    elif args.action == "configure_channel_settings":
+        asyncio.run(_async_configure_channel_settings(args))
+    elif args.action == "sync_channel_analytics":
+        asyncio.run(_async_sync_channel_analytics(args))
+    elif args.action == "extract_channel_seo":
+        action_extract_channel_seo(args)
     elif args.action == "get_stats":
         action_get_stats()
     elif args.action == "stop_profile":
@@ -1259,6 +1402,8 @@ def main():
         action_bulk_set_group(args)
     elif args.action == "hunt_outliers":
         action_hunt_outliers(args)
+    elif args.action == "fetch_trending":
+        action_fetch_trending(args)
     elif args.action == "ping_momentum":
         action_ping_momentum(args)
     elif args.action == "find_goldmines":

@@ -1007,6 +1007,11 @@ pub async fn get_video_basic_info(
         is_live: None,
         was_live: None,
         live_status: None,
+        tags: None,
+        categories: None,
+        channel_follower_count: None,
+        like_count: None,
+        comment_count: None,
     };
 
     add_log_internal(
@@ -1155,13 +1160,10 @@ pub async fn get_video_info(
             .and_then(|v| v.as_str())
             .map(|s| s.to_string()),
         view_count: json.get("view_count").and_then(|v| v.as_u64()),
-        description: json.get("description").and_then(|v| v.as_str()).map(|s| {
-            if s.len() > 200 {
-                format!("{}...", &s[..200])
-            } else {
-                s.to_string()
-            }
-        }),
+        description: json
+            .get("description")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string()),
         is_playlist,
         playlist_count,
         extractor: json
@@ -1179,6 +1181,19 @@ pub async fn get_video_info(
             .get("live_status")
             .and_then(|v| v.as_str())
             .map(|s| s.to_string()),
+        tags: json.get("tags").and_then(|v| v.as_array()).map(|arr| {
+            arr.iter()
+                .filter_map(|t| t.as_str().map(|s| s.to_string()))
+                .collect()
+        }),
+        categories: json.get("categories").and_then(|v| v.as_array()).map(|arr| {
+            arr.iter()
+                .filter_map(|c| c.as_str().map(|s| s.to_string()))
+                .collect()
+        }),
+        channel_follower_count: json.get("channel_follower_count").and_then(|v| v.as_u64()),
+        like_count: json.get("like_count").and_then(|v| v.as_u64()),
+        comment_count: json.get("comment_count").and_then(|v| v.as_u64()),
     };
 
     let formats = if let Some(formats_arr) = json.get("formats").and_then(|v| v.as_array()) {
@@ -1469,6 +1484,47 @@ pub async fn get_available_subtitles(
     }
 
     Ok(subtitles)
+}
+
+#[tauri::command]
+pub async fn read_companion_description(video_path: String) -> Result<Option<String>, String> {
+    let raw_path = video_path.trim();
+    if raw_path.is_empty() {
+        return Ok(None);
+    }
+    let p = std::path::Path::new(raw_path);
+    // 1. Candidate: path with .description (ví dụ: video.description thay thế đuôi .mp4)
+    let desc_p1 = p.with_extension("description");
+    if desc_p1.exists() {
+        if let Ok(content) = std::fs::read_to_string(&desc_p1) {
+            return Ok(Some(content));
+        }
+    }
+    // 2. Candidate: video.mp4.description (yt-dlp khi xuất theo template gốc)
+    let desc_p2 = format!("{}.description", raw_path);
+    if std::path::Path::new(&desc_p2).exists() {
+        if let Ok(content) = std::fs::read_to_string(&desc_p2) {
+            return Ok(Some(content));
+        }
+    }
+    // 3. Candidate: nếu là file video đã qua xử lý reup (ví dụ: video_reup_v1_12345.mp4), tìm file .description của video gốc
+    let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("");
+    if let Some(caps) = regex::Regex::new(r"^(.*?)(?:_reup_(?:v1|v2)_\d+)$")
+        .ok()
+        .and_then(|re| re.captures(stem))
+    {
+        if let Some(base_stem) = caps.get(1) {
+            if let Some(parent) = p.parent() {
+                let cand1 = parent.join(format!("{}.description", base_stem.as_str()));
+                if cand1.exists() {
+                    if let Ok(content) = std::fs::read_to_string(&cand1) {
+                        return Ok(Some(content));
+                    }
+                }
+            }
+        }
+    }
+    Ok(None)
 }
 
 #[cfg(test)]

@@ -111,11 +111,15 @@ pub async fn analyze_competitor_channel_cmd(
 pub async fn trigger_outlier_scan_cmd(
     app: AppHandle,
     niche: Option<String>,
+    time_range: Option<String>,
+    geo: Option<String>,
 ) -> Result<Vec<OutlierVideo>, String> {
     let settings = get_outlier_settings_db()?;
     let payload = serde_json::json!({
         "settings": settings,
         "target_niche": niche.unwrap_or_default(),
+        "time_range": time_range.unwrap_or_else(|| "all".to_string()),
+        "geo": geo.unwrap_or_else(|| "VN".to_string()),
     });
 
     let b64 = base64::engine::general_purpose::STANDARD.encode(payload.to_string());
@@ -323,4 +327,51 @@ pub async fn analyze_video_hook_cmd(
         "full_transcript_preview": "Không tìm thấy phụ đề",
         "key_points": []
     }))
+}
+
+#[tauri::command]
+pub async fn fetch_live_trending_topics_cmd(
+    app: AppHandle,
+    geo: Option<String>,
+    limit: Option<i64>,
+) -> Result<Value, String> {
+    let payload = serde_json::json!({
+        "geo": geo.unwrap_or_else(|| "VN".to_string()),
+        "limit": limit.unwrap_or(20),
+    });
+    let b64 = base64::engine::general_purpose::STANDARD.encode(payload.to_string());
+
+    let (mut cmd, runner_path) = crate::commands::profiles::create_runner_cmd(&app);
+    if !runner_path.exists() {
+        return Err(format!(
+            "Không tìm thấy file mã nguồn browser_engine/runner.py tại '{}'. Vui lòng kiểm tra lại gói cài đặt ứng dụng.",
+            runner_path.display()
+        ));
+    }
+    cmd.arg(&runner_path)
+        .arg("--action")
+        .arg("fetch_trending")
+        .arg("--data-b64")
+        .arg(&b64)
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped());
+
+    cmd.hide_window();
+
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("Lỗi khởi chạy Python fetch_trending: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stdout.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with('{') && trimmed.ends_with('}') {
+            if let Ok(val) = serde_json::from_str::<Value>(trimmed) {
+                return Ok(val);
+            }
+        }
+    }
+
+    Ok(serde_json::json!({ "success": true, "topics": [] }))
 }

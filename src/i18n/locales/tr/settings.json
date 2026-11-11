@@ -11,7 +11,7 @@
     "ai": "AI Özellikleri",
     "network": "Ağ ve Kimlik Doğrulama",
     "system": "Sistem",
-    "about": "Hakkında",
+    "about": "Hakkında ve Sürüm",
     "pluginStore": "Plugin Store"
   },
   "search": {
@@ -850,8 +850,8 @@
     "cliOpenGuide": "CLI kılavuzunu aç"
   },
   "about": {
-    "title": "Hakkında",
-    "description": "Uygulama bilgileri",
+    "title": "Hakkında ve Sürüm",
+    "description": "Uygulama bilgileri ve yeni güncellemeleri denetleme",
     "appDesc": "Hepsi bir arada video araç seti — kanalları indirin, düzenleyin, takip edin ve AI özetleyin",
     "checkingUpdates": "Güncellemeler kontrol ediliyor...",
     "versionAvailable": "v{{version}} mevcut",

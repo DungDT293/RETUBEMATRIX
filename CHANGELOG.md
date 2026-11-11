@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-11
+
+### Added
+
+- **Universal Smart Proxy Normalizer & Verification Support** - Added automatic recognition for 4-part proxy formats (`IP:Port:User:Pass`), seamless auto-conversion to RFC-compliant proxy URLs, and dual-protocol validation across both HTTPS and SOCKS5 ports (e.g. Cloudmini, ProxyNo1). Masked sensitive proxy credentials in profile management tables.
+- **Real-Time Reup Pipeline Progress Monitoring** - Real-time progress bar streaming encoding percentage, render speed, current FPS, and remaining ETA during Reup Pipeline processing.
+- **Adaptive FFmpeg Thread Throttling for Low-Spec Systems** - Intelligent thread limiter reserving a dedicated CPU core on systems with 4 or fewer vCPUs (such as 3 vCPU cloud servers) to prevent CPU throttling, system lockups, and Windows Server memory exhaustion.
+- **BKT Studio 1-Click Launch & Google Authentication Alerts** - Direct 1-click "Open Studio" action for instant profile navigation and diagnostic login warnings for unauthenticated Google accounts during background copyright scans.
+
+### Fixed
+
+- **Base64URL JWT Silent Refresh & Token Expiration** - Fixed Base64URL padding calculation errors in token renewal, ensuring seamless session persistence across long-running background tasks.
+- **Tenant Company Resolution & UUID Matching** - Resolved PostgreSQL `22P02` type mismatches by auto-resolving company slugs/names to tenant UUIDs before querying Supabase REST endpoints.
+- **Duplicate Upgrade Tier Modal Rendering** - Removed redundant upgrade dialog blocks in SaaS Master Hub.
+
+## [1.0.0] - 2026-11-10
+
+### Added
+
+- **Master Control Web Portal & Cloudflare Edge Worker Gateway** - Centralized management portal and globally distributed edge gateway (`retubematrix-gateway.dungdong333.workers.dev`) providing secure reverse proxying, token issuance, and device verification for high-speed, zero-cold-start performance.
+- **4-Tier Pyramid SaaS RBAC with Supabase Row-Level Security (RLS)** - Implemented strict role-based access control (Owner, Admin, Leader, User) governing tenant data isolation, user management, and team-scoped quotas directly backed by Supabase RLS policies.
+- **Direct User Account Provisioning & 1-Click License Key Copy** - Added administrative direct member creation with randomized passwords, instant credential modal dispatch, transparent License Key visibility, and 1-click clipboard copying for frictionless team member onboarding.
+- **HWID Hardware Lock & 1-Click Device Reset Approval** - Enforced 1-Machine-1-Account hardware fingerprint binding preventing unauthorized credential sharing, paired with seamless 1-click device reset request and approval workflow via the Web Portal.
+- **Master Owner HWID Bypass Mechanism** - Exempted Master Owner credentials (`dungdong333@gmail.com` / `owner` role) from hardware locking checks, guaranteeing unrestricted access across unlimited diagnostic and management devices.
+- **Sidebar Navigation Reordering (SaaS Hub Item #9)** - Integrated the SaaS Master Hub into sidebar position #9 with a glowing gold Crown badge, seamlessly positioning between System Logs and Application Settings.
+- **UI Design System Standardization & Isolated Updater Dialog** - Eliminated visual clutter and extraneous decorative emoji across system pages; isolated the cryptographic auto-updater modal into dedicated settings and version views to suppress unsolicited background popups during network drops.
+- **YouTube Studio Telemetry & Live Revenue Analytics Sync** - Real-time metrics telemetry capturing and synchronizing monetization insights (Estimated Revenue, RPM, CPM, 48h/60m Views, Real-time Subscriptions) across managed profiles into the cloud portal dashboard.
+- **Cryptographic Auto-Updater via GitHub Releases with Minisign** - Enterprise-grade self-updater verifying cryptographic Minisign signatures against GitHub Releases artifacts for tamper-proof updates across macOS and Windows.
+- **Interactive "About & Version" Hub with Live Download Progress** - Renamed and upgraded the "About" tab to "About & Version" across all 13 supported languages (`en`, `vi`, `zh-CN`, `ja`, `ko`, `es`, `fr`, `de`, `ru`, `pt`, `id`, `th`, `hi`), featuring manual update checks, release notes preview, and real-time download/installation progress bars.
+- **Daily Production Report & Operation Hub (Dashboard)** - Transformed the Dashboard into a real-time Daily Production Hub featuring 5 focal KPI metrics (Discovered Videos from competitors & Outliers, Downloaded Count & Data Volume in MB/GB, BKT Copyright Results with Clean/Claimed/Pending breakdown, Videos Published to Target Channels today, and Remaining Daily BKT Quota). Added flexible time-range filtering (Today / Yesterday / Past 7 Days) and an interactive multi-category Daily Production Timeline.
+- **Backend API `get_daily_report_stats`** - Implemented high-performance aggregated reporting IPC command utilizing SQLite local time index range scans (`history`, `channel_videos`, `outlier_videos`, `bkt_test_jobs`, `bkt_test_channels`), eliminating full-table scans.
+- **Auto-Pilot Publishing to Target Channels from `green_clean` BKT** - Zero-touch end-to-end publishing pipeline automatically uploading verified clean videos (`green_clean`) directly to assigned official YouTube profiles with AI 95/5 titles, companion thumbnails, and tags. Added 1-click manual "Publish to Target Channel" action on verified job cards.
+- **In-Session Reload Polling for YouTube Studio BKT Verification** - Replaced repetitive browser launch/teardown cycles with in-session page reload polling, adaptively adjusting sleep intervals (15s/20s/35s) based on live Studio processing countdowns ("X minutes left"), accompanied by real-time stdout progress events.
+- **English YouTube Studio `[cell-id="notices"]` Selector Recognition** - Added robust DOM selectors targeting Studio's updated English layout (`[cell-id="notices"]`, `#notices`, `ytcp-table-cell-notices`) and parsing em-dash (`—`), `None`, and `Clean` badges for immediate copyright clearance.
+- **Low-End Hardware Route Interception** - Integrated Chromium route abort handler for images, web fonts, media streams, and tracking beacons during BKT verification, dropping RAM consumption from >600MB to <180MB and boosting page load speeds 3x.
+
+### Fixed
+
+- **Local Timezone Alignment in SQLite Range Scans** - Standardized timestamp range queries with `chrono::Local` avoiding timezone offset bugs and cross-day misattribution.
+
 ## [0.20.16] - 2026-11-06
 
 ### Changed

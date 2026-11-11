@@ -5,5 +5,6 @@ export { LogsPage } from './LogsPage';
 export { OutlierHunterPage } from './OutlierHunterPage';
 export { ProfilesPage } from './ProfilesPage';
 export { ReupBktPage } from './ReupBktPage';
+export { SaasMasterHubPage } from './SaasMasterHubPage';
 export { SettingsPage } from './SettingsPage';
 export { UniversalPage } from './UniversalPage';

@@ -11,7 +11,7 @@
     "ai": "AI 功能",
     "network": "网络与认证",
     "system": "系统",
-    "about": "关于",
+    "about": "关于与版本",
     "pluginStore": "插件商店"
   },
   "search": {
@@ -850,8 +850,8 @@
     "cliOpenGuide": "打开 CLI 指南"
   },
   "about": {
-    "title": "关于",
-    "description": "应用信息",
+    "title": "关于与版本",
+    "description": "应用程序信息及检查新版本更新",
     "appDesc": "全能视频工具箱 — 下载、编辑、频道关注与 AI 摘要",
     "checkingUpdates": "检查更新中...",
     "versionAvailable": "v{{version}} 可用",

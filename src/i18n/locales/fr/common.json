@@ -20,7 +20,11 @@
     "profiles": "Profils de navigateur",
     "dashboard": "Tableau de bord",
     "reup": "Reup & BKT Test",
-    "outliers": "Chasseur de Tendances"
+    "outliers": "Chasseur de Tendances",
+    "saas": "Gestion du système",
+    "saasOwner": "Gestion du système",
+    "saasAdmin": "Gestion de l'entreprise",
+    "saasLeader": "Gestion d'équipe"
   },
   "language": {
     "en": "English",

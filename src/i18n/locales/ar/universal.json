@@ -16,7 +16,13 @@
     "urlCount_plural": "{{count}} روابط",
     "dropHint": "أفلت الروابط أو ملف .txt هنا",
     "detectedMultiple": "تم اكتشاف {{count}} رابطًا",
-    "clearInput": "مسح"
+    "clearInput": "مسح",
+    "channel": "Channel",
+    "channelHint": "Scan and download all videos from a YouTube channel",
+    "placeholderChannel": "Paste YouTube channel URL (e.g. https://www.youtube.com/@ChannelName)...",
+    "scanChannel": "Scan Channel",
+    "scanningChannel": "Scanning videos...",
+    "loadToQueue": "Add to Queue"
   },
   "page": {
     "quickSettings": "إعدادات سريعة",

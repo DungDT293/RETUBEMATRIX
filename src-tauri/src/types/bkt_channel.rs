@@ -80,6 +80,18 @@ pub struct BktTestJob {
     pub tested_date: String,
     pub created_at: String,
     pub updated_at: String,
+    #[serde(default)]
+    pub main_target_profile_id: Option<String>,
+    #[serde(default)]
+    pub auto_publish_main: Option<bool>,
+    #[serde(default)]
+    pub target_title: Option<String>,
+    #[serde(default)]
+    pub target_description: Option<String>,
+    #[serde(default)]
+    pub target_tags: Option<String>,
+    #[serde(default)]
+    pub thumbnail_path: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -91,6 +103,18 @@ pub struct BktBatchItemRequest {
     pub video_source_type: Option<String>,
     #[serde(default)]
     pub source_ref_id: Option<String>,
+    #[serde(default)]
+    pub main_target_profile_id: Option<String>,
+    #[serde(default)]
+    pub auto_publish_main: Option<bool>,
+    #[serde(default)]
+    pub target_title: Option<String>,
+    #[serde(default)]
+    pub target_description: Option<String>,
+    #[serde(default)]
+    pub target_tags: Option<String>,
+    #[serde(default)]
+    pub thumbnail_path: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -100,6 +124,9 @@ pub struct BktBatchDispatchRequest {
     /// Optional specific channel ID. If None, auto load-balance across active channels with quota.
     #[serde(default)]
     pub target_test_channel_id: Option<String>,
+    /// Chế độ thực thi tuần tự 1-by-1 (tiết kiệm RAM, CPU và dọn ổ đĩa sau mỗi video)
+    #[serde(default)]
+    pub sequential: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

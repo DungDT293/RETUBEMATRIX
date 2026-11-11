@@ -72,15 +72,33 @@ export function useAppUpdater() {
           return false;
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to check for updates';
+        const rawMessage = err instanceof Error ? err.message : String(err ?? '');
+        const message = rawMessage || 'Failed to check for updates';
+        const lower = message.toLowerCase();
+
+        // 404, missing release or not found implies no newer release available or release assets not yet published -> up-to-date
+        const isNotFoundOrUpToDate =
+          lower.includes('404') ||
+          lower.includes('not found') ||
+          lower.includes('could not find') ||
+          lower.includes('status 404') ||
+          lower.includes('release');
+
+        if (isNotFoundOrUpToDate) {
+          setError(null);
+          setStatus('up-to-date');
+          return false;
+        }
+
         if (options?.silent) {
-          // Background checks must not interrupt the user with a dialog.
+          // Background checks must never set error status to avoid annoying users
           setError(null);
           setStatus('idle');
-        } else {
-          setError(message);
-          setStatus('error');
+          return false;
         }
+
+        setError(message);
+        setStatus('error');
         return false;
       }
     },

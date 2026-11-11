@@ -1,13 +1,19 @@
 import { FolderDown, Globe, Loader2, Plus, RefreshCw, Search, Tv } from 'lucide-react';
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ThemePicker } from '@/components/settings/ThemePicker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/toast';
 import {
+  dispatchBatchBktTest,
   getAllChannelStats,
+  getChannelVideoFilepath,
+  getMultibrowserProfiles,
   getSavedChannelVideos,
   toggleChannelAutoDownload,
+  updateChannelBktConfig,
+  waitBktJobCompletion,
 } from '@/contexts/channels/channels-client';
 import { isSupportedPlatform } from '@/contexts/channels/useChannelsController';
 import { useChannels } from '@/contexts/channels-context';
@@ -15,11 +21,18 @@ import type {
   ChannelStats,
   ChannelVideo,
   FollowedChannel,
+  MultiBrowserProfile,
   YoutubeChannelContentType,
 } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { ChannelCard } from '@/pages/channels/ChannelCard';
+import { ChannelCard, type ChannelReupProgress } from '@/pages/channels/ChannelCard';
 import { ChannelVideoAccordion } from '@/pages/channels/ChannelVideoAccordion';
+import { workTelemetryService } from '@/services/workTelemetryService';
+import {
+  adaptCompetitorDescription,
+  getBestAutoPilotTitle,
+  getCompanionThumbnailPath,
+} from '@/utils/reup-auto-pilot';
 
 function resolvePrettyChannelName(url: string): string {
   try {
@@ -77,6 +90,29 @@ export function ChannelsPage() {
 
   // Selected videos for batch download
   const [selectedVideoIds, setSelectedVideoIds] = useState<Set<string>>(new Set());
+
+  // Profiles list for 1-1 mapping
+  const [profiles, setProfiles] = useState<MultiBrowserProfile[]>([]);
+
+  // Toast & Auto Reup Progress State
+  const toast = useToast();
+  const [reupProgressMap, setReupProgressMap] = useState<Record<string, ChannelReupProgress>>({});
+  const autoReupAbortControllersRef = useRef<Map<string, AbortController>>(new Map());
+
+  const refreshProfiles = useCallback(async () => {
+    try {
+      const data = await getMultibrowserProfiles();
+      if (Array.isArray(data)) {
+        setProfiles(data);
+      }
+    } catch (err) {
+      console.error('Failed to load profiles in ChannelsPage:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshProfiles();
+  }, [refreshProfiles]);
 
   // Load stats for all channels
   const refreshStats = useCallback(async () => {
@@ -162,18 +198,379 @@ export function ChannelsPage() {
         limit: 0, // 0 = lấy toàn bộ video
       });
       setChannelVideosMap((prev) => ({ ...prev, [channel.id]: videos }));
+
+      // Telemetry: Đồng bộ thông số đối thủ và 5 video mới nhất
+      if (channel.url && videos.length > 0) {
+        const top5 = videos.slice(0, 5).map((v) => ({
+          video_id: v.video_id,
+          id: v.video_id,
+          title: v.title,
+          view_count: 0,
+          upload_date: v.upload_date || '',
+          url: v.url,
+        }));
+        workTelemetryService.syncCompetitorChannel({
+          channel_url: channel.url,
+          channel_name: channel.name,
+          competitor_channel_id: channel.id,
+          subscriber_count: 0,
+          view_count: 0,
+          total_videos: statsMap[channel.id]?.total_videos || 0,
+          recent_5_videos: top5,
+          action: 'upsert',
+        });
+      }
     } catch (err) {
       console.error('Check channel failed:', err);
     }
   };
 
-  // Handle Toggle Auto Download
-  const handleToggleAutoDownload = async (channelId: string, enabled: boolean) => {
+  // Sequential Top 5 Reup Worker (1-by-1 FIFO, Tối ưu ổ cứng)
+  const runSequentialTop5ForChannel = async (channel: FollowedChannel) => {
+    const channelId = channel.id;
+    const targetProfileId = channel.bkt_profile_id;
+    if (!targetProfileId) return;
+
+    const abortController = new AbortController();
+    autoReupAbortControllersRef.current.set(channelId, abortController);
+
+    setReupProgressMap((prev) => ({
+      ...prev,
+      [channelId]: {
+        channelId,
+        isRunning: true,
+        currentStep: 0,
+        totalSteps: 5,
+        progressText: 'Đang chuẩn bị danh sách 5 video mới nhất...',
+        status: 'running',
+      },
+    }));
+
     try {
-      await toggleChannelAutoDownload(channelId, enabled);
+      let videos = channelVideosMap[channelId] || [];
+      if (videos.length === 0) {
+        try {
+          videos = await getSavedChannelVideos({ channelId, status: null, limit: 10 });
+        } catch (e) {
+          console.warn('Lỗi getSavedChannelVideos:', e);
+        }
+      }
+
+      if (videos.length === 0) {
+        setReupProgressMap((prev) => ({
+          ...prev,
+          [channelId]: {
+            ...prev[channelId],
+            progressText: 'Đang quét video mới từ YouTube...',
+          },
+        }));
+        try {
+          await checkChannelNow(channel);
+          videos = await getSavedChannelVideos({ channelId, status: null, limit: 10 });
+        } catch (err) {
+          console.warn('Lỗi checkChannelNow:', err);
+        }
+      }
+
+      const top5 = videos.slice(0, 5);
+      if (top5.length === 0) {
+        setReupProgressMap((prev) => ({
+          ...prev,
+          [channelId]: {
+            channelId,
+            isRunning: false,
+            currentStep: 0,
+            totalSteps: 0,
+            progressText: 'Kênh chưa có video nào. Đang ở chế độ chờ video mới xuất hiện.',
+            status: 'idle',
+          },
+        }));
+        toast.info({
+          title: 'Đã bật Auto Reup',
+          message: `Kênh "${channel.name}" chưa có video cũ. Hệ thống sẽ tự động Reup ngay khi đối thủ đăng video mới!`,
+        });
+        return;
+      }
+
+      toast.info({
+        title: `Bắt đầu Auto Reup Top ${top5.length}`,
+        message: `Đang xử lý tuần tự ${top5.length} video mới nhất của "${channel.name}" để tối ưu ổ cứng (1-by-1).`,
+      });
+
+      let successCount = 0;
+      let redCount = 0;
+
+      for (let idx = 0; idx < top5.length; idx++) {
+        if (abortController.signal.aborted) {
+          break;
+        }
+
+        const v = top5[idx];
+        const stepIndex = idx + 1;
+        const total = top5.length;
+        const targetId = v.id || v.video_id;
+
+        // BƯỚC 1: Kiểm tra file video trên đĩa
+        let filePath = await getChannelVideoFilepath(v.video_id);
+        if (!filePath) {
+          setReupProgressMap((prev) => ({
+            ...prev,
+            [channelId]: {
+              channelId,
+              isRunning: true,
+              currentStep: stepIndex,
+              totalSteps: total,
+              progressText: `[${stepIndex}/${total}] Đang tải video: "${v.title}"...`,
+              status: 'running',
+            },
+          }));
+
+          await downloadSelectedVideos(
+            channel.download_quality || 'best',
+            channel.download_format || 'mp4',
+            channel.download_video_codec || 'auto',
+            channel.download_preferred_fps || 'original',
+            [
+              {
+                id: v.video_id,
+                title: v.title,
+                url: v.url,
+                thumbnail: v.thumbnail || undefined,
+                duration: v.duration || undefined,
+              },
+            ],
+            channel.url,
+            channel.name,
+          );
+
+          let attempts = 0;
+          while (!filePath && attempts < 90) {
+            if (abortController.signal.aborted) break;
+            await new Promise((r) => setTimeout(r, 2000));
+            filePath = await getChannelVideoFilepath(v.video_id);
+            attempts++;
+          }
+        }
+
+        if (abortController.signal.aborted) break;
+
+        if (!filePath) {
+          console.error(`Không thể tải video: ${v.title}`);
+          continue;
+        }
+
+        // BƯỚC 2: AI Tối ưu tiêu đề, mô tả, thumbnail
+        setReupProgressMap((prev) => ({
+          ...prev,
+          [channelId]: {
+            channelId,
+            isRunning: true,
+            currentStep: stepIndex,
+            totalSteps: total,
+            progressText: `[${stepIndex}/${total}] Reup Lv.1 & AI Tối ưu tiêu đề...`,
+            status: 'running',
+          },
+        }));
+
+        const aiTitle = getBestAutoPilotTitle(v.title);
+        const adaptedDesc = adaptCompetitorDescription({
+          originalDescription: '',
+          targetChannelName: channel.name,
+          videoTitle: aiTitle,
+          includeFairUseDisclaimer: true,
+        });
+        const thumbPath = getCompanionThumbnailPath(filePath);
+
+        // BƯỚC 3: Gửi BKT Job tuần tự với autoPublishMain = true
+        setReupProgressMap((prev) => ({
+          ...prev,
+          [channelId]: {
+            channelId,
+            isRunning: true,
+            currentStep: stepIndex,
+            totalSteps: total,
+            progressText: `[${stepIndex}/${total}] Studio đang quét Content ID & Đăng đích...`,
+            status: 'running',
+          },
+        }));
+
+        const dispatchRes = await dispatchBatchBktTest({
+          items: [
+            {
+              videoTitle: v.title,
+              videoPath: filePath,
+              videoSourceType: 'channel_video',
+              sourceRefId: targetId,
+              mainTargetProfileId: targetProfileId,
+              autoPublishMain: true,
+              targetTitle: aiTitle,
+              targetDescription: adaptedDesc,
+              thumbnailPath: thumbPath,
+            },
+          ],
+          targetTestChannelId: undefined,
+          sequential: true,
+        });
+
+        const dispatchedJob = dispatchRes.results?.[0];
+        if (!dispatchedJob?.success || !dispatchedJob.jobId) {
+          console.error(`Lỗi điều phối BKT cho video ${v.title}:`, dispatchedJob?.error);
+          continue;
+        }
+
+        // BƯỚC 4: Chờ hoàn thành BKT & Tự động xuất bản & Dọn sạch đĩa
+        const jobId = dispatchedJob.jobId;
+        try {
+          const finishedJob = await waitBktJobCompletion(jobId, 900);
+          if (finishedJob.status === 'green_clean') {
+            successCount++;
+            setReupProgressMap((prev) => ({
+              ...prev,
+              [channelId]: {
+                channelId,
+                isRunning: true,
+                currentStep: stepIndex,
+                totalSteps: total,
+                progressText: `[${stepIndex}/${total}] Sạch bản quyền & Đã xuất bản Kênh Đích!`,
+                status: 'running',
+              },
+            }));
+            // Telemetry: Báo cáo video test xanh & xuất bản video lên kênh đích
+            workTelemetryService.reportBktResult({
+              competitor_channel_url: channel.url,
+              competitor_channel_id: channel.id,
+              status: 'green',
+            });
+            workTelemetryService.reportUpload({
+              channel_id: targetProfileId,
+            });
+
+            toast.success({
+              title: `Video ${stepIndex}/${total} Hoàn tất!`,
+              message: `"${aiTitle}" đã sạch bản quyền và xuất bản lên Kênh Đích! File gốc, reup & thumbnail đã được dọn sạch để tối ưu bộ nhớ.`,
+            });
+          } else if (finishedJob.status === 'red_matched') {
+            redCount++;
+            setReupProgressMap((prev) => ({
+              ...prev,
+              [channelId]: {
+                channelId,
+                isRunning: true,
+                currentStep: stepIndex,
+                totalSteps: total,
+                progressText: `[${stepIndex}/${total}] Dính bản quyền: ${finishedJob.restriction || ''}`,
+                status: 'running',
+              },
+            }));
+            // Telemetry: Báo cáo video test đỏ
+            workTelemetryService.reportBktResult({
+              competitor_channel_url: channel.url,
+              competitor_channel_id: channel.id,
+              status: 'red',
+            });
+          }
+        } catch (waitErr) {
+          console.error(`Lỗi khi chờ BKT video ${v.title}:`, waitErr);
+        }
+
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+
+      setReupProgressMap((prev) => ({
+        ...prev,
+        [channelId]: {
+          channelId,
+          isRunning: false,
+          currentStep: top5.length,
+          totalSteps: top5.length,
+          progressText: `Đã hoàn tất Reup Tuần Tự Top 5 (${successCount} thành công, ${redCount} cảnh báo)! Kênh đang ở chế độ Auto Reup cho video mới.`,
+          status: 'success',
+        },
+      }));
       await refreshChannels();
+      toast.success({
+        title: 'Hoàn tất Auto Reup Top 5!',
+        message: `Đã xử lý xong Top 5 video cho kênh "${channel.name}". Kênh tiếp tục duy trì chế độ Auto Reup để bắt video mới tiếp theo!`,
+      });
     } catch (err) {
-      console.error('Toggle auto download failed:', err);
+      console.error('Lỗi quy trình tuần tự Top 5:', err);
+      setReupProgressMap((prev) => ({
+        ...prev,
+        [channelId]: {
+          channelId,
+          isRunning: false,
+          currentStep: 0,
+          totalSteps: 0,
+          progressText: `Lỗi Auto Reup: ${String(err)}`,
+          status: 'error',
+        },
+      }));
+    } finally {
+      autoReupAbortControllersRef.current.delete(channelId);
+    }
+  };
+
+  // Handle Toggle Auto Reup
+  const handleToggleAutoDownload = async (channelId: string, enabled: boolean) => {
+    const channel = followedChannels.find((c) => c.id === channelId);
+    if (!channel) return;
+
+    if (enabled) {
+      if (!channel.bkt_profile_id) {
+        toast.warning({
+          title: 'Chưa Gán Hồ Sơ Kênh Đích',
+          message: `Vui lòng gán Hồ Sơ Kênh Đích (Target Profile) cho kênh "${channel.name}" trước khi bật Auto Reup!`,
+        });
+        return;
+      }
+
+      try {
+        await toggleChannelAutoDownload(channelId, true);
+        await updateChannelBktConfig({
+          channelId,
+          bktTestMode: true,
+          bktProfileId: channel.bkt_profile_id ?? null,
+        });
+        await refreshChannels();
+        // Kích hoạt ngay Top 5
+        runSequentialTop5ForChannel(channel);
+      } catch (err) {
+        console.error('Bật Auto Reup thất bại:', err);
+      }
+    } else {
+      // Hủy nếu đang chạy
+      const controller = autoReupAbortControllersRef.current.get(channelId);
+      if (controller) {
+        controller.abort();
+        autoReupAbortControllersRef.current.delete(channelId);
+      }
+
+      try {
+        await toggleChannelAutoDownload(channelId, false);
+        await updateChannelBktConfig({
+          channelId,
+          bktTestMode: false,
+          bktProfileId: channel.bkt_profile_id ?? null,
+        });
+        await refreshChannels();
+        setReupProgressMap((prev) => ({
+          ...prev,
+          [channelId]: {
+            channelId,
+            isRunning: false,
+            currentStep: 0,
+            totalSteps: 0,
+            progressText: 'Đã dừng Auto Reup.',
+            status: 'idle',
+          },
+        }));
+        toast.info({
+          title: 'Đã tắt Auto Reup',
+          message: `Đã dừng chế độ Auto Reup cho kênh "${channel.name}".`,
+        });
+      } catch (err) {
+        console.error('Tắt Auto Reup thất bại:', err);
+      }
     }
   };
 
@@ -360,6 +757,7 @@ export function ChannelsPage() {
                   <ChannelCard
                     channel={channel}
                     stats={stats}
+                    profiles={profiles}
                     isExpanded={isExpanded}
                     onToggleExpand={() => handleToggleExpand(channel.id)}
                     onCheckNow={() => handleCheckNow(channel)}
@@ -369,6 +767,15 @@ export function ChannelsPage() {
                       handleToggleAutoDownload(channel.id, enabled)
                     }
                     onUpdateSettings={updateChannelSettings}
+                    onRefreshChannels={refreshChannels}
+                    reupProgress={reupProgressMap[channel.id]}
+                    onClearReupProgress={(id) =>
+                      setReupProgressMap((prev) => {
+                        const next = { ...prev };
+                        delete next[id];
+                        return next;
+                      })
+                    }
                   />
 
                   {/* Accordion Video List */}
@@ -376,6 +783,7 @@ export function ChannelsPage() {
                     <div className="mt-1">
                       <ChannelVideoAccordion
                         channelName={channel.name}
+                        channel={channel}
                         videos={videos}
                         isLoading={loadingVideos}
                         selectedVideoIds={selectedVideoIds}

@@ -1,0 +1,15 @@
+name = "retubematrix-gateway"
+main = "src/index.ts"
+compatibility_date = "2024-04-05"
+account_id = "4897ab4807ec9ac2acc80764b42080b3"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "RETUBEMATRIX_KV"
+id = "eb8256540df54ca4a96a192fc203ff35"
+
+[vars]
+SUPABASE_URL = "https://pgfvolnxtvnmvoxnwsza.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnZnZvbG54dHZubXZveG53c3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQyMDg0MDcsImV4cCI6MjEwOTc4NDQwN30.fk-THKxFxXQgNVf_U62FkaiO3xc8TmIDLpyUyJVEKT4"
+SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnZnZvbG54dHZubXZveG53c3phIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5NDIwODQwNywiZXhwIjoyMTA5Nzg0NDA3fQ.fXQ2LjYma2vx7wZd96OeThtwfGl978FbspChSbTAaR0"
+SHARED_TELEMETRY_HMAC_SECRET = "rtm_saas_hmac_secret_2026_enterprise_9988"

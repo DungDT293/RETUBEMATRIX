@@ -165,7 +165,7 @@ export function BatchBktTestModal({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="auto" className="text-xs font-medium text-primary">
-                    ⚡ Tự động phân bổ thông minh (Load Balancing theo Quota)
+                    Tự động phân bổ thông minh (Load Balancing theo Quota)
                   </SelectItem>
                   {activeChannels.map((c) => (
                     <SelectItem

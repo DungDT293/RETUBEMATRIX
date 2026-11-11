@@ -11,7 +11,7 @@
     "ai": "AI 機能",
     "network": "ネットワーク＆認証",
     "system": "システム",
-    "about": "このアプリについて",
+    "about": "アプリとバージョン情報",
     "pluginStore": "Plugin Store"
   },
   "search": {
@@ -850,8 +850,8 @@
     "cliOpenGuide": "CLI ガイドを開く"
   },
   "about": {
-    "title": "このアプリについて",
-    "description": "アプリケーション情報",
+    "title": "アプリとバージョン情報",
+    "description": "アプリケーション情報と最新バージョンの確認",
     "appDesc": "オールインワン動画ツールキット — ダウンロード、編集、チャンネルフォロー＆AI 要約",
     "checkingUpdates": "更新を確認中...",
     "versionAvailable": "v{{version}} が利用可能です",

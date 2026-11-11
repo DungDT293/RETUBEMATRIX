@@ -20,7 +20,11 @@
     "profiles": "Brauzer profillari",
     "dashboard": "Boshqaruv paneli",
     "reup": "Reup & BKT Test",
-    "outliers": "Tavsiya Ovchisi"
+    "outliers": "Tavsiya Ovchisi",
+    "saas": "Tizim boshqaruvi",
+    "saasOwner": "Tizim boshqaruvi",
+    "saasAdmin": "Kompaniya boshqaruvi",
+    "saasLeader": "Jamoa boshqaruvi"
   },
   "language": {
     "en": "English",

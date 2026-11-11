@@ -20,7 +20,11 @@
     "profiles": "โปรไฟล์เบราว์เซอร์",
     "dashboard": "แผงควบคุม",
     "reup": "Reup & BKT Test",
-    "outliers": "ค้นหาวิดีโอแนะนำ"
+    "outliers": "ค้นหาวิดีโอแนะนำ",
+    "saas": "การจัดการระบบ",
+    "saasOwner": "การจัดการระบบ",
+    "saasAdmin": "การจัดการบริษัท",
+    "saasLeader": "การจัดการทีม"
   },
   "language": {
     "en": "English",

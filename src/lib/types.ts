@@ -813,6 +813,13 @@ export interface VideoInfo {
   is_live?: boolean; // true if currently live streaming
   was_live?: boolean; // true if was a live stream (now ended)
   live_status?: 'is_live' | 'was_live' | 'not_live' | 'is_upcoming';
+  // VidIQ / SEO / Enhanced metadata
+  description?: string;
+  tags?: string[];
+  categories?: string[];
+  channel_follower_count?: number;
+  like_count?: number;
+  comment_count?: number;
 }
 
 export interface FormatOption {
@@ -1395,6 +1402,7 @@ export interface ChannelVideo {
   bkt_check_status?: 'pending' | 'green_clean' | 'red_matched';
   bkt_restriction?: string;
   reup_pipeline_level?: number;
+  is_downloaded?: number | boolean;
 }
 
 export interface ReupPipelineResult {
@@ -1516,6 +1524,7 @@ export interface MultiBrowserUploadParams {
   video_path: string;
   title: string;
   description: string;
+  tags?: string;
   thumbnail_path?: string;
   visibility?: 'public' | 'unlisted' | 'private' | 'schedule';
   schedule_date?: string;
@@ -1542,6 +1551,8 @@ export interface MultiBrowserProxyTestResult {
   city?: string;
   org?: string;
   error?: string;
+  scheme?: string;
+  canonical_url?: string;
 }
 
 export interface BktTestChannel {
@@ -1597,6 +1608,12 @@ export interface BktTestJob {
   testedDate: string;
   createdAt: string;
   updatedAt: string;
+  mainTargetProfileId?: string | null;
+  autoPublishMain?: boolean | null;
+  targetTitle?: string | null;
+  targetDescription?: string | null;
+  targetTags?: string | null;
+  thumbnailPath?: string | null;
 }
 
 export interface BktBatchItemRequest {
@@ -1604,11 +1621,18 @@ export interface BktBatchItemRequest {
   videoPath: string;
   videoSourceType?: string;
   sourceRefId?: string;
+  mainTargetProfileId?: string | null;
+  autoPublishMain?: boolean | null;
+  targetTitle?: string | null;
+  targetDescription?: string | null;
+  targetTags?: string | null;
+  thumbnailPath?: string | null;
 }
 
 export interface BktBatchDispatchRequest {
   items: BktBatchItemRequest[];
-  targetTestChannelId?: string;
+  targetTestChannelId?: string | null;
+  sequential?: boolean;
 }
 
 export interface BktDispatchItemResult {
@@ -1626,4 +1650,31 @@ export interface BktDispatchResult {
   totalDispatched: number;
   results: BktDispatchItemResult[];
   error?: string;
+}
+
+export interface DailyTimelineEvent {
+  id: string;
+  eventType: 'auto_publish' | 'bkt_test' | 'download' | 'discovered' | string;
+  time: string;
+  timestamp: string;
+  title: string;
+  channelName?: string;
+  status: string;
+  details?: string;
+}
+
+export interface DailyReportStats {
+  targetDate: string;
+  totalDiscoveredToday: number;
+  totalDownloadedToday: number;
+  totalDownloadSizeBytes: number;
+  totalBktTestedToday: number;
+  bktCleanCount: number;
+  bktClaimedCount: number;
+  bktPendingCount: number;
+  totalPublishedMainToday: number;
+  testQuotaTotal: number;
+  testQuotaUsed: number;
+  testQuotaRemaining: number;
+  timelineEvents: DailyTimelineEvent[];
 }

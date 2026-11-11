@@ -20,7 +20,11 @@
     "profiles": "Tarayıcı Profilleri",
     "dashboard": "Gösterge Paneli",
     "reup": "Reup & BKT Test",
-    "outliers": "Öneri Avcısı"
+    "outliers": "Öneri Avcısı",
+    "saas": "Sistem Yönetimi",
+    "saasOwner": "Sistem Yönetimi",
+    "saasAdmin": "Şirket Yönetimi",
+    "saasLeader": "Takım Yönetimi"
   },
   "language": {
     "en": "English",

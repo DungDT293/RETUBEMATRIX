@@ -35,6 +35,7 @@ import type {
   MultiBrowserProfileInput,
   MultiBrowserProxyTestResult,
 } from '@/lib/types';
+import { workTelemetryService } from '@/services/workTelemetryService';
 
 const STATUS_CONFIG: Record<string, { label: string; pill: string; dot: string }> = {
   idle: { label: 'Sẵn sàng', pill: 'pill-neutral', dot: 'bg-muted-foreground' },
@@ -88,11 +89,16 @@ function maskProxy(proxy?: string) {
   try {
     const raw = proxy.trim();
     if (!raw) return '';
-    const atParts = raw.split('@');
+    const withoutScheme = raw.replace(/^(https?:\/\/|socks[45]h?:\/\/)/i, '');
+    const atParts = withoutScheme.split('@');
     if (atParts.length > 1) {
       return atParts[1];
     }
-    return raw.replace(/^(https?:\/\/|socks5:\/\/)/, '');
+    const colonParts = withoutScheme.split(':');
+    if (colonParts.length >= 4) {
+      return `${colonParts[0]}:${colonParts[1]}`;
+    }
+    return withoutScheme;
   } catch {
     return proxy || '';
   }
@@ -141,9 +147,11 @@ const DEFAULT_PROFILE_COLUMN_VISIBILITY: ProfileColumnVisibility = {
   proxyRisk: true,
 };
 
+let cachedProfilesList: MultiBrowserProfile[] | null = null;
+
 export function ProfilesPage() {
-  const [profiles, setProfiles] = useState<MultiBrowserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [profiles, setProfiles] = useState<MultiBrowserProfile[]>(() => cachedProfilesList || []);
+  const [loading, setLoading] = useState(() => !cachedProfilesList);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -242,12 +250,14 @@ export function ProfilesPage() {
 
   // Fetch profiles
   const fetchProfiles = useCallback(async (opts?: { silent?: boolean }) => {
-    const silent = opts?.silent ?? false;
+    const silent = opts?.silent ?? cachedProfilesList !== null;
     try {
       if (!silent) setLoading(true);
       setError('');
       const data = await invoke<MultiBrowserProfile[]>('get_multibrowser_profiles');
-      setProfiles(data || []);
+      const list = data || [];
+      cachedProfilesList = list;
+      setProfiles(list);
     } catch (err) {
       console.error('Lỗi khi tải profiles:', err);
       setError(String(err));
@@ -395,6 +405,18 @@ export function ProfilesPage() {
       };
 
       await invoke('save_multibrowser_profile', { profile: payload });
+
+      // Telemetry: Đồng bộ kênh đích lên máy chủ
+      if (payload.id) {
+        workTelemetryService.syncManagedChannel({
+          channel_type: 'target',
+          channel_id: payload.id,
+          channel_title: payload.youtube_preferred_channel || payload.profile_name,
+          profile_id: payload.id,
+          action: 'upsert',
+        });
+      }
+
       setIsDialogOpen(false);
       setMessage(editingProfile ? 'Đã cập nhật hồ sơ!' : 'Đã tạo hồ sơ mới thành công!');
       await fetchProfiles();
@@ -413,6 +435,15 @@ export function ProfilesPage() {
     try {
       setActionLoadingId(p.id);
       await invoke('delete_multibrowser_profile', { profileId: p.id });
+
+      // Telemetry: Đồng bộ xóa kênh đích 1-1
+      workTelemetryService.syncManagedChannel({
+        channel_type: 'target',
+        channel_id: p.id,
+        channel_title: p.profile_name,
+        action: 'delete',
+      });
+
       setMessage(`Đã gỡ hồ sơ "${p.profile_name}"`);
       await fetchProfiles();
     } catch (err) {
@@ -1285,26 +1316,39 @@ export function ProfilesPage() {
                 </button>
               </div>
               <Input
-                placeholder="ip:port hoặc user:pass@ip:port"
+                placeholder="IP:Port:User:Pass (Cloudmini) hoặc user:pass@ip:port"
                 value={formProxy}
                 onChange={(e) => setFormProxy(e.target.value)}
                 className="mt-1 font-mono text-xs"
               />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Hỗ trợ chuẩn Cloudmini:{' '}
+                <span className="font-mono text-foreground font-medium">IP:Port:User:Pass</span>.
+                Khuyên dùng Port HTTPS (ví dụ:{' '}
+                <span className="font-mono text-foreground">20550</span>) cho Chromium.
+              </p>
               {proxyTestResult && (
                 <div
                   className={`mt-1.5 p-2 rounded text-xs ${
                     proxyTestResult.success
-                      ? 'bg-emerald-500/10 text-emerald-400'
-                      : 'bg-destructive/10 text-destructive'
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      : 'bg-destructive/10 text-destructive border border-destructive/20'
                   }`}
                 >
                   {proxyTestResult.success ? (
-                    <span>
-                      ✓ Kết nối thành công! IP: {proxyTestResult.ip} • {proxyTestResult.latency_ms}
-                      ms • {proxyTestResult.country || 'N/A'}
-                    </span>
+                    <div>
+                      <div className="font-semibold">
+                        Kết nối thành công! IP: {proxyTestResult.ip} (
+                        {proxyTestResult.scheme?.toUpperCase() || 'HTTP'})
+                      </div>
+                      <div className="text-[11px] opacity-80 mt-0.5">
+                        Độ trễ: {proxyTestResult.latency_ms}ms • Quốc gia:{' '}
+                        {proxyTestResult.country || 'N/A'}
+                        {proxyTestResult.city ? ` (${proxyTestResult.city})` : ''}
+                      </div>
+                    </div>
                   ) : (
-                    <span>✗ Thất bại: {proxyTestResult.error || 'Không thể kết nối proxy'}</span>
+                    <span>Thất bại: {proxyTestResult.error || 'Không thể kết nối proxy'}</span>
                   )}
                 </div>
               )}

@@ -4,8 +4,18 @@ use md5::{Digest as Md5Digest, Md5};
 use sha2::{Digest as Sha2Digest, Sha256};
 use std::path::PathBuf;
 use std::process::Stdio;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
+use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ReupProgressPayload {
+    pub percent: f64,
+    pub speed: Option<String>,
+    pub fps: Option<f64>,
+    pub eta_seconds: Option<u64>,
+    pub status: String,
+}
 
 const SOURCE_CONFIG_FILE: &str = "ffmpeg-source.txt";
 const RELEASE_VERSION_FILE: &str = "ffmpeg-release-version.txt";
@@ -296,6 +306,148 @@ pub async fn probe_audio_sample_rate(app: &AppHandle, input_path: &str) -> u32 {
     }
     // Default fallback: 48000 Hz (standard YouTube & broadcast audio)
     48000
+}
+
+/// Đo thời lượng thực tế của video nguồn bằng ffprobe
+pub async fn probe_video_duration(app: &AppHandle, input_path: &str) -> Option<f64> {
+    let ffprobe_path = get_ffprobe_path(app).await?;
+    let mut cmd = Command::new(&ffprobe_path);
+    cmd.args([
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        input_path,
+    ]);
+    cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+    cmd.hide_window();
+
+    let output = cmd.output().await.ok()?;
+    if output.status.success() {
+        let text = String::from_utf8_lossy(&output.stdout);
+        text.trim().parse::<f64>().ok()
+    } else {
+        None
+    }
+}
+
+/// Tính toán số luồng CPU an toàn chống nghẽn trên VPS ít core
+pub fn get_safe_ffmpeg_threads() -> String {
+    let available_cores = std::thread::available_parallelism()
+        .map(|n| n.get())
+        .unwrap_or(2);
+    if available_cores <= 4 {
+        // Trên VPS 2-4 vCPU, chừa lại 1 core cho hệ điều hành và browser không bị freeze
+        (available_cores.saturating_sub(1)).max(1).to_string()
+    } else {
+        "0".to_string()
+    }
+}
+
+/// Thực thi lệnh FFmpeg với streaming progress thời gian thực lên Frontend
+async fn execute_ffmpeg_with_progress(
+    app: &AppHandle,
+    mut cmd: Command,
+    total_duration: f64,
+    stage_name: &str,
+) -> Result<(), String> {
+    cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+    let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn FFmpeg: {}", e))?;
+
+    let stdout = child.stdout.take().ok_or_else(|| "Failed to open FFmpeg stdout".to_string())?;
+    let stderr = child.stderr.take().ok_or_else(|| "Failed to open FFmpeg stderr".to_string())?;
+
+    let app_handle = app.clone();
+    let stage = stage_name.to_string();
+    let stage_in_task = stage.clone();
+
+    let progress_task = tokio::spawn(async move {
+        let reader = BufReader::new(stdout);
+        let mut lines = reader.lines();
+        let mut last_percent = 0.0;
+        let mut current_speed: Option<String> = None;
+        let mut current_fps: Option<f64> = None;
+
+        while let Ok(Some(line)) = lines.next_line().await {
+            let line = line.trim();
+            if let Some(val) = line.strip_prefix("speed=") {
+                current_speed = Some(val.trim().to_string());
+            } else if let Some(val) = line.strip_prefix("fps=") {
+                current_fps = val.trim().parse::<f64>().ok();
+            } else if let Some(val) = line.strip_prefix("out_time_us=") {
+                if let Ok(us) = val.trim().parse::<f64>() {
+                    let sec = us / 1_000_000.0;
+                    let percent = if total_duration > 0.0 {
+                        ((sec / total_duration) * 100.0).clamp(0.0, 99.0)
+                    } else {
+                        50.0
+                    };
+
+                    if (percent - last_percent).abs() >= 1.0 || percent >= 98.0 {
+                        last_percent = percent;
+                        let eta = if let Some(ref spd) = current_speed {
+                            if let Ok(s) = spd.trim_end_matches('x').parse::<f64>() {
+                                if s > 0.0 && total_duration > sec {
+                                    Some(((total_duration - sec) / s).round() as u64)
+                                } else {
+                                    None
+                                }
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        };
+
+                        let _ = app_handle.emit(
+                            "reup-pipeline-progress",
+                            &ReupProgressPayload {
+                                percent: (percent * 10.0).round() / 10.0,
+                                speed: current_speed.clone(),
+                                fps: current_fps,
+                                eta_seconds: eta,
+                                status: format!("Đang render {stage_in_task}: {:.1}%", percent),
+                            },
+                        );
+                    }
+                }
+            }
+        }
+    });
+
+    let stderr_task = tokio::spawn(async move {
+        let mut err_str = String::new();
+        let reader = BufReader::new(stderr);
+        let mut lines = reader.lines();
+        while let Ok(Some(l)) = lines.next_line().await {
+            err_str.push_str(&l);
+            err_str.push('\n');
+        }
+        err_str
+    });
+
+    let status = child.wait().await.map_err(|e| format!("FFmpeg wait failed: {}", e))?;
+    let _ = progress_task.await;
+    let stderr_output = stderr_task.await.unwrap_or_default();
+
+    if !status.success() {
+        return Err(format!("FFmpeg failed: {}", stderr_output));
+    }
+
+    let _ = app.emit(
+        "reup-pipeline-progress",
+        &ReupProgressPayload {
+            percent: 100.0,
+            speed: None,
+            fps: None,
+            eta_seconds: None,
+            status: format!("{stage} hoàn tất 100%"),
+        },
+    );
+
+    Ok(())
 }
 
 /// Parse FFmpeg version from output
@@ -838,6 +990,8 @@ pub async fn run_reup_pipeline_v1(
     ));
     let temp_output_str = temp_output_path.to_string_lossy().to_string();
     let sr = probe_audio_sample_rate(app, input_path).await;
+    let total_duration = probe_video_duration(app, input_path).await.unwrap_or(0.0);
+    let safe_threads = get_safe_ffmpeg_threads();
 
     let vf = "scale=iw*1.01:ih*1.01,crop=iw/1.01:ih/1.01,setpts=PTS/1.03";
     let af = format!("asetrate={sr}*1.02,aresample={sr},atempo={:.6}", 1.03 / 1.02);
@@ -845,12 +999,16 @@ pub async fn run_reup_pipeline_v1(
     let mut cmd = Command::new(&ffmpeg_path);
     cmd.args([
         "-y",
+        "-threads", &safe_threads,
+        "-progress", "pipe:1",
+        "-nostats",
         "-i", input_path,
         "-vf", vf,
         "-af", &af,
         "-c:v", "libx264",
-        "-preset", "veryfast",
+        "-preset", "ultrafast",
         "-crf", "20",
+        "-tune", "fastdecode",
         "-c:a", "aac",
         "-b:a", "192k",
         "-map_metadata", "-1",
@@ -862,11 +1020,9 @@ pub async fn run_reup_pipeline_v1(
     ]);
     cmd.hide_window();
 
-    let output = cmd.output().await.map_err(|e| format!("Failed to execute FFmpeg: {}", e))?;
-    if !output.status.success() {
+    if let Err(e) = execute_ffmpeg_with_progress(app, cmd, total_duration, "Reup Cấp 1").await {
         std::fs::remove_file(&temp_output_path).ok();
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("FFmpeg Reup Pipeline V1 failed: {}", stderr));
+        return Err(format!("FFmpeg Reup Pipeline V1 failed: {}", e));
     }
 
     let target_output_str = target_output_buf.to_string_lossy().to_string();
@@ -954,19 +1110,25 @@ pub async fn run_reup_pipeline_v2(
     ));
     let temp_output_str = temp_output_path.to_string_lossy().to_string();
     let sr = probe_audio_sample_rate(app, input_path).await;
+    let total_duration = probe_video_duration(app, input_path).await.unwrap_or(0.0);
+    let safe_threads = get_safe_ffmpeg_threads();
 
-    let vf = "hflip,eq=contrast=1.04:brightness=0.02:saturation=1.05,scale=iw*1.02:ih*1.02,crop=iw/1.02:ih/1.02,setpts=PTS/1.05";
+    let vf = "hflip,scale=iw*1.03:ih*1.03,crop=iw/1.03:ih/1.03,noise=alls=2:allf=t+u,eq=contrast=1.05:brightness=0.03:saturation=1.05,setpts=PTS/1.05";
     let af = format!("asetrate={sr}*1.04,aresample={sr},atempo={:.6}", 1.05 / 1.04);
 
     let mut cmd = Command::new(&ffmpeg_path);
     cmd.args([
         "-y",
+        "-threads", &safe_threads,
+        "-progress", "pipe:1",
+        "-nostats",
         "-i", input_path,
         "-vf", vf,
         "-af", &af,
         "-c:v", "libx264",
-        "-preset", "veryfast",
+        "-preset", "ultrafast",
         "-crf", "21",
+        "-tune", "fastdecode",
         "-c:a", "aac",
         "-b:a", "192k",
         "-map_metadata", "-1",
@@ -978,11 +1140,9 @@ pub async fn run_reup_pipeline_v2(
     ]);
     cmd.hide_window();
 
-    let output = cmd.output().await.map_err(|e| format!("Failed to execute FFmpeg: {}", e))?;
-    if !output.status.success() {
+    if let Err(e) = execute_ffmpeg_with_progress(app, cmd, total_duration, "Reup Cấp 2").await {
         std::fs::remove_file(&temp_output_path).ok();
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(format!("FFmpeg Reup Pipeline V2 failed: {}", stderr));
+        return Err(format!("FFmpeg Reup Pipeline V2 failed: {}", e));
     }
 
     let target_output_str = target_output_buf.to_string_lossy().to_string();

@@ -10,6 +10,12 @@ mod providers;
 pub use dispatch::*;
 use providers::*;
 
+pub async fn generate_ai_text(config: &AIConfig, prompt: &str) -> Result<String, AIError> {
+    providers::generate_raw_for_provider(config, prompt)
+        .await
+        .map(|r| r.summary)
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum AIProvider {
@@ -74,7 +80,7 @@ impl Default for AIConfig {
             enabled: false,
             provider: AIProvider::Gemini,
             api_key: None,
-            model: "gemini-3.5-flash".to_string(),
+            model: "gemini-2.0-flash".to_string(),
             ollama_url: Some("http://localhost:11434".to_string()),
             lmstudio_url: Some("http://localhost:1234".to_string()),
             proxy_url: Some("https://api.openai.com".to_string()),

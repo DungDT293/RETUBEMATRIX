@@ -46,6 +46,19 @@ impl Default for OutlierHunterSettings {
     }
 }
 
+fn deserialize_optional_string_or_seq<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let value = serde_json::Value::deserialize(deserializer)?;
+    match value {
+        serde_json::Value::Null => Ok(None),
+        serde_json::Value::String(s) => Ok(Some(s)),
+        serde_json::Value::Array(arr) => Ok(Some(serde_json::to_string(&arr).unwrap_or_default())),
+        _ => Ok(Some(value.to_string())),
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(default)]
 pub struct OutlierVideo {
@@ -79,6 +92,10 @@ pub struct OutlierVideo {
     pub hook_analysis: Option<String>,
     pub created_at: String,
     pub last_ping_at: String,
+    #[serde(default, deserialize_with = "deserialize_optional_string_or_seq")]
+    pub tags: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_optional_string_or_seq")]
+    pub categories: Option<String>,
 }
 
 /// Get outlier settings or create default
@@ -218,7 +235,7 @@ pub fn get_outlier_videos_db(
                             sub_outlier_ratio, baseline_median_views, baseline_outlier_ratio,
                             engagement_rate, view_history, status, local_filepath,
                             reup_filepath, bkt_status, opportunity_score, demand_signal,
-                            hook_analysis, created_at, last_ping_at
+                            hook_analysis, created_at, last_ping_at, tags, categories
                      FROM outlier_videos WHERE 1=1".to_string();
 
     let mut params_vec: Vec<rusqlite::types::Value> = Vec::new();
@@ -270,6 +287,8 @@ pub fn get_outlier_videos_db(
                 hook_analysis: row.get(27)?,
                 created_at: row.get(28)?,
                 last_ping_at: row.get(29)?,
+                tags: row.get(30)?,
+                categories: row.get(31)?,
             })
         })
         .map_err(|e| format!("Query map failed: {e}"))?
@@ -290,7 +309,7 @@ pub fn upsert_outlier_video_db(v: &OutlierVideo) -> Result<(), String> {
             sub_outlier_ratio, baseline_median_views, baseline_outlier_ratio,
             engagement_rate, view_history, status, local_filepath,
             reup_filepath, bkt_status, opportunity_score, demand_signal,
-            hook_analysis, created_at, last_ping_at
+            hook_analysis, created_at, last_ping_at, tags, categories
         ) VALUES (
             ?1, ?2, ?3, ?4, ?5, ?6,
             ?7, ?8, ?9, ?10, ?11, ?12,
@@ -298,7 +317,7 @@ pub fn upsert_outlier_video_db(v: &OutlierVideo) -> Result<(), String> {
             ?17, ?18, ?19,
             ?20, ?21, ?22, ?23,
             ?24, ?25, ?26, ?27,
-            ?28, ?29, ?30
+            ?28, ?29, ?30, ?31, ?32
         )
         ON CONFLICT(id) DO UPDATE SET
             views = excluded.views,
@@ -316,6 +335,8 @@ pub fn upsert_outlier_video_db(v: &OutlierVideo) -> Result<(), String> {
             opportunity_score = CASE WHEN excluded.opportunity_score IS NOT NULL AND excluded.opportunity_score > 0.0 THEN excluded.opportunity_score ELSE outlier_videos.opportunity_score END,
             demand_signal = CASE WHEN excluded.demand_signal IS NOT NULL AND excluded.demand_signal != '' THEN excluded.demand_signal ELSE outlier_videos.demand_signal END,
             hook_analysis = CASE WHEN excluded.hook_analysis IS NOT NULL AND excluded.hook_analysis != '' THEN excluded.hook_analysis ELSE outlier_videos.hook_analysis END,
+            tags = CASE WHEN excluded.tags IS NOT NULL AND excluded.tags != '' THEN excluded.tags ELSE outlier_videos.tags END,
+            categories = CASE WHEN excluded.categories IS NOT NULL AND excluded.categories != '' THEN excluded.categories ELSE outlier_videos.categories END,
             last_ping_at = excluded.last_ping_at",
         params![
             v.id,
@@ -348,6 +369,8 @@ pub fn upsert_outlier_video_db(v: &OutlierVideo) -> Result<(), String> {
             v.hook_analysis,
             v.created_at,
             v.last_ping_at,
+            v.tags,
+            v.categories,
         ],
     )
     .map_err(|e| format!("Failed to upsert outlier video: {e}"))?;

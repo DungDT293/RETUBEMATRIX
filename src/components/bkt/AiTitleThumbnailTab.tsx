@@ -1,5 +1,6 @@
-import { Check, Copy, Download, Palette, RefreshCw, Sparkles, Type } from 'lucide-react';
+import { Check, Copy, Download, Palette, RefreshCw, Sparkles, Tag, Type } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { CompetitorAiStudioModal } from '@/components/outliers/CompetitorAiStudioModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -14,12 +15,15 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/components/ui/toast';
+import { extractVideoSeoTags } from '@/contexts/outliers/outliers-client';
 import { cn } from '@/lib/utils';
-import { generateAllHookTitles } from '@/utils/reup-auto-pilot';
+import { detectGenre, detectTitleLanguage, generateAllHookTitles } from '@/utils/reup-auto-pilot';
 
 export interface AiTitleThumbnailTabProps {
   activeVideoTitle?: string;
   activeThumbnailPath?: string;
+  activeVideoUrl?: string;
+  activeTags?: string[];
   onApplyTitle?: (title: string) => void;
   onApplyThumbnail?: (thumbPath: string) => void;
   onNavigateToBkt?: () => void;
@@ -28,6 +32,8 @@ export interface AiTitleThumbnailTabProps {
 export function AiTitleThumbnailTab({
   activeVideoTitle,
   activeThumbnailPath,
+  activeVideoUrl,
+  activeTags,
   onApplyTitle,
   onApplyThumbnail,
   onNavigateToBkt,
@@ -44,6 +50,25 @@ export function AiTitleThumbnailTab({
   const [refreshSeed, setRefreshSeed] = useState(0);
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
   const [copiedTitleIndex, setCopiedTitleIndex] = useState<number | null>(null);
+  const [aiStudioOpen, setAiStudioOpen] = useState(false);
+
+  // ================= STATE SPY TAGS (VIDIQ STYLE) =================
+  const [videoUrlInput, setVideoUrlInput] = useState(activeVideoUrl || '');
+  const [tags, setTags] = useState<string[]>(
+    activeTags && activeTags.length > 0
+      ? activeTags
+      : [
+          'nấu ăn 1 mình',
+          'món ăn sinh viên',
+          'cơm lười',
+          'bữa ăn nhanh',
+          'công thức nấu ăn',
+          'ẩm thực đơn giản',
+          'meal prep 1 người',
+          'tự nấu ăn tại nhà',
+        ],
+  );
+  const [isExtractingTags, setIsExtractingTags] = useState(false);
 
   // ================= STATE THUMBNAIL =================
   const [thumbnailUrl, setThumbnailUrl] = useState(
@@ -68,10 +93,88 @@ export function AiTitleThumbnailTab({
     }
   }, [activeThumbnailPath]);
 
+  useEffect(() => {
+    if (activeVideoUrl?.trim()) {
+      setVideoUrlInput(activeVideoUrl.trim());
+    }
+  }, [activeVideoUrl]);
+
+  useEffect(() => {
+    if (activeTags && activeTags.length > 0) {
+      setTags(activeTags);
+    }
+  }, [activeTags]);
+
+  const handleExtractTags = async () => {
+    if (!videoUrlInput.trim()) {
+      toast.warning({
+        title: 'Chưa có link video',
+        description: 'Vui lòng dán link video YouTube đối thủ để trích xuất Spy Tags.',
+      });
+      return;
+    }
+    setIsExtractingTags(true);
+    try {
+      const res = await extractVideoSeoTags(videoUrlInput.trim());
+      if (res.tags && res.tags.length > 0) {
+        setTags(res.tags);
+        if (res.title && !activeVideoTitle) {
+          setOriginalTitle(res.title);
+        }
+        toast.success({
+          title: 'Trích xuất Spy Tags thành công!',
+          description: `Đã tìm thấy ${res.tags.length} thẻ tags từ video đối thủ (chuẩn VidIQ).`,
+        });
+      } else {
+        toast.info({
+          title: 'Video không có thẻ tags công khai',
+          description: 'Đã giữ nguyên danh sách thẻ tags ngách hiện tại.',
+        });
+      }
+    } catch (err) {
+      console.error('Lỗi extractVideoSeoTags:', err);
+      toast.error({
+        title: 'Lỗi trích xuất tags',
+        description: String(err),
+      });
+    } finally {
+      setIsExtractingTags(false);
+    }
+  };
+
+  const handleCopyAllTags = () => {
+    if (tags.length === 0) return;
+    navigator.clipboard.writeText(tags.join(', '));
+    toast.success({
+      title: 'Đã sao chép Thẻ Tags!',
+      description: `Đã copy ${tags.length} tags dạng dấu phẩy (,). Sẵn sàng dán vào YouTube Studio.`,
+    });
+  };
+
+  const handleLoadTagsToAiStudio = () => {
+    setAiStudioOpen(true);
+    toast.info({
+      title: 'Đã nạp Tags vào AI Studio',
+      description: `Đang mở Competitor AI Studio với ${tags.length} thẻ tags đối thủ.`,
+    });
+  };
+
+  // Tự động nhận diện Ngôn ngữ & Thể loại nội dung của tiêu đề
+  const detectedLang = useMemo(() => detectTitleLanguage(originalTitle), [originalTitle]);
+  const detectedGenre = useMemo(() => detectGenre(originalTitle), [originalTitle]);
+
   // Generate 95% Core + 5% Hook Variations (Word Boundary & Dynamic CTR)
   const generatedTitles = useMemo(() => {
-    return generateAllHookTitles(originalTitle, hookStyle, refreshSeed);
-  }, [originalTitle, hookStyle, refreshSeed]);
+    return generateAllHookTitles(
+      originalTitle,
+      hookStyle,
+      refreshSeed,
+      undefined,
+      tags,
+      detectedGenre,
+      detectedLang,
+    );
+  }, [originalTitle, hookStyle, refreshSeed, tags, detectedGenre, detectedLang]);
 
   const handleCopyTitle = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
@@ -196,6 +299,16 @@ export function AiTitleThumbnailTab({
               </p>
             </div>
           </div>
+
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setAiStudioOpen(true)}
+            className="bg-purple-600 hover:bg-purple-700 text-white text-xs gap-1.5 font-medium shadow-sm shrink-0"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Competitor AI Studio
+          </Button>
         </div>
       </div>
 
@@ -207,7 +320,26 @@ export function AiTitleThumbnailTab({
               <Type className="w-4 h-4 text-purple-400" />
               <span>Tối Ưu Tiêu Đề (Giữ 95% + Đổi 5% Hook)</span>
             </div>
-            <span className="text-[11px] text-muted-foreground">Chuẩn thuật toán YouTube 2026</span>
+            <div className="flex items-center gap-1.5">
+              <Badge
+                variant="outline"
+                className="text-[10px] font-semibold uppercase px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+              >
+                {detectedLang === 'vi' ? 'VI' : 'EN'}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="text-[10px] font-semibold capitalize px-1.5 py-0.5 bg-purple-500/10 text-purple-400 border-purple-500/30"
+              >
+                {detectedGenre === 'music'
+                  ? 'Phonk/Music 🎵'
+                  : detectedGenre === 'gaming'
+                    ? 'Gaming 🎮'
+                    : detectedGenre === 'howto'
+                      ? 'How-to 🛠️'
+                      : 'General 🎬'}
+              </Badge>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -515,6 +647,111 @@ export function AiTitleThumbnailTab({
           </div>
         </Card>
       </div>
+
+      {/* CARD: SPY TAGS & TỪ KHÓA VIDEO GỐC (VIDIQ STYLE) */}
+      <Card className="p-5 border-border/60 bg-gradient-to-br from-card via-card to-teal-500/5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center border border-teal-500/30">
+              <Tag className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-foreground">
+                  Spy Tags & Từ Khóa Video Gốc (VidIQ Style)
+                </span>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] bg-teal-500/10 text-teal-400 border-teal-500/30"
+                >
+                  {tags.length} thẻ tags
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Bóc tách toàn bộ thẻ tag ẩn của video đối thủ và ăn theo luồng đề xuất thuật toán
+                YouTube.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopyAllTags}
+              disabled={tags.length === 0}
+              className="h-8 px-3 text-xs gap-1.5 border-teal-500/40 text-teal-300 hover:bg-teal-500/10 font-medium"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              <span>Sao chép Thẻ Tags (,)</span>
+            </Button>
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleLoadTagsToAiStudio}
+              className="h-8 px-3 text-xs gap-1.5 bg-purple-600 hover:bg-purple-700 text-white font-medium"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Nạp Tags vào AI Studio</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Input Bar to Extract From Any Video URL */}
+        <div className="flex items-center gap-2">
+          <Input
+            value={videoUrlInput}
+            onChange={(e) => setVideoUrlInput(e.target.value)}
+            placeholder="Dán link video YouTube đối thủ để bóc tách tags ngay (https://youtube.com/watch?v=...)..."
+            className="text-xs h-9 bg-background/50 font-mono text-[11px]"
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExtractTags}
+            disabled={isExtractingTags || !videoUrlInput.trim()}
+            className="h-9 px-3.5 text-xs gap-1.5 border-teal-500/40 text-teal-300 hover:bg-teal-500/10 shrink-0 font-medium"
+          >
+            <RefreshCw className={cn('w-3.5 h-3.5', isExtractingTags && 'animate-spin')} />
+            <span>{isExtractingTags ? 'Đang trích xuất...' : 'Trích Xuất Spy Tags'}</span>
+          </Button>
+        </div>
+
+        {/* Tags Chips Display */}
+        <div className="flex flex-wrap gap-2 p-3 rounded-lg border border-border/50 bg-background/40 max-h-48 overflow-y-auto">
+          {tags.map((t, idx) => (
+            <Badge
+              key={idx}
+              variant="outline"
+              onClick={() => {
+                navigator.clipboard.writeText(t);
+                toast.success({
+                  title: 'Đã sao chép tag',
+                  description: t,
+                });
+              }}
+              title="Bấm để sao chép tag này"
+              className="cursor-pointer px-2.5 py-1 text-xs gap-1.5 bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border-teal-500/30 transition-all font-medium"
+            >
+              <span>#{t}</span>
+              <Copy className="w-2.5 h-2.5 opacity-60 hover:opacity-100" />
+            </Badge>
+          ))}
+        </div>
+      </Card>
+
+      <CompetitorAiStudioModal
+        isOpen={aiStudioOpen}
+        onClose={() => setAiStudioOpen(false)}
+        initialTitle={originalTitle}
+        initialCompetitorTags={tags}
+        initialCompetitorKeywords={tags}
+        onApplyTitle={(t) => {
+          setOriginalTitle(t);
+          onApplyTitle?.(t);
+        }}
+      />
     </div>
   );
 }

@@ -20,7 +20,11 @@
     "profiles": "Profiluri de browser",
     "dashboard": "Panou de control",
     "reup": "Reup & BKT Test",
-    "outliers": "Vânător de Sugestii"
+    "outliers": "Vânător de Sugestii",
+    "saas": "Administrare sistem",
+    "saasOwner": "System Management",
+    "saasAdmin": "Company Management",
+    "saasLeader": "Team Management"
   },
   "language": {
     "en": "English",

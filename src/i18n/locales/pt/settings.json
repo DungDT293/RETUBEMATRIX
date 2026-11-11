@@ -9,7 +9,7 @@
     "ai": "Recursos de IA",
     "network": "Rede e Autenticação",
     "system": "Sistema",
-    "about": "Sobre",
+    "about": "Sobre e Versão",
     "plugins": "Plugins",
     "pluginStore": "Plugin Store"
   },
@@ -777,8 +777,8 @@
     "cliOpenGuide": "Abrir guia da CLI"
   },
   "about": {
-    "title": "Sobre Nós",
-    "description": "Abaixo o sistema original do projeto desenvolvido!",
+    "title": "Sobre e Versão",
+    "description": "Informações da aplicação e verificação de novas atualizações",
     "appDesc": "O seu agregador, processador e gestor universal de ambientes midiáticos online para um ambiente seguro.",
     "checkingUpdates": "Processando novidades do GIT...",
     "versionAvailable": "v{{version}} pronto pra sair do forno",

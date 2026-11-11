@@ -1,6 +1,7 @@
 mod bkt_channel;
 mod browser_profile;
 mod channel;
+mod daily_report;
 mod dependencies;
 mod download;
 mod error;
@@ -13,6 +14,7 @@ mod youtube_search;
 pub use bkt_channel::*;
 pub use browser_profile::*;
 pub use channel::*;
+pub use daily_report::*;
 pub use dependencies::*;
 pub use download::*;
 pub use error::*;

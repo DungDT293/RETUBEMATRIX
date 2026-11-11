@@ -1,7 +1,7 @@
 {
   "sidebar": {
     "youtube": "YouTube",
-    "universal": "纯净下载",
+    "universal": "视频下载",
     "gallery": "图库",
     "summary": "AI 摘要",
     "processing": "视频处理",
@@ -20,7 +20,11 @@
     "profiles": "浏览器配置",
     "dashboard": "概览",
     "reup": "Reup & BKT Test",
-    "outliers": "爆发猎手"
+    "outliers": "爆发猎手",
+    "saas": "系统管理",
+    "saasOwner": "系统管理",
+    "saasAdmin": "企业管理",
+    "saasLeader": "团队管理"
   },
   "language": {
     "en": "English",

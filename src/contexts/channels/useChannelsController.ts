@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useToast } from '@/components/ui/toast';
 import { localizeProgressError, localizeUnknownError } from '@/lib/backend-error';
 import { createClientId } from '@/lib/client-id';
 import { buildDownloadDuplicateIdentity } from '@/lib/download-duplicates';
@@ -21,6 +22,12 @@ import type {
 } from '@/lib/types';
 import { DEFAULT_SPONSORBLOCK_CATEGORIES } from '@/lib/types';
 import { sanitizeYtdlpAdvancedOptions } from '@/lib/ytdlp-advanced-options';
+import { workTelemetryService } from '@/services/workTelemetryService';
+import {
+  adaptCompetitorDescription,
+  getBestAutoPilotTitle,
+  getCompanionThumbnailPath,
+} from '@/utils/reup-auto-pilot';
 import { useDownload } from '../download-context';
 import {
   buildChannelCollectionOptions,
@@ -29,9 +36,11 @@ import {
 import {
   type ChannelAutoDownloadEvent,
   checkChannelNow as checkChannelNowClient,
+  dispatchBatchBktTest,
   downloadVideoCommand,
   followChannelCommand,
   getChannelInfo,
+  getChannelVideoFilepath,
   getChannelVideos,
   getFollowedChannels,
   getNewVideosCount,
@@ -301,6 +310,12 @@ export interface ChannelsContextType {
 
 export function useChannelsController(): ChannelsContextType {
   const { filterDownloadedDuplicateCandidates } = useDownload();
+  const toast = useToast();
+  const toastRef = useRef(toast);
+
+  useEffect(() => {
+    toastRef.current = toast;
+  }, [toast]);
 
   // Followed channels state
   const [followedChannels, setFollowedChannels] = useState<FollowedChannel[]>([]);
@@ -512,6 +527,26 @@ export function useChannelsController(): ChannelsContextType {
         await refreshChannelNewCounts();
       }
 
+      // Sync telemetry: Kênh đối thủ mới được theo dõi
+      try {
+        const top5 = (browseVideos || []).slice(0, 5).map((v) => ({
+          video_id: v.id,
+          id: v.id,
+          title: v.title,
+          view_count: 0,
+          upload_date: v.upload_date || '',
+          url: v.url,
+        }));
+        workTelemetryService.syncCompetitorChannel({
+          channel_url: url,
+          channel_name: name,
+          action: 'upsert',
+          recent_5_videos: top5,
+        });
+      } catch (e) {
+        console.warn('[Telemetry] Sync follow competitor channel failed:', e);
+      }
+
       // Update tray menu with new channel
       rebuildTrayMenu().catch(() => {});
 
@@ -523,16 +558,24 @@ export function useChannelsController(): ChannelsContextType {
   // Unfollow a channel
   const unfollowChannel = useCallback(
     async (id: string) => {
+      const targetChannel = followedChannels.find((c) => c.id === id);
       await unfollowChannelCommand(id);
       setFollowedChannels((prev) => prev.filter((c) => c.id !== id));
       if (activeChannel?.id === id) {
         setActiveChannel(null);
         setActiveChannelVideos([]);
       }
+      // Sync telemetry 1-1: Xóa kênh đối thủ trên máy chủ Supabase khi người dùng unfollow
+      if (targetChannel?.url) {
+        workTelemetryService.syncCompetitorChannel({
+          channel_url: targetChannel.url,
+          action: 'delete',
+        });
+      }
       // Update tray menu
       rebuildTrayMenu().catch(() => {});
     },
-    [activeChannel],
+    [activeChannel, followedChannels],
   );
 
   // Update channel settings (check interval, auto-download, filters, reup mod, template)
@@ -1061,6 +1104,53 @@ export function useChannelsController(): ChannelsContextType {
               console.error('Failed to update video status in DB:', error);
             },
           });
+
+          // KÍCH HOẠT AUTO-PILOT NẾU KÊNH CÓ CẤU HÌNH BKT
+          const channelInfo = followedChannelsRef.current.find(
+            (c) => c.url === targetChannelUrl || c.name === targetChannelName,
+          );
+          if (channelInfo?.bkt_profile_id || channelInfo?.bkt_test_mode) {
+            try {
+              const filePath = await getChannelVideoFilepath(video.id);
+              if (filePath) {
+                const aiTitle = getBestAutoPilotTitle(video.title);
+                const adaptedDesc = adaptCompetitorDescription({
+                  originalDescription: '',
+                  targetChannelName: channelInfo.name,
+                  videoTitle: aiTitle,
+                  includeFairUseDisclaimer: true,
+                });
+                const thumbPath = getCompanionThumbnailPath(filePath);
+
+                await dispatchBatchBktTest({
+                  items: [
+                    {
+                      videoTitle: video.title,
+                      videoPath: filePath,
+                      videoSourceType: 'channel_video',
+                      sourceRefId: video.id,
+                      mainTargetProfileId: channelInfo.bkt_profile_id || null,
+                      autoPublishMain: Boolean(channelInfo.bkt_profile_id),
+                      targetTitle: aiTitle,
+                      targetDescription: adaptedDesc,
+                      thumbnailPath: thumbPath,
+                    },
+                  ],
+                  targetTestChannelId: null,
+                });
+                console.log(
+                  `[Auto-Pilot Manual] Đã điều phối video '${video.title}' vào BKT Test & Auto-Publish!`,
+                );
+                toastRef.current?.info({
+                  title: '🚀 Auto-Pilot BKT',
+                  description:
+                    'Video đã tải xong, đang tự động đưa vào Reup Lv.1 & Test Bản Quyền ngầm!',
+                });
+              }
+            } catch (autoErr) {
+              console.error('[Auto-Pilot Manual] Lỗi kích hoạt BKT Test:', autoErr);
+            }
+          }
         } catch (error) {
           const msg = localizeUnknownError(error);
           console.error(`Failed to download ${video.title}:`, error);
@@ -1526,6 +1616,23 @@ export function useChannelsController(): ChannelsContextType {
           video: ChannelVideo;
           downloadId: string;
         }) => {
+          // Bỏ qua sự kiện trực tiếp / Premiere chưa diễn ra để tránh lỗi vòng lặp tải
+          const vt = (video.video_type || '').toLowerCase();
+          const titleLower = (video.title || '').toLowerCase();
+          if (
+            vt === 'live' ||
+            vt === 'stream' ||
+            vt === 'upcoming' ||
+            video.url.includes('/live/') ||
+            titleLower.includes('sự kiện trực tiếp') ||
+            titleLower.includes('live stream') ||
+            titleLower.includes('premiere')
+          ) {
+            console.log(`[Auto-Download] Bỏ qua livestream/premiere chưa phát: ${video.title}`);
+            await updateChannelVideoStatus({ id: video.id, status: 'skipped' });
+            return;
+          }
+
           await updateChannelVideoStatus({ id: video.id, status: 'downloading' });
 
           try {
@@ -1547,6 +1654,8 @@ export function useChannelsController(): ChannelsContextType {
               logStderr,
               useBunRuntime,
               useActualPlayerJs,
+              skipLive: true,
+              skip_live: true,
               ...networkOptions,
               ...collectionOptions,
               filenameMetadataEnabled,
@@ -1567,9 +1676,63 @@ export function useChannelsController(): ChannelsContextType {
             });
 
             await updateChannelVideoStatus({ id: video.id, status: 'downloaded' });
+
+            // KÍCH HOẠT QUY TRÌNH AUTO-PILOT (REUP LV.1 -> BKT TEST -> AUTO PUBLISH MAIN CHANNEL)
+            if (targetChannel?.bkt_profile_id || targetChannel?.bkt_test_mode) {
+              try {
+                const filePath = await getChannelVideoFilepath(video.video_id);
+                if (filePath) {
+                  const aiTitle = getBestAutoPilotTitle(video.title);
+                  const adaptedDesc = adaptCompetitorDescription({
+                    originalDescription: '',
+                    targetChannelName: targetChannel.name,
+                    videoTitle: aiTitle,
+                    includeFairUseDisclaimer: true,
+                  });
+                  const thumbPath = getCompanionThumbnailPath(filePath);
+
+                  await dispatchBatchBktTest({
+                    items: [
+                      {
+                        videoTitle: video.title,
+                        videoPath: filePath,
+                        videoSourceType: 'channel_video',
+                        sourceRefId: video.id || video.video_id,
+                        mainTargetProfileId: targetChannel.bkt_profile_id || null,
+                        autoPublishMain: Boolean(targetChannel.bkt_profile_id),
+                        targetTitle: aiTitle,
+                        targetDescription: adaptedDesc,
+                        thumbnailPath: thumbPath,
+                      },
+                    ],
+                    targetTestChannelId: null,
+                  });
+                  console.log(
+                    `[Auto-Pilot] Đã điều phối video '${video.title}' vào BKT Test & Auto-Publish!`,
+                  );
+                  toastRef.current?.info({
+                    title: '🚀 Auto-Pilot',
+                    description:
+                      'Video đã tải xong, đang tự động đưa vào Reup Lv.1 & Test Bản Quyền ngầm!',
+                  });
+                }
+              } catch (autoErr) {
+                console.error('[Auto-Pilot] Lỗi kích hoạt BKT Test:', autoErr);
+              }
+            }
           } catch (error) {
             console.error(`Auto-download failed for ${video.title}:`, error);
-            await updateChannelVideoStatus({ id: video.id, status: 'new' });
+            const errMsg = String(error).toLowerCase();
+            if (
+              errMsg.includes('live event will begin') ||
+              errMsg.includes('premieres that have not started') ||
+              errMsg.includes('is offline') ||
+              errMsg.includes('live_status')
+            ) {
+              await updateChannelVideoStatus({ id: video.id, status: 'skipped' });
+            } else {
+              await updateChannelVideoStatus({ id: video.id, status: 'new' });
+            }
           }
         };
 

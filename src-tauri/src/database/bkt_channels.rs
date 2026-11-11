@@ -253,8 +253,9 @@ pub fn create_bkt_test_job_db(job: &BktTestJob) -> Result<(), String> {
         "INSERT INTO bkt_test_jobs (
             id, test_channel_id, video_source_type, source_ref_id,
             video_title, video_path, reup_path, youtube_video_id,
-            status, restriction, error_message, tested_date, created_at, updated_at
-        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?13)",
+            status, restriction, error_message, tested_date, created_at, updated_at,
+            main_target_profile_id, auto_publish_main, target_title, target_description, target_tags, thumbnail_path
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?13, ?14, ?15, ?16, ?17, ?18, ?19)",
         params![
             job.id,
             job.test_channel_id,
@@ -269,6 +270,12 @@ pub fn create_bkt_test_job_db(job: &BktTestJob) -> Result<(), String> {
             job.error_message,
             job.tested_date,
             job.created_at,
+            job.main_target_profile_id,
+            if job.auto_publish_main.unwrap_or(false) { 1 } else { 0 },
+            job.target_title,
+            job.target_description,
+            job.target_tags,
+            job.thumbnail_path,
         ],
     )
     .map_err(|e| format!("Lỗi tạo bkt_test_job: {e}"))?;
@@ -319,7 +326,9 @@ pub fn get_bkt_test_jobs_db(limit: Option<i64>) -> Result<Vec<BktTestJob>, Strin
             "SELECT j.id, j.test_channel_id, tc.name, j.video_source_type, j.source_ref_id,
                     j.video_title, j.video_path, j.reup_path, j.youtube_video_id,
                     j.status, j.restriction, j.error_message, j.tested_date,
-                    j.created_at, j.updated_at
+                    j.created_at, j.updated_at,
+                    j.main_target_profile_id, j.auto_publish_main, j.target_title,
+                    j.target_description, j.target_tags, j.thumbnail_path
              FROM bkt_test_jobs j
              LEFT JOIN bkt_test_channels tc ON j.test_channel_id = tc.id
              ORDER BY j.created_at DESC
@@ -329,6 +338,7 @@ pub fn get_bkt_test_jobs_db(limit: Option<i64>) -> Result<Vec<BktTestJob>, Strin
 
     let rows = stmt
         .query_map(params![lim], |row| {
+            let auto_pub: Option<i64> = row.get(16)?;
             Ok(BktTestJob {
                 id: row.get(0)?,
                 test_channel_id: row.get(1)?,
@@ -345,6 +355,12 @@ pub fn get_bkt_test_jobs_db(limit: Option<i64>) -> Result<Vec<BktTestJob>, Strin
                 tested_date: row.get(12)?,
                 created_at: row.get(13)?,
                 updated_at: row.get(14)?,
+                main_target_profile_id: row.get(15)?,
+                auto_publish_main: auto_pub.map(|v| v == 1),
+                target_title: row.get(17)?,
+                target_description: row.get(18)?,
+                target_tags: row.get(19)?,
+                thumbnail_path: row.get(20)?,
             })
         })
         .map_err(|e| format!("Lỗi map dữ liệu bkt_test_jobs: {e}"))?;
@@ -356,5 +372,57 @@ pub fn get_bkt_test_jobs_db(limit: Option<i64>) -> Result<Vec<BktTestJob>, Strin
         }
     }
     Ok(jobs)
+}
+
+pub fn get_bkt_test_job_by_id_db(job_id: &str) -> Result<Option<BktTestJob>, String> {
+    let conn = get_db()?;
+    let mut stmt = conn
+        .prepare(
+            "SELECT j.id, j.test_channel_id, tc.name, j.video_source_type, j.source_ref_id,
+                    j.video_title, j.video_path, j.reup_path, j.youtube_video_id,
+                    j.status, j.restriction, j.error_message, j.tested_date,
+                    j.created_at, j.updated_at,
+                    j.main_target_profile_id, j.auto_publish_main, j.target_title,
+                    j.target_description, j.target_tags, j.thumbnail_path
+             FROM bkt_test_jobs j
+             LEFT JOIN bkt_test_channels tc ON j.test_channel_id = tc.id
+             WHERE j.id = ?1",
+        )
+        .map_err(|e| format!("Lỗi truy vấn bkt_test_job theo id: {e}"))?;
+
+    let mut rows = stmt
+        .query_map(params![job_id], |row| {
+            let auto_pub: Option<i64> = row.get(16)?;
+            Ok(BktTestJob {
+                id: row.get(0)?,
+                test_channel_id: row.get(1)?,
+                test_channel_name: row.get(2)?,
+                video_source_type: row.get(3)?,
+                source_ref_id: row.get(4)?,
+                video_title: row.get(5)?,
+                video_path: row.get(6)?,
+                reup_path: row.get(7)?,
+                youtube_video_id: row.get(8)?,
+                status: row.get(9)?,
+                restriction: row.get(10)?,
+                error_message: row.get(11)?,
+                tested_date: row.get(12)?,
+                created_at: row.get(13)?,
+                updated_at: row.get(14)?,
+                main_target_profile_id: row.get(15)?,
+                auto_publish_main: auto_pub.map(|v| v == 1),
+                target_title: row.get(17)?,
+                target_description: row.get(18)?,
+                target_tags: row.get(19)?,
+                thumbnail_path: row.get(20)?,
+            })
+        })
+        .map_err(|e| format!("Lỗi map dữ liệu: {e}"))?;
+
+    if let Some(res) = rows.next() {
+        res.map(Some).map_err(|e| e.to_string())
+    } else {
+        Ok(None)
+    }
 }
 

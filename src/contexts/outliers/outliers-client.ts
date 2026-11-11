@@ -48,8 +48,11 @@ export interface OutlierVideo {
   opportunity_score?: number | null;
   demand_signal?: string | null;
   hook_analysis?: string | null;
+  competitorTags?: string[] | null;
   created_at: string;
   last_ping_at: string;
+  tags?: string | null;
+  categories?: string | null;
 }
 
 export interface KeywordGoldmine {
@@ -143,10 +146,36 @@ export async function analyzeCompetitorChannel(
   return res?.videos || [];
 }
 
-export async function triggerOutlierScan(niche?: string | null): Promise<OutlierVideo[]> {
+export interface LiveTrendingTopic {
+  title: string;
+  traffic: string;
+  pub_date: string;
+  geo: string;
+  description: string;
+}
+
+export async function triggerOutlierScan(
+  niche?: string | null,
+  timeRange?: string | null,
+  geo?: string | null,
+): Promise<OutlierVideo[]> {
   return await invoke<OutlierVideo[]>('trigger_outlier_scan_cmd', {
     niche: niche || null,
+    timeRange: timeRange || null,
+    time_range: timeRange || null,
+    geo: geo || null,
   });
+}
+
+export async function fetchLiveTrendingTopics(
+  geo: string = 'VN',
+  limit: number = 20,
+): Promise<LiveTrendingTopic[]> {
+  const res = await invoke<{ success: boolean; topics: LiveTrendingTopic[] }>(
+    'fetch_live_trending_topics_cmd',
+    { geo, limit },
+  );
+  return res?.topics || [];
 }
 
 export async function triggerOutlierPing(): Promise<OutlierVideo[]> {
@@ -163,4 +192,108 @@ export async function findKeywordGoldmines(seedKeyword: string): Promise<Keyword
 
 export async function analyzeVideoHook(videoId: string): Promise<HookAnatomyResult> {
   return await invoke<HookAnatomyResult>('analyze_video_hook_cmd', { videoId });
+}
+
+export interface TitleVariantItem {
+  formula: string;
+  title: string;
+  estimatedCtr: string;
+  psychologicalTrigger: string;
+}
+
+export interface AiTitleVariants {
+  originalTitle: string;
+  variants: TitleVariantItem[];
+  source: string;
+}
+
+export interface SmartDescriptionResult {
+  tier1HookSeo: string;
+  tier2SummaryChapters: string;
+  tier3CtaCredits: string;
+  tier4Hashtags: string[];
+  fullDescription: string;
+  source: string;
+}
+
+export interface HookScriptItem {
+  hookType: string;
+  durationSeconds: number;
+  script: string;
+  visualAction: string;
+  retentionStrategy: string;
+}
+
+export interface HookAnalysisResult {
+  title: string;
+  hookDiagnosis: string;
+  predictedRetentionRisk: string;
+  targetAvdGoal: string;
+  remakeHooks: HookScriptItem[];
+  source: string;
+}
+
+export async function rewriteViralTitles(
+  originalTitle: string,
+  niche?: string | null,
+  competitorKeywords?: string[] | null,
+  slmMode?: boolean | null,
+): Promise<AiTitleVariants> {
+  return await invoke<AiTitleVariants>('ai_rewrite_viral_titles_cmd', {
+    originalTitle,
+    niche: niche || null,
+    competitorKeywords: competitorKeywords || null,
+    slmMode: slmMode ?? false,
+    slm_mode: slmMode ?? false,
+  });
+}
+
+export async function generateSmartDescription(
+  title: string,
+  niche?: string | null,
+  competitorTags?: string[] | null,
+  competitorChannel?: string | null,
+  slmMode?: boolean | null,
+): Promise<SmartDescriptionResult> {
+  return await invoke<SmartDescriptionResult>('ai_generate_smart_description_cmd', {
+    title,
+    niche: niche || null,
+    competitorTags: competitorTags || null,
+    competitorChannel: competitorChannel || null,
+    slmMode: slmMode ?? false,
+    slm_mode: slmMode ?? false,
+  });
+}
+
+export async function analyzeHookDeep(
+  title: string,
+  transcriptPreview?: string | null,
+  niche?: string | null,
+): Promise<HookAnalysisResult> {
+  return await invoke<HookAnalysisResult>('ai_analyze_hook_deep_cmd', {
+    title,
+    transcriptPreview: transcriptPreview || null,
+    niche: niche || null,
+  });
+}
+
+export interface VideoSeoTagsResult {
+  success: boolean;
+  id?: string;
+  title?: string;
+  tags: string[];
+  categories?: string[];
+  description?: string;
+  channelFollowerCount?: number | null;
+  channel_follower_count?: number | null;
+  channel?: string;
+  viewCount?: number | null;
+  view_count?: number | null;
+}
+
+export async function extractVideoSeoTags(videoUrl: string): Promise<VideoSeoTagsResult> {
+  return await invoke<VideoSeoTagsResult>('extract_video_seo_tags_cmd', {
+    videoUrl,
+    video_url: videoUrl,
+  });
 }

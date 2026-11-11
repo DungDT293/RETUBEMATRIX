@@ -1,7 +1,7 @@
 {
   "sidebar": {
     "youtube": "YouTube",
-    "universal": "Clean Downloader",
+    "universal": "Download Videos",
     "gallery": "Gallery",
     "summary": "AI Summary",
     "processing": "Processing",
@@ -20,7 +20,11 @@
     "profiles": "Browser Profiles",
     "dashboard": "Dashboard",
     "reup": "Reup & BKT Test",
-    "outliers": "Outlier Hunter"
+    "outliers": "Outlier Hunter",
+    "saas": "System Management",
+    "saasOwner": "System Management",
+    "saasAdmin": "Company Management",
+    "saasLeader": "Team Management"
   },
   "language": {
     "en": "English",

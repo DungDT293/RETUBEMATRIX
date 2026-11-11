@@ -11,7 +11,7 @@
     "ai": "Tính năng AI",
     "network": "Mạng & Xác thực",
     "system": "Hệ thống",
-    "about": "Giới thiệu",
+    "about": "Giới thiệu & Phiên bản",
     "pluginStore": "Plugin Store"
   },
   "search": {
@@ -850,8 +850,8 @@
     "cliOpenGuide": "Mở hướng dẫn CLI"
   },
   "about": {
-    "title": "Giới thiệu",
-    "description": "Thông tin ứng dụng",
+    "title": "Giới thiệu & Phiên bản",
+    "description": "Thông tin ứng dụng và kiểm tra cập nhật phiên bản mới",
     "appDesc": "Bộ công cụ video toàn diện — tải, chỉnh sửa, theo dõi kênh & tóm tắt AI",
     "checkingUpdates": "Đang kiểm tra cập nhật...",
     "versionAvailable": "v{{version}} có sẵn",

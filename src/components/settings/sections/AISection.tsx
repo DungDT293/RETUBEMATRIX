@@ -239,7 +239,7 @@ export function AISection({ highlightId }: AISectionProps) {
 
   const handleProviderSelect = (providerId: AIProvider) => {
     const defaultModels: Record<string, string> = {
-      gemini: 'gemini-3.5-flash',
+      gemini: 'gemini-2.0-flash',
       openai: 'gpt-5.5',
       deepseek: 'deepseek-v4-flash',
       qwen: 'qwen3.5-plus',
@@ -256,7 +256,7 @@ export function AISection({ highlightId }: AISectionProps) {
   const getProviderModelChips = (provider: AIProvider): string[] => {
     switch (provider) {
       case 'gemini':
-        return ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-pro'];
+        return ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
       case 'openai':
         return ['gpt-5.5', 'gpt-5.4', 'gpt-5.4-mini'];
       case 'deepseek':

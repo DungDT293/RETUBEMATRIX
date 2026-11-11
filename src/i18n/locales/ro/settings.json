@@ -11,7 +11,7 @@
     "ai": "AI Caracteristici",
     "network": "Rețea și autentificare",
     "system": "Sistem",
-    "about": "Despre",
+    "about": "Despre și versiune",
     "pluginStore": "Plugin Store"
   },
   "search": {
@@ -850,8 +850,8 @@
     "cliOpenGuide": "Deschideți ghidul CLI"
   },
   "about": {
-    "title": "Despre",
-    "description": "Informații despre aplicație",
+    "title": "Despre și versiune",
+    "description": "Informații despre aplicație și verificare actualizări noi",
     "appDesc": "Setul de instrumente video all-in-one — descărcați, editați, urmăriți canale și AI rezumat",
     "checkingUpdates": "Se verifică actualizările...",
     "versionAvailable": "v{{version}} disponibil",

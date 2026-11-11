@@ -226,10 +226,10 @@ describe('youwee-sdk createContext', () => {
 
     // Without a delegated app bridge, filesystem access is denied by design.
     await expect(ctx.youwee.fs.tempDir('youwee-sdk-fs-')).rejects.toThrow(
-      'Youwee plugin bridge is not available',
+      'plugin bridge is not available',
     );
     await expect(ctx.youwee.fs.readText('/tmp/whatever.txt')).rejects.toThrow(
-      'Youwee plugin bridge is not available',
+      'plugin bridge is not available',
     );
   });
 
@@ -360,15 +360,17 @@ describe('youwee-sdk manifest helpers', () => {
     });
 
     expect(slugifyPluginName('GG Drive Upload')).toBe('gg-drive-upload');
-    expect(packageJson).toContain(`"youwee-sdk": "^${SDK_VERSION}"`);
-    expect(packageJson).toContain(`"build": "bunx youwee-sdk build"`);
+    expect(packageJson).toContain(`"retubematrix-sdk": "^${SDK_VERSION}"`);
+    expect(packageJson).toContain(`"build": "bunx retubematrix-sdk build"`);
     expect(packageJson).toContain(
-      `"pack": "bunx youwee-sdk pack --private-key ./plugin.youwee-plugin-key.json"`,
+      `"pack": "bunx retubematrix-sdk pack --private-key ./plugin.retubematrix-plugin-key.json"`,
     );
     expect(packageJson).toContain(
-      `"keygen": "bunx youwee-sdk keygen ./plugin.youwee-plugin-key.json"`,
+      `"keygen": "bunx retubematrix-sdk keygen ./plugin.retubematrix-plugin-key.json"`,
     );
-    expect(packageJson).toContain('node_modules/youwee-sdk/dist/runtime-cli.js src/plugin.ts');
+    expect(packageJson).toContain(
+      'node_modules/retubematrix-sdk/dist/runtime-cli.js src/plugin.ts',
+    );
     expect(packageJson).toContain('deno run');
     expect(packageJson).toContain('--allow-read=.');
     expect(packageJson).not.toContain('--allow-run');

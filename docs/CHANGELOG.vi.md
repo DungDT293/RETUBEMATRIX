@@ -7,6 +7,46 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-11
+
+### Thêm mới
+
+- **Bộ Nhận Diện & Kiểm Tra Proxy Thông Minh Đa Định Dạng** - Tự động nhận diện cấu trúc copy 4 phần `IP:Port:User:Pass` (chuẩn Cloudmini, ProxyNo1, v.v.), tự động chuẩn hóa sang định dạng URL cho trình duyệt và hỗ trợ kiểm tra thông minh cả hai loại Port HTTPS và SOCKS5. Ẩn mật khẩu proxy trên giao diện bảng danh sách hồ sơ để bảo vệ an toàn thông tin.
+- **Thanh Tiến Trình Reup Pipeline Thời Gian Thực** - Hiển thị trực quan tiến độ render Reup theo thời gian thực (phần trăm %, tốc độ render speed, FPS hiện tại và thời gian ước tính còn lại ETA) ngay dưới nút chạy.
+- **Tự Động Khống Chế Luồng FFmpeg Thông Minh cho Máy Cấu Hình Thấp** - Tự động giới hạn số luồng (threads = 2) trên các hệ thống có 4 core trở xuống (như VPS 3 vCPU) nhằm bảo vệ CPU khỏi bị nhà cung cấp bóp xung, chống cạn kiệt RAM và ngăn chặn hiện tượng kẹt cứng hệ thống Windows Server.
+- **Nút 1-Click "Mở Studio" & Cảnh Báo Tài Khoản Google Chưa Đăng Nhập cho BKT Test** - Tích hợp nút mở nhanh YouTube Studio của từng hồ sơ trình duyệt và tự động phát hiện, hiển thị cảnh báo đỏ trực quan kèm nút mở đăng nhập tức thì khi phát hiện tài khoản Google chưa đăng nhập trong tiến trình quét bản quyền ngầm.
+
+### Sửa lỗi
+
+- **Tự Động Gia Hạn Token Phiên Làm Việc (Base64URL Silent Refresh)** - Sửa lỗi tính toán đệm Base64URL trong quá trình giải mã JWT payload, bảo đảm phiên làm việc của nhân sự và quản trị viên luôn được duy trì liên tục.
+- **Phân Giải Tên Công Ty Tránh Lỗi Kiểu Dữ Liệu UUID PostgreSQL** - Bổ sung hàm tự động phân giải tên/mã công ty sang UUID tương ứng trước khi gửi truy vấn tới Supabase REST, khắc phục triệt để lỗi `22P02`.
+- **Loại Bỏ Hộp Thoại Nâng Gói Trùng Lặp** - Dọn sạch khối modal nâng cấp gói bản quyền doanh nghiệp bị render trùng lặp trong SaaS Master Hub.
+
+## [1.0.0] - 2026-11-10
+
+### Thêm mới
+
+- **Cổng Quản Trị Trung Tâm Web Portal & Cloudflare Edge Worker Gateway** - Hệ thống Web Portal quản trị trung tâm và cổng Gateway phân tán toàn cầu tại biên (`retubematrix-gateway.dungdong333.workers.dev`), đóng vai trò reverse proxy an toàn, cấp phát token và kiểm chứng thiết bị với tốc độ siêu tốc và zero cold-start.
+- **Phân quyền SaaS Kim Tự Tháp 4 Cấp Bậc tích hợp Supabase RLS** - Triển khai cơ chế phân quyền nghiêm ngặt 4 cấp độ (Owner, Admin, Leader, User) kiểm soát cách ly dữ liệu tổ chức, quản lý người dùng và hạn ngạch theo nhóm thông qua chính sách Row-Level Security (RLS) bảo mật trên Supabase.
+- **Cấp Tài Khoản Trực Tiếp & Sao Chép License Key 1-Click** - Bổ sung tính năng cấp tài khoản thành viên trực tiếp với mật khẩu sinh ngẫu nhiên an toàn, hộp thoại tóm tắt thông tin đăng nhập bàn giao tức thì, hiển thị minh bạch License Key và nút 1-click copy tiện lợi vào bộ nhớ tạm.
+- **Khóa Máy HWID (1 Máy = 1 Tài Khoản) & Cơ chế Phê Duyệt Đổi Máy 1-Click** - Thiết lập cơ chế khóa cứng định danh phần cứng (Hardware ID) đảm bảo 1 tài khoản chỉ kích hoạt trên 1 thiết bị chống chia sẻ tài khoản trái phép, tích hợp luồng xin cấp phép và duyệt đổi máy 1-click tiện lợi qua Web Portal.
+- **Đặc Quyền Master Owner Miễn Trừ Khóa Máy (Bypass HWID 100%)** - Thiết lập cơ chế bypass HWID hoàn toàn cho tài khoản Master Owner (`dungdong333@gmail.com` / vai trò `owner`), cho phép đăng nhập tự do trên mọi thiết bị và máy trạm mà không bị ràng buộc thiết bị.
+- **Sắp Xếp Điều Hướng Sidebar (SaaS Hub Vị Trí STT 9)** - Bổ sung SaaS Master Hub vào vị trí thứ 9 trong thanh điều hướng bên trái với biểu tượng Vương Miện hoàng gia vàng kim, tạo luồng thao tác liền mạch trước mục Cài đặt.
+- **Chuẩn Hóa UI Design System & Cô Lập Modal Updater** - Triệt tiêu hoàn toàn các biểu tượng cảm xúc và icon rác gây rối mắt; cô lập modal cập nhật phiên bản bên trong tab Cài đặt & Giới thiệu nhằm loại bỏ hiện tượng bật popup phiền toái khi quét kiểm tra ngầm hoặc mất kết nối mạng.
+- **YouTube Studio Telemetry & Đồng Bộ Doanh Thu Real-Time** - Cơ chế telemetry tự động thu thập và đồng bộ các chỉ số thương mại (Doanh thu ước tính, RPM, CPM, Views 48h/60m, Lượng sub thời gian thực) từ YouTube Studio về trung tâm dữ liệu điều hành trên Web Portal.
+- **Hệ Thống Tự Động Cập Nhật với Chữ Ký Mã Hóa Minisign qua GitHub Releases** - Cơ chế cập nhật ứng dụng tự động kiểm tra tính toàn vẹn và xác thực chữ ký mật mã Minisign với GitHub Releases, bảo đảm an toàn tuyệt đối cho người dùng trên Windows và macOS.
+- **Đổi tên Tab "Giới thiệu & Phiên bản" kèm Trình Kiểm Tra Cập Nhật & Tiến Độ Tải Trực Tiếp** - Nâng cấp và đổi tên tab "Giới thiệu" thành "Giới thiệu & Phiên bản" đồng bộ trên cả 13 ngôn ngữ (`en`, `vi`, `zh-CN`, `ja`, `ko`, `es`, `fr`, `de`, `ru`, `pt`, `id`, `th`, `hi`), tích hợp giao diện kiểm tra cập nhật thủ công, xem ghi chú phát hành và thanh tiến trình tải/cài đặt theo thời gian thực.
+- **Báo Cáo Vận Hành & Trung Tâm Sản Xuất Hằng Ngày (Dashboard Hub)** - Tái cấu trúc trang Tổng quan thành Trung tâm Sản xuất Nội dung với 5 thẻ KPI trọng tâm (Video mới phát hiện, Video đã tải & dung lượng MB/GB, Kết quả BKT Sạch/Dính/Chờ, Video đã đăng Kênh Đích hôm nay, Quota BKT còn lại / Tổng hạn ngạch ngày). Bổ sung bộ lọc thời gian linh hoạt (Hôm nay / Hôm qua / 7 ngày qua) và Dòng thời gian tự động hóa (Daily Production Timeline) phân loại theo danh mục sự kiện (Xuất bản đích, Test BKT, Tải về, Video mới cào).
+- **Backend API `get_daily_report_stats`** - Bổ sung IPC command truy vấn báo cáo sản xuất hằng ngày tối ưu hóa bằng B-tree index range scan trong SQLite, triệt tiêu quét toàn bảng (Full table scan).
+- **Tự động & Thủ công Xuất bản Kênh Đích từ BKT Sạch** - Tích hợp Auto-Pilot xuất bản công khai video sạch bản quyền (`green_clean`) trực tiếp sang Kênh YouTube Chính theo cấu hình hồ sơ 1-1 với Tiêu đề AI 95/5, mô tả 3 tầng, thẻ tags và thumbnail companion; bổ sung nút thao tác 1-click "🚀 Đăng Kênh Đích" trực tiếp trên từng card tác vụ BKT.
+- **Tải lại trong phiên (In-Session Reload Polling) khi Check BKT** - Thay thế cơ chế bật tắt trình duyệt liên tục bằng việc reload và theo dõi thời gian YouTube Studio xử lý ("Còn X phút") trực tiếp trên cùng một phiên trình duyệt, điều chỉnh chu kỳ ngủ thích ứng (15s/20s/35s) và phát tiến trình qua stream JSON.
+- **Tối ưu máy yếu (Low-End Hardware Route Interception)** - Chặn tải hình ảnh, font chữ, media stream và beacon theo dõi trong phiên quét Studio, hạ mức tiêu thụ RAM từ >600MB xuống <180MB và tăng tốc mở trang gấp 3 lần.
+- **Nhận diện chuẩn Cột Thông báo Bản quyền tiếng Anh** - Bổ sung selector `[cell-id="notices"]`, `#notices` theo cập nhật của YouTube Studio và nhận diện ký tự gạch ngang dài (`—`), `None`, `Clear` để xác nhận ngay trạng thái Sạch Bản Quyền.
+
+### Sửa lỗi
+
+- **Tối ưu truy vấn SQLite & Múi giờ địa phương** - Chuẩn hóa truy vấn thời gian theo giờ máy cục bộ (`chrono::Local`), tận dụng chỉ mục B-tree range scan thay vì quét toàn bảng, tránh lỗi lệch ngày do chênh lệch múi giờ.
+
 ## [0.20.16] - 2026-11-06
 
 ### Thay đổi

@@ -1,12 +1,18 @@
+import { invoke } from '@tauri-apps/api/core';
 import {
+  AlertTriangle,
+  CheckCircle2,
   Filter,
   FlaskConical,
   Layers,
+  Loader2,
   PlaySquare,
   Scissors,
   Settings2,
   ShieldAlert,
+  ShieldCheck,
   Sparkles,
+  UserCheck,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -29,16 +35,19 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/toast';
 import {
   getMultibrowserProfiles,
   updateChannelBktConfig,
 } from '@/contexts/channels/channels-client';
 import type { FollowedChannel, MultiBrowserProfile, YoutubeChannelContentType } from '@/lib/types';
+import { CompetitorSeoDialog } from './CompetitorSeoDialog';
 
 interface ChannelSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   channel: FollowedChannel;
+  initialTab?: 'filter' | 'bkt' | 'filename';
   onSave: (updated: {
     id: string;
     checkInterval: number;
@@ -62,6 +71,7 @@ interface ChannelSettingsDialogProps {
     reupModCrop: number;
     customFilenameTemplate: string | null;
   }) => Promise<void>;
+  onBktConfigSaved?: () => Promise<void> | void;
 }
 
 const COMMON_EXCLUDE_TAGS = [
@@ -88,9 +98,17 @@ export function ChannelSettingsDialog({
   open,
   onOpenChange,
   channel,
+  initialTab = 'filter',
   onSave,
+  onBktConfigSaved,
 }: ChannelSettingsDialogProps) {
-  const [activeTab, setActiveTab] = useState<'filter' | 'reup' | 'filename' | 'upload'>('filter');
+  const [activeTab, setActiveTab] = useState<'filter' | 'bkt' | 'filename'>(initialTab);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // Filter & Download settings
   const [autoDownload, setAutoDownload] = useState(channel.auto_download);
@@ -120,9 +138,14 @@ export function ChannelSettingsDialog({
   );
 
   // BKT Test & Upload settings
-  const [bktTestMode, _setBktTestMode] = useState<boolean>(Boolean(channel.bkt_test_mode));
-  const [bktProfileId, _setBktProfileId] = useState<string>(channel.bkt_profile_id || '');
-  const [_profiles, setProfiles] = useState<MultiBrowserProfile[]>([]);
+  const [bktTestMode, setBktTestMode] = useState<boolean>(Boolean(channel.bkt_test_mode));
+  const [bktProfileId, setBktProfileId] = useState<string>(channel.bkt_profile_id || '');
+  const [profiles, setProfiles] = useState<MultiBrowserProfile[]>([]);
+
+  useEffect(() => {
+    setBktProfileId(channel.bkt_profile_id || '');
+    setBktTestMode(Boolean(channel.bkt_test_mode));
+  }, [channel.bkt_profile_id, channel.bkt_test_mode]);
 
   useEffect(() => {
     getMultibrowserProfiles()
@@ -136,7 +159,47 @@ export function ChannelSettingsDialog({
       });
   }, []);
 
+  const toast = useToast();
   const [saving, setSaving] = useState(false);
+  const [showSeoDialog, setShowSeoDialog] = useState(false);
+  const [extractingKeywords, setExtractingKeywords] = useState(false);
+
+  const handleAutoFillKeywordsFromCompetitor = async () => {
+    setExtractingKeywords(true);
+    try {
+      const res = await invoke<{
+        success: boolean;
+        channel_keywords?: string[];
+        default_tags?: string[];
+        error?: string;
+      }>('extract_competitor_channel_seo_cmd', {
+        channelUrl: channel.url,
+        channel_url: channel.url,
+      });
+
+      if (res.success && res.channel_keywords && res.channel_keywords.length > 0) {
+        const topKeywords = res.channel_keywords.slice(0, 10).join(', ');
+        setIncludeKeywords((prev) => (prev ? `${prev}, ${topKeywords}` : topKeywords));
+        toast.success({
+          title: 'Đã tự động điền từ khóa đối thủ',
+          description: `Đã bổ sung ${Math.min(res.channel_keywords.length, 10)} từ khóa nhận diện của đối thủ vào bộ lọc.`,
+        });
+      } else {
+        toast.error({
+          title: 'Không tìm thấy từ khóa',
+          description: res.error || 'Đối thủ chưa thiết lập từ khóa kênh hoặc không thể bóc tách.',
+        });
+      }
+    } catch (err) {
+      console.error('Lỗi tự động điền từ khóa:', err);
+      toast.error({
+        title: 'Lỗi bóc tách từ khóa',
+        description: String(err),
+      });
+    } finally {
+      setExtractingKeywords(false);
+    }
+  };
 
   // Live preview of filename
   const previewFilename = useMemo(() => {
@@ -192,6 +255,14 @@ export function ChannelSettingsDialog({
   const handleSave = async () => {
     setSaving(true);
     try {
+      // 1. Cập nhật cấu hình BKT / Hồ sơ đối chiếu 1-1 trước
+      await updateChannelBktConfig({
+        channelId: channel.id,
+        bktTestMode: bktTestMode,
+        bktProfileId: bktProfileId.trim() || null,
+      });
+
+      // 2. Cập nhật các cài đặt lọc & tải của kênh
       await onSave({
         id: channel.id,
         checkInterval: Number(checkInterval) || 15,
@@ -216,12 +287,9 @@ export function ChannelSettingsDialog({
         customFilenameTemplate: filenameTemplate.trim() || null,
       });
 
-      // Update BKT channel configuration
-      await updateChannelBktConfig({
-        channelId: channel.id,
-        bktTestMode: bktTestMode ? 1 : 0,
-        bktProfileId: bktProfileId || null,
-      });
+      if (onBktConfigSaved) {
+        await onBktConfigSaved();
+      }
 
       onOpenChange(false);
     } catch (err) {
@@ -252,13 +320,22 @@ export function ChannelSettingsDialog({
 
         <Tabs
           value={activeTab}
-          onValueChange={(v) => setActiveTab(v as 'filter' | 'filename')}
+          onValueChange={(v) => setActiveTab(v as 'filter' | 'bkt' | 'filename')}
           className="w-full mt-2"
         >
-          <TabsList className="grid grid-cols-2 w-full bg-muted/60 p-1 border border-border/40 text-xs">
+          <TabsList className="grid grid-cols-3 w-full bg-muted/60 p-1 border border-border/40 text-xs">
             <TabsTrigger value="filter" className="flex items-center gap-1 text-xs py-1.5">
               <Filter className="w-3.5 h-3.5 text-primary" />
               <span>Lọc Tự Động</span>
+            </TabsTrigger>
+            <TabsTrigger value="bkt" className="flex items-center gap-1 text-xs py-1.5">
+              <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Gán Hồ Sơ (1-1)</span>
+              {bktProfileId ? (
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 ml-0.5" />
+              ) : (
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 ml-0.5" />
+              )}
             </TabsTrigger>
             <TabsTrigger value="filename" className="flex items-center gap-1 text-xs py-1.5">
               <Layers className="w-3.5 h-3.5 text-amber-500" />
@@ -425,13 +502,31 @@ export function ChannelSettingsDialog({
               </div>
 
               <div className="space-y-1.5 pt-1">
-                <Label
-                  htmlFor="include-kw"
-                  className="text-xs font-medium flex items-center gap-1.5"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
-                  Từ khóa bắt buộc (Chỉ tải nếu tiêu đề chứa từ khóa này)
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="include-kw"
+                    className="text-xs font-medium flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                    Từ khóa bắt buộc (Chỉ tải nếu tiêu đề chứa từ khóa này)
+                  </Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleAutoFillKeywordsFromCompetitor}
+                    disabled={extractingKeywords}
+                    className="h-6 px-1.5 text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-500/10 gap-1 font-medium"
+                    title="Tự động trích xuất từ khóa kênh đối thủ và điền vào ô này"
+                  >
+                    {extractingKeywords ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-3 h-3 text-purple-500" />
+                    )}
+                    <span>Tự điền từ đối thủ</span>
+                  </Button>
+                </div>
                 <Input
                   id="include-kw"
                   placeholder="Để trống để tải tất cả, hoặc nhập: Tập, Review, Highlight"
@@ -439,6 +534,30 @@ export function ChannelSettingsDialog({
                   onChange={(e) => setIncludeKeywords(e.target.value)}
                   className="h-9 text-xs"
                 />
+              </div>
+
+              {/* Tự động cấu hình theo đối thủ */}
+              <div className="p-3 rounded-lg border border-purple-500/30 bg-purple-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-2">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-600 dark:text-purple-400">
+                    <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                    <span>Tự động Cài Đặt Kênh (Studio) theo đối thủ</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Trích xuất bộ từ khóa kênh và thẻ video mặc định từ đối thủ để tự động cài đặt
+                    vào YouTube Studio.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSeoDialog(true)}
+                  className="h-8 px-3 text-xs gap-1.5 border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 font-medium shrink-0 shadow-sm"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                  <span>Tự động cấu hình theo đối thủ</span>
+                </Button>
               </div>
 
               {/* Thông báo phân tách tính năng */}
@@ -455,6 +574,141 @@ export function ChannelSettingsDialog({
                   </p>
                 </div>
               </div>
+            </div>
+          </TabsContent>
+
+          {/* TAB 2: PROFILE MAPPING & BKT TEST */}
+          <TabsContent value="bkt" className="space-y-4 pt-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                <UserCheck className="w-4 h-4 text-emerald-500" />
+                <span>Gán Hồ Sơ Trình Duyệt &amp; Kênh Đích (Đối Chiếu 1-1)</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Liên kết kênh đối thủ này với một Hồ Sơ Chromium nuôi kênh cụ thể. Giúp ngăn ngừa
+                100% rủi ro lấy video của ngách này đăng nhầm sang kênh ngách khác.
+              </p>
+            </div>
+
+            {/* Profile Selection Dropdown */}
+            <div className="space-y-2 p-3.5 rounded-lg border border-border/60 bg-card/60">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-medium">
+                  Hồ sơ Chromium hệ thống (Target Profile)
+                </Label>
+                <span className="text-[10px] text-muted-foreground">
+                  Kho hồ sơ: {profiles.length} profile
+                </span>
+              </div>
+              <Select
+                value={bktProfileId || '__none__'}
+                onValueChange={(val) => setBktProfileId(val === '__none__' ? '' : val)}
+              >
+                <SelectTrigger className="h-9 text-xs bg-background">
+                  <SelectValue placeholder="Chọn hồ sơ trình duyệt nuôi kênh..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__" className="text-xs text-amber-500 font-medium">
+                    ⚠️ -- Chưa gán hồ sơ (Dễ nhầm lẫn) --
+                  </SelectItem>
+                  {profiles.map((p) => (
+                    <SelectItem key={p.id} value={p.id} className="text-xs">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: p.color || '#10b981' }}
+                        />
+                        <span className="font-semibold text-foreground">{p.profile_name}</span>
+                        {p.youtube_preferred_channel && (
+                          <span className="text-[11px] text-primary font-mono">
+                            ({p.youtube_preferred_channel})
+                          </span>
+                        )}
+                        {p.group && p.group !== 'Default' && (
+                          <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                            {p.group}
+                          </span>
+                        )}
+                        {p.proxy && (
+                          <span className="text-[10px] text-muted-foreground font-mono">
+                            (Proxy)
+                          </span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Status banner */}
+              {bktProfileId ? (
+                <div className="p-2.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
+                  <div className="space-y-0.5">
+                    <span className="font-semibold">
+                      ✓ Đã khớp 1-1 với hồ sơ:{' '}
+                      {profiles.find((p) => p.id === bktProfileId)?.profile_name || bktProfileId}
+                    </span>
+                    <p className="text-[11px] opacity-90">
+                      Mọi video cào và tải từ kênh đối thủ này được chỉ định xuất bản hoặc test bản
+                      quyền trên profile này.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-xs text-amber-600 dark:text-amber-400">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                  <div className="space-y-0.5">
+                    <span className="font-semibold">Cảnh báo: Chưa gán kênh đích 1-1!</span>
+                    <p className="text-[11px] opacity-90">
+                      Dashboard sẽ gắn nhãn cảnh báo màu hổ phách để nhắc nhở tránh nhầm lẫn giữa
+                      các kênh đối thủ và kênh nuôi.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Action box: Studio Auto Setting */}
+            <div className="p-3 rounded-lg border border-purple-500/30 bg-purple-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-600 dark:text-purple-400">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                  <span>Tự động Cài Đặt Kênh (Studio) theo đối thủ</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Tự động đồng bộ Từ khóa kênh, Thẻ video mặc định và chuẩn COPPA vào hồ sơ Studio
+                  đã gán.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSeoDialog(true)}
+                className="h-8 px-3 text-xs gap-1.5 border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 font-medium shrink-0 shadow-sm"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                <span>Cài đặt Kênh Studio</span>
+              </Button>
+            </div>
+
+            {/* BKT Shadow Check Toggle */}
+            <div className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-card/60">
+              <div className="space-y-0.5 pr-3">
+                <Label
+                  htmlFor="bkt-toggle"
+                  className="text-xs font-semibold cursor-pointer flex items-center gap-1.5"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+                  Bật chế độ Shadow Check (Test BKT ngầm)
+                </Label>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Video nghi vấn dính bản quyền sẽ tự động được gửi sang Kênh Test BKT của hồ sơ này
+                  để quét Content ID trên YouTube Studio trước khi xuất bản.
+                </p>
+              </div>
+              <Switch id="bkt-toggle" checked={bktTestMode} onCheckedChange={setBktTestMode} />
             </div>
           </TabsContent>
 
@@ -530,6 +784,18 @@ export function ChannelSettingsDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {showSeoDialog && (
+        <CompetitorSeoDialog
+          isOpen={showSeoDialog}
+          onClose={() => setShowSeoDialog(false)}
+          channel={{
+            ...channel,
+            bkt_profile_id: bktProfileId || channel.bkt_profile_id,
+          }}
+          profiles={profiles}
+        />
+      )}
     </Dialog>
   );
 }

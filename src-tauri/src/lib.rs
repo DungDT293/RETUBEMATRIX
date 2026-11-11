@@ -370,6 +370,7 @@ pub fn run() {
             commands::get_video_info,
             commands::get_playlist_entries,
             commands::get_video_transcript,
+            commands::read_companion_description,
             // yt-dlp commands
             commands::get_ytdlp_version,
             commands::check_ytdlp_update,
@@ -433,6 +434,10 @@ pub fn run() {
             commands::generate_video_summary,
             commands::get_ai_models,
             commands::get_summary_languages,
+            commands::ai_rewrite_viral_titles_cmd,
+            commands::ai_generate_smart_description_cmd,
+            commands::ai_analyze_hook_deep_cmd,
+            commands::extract_video_seo_tags_cmd,
             // Processing commands
             commands::get_video_metadata,
             commands::generate_video_thumbnail,
@@ -463,6 +468,7 @@ pub fn run() {
             commands::set_default_provider_for_language,
             commands::set_plugin_runtime_locale,
             // Channel commands
+            commands::get_channel_video_filepath,
             commands::get_channel_videos,
             commands::get_channel_info,
             commands::stop_channel_fetch,
@@ -485,7 +491,12 @@ pub fn run() {
             commands::toggle_channel_auto_download,
             commands::update_channel_bkt_config,
             commands::trigger_bkt_test_video,
+            commands::trigger_bkt_test_videos_batch,
             commands::check_bkt_copyright_status_cmd,
+            commands::extract_competitor_channel_seo_cmd,
+            commands::apply_competitor_seo_to_profile_cmd,
+            commands::nurture_competitor_channel_seo_cmd,
+            commands::sync_channel_analytics_cmd,
             commands::get_outlier_settings_cmd,
             commands::update_outlier_settings_cmd,
             commands::get_outlier_videos_cmd,
@@ -494,6 +505,7 @@ pub fn run() {
             commands::clear_all_outliers_cmd,
             commands::analyze_competitor_channel_cmd,
             commands::trigger_outlier_scan_cmd,
+            commands::fetch_live_trending_topics_cmd,
             commands::trigger_outlier_ping_cmd,
             commands::find_keyword_goldmines_cmd,
             commands::analyze_video_hook_cmd,
@@ -504,6 +516,7 @@ pub fn run() {
             commands::save_download_queue,
             commands::clear_download_queue,
             commands::is_flatpak_environment,
+            commands::get_system_hwid_cmd,
             // External deep-link commands
             commands::consume_pending_external_links,
             commands::open_external_url,
@@ -529,6 +542,8 @@ pub fn run() {
             commands::bulk_stop_multibrowser_profiles,
             commands::arrange_multibrowser_windows,
             commands::clean_multibrowser_profile_cache,
+            commands::clean_multibrowser_profile_cache_native,
+            commands::cleanup_reup_artifacts_cmd,
             commands::update_multibrowser_profile_meta,
             commands::bulk_set_multibrowser_group,
             // BKT Test Channels commands
@@ -537,6 +552,10 @@ pub fn run() {
             commands::delete_bkt_test_channel,
             commands::get_bkt_test_jobs,
             commands::dispatch_batch_bkt_test,
+            commands::publish_bkt_job_to_main_cmd,
+            commands::recheck_bkt_job_cmd,
+            commands::get_daily_report_stats,
+            commands::wait_bkt_job_completion,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
@@ -652,9 +671,38 @@ pub fn rebuild_tray_menu(app_handle: &tauri::AppHandle) {
         return;
     }
 
-    if let Err(e) = rebuild_tray_menu_inner(app_handle) {
-        log::error!("Failed to rebuild tray menu: {}", e);
-    }
+    let handle = app_handle.clone();
+    tauri::async_runtime::spawn(async move {
+        let channels = database::get_followed_channels_db().unwrap_or_default();
+        let channel_count = channels.len();
+        let download_status = tray_download_status();
+        let remote_status_label = tray_remote_status_label();
+
+        let mut channel_items = Vec::new();
+        for ch in &channels {
+            let count = database::get_new_videos_count_db(Some(ch.id.clone())).unwrap_or(0);
+            let label = if count > 0 {
+                format!("{} ({} {})", ch.name, count, tray_text("new_suffix"))
+            } else {
+                ch.name.clone()
+            };
+            channel_items.push((format!("ch_{}", ch.id), label));
+        }
+
+        let data = TrayData {
+            channel_count,
+            channel_items,
+            download_status,
+            remote_status_label,
+        };
+
+        let handle_for_main = handle.clone();
+        let _ = handle.run_on_main_thread(move || {
+            if let Err(e) = rebuild_tray_menu_inner(&handle_for_main, data) {
+                log::error!("Failed to rebuild tray menu: {}", e);
+            }
+        });
+    });
 }
 
 /// Get the stored tray language code
@@ -838,31 +886,28 @@ fn tray_remote_status_label() -> String {
     }
 }
 
+struct TrayData {
+    channel_count: usize,
+    channel_items: Vec<(String, String)>,
+    download_status: TrayDownloadStatus,
+    remote_status_label: String,
+}
+
 fn rebuild_tray_menu_inner(
     app_handle: &tauri::AppHandle,
+    data: TrayData,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let channels = database::get_followed_channels_db().unwrap_or_default();
-    let channel_count = channels.len();
-    let download_status = tray_download_status();
-
     // Build channel submenu
-    let submenu_label = format!("{} ({})", tray_text("followed_channels"), channel_count);
+    let submenu_label = format!("{} ({})", tray_text("followed_channels"), data.channel_count);
     let mut submenu = SubmenuBuilder::new(app_handle, &submenu_label);
 
-    if channels.is_empty() {
+    if data.channel_items.is_empty() {
         let item = MenuItemBuilder::with_id("no_channels", tray_text("no_channels"))
             .enabled(false)
             .build(app_handle)?;
         submenu = submenu.item(&item);
     } else {
-        for ch in &channels {
-            let count = database::get_new_videos_count_db(Some(ch.id.clone())).unwrap_or(0);
-            let label = if count > 0 {
-                format!("{} ({} {})", ch.name, count, tray_text("new_suffix"))
-            } else {
-                ch.name.clone()
-            };
-            let item_id = format!("ch_{}", ch.id);
+        for (item_id, label) in data.channel_items {
             let item = MenuItemBuilder::with_id(item_id, &label).build(app_handle)?;
             submenu = submenu.item(&item);
         }
@@ -872,14 +917,14 @@ fn rebuild_tray_menu_inner(
     let download_label = format!(
         "{} - {}",
         tray_text("download_queue"),
-        tray_download_summary(&download_status)
+        tray_download_summary(&data.download_status)
     );
     let download_status_item = MenuItemBuilder::with_id("download_status", &download_label)
         .enabled(false)
         .build(app_handle)?;
     let download_pending_item = MenuItemBuilder::with_id(
         "download_pending",
-        format!("{}: {}", tray_text("pending"), download_status.pending),
+        format!("{}: {}", tray_text("pending"), data.download_status.pending),
     )
     .enabled(false)
     .build(app_handle)?;
@@ -888,20 +933,20 @@ fn rebuild_tray_menu_inner(
         format!(
             "{}: {}",
             tray_text("downloading"),
-            download_status.downloading
+            data.download_status.downloading
         ),
     )
     .enabled(false)
     .build(app_handle)?;
     let download_completed_item = MenuItemBuilder::with_id(
         "download_completed",
-        format!("{}: {}", tray_text("completed"), download_status.completed),
+        format!("{}: {}", tray_text("completed"), data.download_status.completed),
     )
     .enabled(false)
     .build(app_handle)?;
     let download_error_item = MenuItemBuilder::with_id(
         "download_error",
-        format!("{}: {}", tray_text("errors"), download_status.error),
+        format!("{}: {}", tray_text("errors"), data.download_status.error),
     )
     .enabled(false)
     .build(app_handle)?;
@@ -919,7 +964,7 @@ fn rebuild_tray_menu_inner(
         format!(
             "{} - {}",
             tray_text("remote_download"),
-            tray_remote_status_label()
+            data.remote_status_label
         ),
     )
     .enabled(false)

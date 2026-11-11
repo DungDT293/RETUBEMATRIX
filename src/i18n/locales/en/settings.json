@@ -11,7 +11,7 @@
     "ai": "AI Features",
     "network": "Network & Auth",
     "system": "System",
-    "about": "About",
+    "about": "About & Version",
     "pluginStore": "Plugin Store"
   },
   "search": {
@@ -850,8 +850,8 @@
     "cliOpenGuide": "Open CLI guide"
   },
   "about": {
-    "title": "About",
-    "description": "Application information",
+    "title": "About & Version",
+    "description": "Application information and check for new updates",
     "appDesc": "All-in-one video toolkit — download, edit, follow channels & AI summarize",
     "checkingUpdates": "Checking for updates...",
     "versionAvailable": "v{{version}} available",

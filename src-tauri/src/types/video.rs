@@ -20,6 +20,12 @@ pub struct VideoInfo {
     pub is_live: Option<bool>,       // true if currently live streaming
     pub was_live: Option<bool>,      // true if was a live stream (now ended)
     pub live_status: Option<String>, // "is_live", "was_live", "not_live", "is_upcoming"
+    // VidIQ / SEO / Enhanced metadata
+    pub tags: Option<Vec<String>>,
+    pub categories: Option<Vec<String>>,
+    pub channel_follower_count: Option<u64>,
+    pub like_count: Option<u64>,
+    pub comment_count: Option<u64>,
 }
 
 /// Format option from yt-dlp

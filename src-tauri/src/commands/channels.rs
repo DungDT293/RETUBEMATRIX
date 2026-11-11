@@ -1073,6 +1073,87 @@ pub async fn trigger_bkt_test_video(
     Ok(())
 }
 
+#[derive(serde::Deserialize)]
+pub struct TriggerBktItem {
+    pub channel_video_id: String,
+    pub channel_id: Option<String>,
+    pub bkt_profile_id: Option<String>,
+}
+
+/// Kích hoạt hàng loạt video sang chế độ Test BKT trong 1 transaction duy nhất để tránh nghẽn SQLite / treo UI
+#[tauri::command]
+pub async fn trigger_bkt_test_videos_batch(
+    app: AppHandle,
+    items: Vec<TriggerBktItem>,
+) -> Result<usize, String> {
+    if items.is_empty() {
+        return Ok(0);
+    }
+
+    let mut success_count = 0;
+    let events = {
+        let conn = database::get_db()?;
+        let mut emitted_events = Vec::new();
+
+        for item in &items {
+            let channel_video_id = &item.channel_video_id;
+            let (ch_id, vid_id) = if let Some(c_id) = item.channel_id.as_deref().filter(|s| !s.trim().is_empty()) {
+                let v_id: String = conn
+                    .query_row(
+                        "SELECT video_id FROM channel_videos WHERE (id = ?1 OR video_id = ?1) AND channel_id = ?2 LIMIT 1",
+                        rusqlite::params![channel_video_id, c_id],
+                        |row| row.get(0),
+                    )
+                    .unwrap_or_else(|_| channel_video_id.clone());
+                (c_id.to_string(), v_id)
+            } else {
+                match conn.query_row(
+                    "SELECT channel_id, video_id FROM channel_videos WHERE id = ?1 OR video_id = ?1 LIMIT 1",
+                    rusqlite::params![channel_video_id],
+                    |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+                ) {
+                    Ok(pair) => pair,
+                    Err(_) => continue,
+                }
+            };
+
+            let _ = conn.execute(
+                "UPDATE channel_videos SET
+                    risk_status = 'red',
+                    risk_reason = 'Người dùng kích hoạt: Chế độ Test trên kênh BKT (Shadow Check)',
+                    is_bkt_test = 1
+                 WHERE (channel_id = ?1 AND (video_id = ?2 OR id = ?2))",
+                rusqlite::params![ch_id, vid_id],
+            );
+
+            let _ = conn.execute(
+                "UPDATE channel_videos SET bkt_check_status = 'pending' WHERE (video_id = ?1 OR id = ?1)",
+                rusqlite::params![vid_id],
+            );
+
+            let bkt_profile = item.bkt_profile_id.clone().unwrap_or_default();
+
+            emitted_events.push(crate::services::polling::BktTestVideoEvent {
+                channel_id: ch_id,
+                channel_name: String::new(),
+                video_id: vid_id.clone(),
+                title: format!("BKT Test Video ({vid_id})"),
+                url: format!("https://www.youtube.com/watch?v={vid_id}"),
+                bkt_profile_id: bkt_profile,
+            });
+            success_count += 1;
+        }
+
+        emitted_events
+    };
+
+    for ev in events {
+        let _ = app.emit("channel-bkt-test-queued", ev);
+    }
+
+    Ok(success_count)
+}
+
 /// Kiểm tra trạng thái bản quyền (Shadow Check) qua Python runner
 #[tauri::command]
 pub async fn check_bkt_copyright_status_cmd(
@@ -1328,3 +1409,236 @@ pub async fn check_bkt_copyright_status_cmd(
         restriction: overall_restriction,
     })
 }
+
+#[tauri::command]
+pub async fn extract_competitor_channel_seo_cmd(
+    app: AppHandle,
+    channel_url: String,
+) -> Result<serde_json::Value, String> {
+    use base64::prelude::*;
+    let (mut cmd, runner) = create_runner_cmd(&app);
+    let payload = serde_json::json!({
+        "channel_url": channel_url.trim()
+    });
+    let data_json = payload.to_string();
+    let data_b64 = BASE64_STANDARD.encode(data_json.as_bytes());
+
+    cmd.arg(&runner)
+        .arg("--action")
+        .arg("extract_channel_seo")
+        .arg("--data-b64")
+        .arg(&data_b64);
+    cmd.hide_window();
+
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("Không thể chạy extract_channel_seo: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    let val = parse_json_from_output(&stdout, &stderr)?;
+    if !val.get("success").and_then(|v| v.as_bool()).unwrap_or(false) {
+        let err = val.get("error").and_then(|v| v.as_str()).unwrap_or("Không thể trích xuất SEO của kênh đối thủ");
+        return Err(err.to_string());
+    }
+
+    Ok(val)
+}
+
+#[tauri::command]
+pub async fn apply_competitor_seo_to_profile_cmd(
+    app: AppHandle,
+    profile_id: String,
+    channel_keywords: Vec<String>,
+    default_tags: Vec<String>,
+    made_for_kids: Option<bool>,
+) -> Result<serde_json::Value, String> {
+    use base64::prelude::*;
+    let (mut cmd, runner) = create_runner_cmd(&app);
+    let payload = serde_json::json!({
+        "profile_id": profile_id.trim(),
+        "channel_keywords": channel_keywords,
+        "default_tags": default_tags,
+        "made_for_kids": made_for_kids.unwrap_or(false)
+    });
+    let data_json = payload.to_string();
+    let data_b64 = BASE64_STANDARD.encode(data_json.as_bytes());
+
+    cmd.arg(&runner)
+        .arg("--action")
+        .arg("configure_channel_settings")
+        .arg("--data-b64")
+        .arg(&data_b64);
+    cmd.hide_window();
+
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("Không thể chạy configure_channel_settings: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    let val = parse_json_from_output(&stdout, &stderr)?;
+    if !val.get("success").and_then(|v| v.as_bool()).unwrap_or(false) {
+        let err = val.get("error").and_then(|v| v.as_str()).unwrap_or("Lỗi khi cấu hình cài đặt YouTube Studio");
+        return Err(err.to_string());
+    }
+
+    Ok(val)
+}
+
+#[tauri::command]
+pub async fn nurture_competitor_channel_seo_cmd(
+    app: AppHandle,
+    profile_id: String,
+    duration_minutes: Option<i64>,
+    competitor_titles: Option<Vec<String>>,
+    competitor_hashtags: Option<Vec<String>>,
+    competitor_keywords: Option<Vec<String>>,
+    competitor_urls: Option<Vec<String>>,
+    preferred_channel: Option<String>,
+) -> Result<serde_json::Value, String> {
+    use base64::prelude::*;
+    let (mut cmd, runner) = create_runner_cmd(&app);
+    let payload = serde_json::json!({
+        "profile_id": profile_id.trim(),
+        "duration_minutes": duration_minutes.unwrap_or(15),
+        "competitor_titles": competitor_titles.unwrap_or_default(),
+        "competitor_hashtags": competitor_hashtags.unwrap_or_default(),
+        "competitor_keywords": competitor_keywords.unwrap_or_default(),
+        "competitor_urls": competitor_urls.unwrap_or_default(),
+        "preferred_channel": preferred_channel.unwrap_or_default(),
+    });
+    let data_json = payload.to_string();
+    let data_b64 = BASE64_STANDARD.encode(data_json.as_bytes());
+
+    cmd.arg(&runner)
+        .arg("--action")
+        .arg("nurture_channel")
+        .arg("--data-b64")
+        .arg(&data_b64);
+    cmd.hide_window();
+
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("Không thể chạy nurture_channel: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    let val = parse_json_from_output(&stdout, &stderr)?;
+    if !val.get("success").and_then(|v| v.as_bool()).unwrap_or(false) {
+        let err = val.get("error").and_then(|v| v.as_str()).unwrap_or("Lỗi khi nuôi kênh theo SEO đối thủ");
+        return Err(err.to_string());
+    }
+
+    Ok(val)
+}
+
+/// Tìm đường dẫn tệp video trên ổ cứng theo video_id.
+/// Ưu tiên tìm trong bảng history, nếu không thấy thì quét thư mục Downloads.
+#[tauri::command]
+pub async fn get_channel_video_filepath(
+    app: AppHandle,
+    video_id: String,
+) -> Result<Option<String>, String> {
+    use tauri::Manager;
+
+    let clean_id = video_id.trim();
+    if clean_id.is_empty() {
+        return Ok(None);
+    }
+
+    // 1. Tìm trong SQLite history theo media_id hoặc url/canonical_url LIKE %video_id%
+    if let Ok(conn) = database::get_db() {
+        let sql = "SELECT filepath FROM history 
+                   WHERE media_id = ?1 OR canonical_url LIKE ?2 OR url LIKE ?2 
+                   ORDER BY downloaded_at DESC LIMIT 1";
+        let found_path: Option<String> = conn
+            .query_row(
+                sql,
+                rusqlite::params![format!("youtube:{clean_id}"), format!("%{clean_id}%")],
+                |row| row.get(0),
+            )
+            .ok();
+
+        if let Some(ref fp) = found_path {
+            if std::path::Path::new(fp).exists() {
+                return Ok(Some(fp.clone()));
+            }
+        }
+    }
+
+    // 2. Quét thư mục Downloads của hệ thống xem có file .mp4 chứa video_id không
+    if let Ok(dl_dir) = app.path().download_dir() {
+        if dl_dir.exists() {
+            if let Ok(entries) = std::fs::read_dir(&dl_dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.is_file() {
+                        let fname = path.file_name().and_then(|f| f.to_str()).unwrap_or_default();
+                        if fname.contains(clean_id) {
+                            let lower = fname.to_lowercase();
+                            if lower.ends_with(".mp4") || lower.ends_with(".mkv") || lower.ends_with(".webm") {
+                                return Ok(Some(path.to_string_lossy().to_string()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(None)
+}
+
+#[tauri::command]
+pub async fn sync_channel_analytics_cmd(
+    app: AppHandle,
+    profile_id: String,
+    channel_url: Option<String>,
+    channel_id: Option<String>,
+    channel_name: Option<String>,
+    company_id: Option<String>,
+) -> Result<serde_json::Value, String> {
+    use base64::prelude::*;
+    let (mut cmd, runner) = create_runner_cmd(&app);
+    let payload = serde_json::json!({
+        "channel_url": channel_url,
+        "channel_id": channel_id,
+        "channel_name": channel_name,
+        "company_id": company_id,
+    });
+    let data_json = payload.to_string();
+    let data_b64 = BASE64_STANDARD.encode(data_json.as_bytes());
+
+    cmd.arg(&runner)
+        .arg("--action")
+        .arg("sync_channel_analytics")
+        .arg("--profile-id")
+        .arg(&profile_id)
+        .arg("--data-b64")
+        .arg(&data_b64);
+    cmd.hide_window();
+
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("Không thể chạy sync_channel_analytics: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    let val = parse_json_from_output(&stdout, &stderr)?;
+    if !val.get("success").and_then(|v| v.as_bool()).unwrap_or(false) {
+        let err = val.get("error").and_then(|v| v.as_str()).unwrap_or("Không thể trích xuất số liệu YouTube Studio");
+        return Err(err.to_string());
+    }
+
+    Ok(val)
+}
+

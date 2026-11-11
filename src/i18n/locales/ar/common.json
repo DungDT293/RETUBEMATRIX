@@ -20,7 +20,11 @@
     "profiles": "ملفات تعريف المتصفح",
     "dashboard": "لوحة التحكم",
     "reup": "Reup & BKT Test",
-    "outliers": "صائد الفيديوهات المقترحة"
+    "outliers": "صائد الفيديوهات المقترحة",
+    "saas": "إدارة النظام",
+    "saasOwner": "إدارة النظام",
+    "saasAdmin": "إدارة الشركة",
+    "saasLeader": "إدارة الفريق"
   },
   "language": {
     "en": "English",
