@@ -584,7 +584,8 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
         .arg("--data-b64")
         .arg(&check_b64)
         .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::piped());
+        .stderr(std::process::Stdio::piped())
+        .kill_on_drop(true);
     check_cmd.hide_window();
 
     if let Ok(mut child) = check_cmd.spawn() {
@@ -661,7 +662,9 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
                 }
             }
         }
-        let _ = tokio::time::timeout(std::time::Duration::from_secs(1860), child.wait()).await;
+        // Đợi child thoát nhanh trong 3s, sau đó chủ động kill để tránh kẹt tới 1860s
+        let _ = tokio::time::timeout(std::time::Duration::from_secs(3), child.wait()).await;
+        let _ = child.kill().await;
     }
 
     // Xử lý phân nhánh hậu kiểm sau khi quét xong:

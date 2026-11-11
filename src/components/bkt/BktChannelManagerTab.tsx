@@ -55,7 +55,7 @@ import type {
   BktTestJob,
   MultiBrowserProfile,
 } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn, maskProxy } from '@/lib/utils';
 import { workTelemetryService } from '@/services/workTelemetryService';
 
 export function BktChannelManagerTab() {
@@ -699,7 +699,7 @@ export function BktChannelManagerTab() {
                   ) : (
                     profiles.map((p) => (
                       <SelectItem key={p.id} value={p.id} className="text-xs">
-                        {p.profile_name} {p.proxy ? `(${p.proxy})` : '(IP Trực tiếp)'}
+                        {p.profile_name} {p.proxy ? `(${maskProxy(p.proxy)})` : '(IP Trực tiếp)'}
                       </SelectItem>
                     ))
                   )}

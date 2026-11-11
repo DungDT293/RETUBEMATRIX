@@ -15,9 +15,16 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Thanh Tiến Trình Reup Pipeline Thời Gian Thực** - Hiển thị trực quan tiến độ render Reup theo thời gian thực (phần trăm %, tốc độ render speed, FPS hiện tại và thời gian ước tính còn lại ETA) ngay dưới nút chạy.
 - **Tự Động Khống Chế Luồng FFmpeg Thông Minh cho Máy Cấu Hình Thấp** - Tự động giới hạn số luồng (threads = 2) trên các hệ thống có 4 core trở xuống (như VPS 3 vCPU) nhằm bảo vệ CPU khỏi bị nhà cung cấp bóp xung, chống cạn kiệt RAM và ngăn chặn hiện tượng kẹt cứng hệ thống Windows Server.
 - **Nút 1-Click "Mở Studio" & Cảnh Báo Tài Khoản Google Chưa Đăng Nhập cho BKT Test** - Tích hợp nút mở nhanh YouTube Studio của từng hồ sơ trình duyệt và tự động phát hiện, hiển thị cảnh báo đỏ trực quan kèm nút mở đăng nhập tức thì khi phát hiện tài khoản Google chưa đăng nhập trong tiến trình quét bản quyền ngầm.
+- **Nút 1-Click "Mở YouTube Studio" Trên Bảng Hồ Sơ** - Bổ sung nút thao tác nhanh trong bảng hồ sơ trình duyệt giúp mở thẳng YouTube Studio để kiểm tra và đăng nhập tài khoản trước khi kiểm thử.
+- **Thanh Tiến Trình Render Ngay Trong Banner Auto-Pilot** - Tích hợp bộ đo tiến độ thời gian thực (% hoàn thành, tốc độ, FPS, ETA) trực tiếp bên trong giao diện Auto-Pilot.
 
 ### Sửa lỗi
 
+- **Chuẩn Hóa Tính Trung Thực Bản Quyền BKT (BKT Verification Honesty)** - Tách biệt rõ ràng lỗi kỹ thuật (chưa đăng nhập Studio, đứt mạng) thành trạng thái `failed`, tuyệt đối không tự ý ép sang `red_matched` (Dính bản quyền) gây nhầm lẫn cho người dùng.
+- **Bảo Mật Che Mật Khẩu Proxy Toàn Diện** - Áp dụng hàm `maskProxy` trên toàn bộ các ô chọn Kênh Test và Kênh Chính, triệt tiêu nguy cơ lộ mật khẩu proxy Cloudmini trên giao diện.
+- **Bảo Vệ Chống Văng FFmpeg Khi Gặp Video Câm** - Thêm hàm `probe_has_audio_stream` tự động chuyển cờ `-an` thay vì ép bộ lọc âm thanh gây văng FFmpeg khi video không có audio track.
+- **Triệt Tiêu Rò Rỉ Tiến Trình & Lỗi Chờ Timeout 31 Phút** - Kích hoạt `kill_on_drop(true)` cho toàn bộ tiến trình con và chủ động ngắt tiến trình kiểm tra bản quyền ngay khi có kết luận thay vì chờ 1860s.
+- **Tự Động Khởi Tạo Thư Mục Tài Nguyên Đóng Gói CI/CD** - Bổ sung bước tạo thư mục `roots/` và `src-tauri/python/` trong GitHub Actions build workflow, khắc phục lỗi đóng gói bộ cài tự động.
 - **Tự Động Gia Hạn Token Phiên Làm Việc (Base64URL Silent Refresh)** - Sửa lỗi tính toán đệm Base64URL trong quá trình giải mã JWT payload, bảo đảm phiên làm việc của nhân sự và quản trị viên luôn được duy trì liên tục.
 - **Phân Giải Tên Công Ty Tránh Lỗi Kiểu Dữ Liệu UUID PostgreSQL** - Bổ sung hàm tự động phân giải tên/mã công ty sang UUID tương ứng trước khi gửi truy vấn tới Supabase REST, khắc phục triệt để lỗi `22P02`.
 - **Loại Bỏ Hộp Thoại Nâng Gói Trùng Lặp** - Dọn sạch khối modal nâng cấp gói bản quyền doanh nghiệp bị render trùng lặp trong SaaS Master Hub.

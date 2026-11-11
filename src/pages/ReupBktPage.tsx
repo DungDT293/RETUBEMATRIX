@@ -60,7 +60,7 @@ import type {
   MultiBrowserProfile,
   ReupPipelineResult,
 } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn, maskProxy } from '@/lib/utils';
 import { workTelemetryService } from '@/services/workTelemetryService';
 import {
   adaptCompetitorDescription,
@@ -951,6 +951,14 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
 
     setIsAutoPilotRunning(true);
     setAutoPilotStep(1);
+    setIsProcessing(true);
+    setReupProgress({
+      percent: 0,
+      fps: 0,
+      speed: '0x',
+      eta_seconds: 0,
+      status: 'Khởi tạo render...',
+    });
 
     try {
       // 1. REUP PIPELINE (LV1)
@@ -968,6 +976,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       });
       setPipelineResult(reupRes);
       setUploadVideoPath(reupRes.output_path);
+      setIsProcessing(false);
 
       // 2. AI TỐI ƯU TIÊU ĐỀ 95/5 & MÔ TẢ
       setAutoPilotStep(2);
@@ -1075,6 +1084,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
         description: errStr,
       });
     } finally {
+      setIsProcessing(false);
       setIsAutoPilotRunning(false);
     }
   };
@@ -1137,9 +1147,9 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Tự động từ đầu đến cuối: Lách Reup (Đổi MD5/Audio) ➔ AI Tiêu Đề 95/5 &amp; Mô Tả ➔
-                Tự Nhận Thumbnail ➔ Đăng Test BKT (Unlisted) ➔ Tự Quét Studio ➔ Tự Đăng Kênh Chính
-                khi Xanh!
+                Tự động từ đầu đến cuối: Lách Reup (Đổi MD5/Audio) -&gt; AI Tiêu Đề 95/5 &amp; Mô Tả
+                -&gt; Tự Nhận Thumbnail -&gt; Đăng Test BKT (Unlisted) -&gt; Tự Quét Studio -&gt; Tự
+                Đăng Kênh Chính khi Xanh!
               </p>
             </div>
 
@@ -1162,6 +1172,29 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
               )}
             </Button>
           </div>
+
+          {/* Progress bar thời gian thực khi Auto-Pilot đang render Reup */}
+          {isAutoPilotRunning && autoPilotStep === 1 && reupProgress && (
+            <div className="p-3.5 rounded-lg border border-emerald-500/30 bg-emerald-500/5 space-y-2 mt-4 animate-in fade-in">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium text-foreground flex items-center gap-1.5">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-500" />
+                  Auto-Pilot [1/4]: {reupProgress.status || 'Đang render video Reup Lv.1...'}
+                </span>
+                <span className="font-mono font-bold text-emerald-500">
+                  {reupProgress.percent.toFixed(1)}%
+                </span>
+              </div>
+              <Progress value={reupProgress.percent} className="h-2 bg-muted/60" />
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground font-mono">
+                <span>Tốc độ: {reupProgress.speed || 'N/A'}</span>
+                {reupProgress.fps !== undefined && <span>FPS: {reupProgress.fps}</span>}
+                {reupProgress.eta_seconds !== undefined && (
+                  <span>Còn lại: ~{Math.ceil(reupProgress.eta_seconds)}s</span>
+                )}
+              </div>
+            </div>
+          )}
         </Card>
 
         <Tabs
@@ -1699,7 +1732,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                                   </span>
                                   {p.proxy ? (
                                     <span className="text-[10px] text-muted-foreground ml-2">
-                                      (Proxy: {p.proxy})
+                                      (Proxy: {maskProxy(p.proxy)})
                                     </span>
                                   ) : (
                                     <span className="text-[10px] text-muted-foreground ml-2">
@@ -1892,7 +1925,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                                 </span>
                                 {p.proxy && (
                                   <span className="text-[10px] text-muted-foreground ml-2">
-                                    (Proxy: {p.proxy})
+                                    (Proxy: {maskProxy(p.proxy)})
                                   </span>
                                 )}
                               </SelectItem>

@@ -308,6 +308,34 @@ pub async fn probe_audio_sample_rate(app: &AppHandle, input_path: &str) -> u32 {
     48000
 }
 
+/// Kiểm tra xem video nguồn có luồng âm thanh (audio stream) hay không
+pub async fn probe_has_audio_stream(app: &AppHandle, input_path: &str) -> bool {
+    if let Some(ffprobe_path) = get_ffprobe_path(app).await {
+        let mut cmd = Command::new(&ffprobe_path);
+        cmd.args([
+            "-v",
+            "error",
+            "-select_streams",
+            "a:0",
+            "-show_entries",
+            "stream=codec_type",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            input_path,
+        ]);
+        cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+        cmd.hide_window();
+
+        if let Ok(output) = cmd.output().await {
+            if output.status.success() {
+                let text = String::from_utf8_lossy(&output.stdout);
+                return text.trim() == "audio";
+            }
+        }
+    }
+    false
+}
+
 /// Đo thời lượng thực tế của video nguồn bằng ffprobe
 pub async fn probe_video_duration(app: &AppHandle, input_path: &str) -> Option<f64> {
     let ffprobe_path = get_ffprobe_path(app).await?;
@@ -354,6 +382,7 @@ async fn execute_ffmpeg_with_progress(
     stage_name: &str,
 ) -> Result<(), String> {
     cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+    cmd.kill_on_drop(true);
     let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn FFmpeg: {}", e))?;
 
     let stdout = child.stdout.take().ok_or_else(|| "Failed to open FFmpeg stdout".to_string())?;
@@ -841,9 +870,12 @@ pub async fn apply_reup_modifications(
         cmd.args(["-af", &af_filters.join(",")]);
     }
 
+    let safe_threads = get_safe_ffmpeg_threads();
     cmd.args([
+        "-threads", &safe_threads,
         "-c:v", "libx264",
         "-preset", "ultrafast",
+        "-tune", "fastdecode",
         "-crf", "22",
         "-c:a", "aac",
         "-b:a", "192k",
@@ -989,7 +1021,12 @@ pub async fn run_reup_pipeline_v1(
         target_output_buf.file_name().and_then(|n| n.to_str()).unwrap_or("output.mp4")
     ));
     let temp_output_str = temp_output_path.to_string_lossy().to_string();
-    let sr = probe_audio_sample_rate(app, input_path).await;
+    let has_audio = probe_has_audio_stream(app, input_path).await;
+    let sr = if has_audio {
+        probe_audio_sample_rate(app, input_path).await
+    } else {
+        48000
+    };
     let total_duration = probe_video_duration(app, input_path).await.unwrap_or(0.0);
     let safe_threads = get_safe_ffmpeg_threads();
 
@@ -1004,13 +1041,23 @@ pub async fn run_reup_pipeline_v1(
         "-nostats",
         "-i", input_path,
         "-vf", vf,
-        "-af", &af,
+    ]);
+
+    if has_audio {
+        cmd.args([
+            "-af", &af,
+            "-c:a", "aac",
+            "-b:a", "192k",
+        ]);
+    } else {
+        cmd.arg("-an");
+    }
+
+    cmd.args([
         "-c:v", "libx264",
         "-preset", "ultrafast",
         "-crf", "20",
         "-tune", "fastdecode",
-        "-c:a", "aac",
-        "-b:a", "192k",
         "-map_metadata", "-1",
         "-metadata", "title=",
         "-metadata", "artist=",
@@ -1109,7 +1156,12 @@ pub async fn run_reup_pipeline_v2(
         target_output_buf.file_name().and_then(|n| n.to_str()).unwrap_or("output.mp4")
     ));
     let temp_output_str = temp_output_path.to_string_lossy().to_string();
-    let sr = probe_audio_sample_rate(app, input_path).await;
+    let has_audio = probe_has_audio_stream(app, input_path).await;
+    let sr = if has_audio {
+        probe_audio_sample_rate(app, input_path).await
+    } else {
+        48000
+    };
     let total_duration = probe_video_duration(app, input_path).await.unwrap_or(0.0);
     let safe_threads = get_safe_ffmpeg_threads();
 
@@ -1124,13 +1176,23 @@ pub async fn run_reup_pipeline_v2(
         "-nostats",
         "-i", input_path,
         "-vf", vf,
-        "-af", &af,
+    ]);
+
+    if has_audio {
+        cmd.args([
+            "-af", &af,
+            "-c:a", "aac",
+            "-b:a", "192k",
+        ]);
+    } else {
+        cmd.arg("-an");
+    }
+
+    cmd.args([
         "-c:v", "libx264",
         "-preset", "ultrafast",
         "-crf", "21",
         "-tune", "fastdecode",
-        "-c:a", "aac",
-        "-b:a", "192k",
         "-map_metadata", "-1",
         "-metadata", "title=",
         "-metadata", "artist=",

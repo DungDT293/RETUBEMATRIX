@@ -1399,7 +1399,7 @@ export interface ChannelVideo {
   risk_reason?: string;
   is_bkt_test?: boolean;
   bkt_youtube_id?: string;
-  bkt_check_status?: 'pending' | 'green_clean' | 'red_matched';
+  bkt_check_status?: 'pending' | 'green_clean' | 'red_matched' | 'failed';
   bkt_restriction?: string;
   reup_pipeline_level?: number;
   is_downloaded?: number | boolean;

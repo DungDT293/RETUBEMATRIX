@@ -15,9 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Real-Time Reup Pipeline Progress Monitoring** - Real-time progress bar streaming encoding percentage, render speed, current FPS, and remaining ETA during Reup Pipeline processing.
 - **Adaptive FFmpeg Thread Throttling for Low-Spec Systems** - Intelligent thread limiter reserving a dedicated CPU core on systems with 4 or fewer vCPUs (such as 3 vCPU cloud servers) to prevent CPU throttling, system lockups, and Windows Server memory exhaustion.
 - **BKT Studio 1-Click Launch & Google Authentication Alerts** - Direct 1-click "Open Studio" action for instant profile navigation and diagnostic login warnings for unauthenticated Google accounts during background copyright scans.
+- **1-Click YouTube Studio Launch in Profiles Table** - Added direct 1-click action in the browser profiles table to open YouTube Studio for any profile, streamlining Google authentication and channel management.
+- **Auto-Pilot Live Encoding Progress Bar** - Embedded real-time encoding progress metrics directly inside the Auto-Pilot header card.
 
 ### Fixed
 
+- **BKT Copyright Verification Honesty** - Disambiguated technical errors from actual copyright claims in ChannelVideoAccordion, preventing failed runs from masquerading as `red_matched`.
+- **Proxy Password Masking on All Dropdowns** - Applied universal credential masking (`maskProxy`) across all channel management and test profile dropdowns.
+- **FFmpeg Silent Video Crash Prevention** - Added audio stream presence verification (`probe_has_audio_stream`) to avoid filtergraph crashes on silent videos.
+- **Process Leak & BKT Polling 31-Minute Timeout** - Enabled `kill_on_drop(true)` on FFmpeg/Python runners and proactively terminated background checkers upon status resolution.
+- **CI/CD Tauri Bundler Resource Structure** - Fixed GitHub Actions packaging workflow by ensuring resource directories (`roots/`, `src-tauri/python/`) exist during clean runner builds.
 - **Base64URL JWT Silent Refresh & Token Expiration** - Fixed Base64URL padding calculation errors in token renewal, ensuring seamless session persistence across long-running background tasks.
 - **Tenant Company Resolution & UUID Matching** - Resolved PostgreSQL `22P02` type mismatches by auto-resolving company slugs/names to tenant UUIDs before querying Supabase REST endpoints.
 - **Duplicate Upgrade Tier Modal Rendering** - Removed redundant upgrade dialog blocks in SaaS Master Hub.

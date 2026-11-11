@@ -1,5 +1,6 @@
 import { listen } from '@tauri-apps/api/event';
 import {
+  AlertCircle,
   AlertTriangle,
   ArrowDownUp,
   Calendar,
@@ -119,11 +120,11 @@ export function ChannelVideoAccordion({
 
       setVideoOverrides((prev) => {
         const current = prev[targetRef] || {};
-        let resolvedStatus: 'pending' | 'green_clean' | 'red_matched' | undefined =
+        let resolvedStatus: 'pending' | 'green_clean' | 'red_matched' | 'failed' | undefined =
           current.bkt_check_status;
         if (job.status === 'green_clean') resolvedStatus = 'green_clean';
         else if (job.status === 'red_matched') resolvedStatus = 'red_matched';
-        else if (job.status === 'failed') resolvedStatus = 'red_matched';
+        else if (job.status === 'failed') resolvedStatus = 'failed';
         else if (
           job.status === 'checking' ||
           job.status === 'uploading' ||
@@ -584,6 +585,7 @@ export function ChannelVideoAccordion({
         const resolvedStatus =
           itemResult.bkt_check_status === 'green_clean' ||
           itemResult.bkt_check_status === 'red_matched' ||
+          itemResult.bkt_check_status === 'failed' ||
           itemResult.bkt_check_status === 'pending'
             ? itemResult.bkt_check_status
             : 'pending';
@@ -1128,6 +1130,16 @@ export function ChannelVideoAccordion({
                             <span>
                               BKT: Dính ({video.bkt_restriction || 'Bản quyền'}) -&gt; Lv.2
                             </span>
+                          </Badge>
+                        )}
+                        {video.bkt_check_status === 'failed' && (
+                          <Badge
+                            variant="outline"
+                            className="bg-red-500/15 text-red-400 border border-red-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1 cursor-help"
+                            title={video.bkt_restriction || 'Tiến trình BKT gặp lỗi'}
+                          >
+                            <AlertCircle className="w-3 h-3 text-red-400" />
+                            <span>BKT: Lỗi ({video.bkt_restriction || 'Kiểm tra thất bại'})</span>
                           </Badge>
                         )}
                         {(!video.bkt_check_status || video.bkt_check_status === 'pending') && (

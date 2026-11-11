@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import {
   Edit3,
+  ExternalLink,
   Loader2,
   Play,
   Plus,
@@ -35,6 +36,7 @@ import type {
   MultiBrowserProfileInput,
   MultiBrowserProxyTestResult,
 } from '@/lib/types';
+import { maskProxy } from '@/lib/utils';
 import { workTelemetryService } from '@/services/workTelemetryService';
 
 const STATUS_CONFIG: Record<string, { label: string; pill: string; dot: string }> = {
@@ -82,26 +84,6 @@ function formatTime(value?: string) {
     day: '2-digit',
     month: '2-digit',
   });
-}
-
-function maskProxy(proxy?: string) {
-  if (!proxy) return '';
-  try {
-    const raw = proxy.trim();
-    if (!raw) return '';
-    const withoutScheme = raw.replace(/^(https?:\/\/|socks[45]h?:\/\/)/i, '');
-    const atParts = withoutScheme.split('@');
-    if (atParts.length > 1) {
-      return atParts[1];
-    }
-    const colonParts = withoutScheme.split(':');
-    if (colonParts.length >= 4) {
-      return `${colonParts[0]}:${colonParts[1]}`;
-    }
-    return withoutScheme;
-  } catch {
-    return proxy || '';
-  }
 }
 
 function proxyRiskLabel(risk?: string) {
@@ -462,6 +444,26 @@ export function ProfilesPage() {
         profile_id: p.id,
         targetUrl: 'https://www.google.com/',
         target_url: 'https://www.google.com/',
+      });
+      setTimeout(() => {
+        fetchProfiles();
+      }, 1500);
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleLaunchStudio = async (p: MultiBrowserProfile) => {
+    try {
+      setActionLoadingId(p.id);
+      setMessage(`Đang mở YouTube Studio cho hồ sơ "${p.profile_name}"...`);
+      await invoke('launch_multibrowser_profile', {
+        profileId: p.id,
+        profile_id: p.id,
+        targetUrl: 'https://studio.youtube.com/',
+        target_url: 'https://studio.youtube.com/',
       });
       setTimeout(() => {
         fetchProfiles();
@@ -1119,6 +1121,17 @@ export function ProfilesPage() {
                             <Play className="w-3.5 h-3.5 fill-current" />
                           </button>
                         )}
+
+                        {/* Open YouTube Studio */}
+                        <button
+                          type="button"
+                          title="Mở YouTube Studio (đăng nhập hoặc quản lý kênh)"
+                          onClick={() => handleLaunchStudio(p)}
+                          disabled={actionLoadingId === p.id}
+                          className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </button>
 
                         {/* YouTube Upload */}
                         <button
