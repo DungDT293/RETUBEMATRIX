@@ -28,8 +28,13 @@ pub async fn list_plugins(app: AppHandle) -> Result<Vec<PluginSummary>, String> 
 }
 
 #[tauri::command]
-pub fn get_plugin_details(app: AppHandle, plugin_id: String) -> Result<PluginSummary, String> {
-    get_plugin_details_internal(&app, &plugin_id)
+pub async fn get_plugin_details(
+    app: AppHandle,
+    plugin_id: String,
+) -> Result<PluginSummary, String> {
+    tokio::task::spawn_blocking(move || get_plugin_details_internal(&app, &plugin_id))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
@@ -67,96 +72,126 @@ pub async fn prepare_plugin_store_package(
 }
 
 #[tauri::command]
-pub fn uninstall_plugin(app: AppHandle, plugin_id: String) -> Result<(), String> {
-    uninstall_plugin_internal(&app, &plugin_id)
+pub async fn uninstall_plugin(app: AppHandle, plugin_id: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || uninstall_plugin_internal(&app, &plugin_id))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn attach_plugin_workspace(
+pub async fn attach_plugin_workspace(
     app: AppHandle,
     input: AttachPluginWorkspaceInput,
 ) -> Result<PluginSummary, String> {
-    attach_plugin_workspace_internal(&app, input)
+    tokio::task::spawn_blocking(move || attach_plugin_workspace_internal(&app, input))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn create_plugin_workspace(
+pub async fn create_plugin_workspace(
     app: AppHandle,
     input: CreatePluginWorkspaceInput,
 ) -> Result<PluginWorkspaceSummary, String> {
-    create_plugin_workspace_internal(&app, input)
+    tokio::task::spawn_blocking(move || create_plugin_workspace_internal(&app, input))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn update_plugin_state(app: AppHandle, plugin_id: String, enabled: bool) -> Result<(), String> {
-    update_plugin_state_internal(&app, &plugin_id, enabled)
+pub async fn update_plugin_state(
+    app: AppHandle,
+    plugin_id: String,
+    enabled: bool,
+) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || update_plugin_state_internal(&app, &plugin_id, enabled))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn get_plugin_trigger_workflow(
+pub async fn get_plugin_trigger_workflow(
     app: AppHandle,
     trigger: String,
 ) -> Result<PluginTriggerWorkflow, String> {
-    get_plugin_trigger_workflow_internal(&app, &trigger)
+    tokio::task::spawn_blocking(move || get_plugin_trigger_workflow_internal(&app, &trigger))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn update_plugin_trigger_workflow(
+pub async fn update_plugin_trigger_workflow(
     app: AppHandle,
     workflow: PluginTriggerWorkflow,
 ) -> Result<PluginTriggerWorkflow, String> {
-    update_plugin_trigger_workflow_internal(&app, workflow)
+    tokio::task::spawn_blocking(move || update_plugin_trigger_workflow_internal(&app, workflow))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn enqueue_plugin_workflow_trigger(
+pub async fn enqueue_plugin_workflow_trigger(
     app: AppHandle,
     trigger: String,
     payload: PostDownloadPluginPayload,
     workflow_steps: Option<Vec<PluginWorkflowStepSnapshot>>,
 ) -> Result<Option<String>, String> {
-    Ok(enqueue_plugin_trigger_workflow(
-        &app,
-        &trigger,
-        workflow_steps,
-        payload,
-    ))
+    tokio::task::spawn_blocking(move || {
+        Ok(enqueue_plugin_trigger_workflow(
+            &app,
+            &trigger,
+            workflow_steps,
+            payload,
+        ))
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn approve_plugin_permissions(
+pub async fn approve_plugin_permissions(
     app: AppHandle,
     plugin_id: String,
     permissions: PluginPermissionApprovalInput,
 ) -> Result<(), String> {
-    approve_plugin_permissions_internal(&app, &plugin_id, permissions)
+    tokio::task::spawn_blocking(move || {
+        approve_plugin_permissions_internal(&app, &plugin_id, permissions)
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn update_plugin_config_values(
+pub async fn update_plugin_config_values(
     app: AppHandle,
     plugin_id: String,
     input: PluginConfigValuesInput,
 ) -> Result<(), String> {
-    update_plugin_config_values_internal(&app, &plugin_id, input)
+    tokio::task::spawn_blocking(move || update_plugin_config_values_internal(&app, &plugin_id, input))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn set_plugin_provider(
+pub async fn set_plugin_provider(
     app: AppHandle,
     plugin_id: String,
     provider: PluginProvider,
 ) -> Result<(), String> {
-    set_plugin_provider_internal(&app, &plugin_id, provider)
+    tokio::task::spawn_blocking(move || set_plugin_provider_internal(&app, &plugin_id, provider))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn set_plugin_timeout(
+pub async fn set_plugin_timeout(
     app: AppHandle,
     plugin_id: String,
     timeout_sec: Option<u64>,
 ) -> Result<(), String> {
-    set_plugin_timeout_internal(&app, &plugin_id, timeout_sec)
+    tokio::task::spawn_blocking(move || set_plugin_timeout_internal(&app, &plugin_id, timeout_sec))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
@@ -178,18 +213,24 @@ pub async fn get_runtime_provider_status(
 }
 
 #[tauri::command]
-pub fn set_default_provider_for_language(
+pub async fn set_default_provider_for_language(
     app: AppHandle,
     language: PluginRuntimeLanguage,
     provider: PluginProvider,
 ) -> Result<(), String> {
-    set_default_provider_for_language_internal(&app, language, provider)
+    tokio::task::spawn_blocking(move || {
+        set_default_provider_for_language_internal(&app, language, provider)
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn set_plugin_runtime_locale(
+pub async fn set_plugin_runtime_locale(
     app: AppHandle,
     input: PluginRuntimeLocaleInput,
 ) -> Result<(), String> {
-    set_plugin_runtime_locale_internal(&app, input)
+    tokio::task::spawn_blocking(move || set_plugin_runtime_locale_internal(&app, input))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }

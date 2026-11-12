@@ -83,6 +83,10 @@ pub struct BktTestJob {
     #[serde(default)]
     pub main_target_profile_id: Option<String>,
     #[serde(default)]
+    pub target_profile_id: Option<String>,
+    #[serde(default)]
+    pub channel_id: Option<String>,
+    #[serde(default)]
     pub auto_publish_main: Option<bool>,
     #[serde(default)]
     pub target_title: Option<String>,
@@ -104,7 +108,11 @@ pub struct BktBatchItemRequest {
     #[serde(default)]
     pub source_ref_id: Option<String>,
     #[serde(default)]
+    pub channel_id: Option<String>,
+    #[serde(default)]
     pub main_target_profile_id: Option<String>,
+    #[serde(default)]
+    pub target_profile_id: Option<String>,
     #[serde(default)]
     pub auto_publish_main: Option<bool>,
     #[serde(default)]

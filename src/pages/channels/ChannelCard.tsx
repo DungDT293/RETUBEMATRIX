@@ -75,11 +75,15 @@ export function ChannelCard({
   const [showSeoDialog, setShowSeoDialog] = useState(false);
   const [settingsTab, setSettingsTab] = useState<'filter' | 'bkt' | 'filename'>('filter');
 
+  const targetId = channel.target_profile_id || channel.bkt_profile_id;
+  const matchedProfile = profiles.find((p) => p.id === targetId || p.profile_name === targetId);
+
   const handleToggleReupSwitch = (enabled: boolean) => {
-    if (enabled && !channel.bkt_profile_id) {
+    if (enabled && !targetId) {
       toast.warning({
-        title: 'Chưa Gán Hồ Sơ Kênh Đích',
-        message: 'Vui lòng chọn Hồ Sơ Kênh Đích để hệ thống biết xuất bản video vào kênh nào.',
+        title: 'Chưa Gán Kênh Đích (Chức năng 2)',
+        message:
+          'Vui lòng gán Kênh Đích (Chức năng 2) để hệ thống biết xuất bản video vào kênh nào sau khi test.',
       });
       setSettingsTab('bkt');
       setShowSettings(true);
@@ -93,7 +97,6 @@ export function ChannelCard({
   const totalScanned = stats?.total_scanned ?? 0;
   const totalDownloaded = stats?.total_downloaded ?? 0;
   const postingSchedule = formatPostingScheduleVietnamese(stats?.posting_schedule?.formatted);
-  const matchedProfile = profiles.find((p) => p.id === channel.bkt_profile_id);
 
   return (
     <div
@@ -148,7 +151,7 @@ export function ChannelCard({
                     Kênh Sạch
                   </Badge>
                 )}
-                {channel.bkt_profile_id ? (
+                {targetId ? (
                   <Badge
                     variant="outline"
                     className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[10px] py-0 cursor-pointer flex items-center gap-1 hover:bg-emerald-500/25 transition-colors"
@@ -159,7 +162,7 @@ export function ChannelCard({
                     title="Đã khớp 1-1 với hồ sơ hệ thống. Bấm để đổi hồ sơ"
                   >
                     <UserCheck className="w-3 h-3 text-emerald-400" />
-                    <span>{matchedProfile?.profile_name || 'Đã khớp 1-1'}</span>
+                    <span>Kênh Đích: {matchedProfile?.profile_name || 'Đã khớp 1-1'}</span>
                   </Badge>
                 ) : (
                   <Button
@@ -170,10 +173,10 @@ export function ChannelCard({
                       setShowSettings(true);
                     }}
                     className="h-5 px-1.5 text-[10px] text-amber-500 border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 font-medium gap-1"
-                    title="Chưa gán hồ sơ đích! Bấm để gán đối chiếu 1-1"
+                    title="Chưa gán Kênh Đích (Chức năng 2)! Bấm để gán đối chiếu 1-1"
                   >
                     <AlertTriangle className="w-3 h-3 text-amber-500" />
-                    <span>Gán hồ sơ đích</span>
+                    <span>Gán Kênh Đích (Chức năng 2)</span>
                   </Button>
                 )}
                 {Boolean(channel.bkt_test_mode) && (
@@ -425,7 +428,7 @@ export function ChannelCard({
               </Badge>
             )}
 
-            {!channel.bkt_profile_id ? (
+            {!targetId ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -434,10 +437,10 @@ export function ChannelCard({
                   setShowSettings(true);
                 }}
                 className="h-7 px-2.5 text-xs gap-1.5 border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 font-semibold shadow-sm"
-                title="Bấm để gán hồ sơ trình duyệt / kênh đích cho kênh này"
+                title="Bấm để gán Kênh Đích (Chức năng 2) xuất bản video sau khi test"
               >
                 <UserCheck className="w-3.5 h-3.5 text-amber-500" />
-                <span>Gán hồ sơ đích</span>
+                <span>Gán Kênh Đích (Chức năng 2)</span>
               </Button>
             ) : (
               <Button
@@ -448,10 +451,10 @@ export function ChannelCard({
                   setShowSettings(true);
                 }}
                 className="h-7 px-2.5 text-xs gap-1.5 border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 font-medium"
-                title="Hồ sơ đã được liên kết 1-1. Bấm để đổi hồ sơ"
+                title="Kênh Đích (Chức năng 2) đã được liên kết 1-1. Bấm để đổi"
               >
                 <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
-                <span>{matchedProfile?.profile_name || 'Đã khớp 1-1'}</span>
+                <span>Kênh Đích: {matchedProfile?.profile_name || 'Đã khớp 1-1'}</span>
               </Button>
             )}
 

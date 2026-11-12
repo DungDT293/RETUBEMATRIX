@@ -228,7 +228,7 @@ export function ChannelsPage() {
   // Sequential Top 5 Reup Worker (1-by-1 FIFO, Tối ưu ổ cứng)
   const runSequentialTop5ForChannel = async (channel: FollowedChannel) => {
     const channelId = channel.id;
-    const targetProfileId = channel.bkt_profile_id;
+    const targetProfileId = channel.target_profile_id || channel.bkt_profile_id;
     if (!targetProfileId) return;
 
     const abortController = new AbortController();
@@ -272,7 +272,28 @@ export function ChannelsPage() {
         }
       }
 
-      const top5 = videos.slice(0, 5);
+      // Lọc bỏ livestream, premiere chưa phát và loại bỏ Shorts nếu kênh cấu hình video dài
+      const validVideos = videos.filter((v) => {
+        const vt = (v.video_type || '').toLowerCase();
+        const isLive = vt === 'live' || vt === 'stream' || v.url.includes('/live/');
+        const isShort =
+          vt === 'short' ||
+          vt === 'shorts' ||
+          v.url.includes('/shorts/') ||
+          ((v.duration ?? 0) > 0 && (v.duration ?? 0) <= 60);
+        if (isLive) return false;
+        if (channel.youtube_content_type !== 'shorts' && isShort) return false;
+        return true;
+      });
+
+      // Sắp xếp video theo thời gian upload mới nhất
+      const sortedNewest = [...validVideos].sort((a, b) => {
+        const timeA = a.upload_timestamp ?? (a.upload_date ? parseInt(a.upload_date, 10) : 0) ?? 0;
+        const timeB = b.upload_timestamp ?? (b.upload_date ? parseInt(b.upload_date, 10) : 0) ?? 0;
+        return timeB - timeA;
+      });
+
+      const top5 = sortedNewest.slice(0, 5);
       if (top5.length === 0) {
         setReupProgressMap((prev) => ({
           ...prev,
@@ -401,7 +422,9 @@ export function ChannelsPage() {
               videoPath: filePath,
               videoSourceType: 'channel_video',
               sourceRefId: targetId,
+              channelId: channel.id,
               mainTargetProfileId: targetProfileId,
+              targetProfileId: targetProfileId,
               autoPublishMain: true,
               targetTitle: aiTitle,
               targetDescription: adaptedDesc,
@@ -421,7 +444,7 @@ export function ChannelsPage() {
         // BƯỚC 4: Chờ hoàn thành BKT & Tự động xuất bản & Dọn sạch đĩa
         const jobId = dispatchedJob.jobId;
         try {
-          const finishedJob = await waitBktJobCompletion(jobId, 900);
+          const finishedJob = await waitBktJobCompletion(jobId, 1850);
           if (finishedJob.status === 'green_clean') {
             successCount++;
             setReupProgressMap((prev) => ({
@@ -468,6 +491,30 @@ export function ChannelsPage() {
               competitor_channel_id: channel.id,
               status: 'red',
             });
+          } else if (finishedJob.status === 'failed') {
+            const isUserCancelled =
+              finishedJob.restriction?.includes('hủy') ||
+              finishedJob.errorMessage?.includes('hủy') ||
+              finishedJob.restriction?.includes('cancel') ||
+              finishedJob.errorMessage?.includes('cancel');
+
+            if (isUserCancelled) {
+              console.log(
+                'Tác vụ đã bị người dùng dừng — dừng quy trình tuần tự Top 5 ngay lập tức.',
+              );
+              setReupProgressMap((prev) => ({
+                ...prev,
+                [channelId]: {
+                  channelId,
+                  isRunning: false,
+                  currentStep: stepIndex,
+                  totalSteps: total,
+                  progressText: 'Đã dừng quy trình theo yêu cầu của người dùng.',
+                  status: 'idle',
+                },
+              }));
+              return;
+            }
           }
         } catch (waitErr) {
           console.error(`Lỗi khi chờ BKT video ${v.title}:`, waitErr);
@@ -516,7 +563,8 @@ export function ChannelsPage() {
     if (!channel) return;
 
     if (enabled) {
-      if (!channel.bkt_profile_id) {
+      const targetProfile = channel.target_profile_id || channel.bkt_profile_id;
+      if (!targetProfile) {
         toast.warning({
           title: 'Chưa Gán Hồ Sơ Kênh Đích',
           message: `Vui lòng gán Hồ Sơ Kênh Đích (Target Profile) cho kênh "${channel.name}" trước khi bật Auto Reup!`,
@@ -529,7 +577,7 @@ export function ChannelsPage() {
         await updateChannelBktConfig({
           channelId,
           bktTestMode: true,
-          bktProfileId: channel.bkt_profile_id ?? null,
+          bktProfileId: targetProfile,
         });
         await refreshChannels();
         // Kích hoạt ngay Top 5

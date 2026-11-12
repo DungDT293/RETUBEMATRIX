@@ -136,7 +136,13 @@ fn windows_apps_shim_path() -> Option<PathBuf> {
 
 /// Inspect whether the `retubematrix` command is already available globally.
 #[tauri::command]
-pub fn get_cli_shortcut_status() -> CliShortcutStatus {
+pub async fn get_cli_shortcut_status() -> Result<CliShortcutStatus, String> {
+    tokio::task::spawn_blocking(get_cli_shortcut_status_sync)
+        .await
+        .map_err(|e| format!("Task join error: {e}"))
+}
+
+fn get_cli_shortcut_status_sync() -> CliShortcutStatus {
     let platform = current_platform().to_string();
     let exe_path = current_exe().ok();
     let exe_path_str = exe_path.as_ref().map(|p| p.display().to_string());
@@ -287,7 +293,13 @@ fn path_contains_exe_dir(exe: Option<&std::path::Path>) -> bool {
 /// Install the global `retubematrix` shortcut for the current platform.
 /// Returns the path of the installed shortcut on success.
 #[tauri::command]
-pub fn install_cli_shortcut() -> Result<String, String> {
+pub async fn install_cli_shortcut() -> Result<String, String> {
+    tokio::task::spawn_blocking(install_cli_shortcut_sync)
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
+}
+
+fn install_cli_shortcut_sync() -> Result<String, String> {
     #[cfg(target_os = "macos")]
     {
         let exe = current_exe()?;

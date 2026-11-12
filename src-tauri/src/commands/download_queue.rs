@@ -3,16 +3,22 @@ use crate::database::{
 };
 
 #[tauri::command]
-pub fn load_download_queue(queue_kind: String) -> Result<Option<String>, String> {
-    load_download_queue_from_db(queue_kind)
+pub async fn load_download_queue(queue_kind: String) -> Result<Option<String>, String> {
+    tokio::task::spawn_blocking(move || load_download_queue_from_db(queue_kind))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn save_download_queue(queue_kind: String, items_json: String) -> Result<(), String> {
-    save_download_queue_to_db(queue_kind, items_json)
+pub async fn save_download_queue(queue_kind: String, items_json: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || save_download_queue_to_db(queue_kind, items_json))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn clear_download_queue(queue_kind: String) -> Result<(), String> {
-    clear_download_queue_from_db(queue_kind)
+pub async fn clear_download_queue(queue_kind: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || clear_download_queue_from_db(queue_kind))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }

@@ -7,9 +7,11 @@ import {
   Loader2,
   Plus,
   RefreshCw,
+  RotateCcw,
   Send,
   ShieldAlert,
   ShieldCheck,
+  Square,
   Trash2,
   Tv,
   UserCheck,
@@ -30,17 +32,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import {
+  cancelAllBktJobs,
+  cancelBktJob,
   deleteBktTestChannel,
   getBktTestChannels,
   getBktTestJobs,
@@ -55,7 +52,7 @@ import type {
   BktTestJob,
   MultiBrowserProfile,
 } from '@/lib/types';
-import { cn, maskProxy } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { workTelemetryService } from '@/services/workTelemetryService';
 
 export function BktChannelManagerTab() {
@@ -69,7 +66,6 @@ export function BktChannelManagerTab() {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [editingChannel, setEditingChannel] = useState<BktTestChannel | null>(null);
   const [formName, setFormName] = useState<string>('');
-  const [formProfileId, setFormProfileId] = useState<string>('');
   const [formQuota, setFormQuota] = useState<number>(15);
   const [formIsActive, setFormIsActive] = useState<boolean>(true);
   const [formPriority, setFormPriority] = useState<number>(1);
@@ -103,10 +99,31 @@ export function BktChannelManagerTab() {
     loadData();
   }, [loadData]);
 
+  const handleResetQuota = async () => {
+    try {
+      setLoading(true);
+      await invoke('reset_bkt_channel_daily_quota', { channelId: null });
+      toast.success({
+        title: 'Đã làm mới hạn ngạch',
+        description: 'Đã hoàn trả toàn bộ hạn ngạch test bản quyền hôm nay về 0.',
+      });
+      await loadData();
+    } catch (err) {
+      toast.error({
+        title: 'Lỗi làm mới hạn ngạch',
+        description: String(err),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Listen to background job updates
   useEffect(() => {
+    let cancelled = false;
     let unlisten: (() => void) | undefined;
     listen<BktTestJob>('bkt-test-job-updated', (event) => {
+      if (cancelled) return;
       const updated = event.payload;
       setJobs((prev) => {
         const idx = prev.findIndex((j) => j.id === updated.id);
@@ -117,15 +134,29 @@ export function BktChannelManagerTab() {
         }
         return [updated, ...prev];
       });
-      // Refresh channels quota
-      getBktTestChannels()
-        .then(setChannels)
-        .catch(() => {});
+      // Chỉ refresh quota kênh khi job vừa vào hàng đợi hoặc hoàn tất (tránh spam SQLite ở mỗi % upload)
+      if (
+        updated.status === 'queued' ||
+        updated.status === 'green_clean' ||
+        updated.status === 'red_matched' ||
+        updated.status === 'failed'
+      ) {
+        getBktTestChannels()
+          .then((list) => {
+            if (!cancelled) setChannels(list);
+          })
+          .catch(() => {});
+      }
     }).then((fn) => {
-      unlisten = fn;
+      if (cancelled) {
+        fn();
+      } else {
+        unlisten = fn;
+      }
     });
 
     return () => {
+      cancelled = true;
       if (unlisten) unlisten();
     };
   }, []);
@@ -134,7 +165,6 @@ export function BktChannelManagerTab() {
   const handleOpenAdd = () => {
     setEditingChannel(null);
     setFormName('');
-    setFormProfileId(profiles.length > 0 ? profiles[0].id : '');
     setFormQuota(15);
     setFormIsActive(true);
     setFormPriority(1);
@@ -145,7 +175,6 @@ export function BktChannelManagerTab() {
   const handleOpenEdit = (ch: BktTestChannel) => {
     setEditingChannel(ch);
     setFormName(ch.name);
-    setFormProfileId(ch.profileId);
     setFormQuota(ch.dailyQuota);
     setFormIsActive(ch.isActive);
     setFormPriority(ch.priority);
@@ -159,20 +188,13 @@ export function BktChannelManagerTab() {
       toast.warning({ title: 'Thiếu thông tin', description: 'Vui lòng nhập tên kênh test.' });
       return;
     }
-    if (!formProfileId.trim()) {
-      toast.warning({
-        title: 'Thiếu thông tin',
-        description: 'Vui lòng chọn Hồ sơ trình duyệt liên kết.',
-      });
-      return;
-    }
 
     setSaving(true);
     try {
       const input: BktTestChannelInput = {
         id: editingChannel ? editingChannel.id : undefined,
         name: formName.trim(),
-        profileId: formProfileId.trim(),
+        profileId: editingChannel ? editingChannel.profileId : '',
         dailyQuota: Number(formQuota) || 15,
         isActive: formIsActive,
         priority: Number(formPriority) || 1,
@@ -286,10 +308,56 @@ export function BktChannelManagerTab() {
     }
   };
 
+  const [cancellingJobId, setCancellingJobId] = useState<string | null>(null);
+  const [cancellingAll, setCancellingAll] = useState(false);
+
+  const handleCancelJob = async (jobId: string) => {
+    try {
+      setCancellingJobId(jobId);
+      toast.info({
+        title: 'Đang hủy tác vụ',
+        description: 'Đang yêu cầu dừng tiến trình và giải phóng tài nguyên...',
+      });
+      await cancelBktJob(jobId);
+      toast.success({
+        title: 'Đã hủy tác vụ',
+        description: 'Tác vụ kiểm tra bản quyền đã được dừng an toàn.',
+      });
+      await loadData();
+    } catch (err) {
+      toast.error({ title: 'Lỗi hủy tác vụ', description: String(err) });
+    } finally {
+      setCancellingJobId(null);
+    }
+  };
+
+  const handleCancelAllJobs = async () => {
+    try {
+      setCancellingAll(true);
+      toast.info({
+        title: 'Đang dừng tất cả tác vụ',
+        description: 'Đang hủy toàn bộ hàng đợi và đóng các tiến trình kiểm tra...',
+      });
+      const count = await cancelAllBktJobs();
+      toast.success({
+        title: 'Đã dừng tất cả tác vụ kiểm tra bản quyền',
+        description: `Đã dừng thành công ${count} tác vụ.`,
+      });
+      await loadData();
+    } catch (err) {
+      toast.error({ title: 'Lỗi', description: String(err) });
+    } finally {
+      setCancellingAll(false);
+    }
+  };
+
   // Quota calculation helpers
   const totalSlots = channels.filter((c) => c.isActive).reduce((acc, c) => acc + c.dailyQuota, 0);
   const totalUsed = channels.filter((c) => c.isActive).reduce((acc, c) => acc + c.dailyUsed, 0);
   const totalRemaining = Math.max(0, totalSlots - totalUsed);
+  const activeJobsCount = jobs.filter((j) =>
+    ['queued', 'reuping', 'uploading', 'checking', 'pending'].includes(j.status),
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -351,6 +419,18 @@ export function BktChannelManagerTab() {
           <Button
             variant="outline"
             size="sm"
+            onClick={handleResetQuota}
+            disabled={loading}
+            className="h-8 text-xs gap-1.5 text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+            title="Khôi phục lại toàn bộ quota hôm nay về 0 khi có sự cố kỹ thuật hoặc muốn test lại ngay"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Làm mới Quota
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
             onClick={loadData}
             disabled={loading}
             className="h-8 text-xs gap-1.5"
@@ -372,8 +452,8 @@ export function BktChannelManagerTab() {
           <Tv className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
           <h3 className="text-sm font-semibold text-foreground">Chưa có Kênh Test Bản Quyền nào</h3>
           <p className="text-xs text-muted-foreground max-w-md mx-auto mt-1 mb-4">
-            Bấm nút bên dưới để tạo kênh test đầu tiên. Kênh test sẽ sử dụng Profile trình duyệt của
-            bạn để kiểm tra bản quyền ngầm mà không làm ảnh hưởng kênh chính.
+            Bấm nút bên dưới để tạo kênh test đầu tiên. Mỗi kênh test sẽ sở hữu hồ sơ Chromium riêng
+            biệt để kiểm tra bản quyền ngầm mà không làm ảnh hưởng Kênh Đích.
           </p>
           <Button size="sm" onClick={handleOpenAdd} className="h-8 text-xs gap-1.5">
             <Plus className="w-3.5 h-3.5" />
@@ -393,13 +473,14 @@ export function BktChannelManagerTab() {
                 className={cn(
                   'p-4 bg-card/40 border transition-all relative overflow-hidden flex flex-col justify-between gap-3',
                   !ch.isActive && 'opacity-60 border-border/40',
+                  !prof && 'border-amber-500/40 bg-amber-500/[0.02]',
                   isFull && ch.isActive && 'border-rose-500/30',
                 )}
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-0.5">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-semibold text-sm text-foreground">{ch.name}</span>
                         {ch.isActive ? (
                           <Badge
@@ -416,10 +497,21 @@ export function BktChannelManagerTab() {
                             Tạm dừng
                           </Badge>
                         )}
+                        <Badge
+                          variant="outline"
+                          className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-[10px] px-1.5 py-0"
+                        >
+                          Hồ Sơ Độc Lập
+                        </Badge>
                       </div>
                       <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                         <UserCheck className="w-3 h-3 text-primary/70" />
-                        <span>Hồ sơ: {prof ? prof.profile_name : ch.profileId}</span>
+                        <span>
+                          Hồ sơ Chromium:{' '}
+                          <strong className="text-foreground">
+                            {prof ? prof.profile_name : `[Kênh Test] ${ch.name}`}
+                          </strong>
+                        </span>
                       </p>
                     </div>
 
@@ -428,8 +520,8 @@ export function BktChannelManagerTab() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleLaunchProfile(ch.profileId)}
-                        title="Mở trình duyệt đăng nhập YouTube Studio"
-                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                        title="Mở Trình Duyệt Đăng Nhập Kênh Test (YouTube Studio)"
+                        className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Button>
@@ -513,9 +605,27 @@ export function BktChannelManagerTab() {
             <Layers className="w-4 h-4 text-primary" />
             Lịch Sử Tiến Trình Test Bản Quyền Gần Nhất
           </h3>
-          <Badge variant="outline" className="text-xs">
-            {jobs.length} tác vụ
-          </Badge>
+          <div className="flex items-center gap-2">
+            {activeJobsCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={cancellingAll}
+                onClick={handleCancelAllJobs}
+                className="h-7 text-[11px] gap-1 text-destructive border-destructive/40 bg-destructive/10 hover:bg-destructive hover:text-white"
+              >
+                {cancellingAll ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Square className="w-3 h-3 fill-current" />
+                )}
+                Dừng tất cả ({activeJobsCount})
+              </Button>
+            )}
+            <Badge variant="outline" className="text-xs">
+              {jobs.length} tác vụ
+            </Badge>
+          </div>
         </div>
 
         {jobs.length === 0 ? (
@@ -584,10 +694,12 @@ export function BktChannelManagerTab() {
                     </Badge>
                   );
                 } else if (job.status === 'failed') {
+                  const failureReason = job.errorMessage || job.restriction || 'Lỗi không xác định';
                   statusBadge = (
                     <Badge
                       variant="outline"
-                      className="text-xs bg-rose-500/10 text-rose-400 border-rose-500/20 gap-1"
+                      className="text-xs bg-rose-500/10 text-rose-400 border-rose-500/20 gap-1 cursor-help"
+                      title={failureReason}
                     >
                       <XCircle className="w-3 h-3 text-rose-400" />
                       Lỗi
@@ -614,15 +726,43 @@ export function BktChannelManagerTab() {
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {job.restriction && (
+                      {job.status === 'failed' ? (
                         <span
-                          className="text-[11px] text-muted-foreground max-w-[200px] truncate"
-                          title={job.restriction}
+                          className="text-[11px] text-rose-400 font-medium max-w-[280px] truncate cursor-help"
+                          title={job.errorMessage || job.restriction || 'Lỗi không xác định'}
                         >
-                          {job.restriction}
+                          {job.errorMessage || job.restriction || 'Lỗi không xác định'}
                         </span>
+                      ) : (
+                        job.restriction && (
+                          <span
+                            className="text-[11px] text-muted-foreground max-w-[200px] truncate"
+                            title={job.restriction}
+                          >
+                            {job.restriction}
+                          </span>
+                        )
                       )}
                       {statusBadge}
+                      {['queued', 'reuping', 'uploading', 'checking', 'pending'].includes(
+                        job.status,
+                      ) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={cancellingJobId === job.id}
+                          onClick={() => handleCancelJob(job.id)}
+                          className="h-7 text-[11px] gap-1 text-destructive hover:bg-destructive/10 hover:text-destructive border border-destructive/30"
+                          title="Hủy tác vụ kiểm tra bản quyền này"
+                        >
+                          {cancellingJobId === job.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Square className="w-3 h-3 fill-current" />
+                          )}
+                          Dừng
+                        </Button>
+                      )}
                       {job.status === 'green_clean' && job.mainTargetProfileId && (
                         <Button
                           variant="outline"
@@ -640,16 +780,20 @@ export function BktChannelManagerTab() {
                           Đăng Kênh Đích
                         </Button>
                       )}
-                      {(job.status === 'pending' || job.status === 'checking') && (
+                      {(job.status === 'pending' || job.status === 'failed') && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRecheckJob(job.id)}
                           className="h-7 text-[11px] gap-1 text-muted-foreground hover:text-foreground"
-                          title="Quét lại trạng thái bản quyền trên YouTube Studio"
+                          title={
+                            job.status === 'failed'
+                              ? 'Thử lại tác vụ kiểm tra bản quyền'
+                              : 'Quét lại trạng thái bản quyền trên YouTube Studio'
+                          }
                         >
                           <RefreshCw className="w-3 h-3" />
-                          Quét Lại
+                          {job.status === 'failed' ? 'Thử lại' : 'Quét Lại'}
                         </Button>
                       )}
                     </div>
@@ -669,8 +813,8 @@ export function BktChannelManagerTab() {
               {editingChannel ? 'Chỉnh Sửa Kênh Test Bản Quyền' : 'Thêm Kênh Test Bản Quyền Mới'}
             </DialogTitle>
             <DialogDescription className="text-xs">
-              Mỗi kênh test liên kết với một Hồ sơ trình duyệt (Profile) đã đăng nhập YouTube
-              Studio.
+              Mỗi kênh test sở hữu một Hồ sơ Chromium độc lập để mượn slot Unlisted kiểm tra bản
+              quyền.
             </DialogDescription>
           </DialogHeader>
 
@@ -685,29 +829,15 @@ export function BktChannelManagerTab() {
               />
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-medium">Hồ Sơ Trình Duyệt (Profile Liên Kết):</Label>
-              <Select value={formProfileId} onValueChange={setFormProfileId}>
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Chọn Profile..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {profiles.length === 0 ? (
-                    <SelectItem value="__none__" disabled className="text-xs">
-                      Chưa có Profile nào. Hãy tạo tại trang Quản lý Profile.
-                    </SelectItem>
-                  ) : (
-                    profiles.map((p) => (
-                      <SelectItem key={p.id} value={p.id} className="text-xs">
-                        {p.profile_name} {p.proxy ? `(${maskProxy(p.proxy)})` : '(IP Trực tiếp)'}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              <p className="text-[10px] text-muted-foreground">
-                Dữ liệu đăng nhập Google và Cookie của Profile này sẽ được dùng để đăng tải video
-                test.
+            <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 text-xs space-y-1">
+              <div className="font-semibold text-primary flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Hồ Sơ Chromium Độc Lập Cho Kênh Test</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Kênh Test Bản Quyền hoạt động độc lập 100% với Hồ Sơ Kênh Đích (Chức năng 2). Hệ
+                thống tự động quản lý phiên Chromium riêng cho kênh test này để mượn slot Unlisted
+                kiểm tra bản quyền ngầm, tuyệt đối không ảnh hưởng đến Kênh Chính.
               </p>
             </div>
 

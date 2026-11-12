@@ -430,6 +430,10 @@ async fn fetch_channel_videos_once(
                 .and_then(|v| v.as_str())
                 .map(|s| s.to_string());
 
+            let view_count = json
+                .get("view_count")
+                .and_then(|v| v.as_i64().or_else(|| v.as_f64().map(|f| f as i64)));
+
             entries.push(PlaylistVideoEntry {
                 id,
                 title,
@@ -439,6 +443,7 @@ async fn fetch_channel_videos_once(
                 channel,
                 upload_date,
                 playlist_title: None,
+                view_count,
             });
         }
     }

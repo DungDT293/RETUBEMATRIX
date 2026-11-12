@@ -1,5 +1,13 @@
 import { invoke } from '@tauri-apps/api/core';
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { LogEntry, LogFilter } from '@/lib/types';
 
 interface LogContextType {
@@ -54,23 +62,54 @@ export function LogProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(LOG_STDERR_KEY, String(enabled));
   }, []);
 
+  const inFlightRef = useRef(false);
+  const fetchSeqRef = useRef(0);
+  const pendingReloadRef = useRef(false);
+
+  const fetchLogs = useCallback(
+    async (silent = false) => {
+      const reqSeq = ++fetchSeqRef.current;
+      if (inFlightRef.current) {
+        if (!silent) {
+          pendingReloadRef.current = true;
+        }
+        return;
+      }
+      inFlightRef.current = true;
+      if (!silent) {
+        setLoading(true);
+      }
+      try {
+        const filterParam = filter === 'all' ? null : filter;
+        const searchParam = search.trim() || null;
+        const result = await invoke<LogEntry[]>('get_logs', {
+          filter: filterParam,
+          search: searchParam,
+          limit: 500,
+        });
+        if (reqSeq !== fetchSeqRef.current) {
+          return;
+        }
+        setLogs((current) => (areLogsEqual(current, result) ? current : result));
+      } catch (error) {
+        console.error('Failed to fetch logs:', error);
+      } finally {
+        inFlightRef.current = false;
+        setLoading(false);
+        if (pendingReloadRef.current) {
+          pendingReloadRef.current = false;
+          window.setTimeout(() => {
+            void fetchLogs(false);
+          }, 0);
+        }
+      }
+    },
+    [filter, search],
+  );
+
   const refreshLogs = useCallback(async () => {
-    setLoading(true);
-    try {
-      const filterParam = filter === 'all' ? null : filter;
-      const searchParam = search.trim() || null;
-      const result = await invoke<LogEntry[]>('get_logs', {
-        filter: filterParam,
-        search: searchParam,
-        limit: 500,
-      });
-      setLogs((current) => (areLogsEqual(current, result) ? current : result));
-    } catch (error) {
-      console.error('Failed to fetch logs:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [filter, search]);
+    await fetchLogs(false);
+  }, [fetchLogs]);
 
   const clearLogs = useCallback(async () => {
     try {
@@ -94,16 +133,19 @@ export function LogProvider({ children }: { children: ReactNode }) {
 
   // Fetch logs on mount and when filter/search changes
   useEffect(() => {
-    refreshLogs();
-  }, [refreshLogs]);
+    void fetchLogs(false);
+  }, [fetchLogs]);
 
-  // Auto-refresh logs every 5 seconds when viewing
+  // Auto-refresh logs every 5 seconds when window is visible (single-flight)
   useEffect(() => {
     const interval = setInterval(() => {
-      refreshLogs();
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return;
+      }
+      void fetchLogs(true);
     }, 5000);
     return () => clearInterval(interval);
-  }, [refreshLogs]);
+  }, [fetchLogs]);
 
   return (
     <LogContext.Provider

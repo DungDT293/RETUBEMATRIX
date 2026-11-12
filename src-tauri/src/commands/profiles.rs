@@ -305,57 +305,123 @@ static STATS_CACHE: Mutex<Option<(Instant, serde_json::Value)>> = Mutex::new(Non
 
 #[tauri::command]
 pub async fn get_multibrowser_profiles(app: AppHandle) -> Result<Vec<MultiBrowserProfile>, String> {
-    // FAST PATH: Đọc trực tiếp từ profiles.json của RETubeMatrix trên đĩa (tốn < 1ms thay vì khởi tạo tiến trình Python 1.5s)
+    // FAST PATH: Đọc trực tiếp từ profiles.json của RETubeMatrix trên đĩa ngoài reactor thread.
     // TUYỆT ĐỐI KHÔNG đọc trộm hoặc fallback sang BrowserMulti hay reupytb để đảm bảo dữ liệu RETubeMatrix hoàn toàn cô lập và sạch sẽ.
-    if let Ok(local_appdata) = std::env::var("LOCALAPPDATA") {
-        let base = std::path::PathBuf::from(local_appdata);
-        let retube_profile_path = base.join("RETubeMatrix").join("browser_engine").join("profiles.json");
+    if let Some(profiles_opt) = tokio::task::spawn_blocking(|| {
+        let local_appdata = std::env::var("LOCALAPPDATA").ok()?;
+        let retube_profile_path = std::path::PathBuf::from(local_appdata)
+            .join("RETubeMatrix")
+            .join("browser_engine")
+            .join("profiles.json");
 
-        if retube_profile_path.exists() {
-            if let Ok(content) = std::fs::read_to_string(&retube_profile_path) {
-                if let Ok(profiles) = serde_json::from_str::<Vec<MultiBrowserProfile>>(&content) {
-                    return Ok(profiles);
-                }
-                // Lenient fallback parsing to prevent falling back to Python on minor type differences
-                if let Ok(raw_list) = serde_json::from_str::<Vec<serde_json::Value>>(&content) {
-                    let profiles: Vec<MultiBrowserProfile> = raw_list.into_iter().filter_map(|val| {
-                        let id = val.get("id").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                        let profile_name = val.get("profile_name").and_then(|v| v.as_str()).unwrap_or(&id).to_string();
-                        if id.is_empty() && profile_name.is_empty() { return None; }
-                        Some(MultiBrowserProfile {
-                            id: if id.is_empty() { profile_name.clone() } else { id },
-                            profile_name,
-                            group: val.get("group").and_then(|v| v.as_str()).map(String::from),
-                            profile_dir: val.get("profile_dir").and_then(|v| v.as_str()).map(String::from),
-                            proxy: val.get("proxy").and_then(|v| v.as_str()).map(String::from),
-                            proxy_scheme: val.get("proxy_scheme").and_then(|v| v.as_str()).map(String::from),
-                            youtube_preferred_channel: val.get("youtube_preferred_channel").and_then(|v| v.as_str()).map(String::from),
-                            youtube_channels: val.get("youtube_channels").and_then(|v| v.as_array()).cloned(),
-                            note: val.get("note").and_then(|v| v.as_str()).map(String::from),
-                            color: val.get("color").and_then(|v| v.as_str()).map(String::from),
-                            tags: val.get("tags").and_then(|v| v.as_array()).map(|arr| arr.iter().filter_map(|s| s.as_str().map(String::from)).collect()),
-                            fingerprint_seed: val.get("fingerprint_seed").cloned(),
-                            fingerprint_os: val.get("fingerprint_os").and_then(|v| v.as_str()).map(String::from),
-                            fingerprint_browser_version: val.get("fingerprint_browser_version").and_then(|v| v.as_str()).map(String::from),
-                            fingerprint_webgl: val.get("fingerprint_webgl").and_then(|v| v.as_str()).map(String::from),
-                            fingerprint_canvas: val.get("fingerprint_canvas").and_then(|v| v.as_str()).map(String::from),
-                            fingerprint_timezone: val.get("fingerprint_timezone").and_then(|v| v.as_str()).map(String::from),
-                            fingerprint_language: val.get("fingerprint_language").and_then(|v| v.as_str()).map(String::from),
-                            proxy_risk: val.get("proxy_risk").and_then(|v| v.as_str()).map(String::from),
-                            proxy_score: val.get("proxy_score").cloned(),
-                            proxy_country: val.get("proxy_country").and_then(|v| v.as_str()).map(String::from),
-                            last_run_status: val.get("last_run_status").and_then(|v| v.as_str()).map(String::from),
-                            last_run_time: val.get("last_run_time").and_then(|v| v.as_str()).map(String::from),
-                            last_run_error: val.get("last_run_error").and_then(|v| v.as_str()).map(String::from),
-                        })
-                    }).collect();
-                    return Ok(profiles);
-                }
-            }
-        } else {
-            // Máy mới tinh chưa tạo profile nào -> Trả về danh sách rỗng, không đọc từ BrowserMulti
-            return Ok(vec![]);
+        if !retube_profile_path.exists() {
+            return Some(Vec::new());
         }
+
+        let content = std::fs::read_to_string(&retube_profile_path).ok()?;
+        if let Ok(profiles) = serde_json::from_str::<Vec<MultiBrowserProfile>>(&content) {
+            return Some(profiles);
+        }
+        // Lenient fallback parsing to prevent falling back to Python on minor type differences
+        if let Ok(raw_list) = serde_json::from_str::<Vec<serde_json::Value>>(&content) {
+            let profiles: Vec<MultiBrowserProfile> = raw_list
+                .into_iter()
+                .filter_map(|val| {
+                    let id = val.get("id").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                    let profile_name = val
+                        .get("profile_name")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or(&id)
+                        .to_string();
+                    if id.is_empty() && profile_name.is_empty() {
+                        return None;
+                    }
+                    Some(MultiBrowserProfile {
+                        id: if id.is_empty() { profile_name.clone() } else { id },
+                        profile_name,
+                        group: val.get("group").and_then(|v| v.as_str()).map(String::from),
+                        profile_dir: val
+                            .get("profile_dir")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        proxy: val.get("proxy").and_then(|v| v.as_str()).map(String::from),
+                        proxy_scheme: val
+                            .get("proxy_scheme")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        youtube_preferred_channel: val
+                            .get("youtube_preferred_channel")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        youtube_channels: val
+                            .get("youtube_channels")
+                            .and_then(|v| v.as_array())
+                            .cloned(),
+                        note: val.get("note").and_then(|v| v.as_str()).map(String::from),
+                        color: val.get("color").and_then(|v| v.as_str()).map(String::from),
+                        tags: val.get("tags").and_then(|v| v.as_array()).map(|arr| {
+                            arr.iter()
+                                .filter_map(|s| s.as_str().map(String::from))
+                                .collect()
+                        }),
+                        fingerprint_seed: val.get("fingerprint_seed").cloned(),
+                        fingerprint_os: val
+                            .get("fingerprint_os")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        fingerprint_browser_version: val
+                            .get("fingerprint_browser_version")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        fingerprint_webgl: val
+                            .get("fingerprint_webgl")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        fingerprint_canvas: val
+                            .get("fingerprint_canvas")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        fingerprint_timezone: val
+                            .get("fingerprint_timezone")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        fingerprint_language: val
+                            .get("fingerprint_language")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        proxy_risk: val
+                            .get("proxy_risk")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        proxy_score: val.get("proxy_score").cloned(),
+                        proxy_country: val
+                            .get("proxy_country")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        last_run_status: val
+                            .get("last_run_status")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        last_run_time: val
+                            .get("last_run_time")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                        last_run_error: val
+                            .get("last_run_error")
+                            .and_then(|v| v.as_str())
+                            .map(String::from),
+                    })
+                })
+                .collect();
+            return Some(profiles);
+        }
+        None
+    })
+    .await
+    .ok()
+    .flatten()
+    {
+        return Ok(profiles_opt);
     }
 
     let (mut cmd, runner) = create_runner_cmd(&app);
@@ -565,12 +631,21 @@ pub async fn launch_multibrowser_profile(
 #[tauri::command]
 pub async fn upload_video_multibrowser(
     app: AppHandle,
-    params: MultiBrowserUploadParams,
+    mut params: MultiBrowserUploadParams,
 ) -> Result<MultiBrowserUploadResult, String> {
+    // Luôn đảm bảo tiêu đề YouTube không bao giờ vượt quá 100 ký tự
+    let raw_t = params.title.trim();
+    if raw_t.chars().count() > 100 {
+        params.title = raw_t.chars().take(100).collect();
+    } else {
+        params.title = raw_t.to_string();
+    }
+
     log::info!(
-        "Khởi chạy upload_video_multibrowser cho profile_id: {}, video: {}, tags: {:?}",
+        "Khởi chạy upload_video_multibrowser cho profile_id: {}, video: {}, title_len: {}, tags: {:?}",
         params.profile_id,
         params.video_path,
+        params.title.chars().count(),
         params.tags
     );
     let data_json = serde_json::to_string(&params).map_err(|e| e.to_string())?;
@@ -723,23 +798,34 @@ pub async fn get_multibrowser_stats(app: AppHandle) -> Result<serde_json::Value,
             })
             .collect();
 
-        // Đọc lịch sử chạy gần nhất từ logs/run_history.jsonl nếu có
-        let mut recent_runs = Vec::new();
-        let history_candidates = [
-            get_runner_path(&app).parent().map(|p| p.join("logs").join("run_history.jsonl")),
-            std::env::current_exe().ok().and_then(|e| e.parent().map(|p| p.join("browser_engine").join("logs").join("run_history.jsonl"))),
-            std::env::current_dir().ok().map(|cwd| cwd.join("browser_engine").join("logs").join("run_history.jsonl")),
+        // Đọc lịch sử chạy gần nhất từ logs/run_history.jsonl ngoài Tokio reactor thread
+        let history_candidates = vec![
+            get_runner_path(&app)
+                .parent()
+                .map(|p| p.join("logs").join("run_history.jsonl")),
+            std::env::current_exe()
+                .ok()
+                .and_then(|e| e.parent().map(|p| p.join("browser_engine").join("logs").join("run_history.jsonl"))),
+            std::env::current_dir()
+                .ok()
+                .map(|cwd| cwd.join("browser_engine").join("logs").join("run_history.jsonl")),
         ];
 
-        if let Some(history_path) = history_candidates.into_iter().flatten().find(|p| p.exists()) {
-            if let Ok(content) = std::fs::read_to_string(&history_path) {
-                for line in content.lines().rev().take(10) {
-                    if let Ok(val) = serde_json::from_str::<serde_json::Value>(line.trim()) {
-                        recent_runs.push(val);
+        let recent_runs: Vec<serde_json::Value> = tokio::task::spawn_blocking(move || {
+            let mut runs = Vec::new();
+            if let Some(history_path) = history_candidates.into_iter().flatten().find(|p| p.exists()) {
+                if let Ok(content) = std::fs::read_to_string(&history_path) {
+                    for line in content.lines().rev().take(10) {
+                        if let Ok(val) = serde_json::from_str::<serde_json::Value>(line.trim()) {
+                            runs.push(val);
+                        }
                     }
                 }
             }
-        }
+            runs
+        })
+        .await
+        .unwrap_or_default();
 
         let last_run = recent_runs.first().cloned();
         let today_run_count = recent_runs.len();

@@ -386,7 +386,11 @@ export function ProfilesPage() {
         color: formColor,
       };
 
-      await invoke('save_multibrowser_profile', { profile: payload });
+      await invoke('save_multibrowser_profile', {
+        profile: payload,
+        profile_input: payload,
+        profileInput: payload,
+      });
 
       // Telemetry: Đồng bộ kênh đích lên máy chủ
       if (payload.id) {
@@ -1282,7 +1286,10 @@ export function ProfilesPage() {
               <Input
                 placeholder="VD: Channel 1 Main"
                 value={formName}
-                onChange={(e) => setFormName(e.target.value)}
+                onChange={(e) => {
+                  setFormName(e.target.value);
+                  if (formError) setFormError('');
+                }}
                 className="mt-1 text-xs"
               />
             </div>

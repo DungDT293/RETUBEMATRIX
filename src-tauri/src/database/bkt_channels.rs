@@ -246,16 +246,50 @@ pub fn increment_bkt_channel_used_db(id: &str, count: i64) -> Result<bool, Strin
     Ok(rows_affected > 0)
 }
 
+/// Giảm/hoàn lại số lượng quota đã dùng khi job bị hủy hoặc thất bại trước khi upload
+pub fn decrement_bkt_channel_used_db(id: &str, count: i64) -> Result<(), String> {
+    let conn = get_db()?;
+    conn.execute(
+        "UPDATE bkt_test_channels
+         SET daily_used = MAX(0, daily_used - ?1), updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?2",
+        params![count, id],
+    )
+    .map_err(|e| format!("Lỗi hoàn trả quota kênh test: {e}"))?;
+    Ok(())
+}
+
+/// Đặt lại quota hôm nay về 0 (cho 1 kênh hoặc toàn bộ kênh test)
+pub fn reset_bkt_channel_daily_quota_db(channel_id: Option<&str>) -> Result<(), String> {
+    let conn = get_db()?;
+    if let Some(id) = channel_id {
+        conn.execute(
+            "UPDATE bkt_test_channels SET daily_used = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?1",
+            params![id],
+        )
+        .map_err(|e| format!("Lỗi reset quota kênh test: {e}"))?;
+    } else {
+        conn.execute(
+            "UPDATE bkt_test_channels SET daily_used = 0, updated_at = CURRENT_TIMESTAMP",
+            [],
+        )
+        .map_err(|e| format!("Lỗi reset toàn bộ quota kênh test: {e}"))?;
+    }
+    Ok(())
+}
+
 /// Tạo một bản ghi tác vụ test video
 pub fn create_bkt_test_job_db(job: &BktTestJob) -> Result<(), String> {
     let conn = get_db()?;
+    let target_profile = job.target_profile_id.as_deref().or(job.main_target_profile_id.as_deref());
     conn.execute(
         "INSERT INTO bkt_test_jobs (
             id, test_channel_id, video_source_type, source_ref_id,
             video_title, video_path, reup_path, youtube_video_id,
             status, restriction, error_message, tested_date, created_at, updated_at,
-            main_target_profile_id, auto_publish_main, target_title, target_description, target_tags, thumbnail_path
-        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?13, ?14, ?15, ?16, ?17, ?18, ?19)",
+            main_target_profile_id, auto_publish_main, target_title, target_description, target_tags, thumbnail_path,
+            channel_id, target_profile_id
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21)",
         params![
             job.id,
             job.test_channel_id,
@@ -270,12 +304,14 @@ pub fn create_bkt_test_job_db(job: &BktTestJob) -> Result<(), String> {
             job.error_message,
             job.tested_date,
             job.created_at,
-            job.main_target_profile_id,
+            target_profile,
             if job.auto_publish_main.unwrap_or(false) { 1 } else { 0 },
             job.target_title,
             job.target_description,
             job.target_tags,
             job.thumbnail_path,
+            job.channel_id,
+            target_profile,
         ],
     )
     .map_err(|e| format!("Lỗi tạo bkt_test_job: {e}"))?;
@@ -293,12 +329,18 @@ pub fn update_bkt_test_job_status_db(
 ) -> Result<(), String> {
     let conn = get_db()?;
     let now_str = Local::now().to_rfc3339();
+    // Chống rò rỉ restriction: Nếu job thất bại, ghi đè restriction bằng error_message
+    let eff_restriction = if status == "failed" {
+        error_message.or(restriction)
+    } else {
+        restriction
+    };
     conn.execute(
         "UPDATE bkt_test_jobs
          SET status = ?1,
              reup_path = COALESCE(?2, reup_path),
              youtube_video_id = COALESCE(?3, youtube_video_id),
-             restriction = COALESCE(?4, restriction),
+             restriction = ?4,
              error_message = ?5,
              updated_at = ?6
          WHERE id = ?7",
@@ -306,13 +348,32 @@ pub fn update_bkt_test_job_status_db(
             status,
             reup_path,
             youtube_video_id,
-            restriction,
+            eff_restriction,
             error_message,
             now_str,
             id,
         ],
     )
     .map_err(|e| format!("Lỗi cập nhật bkt_test_job: {e}"))?;
+    Ok(())
+}
+
+/// Đặt lại một tác vụ BKT đã thất bại để chuẩn bị chạy lại từ đầu (xóa sạch youtube_video_id và reup_path)
+pub fn reset_bkt_test_job_for_retry_db(id: &str) -> Result<(), String> {
+    let conn = get_db()?;
+    let now_str = Local::now().to_rfc3339();
+    conn.execute(
+        "UPDATE bkt_test_jobs
+         SET status = 'queued',
+             youtube_video_id = NULL,
+             reup_path = NULL,
+             restriction = 'Đang xếp hàng chờ tải lại và quét bản quyền...',
+             error_message = NULL,
+             updated_at = ?1
+         WHERE id = ?2",
+        params![now_str, id],
+    )
+    .map_err(|e| format!("Lỗi đặt lại bkt_test_job: {e}"))?;
     Ok(())
 }
 
@@ -327,8 +388,10 @@ pub fn get_bkt_test_jobs_db(limit: Option<i64>) -> Result<Vec<BktTestJob>, Strin
                     j.video_title, j.video_path, j.reup_path, j.youtube_video_id,
                     j.status, j.restriction, j.error_message, j.tested_date,
                     j.created_at, j.updated_at,
-                    j.main_target_profile_id, j.auto_publish_main, j.target_title,
-                    j.target_description, j.target_tags, j.thumbnail_path
+                    COALESCE(j.target_profile_id, j.main_target_profile_id) AS main_target_profile_id,
+                    j.auto_publish_main, j.target_title,
+                    j.target_description, j.target_tags, j.thumbnail_path,
+                    j.channel_id
              FROM bkt_test_jobs j
              LEFT JOIN bkt_test_channels tc ON j.test_channel_id = tc.id
              ORDER BY j.created_at DESC
@@ -339,6 +402,7 @@ pub fn get_bkt_test_jobs_db(limit: Option<i64>) -> Result<Vec<BktTestJob>, Strin
     let rows = stmt
         .query_map(params![lim], |row| {
             let auto_pub: Option<i64> = row.get(16)?;
+            let target_prof: Option<String> = row.get(15)?;
             Ok(BktTestJob {
                 id: row.get(0)?,
                 test_channel_id: row.get(1)?,
@@ -355,7 +419,9 @@ pub fn get_bkt_test_jobs_db(limit: Option<i64>) -> Result<Vec<BktTestJob>, Strin
                 tested_date: row.get(12)?,
                 created_at: row.get(13)?,
                 updated_at: row.get(14)?,
-                main_target_profile_id: row.get(15)?,
+                main_target_profile_id: target_prof.clone(),
+                target_profile_id: target_prof,
+                channel_id: row.get(21)?,
                 auto_publish_main: auto_pub.map(|v| v == 1),
                 target_title: row.get(17)?,
                 target_description: row.get(18)?,
@@ -382,8 +448,10 @@ pub fn get_bkt_test_job_by_id_db(job_id: &str) -> Result<Option<BktTestJob>, Str
                     j.video_title, j.video_path, j.reup_path, j.youtube_video_id,
                     j.status, j.restriction, j.error_message, j.tested_date,
                     j.created_at, j.updated_at,
-                    j.main_target_profile_id, j.auto_publish_main, j.target_title,
-                    j.target_description, j.target_tags, j.thumbnail_path
+                    COALESCE(j.target_profile_id, j.main_target_profile_id) AS main_target_profile_id,
+                    j.auto_publish_main, j.target_title,
+                    j.target_description, j.target_tags, j.thumbnail_path,
+                    j.channel_id
              FROM bkt_test_jobs j
              LEFT JOIN bkt_test_channels tc ON j.test_channel_id = tc.id
              WHERE j.id = ?1",
@@ -393,6 +461,7 @@ pub fn get_bkt_test_job_by_id_db(job_id: &str) -> Result<Option<BktTestJob>, Str
     let mut rows = stmt
         .query_map(params![job_id], |row| {
             let auto_pub: Option<i64> = row.get(16)?;
+            let target_prof: Option<String> = row.get(15)?;
             Ok(BktTestJob {
                 id: row.get(0)?,
                 test_channel_id: row.get(1)?,
@@ -409,7 +478,9 @@ pub fn get_bkt_test_job_by_id_db(job_id: &str) -> Result<Option<BktTestJob>, Str
                 tested_date: row.get(12)?,
                 created_at: row.get(13)?,
                 updated_at: row.get(14)?,
-                main_target_profile_id: row.get(15)?,
+                main_target_profile_id: target_prof.clone(),
+                target_profile_id: target_prof,
+                channel_id: row.get(21)?,
                 auto_publish_main: auto_pub.map(|v| v == 1),
                 target_title: row.get(17)?,
                 target_description: row.get(18)?,
@@ -425,4 +496,92 @@ pub fn get_bkt_test_job_by_id_db(job_id: &str) -> Result<Option<BktTestJob>, Str
         Ok(None)
     }
 }
+
+/// Startup Reconcile Sweep: Quét tất cả job chưa hoàn tất ('queued', 'reuping', 'uploading', 'checking', 'pending')
+/// khi khởi động ứng dụng và chuyển sang 'failed' với lý do "Đã dừng khi ứng dụng khởi động lại".
+/// Đồng thời dọn dẹp các tệp reup tạm thời để tránh lãng phí dung lượng ổ đĩa.
+pub fn reconcile_bkt_jobs_on_startup_db(conn: &rusqlite::Connection) -> Result<usize, String> {
+    log::info!("[BKT RECONCILE] Bắt đầu Startup Reconcile Sweep quét các tác vụ BKT chưa hoàn tất...");
+
+    let mut stmt = conn
+        .prepare(
+            "SELECT id, video_path, reup_path, test_channel_id
+             FROM bkt_test_jobs
+             WHERE status IN ('queued', 'reuping', 'uploading', 'checking', 'pending')",
+        )
+        .map_err(|e| format!("Lỗi truy vấn reconcile bkt_test_jobs: {e}"))?;
+
+    let interrupted: Vec<(String, String, Option<String>, String)> = stmt
+        .query_map([], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, Option<String>>(2)?,
+                row.get::<_, String>(3)?,
+            ))
+        })
+        .map_err(|e| format!("Lỗi map reconcile bkt_test_jobs: {e}"))?
+        .filter_map(|r| r.ok())
+        .collect();
+
+    let count = interrupted.len();
+
+    // Dọn dẹp tệp reup tạm thời của các job bị gián đoạn và hoàn trả quota cho kênh test
+    for (_, video_path, reup_path, test_channel_id) in &interrupted {
+        if let Some(ref r_path) = reup_path {
+            if r_path != video_path {
+                let p = std::path::Path::new(r_path);
+                if p.exists() {
+                    let _ = std::fs::remove_file(p);
+                    log::info!("[BKT RECONCILE] Đã xóa tệp reup tạm bị gián đoạn: {r_path}");
+                }
+            }
+        }
+        // Hoàn trả quota an toàn cho kênh test
+        let _ = conn.execute(
+            "UPDATE bkt_test_channels SET daily_used = MAX(0, daily_used - 1) WHERE id = ?1",
+            rusqlite::params![test_channel_id],
+        );
+    }
+
+    if count > 0 {
+        let now_str = chrono::Local::now().to_rfc3339();
+        let rows = conn
+            .execute(
+                "UPDATE bkt_test_jobs
+                 SET status = 'failed',
+                     restriction = 'Đã dừng khi ứng dụng khởi động lại',
+                     error_message = 'Đã dừng khi ứng dụng khởi động lại',
+                     updated_at = ?1
+                 WHERE status IN ('queued', 'reuping', 'uploading', 'checking', 'pending')",
+                rusqlite::params![now_str],
+            )
+            .map_err(|e| format!("Lỗi cập nhật reconcile bkt_test_jobs: {e}"))?;
+
+        // Đồng bộ cập nhật cho channel_videos liên quan
+        if let Err(e) = conn.execute(
+            "UPDATE channel_videos
+             SET bkt_check_status = 'failed',
+                 bkt_restriction = 'Đã dừng khi ứng dụng khởi động lại',
+                 risk_reason = 'Đã dừng khi ứng dụng khởi động lại'
+             WHERE video_id IN (
+                 SELECT source_ref_id FROM bkt_test_jobs
+                 WHERE video_source_type = 'channel_video' AND error_message = 'Đã dừng khi ứng dụng khởi động lại'
+             ) OR id IN (
+                 SELECT source_ref_id FROM bkt_test_jobs
+                 WHERE video_source_type = 'channel_video' AND error_message = 'Đã dừng khi ứng dụng khởi động lại'
+             )",
+            [],
+        ) {
+            log::warn!("[BKT RECONCILE] Không thể đồng bộ channel_videos: {e}");
+        }
+
+        log::info!("[BKT RECONCILE] Startup Reconcile Sweep hoàn tất: Đã chuyển {rows} job bị kẹt sang 'failed'.");
+    } else {
+        log::info!("[BKT RECONCILE] Không có job BKT nào bị kẹt từ phiên trước.");
+    }
+
+    Ok(count)
+}
+
 

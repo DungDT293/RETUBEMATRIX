@@ -324,13 +324,15 @@ pub fn run() {
                 let _ = window.set_focus();
             }
 
-            if cfg!(debug_assertions) {
-                app.handle().plugin(
-                    tauri_plugin_log::Builder::default()
-                        .level(log::LevelFilter::Info)
-                        .build(),
-                )?;
-            }
+            app.handle().plugin(
+                tauri_plugin_log::Builder::default()
+                    .level(if cfg!(debug_assertions) {
+                        log::LevelFilter::Debug
+                    } else {
+                        log::LevelFilter::Info
+                    })
+                    .build(),
+            )?;
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -443,6 +445,10 @@ pub fn run() {
             commands::generate_video_thumbnail,
             commands::run_reup_pipeline_v1_cmd,
             commands::run_reup_pipeline_v2_cmd,
+            commands::scan_video_preflight_cmd,
+            commands::run_preflight_scan_cmd,
+            commands::probe_hardware_encoder_cmd,
+            commands::run_reup_pipeline_adaptive_cmd,
             // Whisper commands
             commands::transcribe_url_with_whisper,
             // Plugin commands
@@ -554,6 +560,9 @@ pub fn run() {
             commands::dispatch_batch_bkt_test,
             commands::publish_bkt_job_to_main_cmd,
             commands::recheck_bkt_job_cmd,
+            commands::cancel_bkt_job,
+            commands::cancel_all_bkt_jobs,
+            commands::reset_bkt_channel_daily_quota,
             commands::get_daily_report_stats,
             commands::wait_bkt_job_completion,
         ])

@@ -86,7 +86,7 @@ export function QuickUploadDialog({
   useEffect(() => {
     if (isOpen) {
       if (initialVideoPath) setVideoPath(initialVideoPath);
-      if (initialTitle) setTitle(initialTitle);
+      if (initialTitle) setTitle(initialTitle.slice(0, 100));
       if (initialDescription) setDescription(initialDescription);
       if (initialThumbnail) setThumbnailPath(initialThumbnail);
       if (initialProfileId) setSelectedProfileId(initialProfileId);

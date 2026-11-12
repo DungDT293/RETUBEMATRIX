@@ -15,7 +15,7 @@ use crate::types::{
 };
 
 #[tauri::command]
-pub fn add_history(
+pub async fn add_history(
     url: String,
     title: String,
     thumbnail: Option<String>,
@@ -26,14 +26,18 @@ pub fn add_history(
     format: Option<String>,
     source: Option<String>,
 ) -> Result<String, String> {
-    add_history_internal(
-        url, title, thumbnail, filepath, filesize, duration, quality, format, source, None,
-    )
+    tokio::task::spawn_blocking(move || {
+        add_history_internal(
+            url, title, thumbnail, filepath, filesize, duration, quality, format, source, None,
+        )
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 /// Add a summary-only history entry (for videos summarized without downloading)
 #[tauri::command]
-pub fn add_summary_only_history(
+pub async fn add_summary_only_history(
     url: String,
     title: String,
     thumbnail: Option<String>,
@@ -41,11 +45,15 @@ pub fn add_summary_only_history(
     source: Option<String>,
     summary: String,
 ) -> Result<String, String> {
-    add_history_with_summary(url, title, thumbnail, duration, source, summary)
+    tokio::task::spawn_blocking(move || {
+        add_history_with_summary(url, title, thumbnail, duration, source, summary)
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn get_history(
+pub async fn get_history(
     limit: Option<i64>,
     offset: Option<i64>,
     source: Option<String>,
@@ -53,32 +61,44 @@ pub fn get_history(
     filters: Option<HistoryAdvancedFilters>,
     sort: Option<HistorySort>,
 ) -> Result<Vec<HistoryEntry>, String> {
-    get_history_from_db(limit, offset, source, search, filters, sort)
+    tokio::task::spawn_blocking(move || {
+        get_history_from_db(limit, offset, source, search, filters, sort)
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn get_history_entries_by_ids(ids: Vec<String>) -> Result<Vec<HistoryEntry>, String> {
-    get_history_entries_by_ids_from_db(ids)
+pub async fn get_history_entries_by_ids(ids: Vec<String>) -> Result<Vec<HistoryEntry>, String> {
+    tokio::task::spawn_blocking(move || get_history_entries_by_ids_from_db(ids))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn find_duplicate_downloads(
+pub async fn find_duplicate_downloads(
     identities: Vec<DownloadDuplicateIdentity>,
 ) -> Result<Vec<DownloadDuplicateMatch>, String> {
-    find_duplicate_downloads_in_history_db(identities)
+    tokio::task::spawn_blocking(move || find_duplicate_downloads_in_history_db(identities))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn delete_history(id: String, delete_file: Option<bool>) -> Result<(), String> {
-    if delete_file.unwrap_or(false) {
-        let entry = get_history_entries_by_ids_from_db(vec![id.clone()])?
-            .into_iter()
-            .next()
-            .ok_or_else(|| "History entry not found".to_string())?;
-        delete_history_media_file(&entry.filepath)?;
-    }
+pub async fn delete_history(id: String, delete_file: Option<bool>) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || {
+        if delete_file.unwrap_or(false) {
+            let entry = get_history_entries_by_ids_from_db(vec![id.clone()])?
+                .into_iter()
+                .next()
+                .ok_or_else(|| "History entry not found".to_string())?;
+            delete_history_media_file(&entry.filepath)?;
+        }
 
-    delete_history_from_db(id)
+        delete_history_from_db(id)
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 fn delete_history_media_file(filepath: &str) -> Result<(), String> {
@@ -102,73 +122,104 @@ fn delete_history_media_file(filepath: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn clear_history() -> Result<(), String> {
-    clear_history_from_db()
+pub async fn clear_history() -> Result<(), String> {
+    tokio::task::spawn_blocking(clear_history_from_db)
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn get_history_count(
+pub async fn get_history_count(
     source: Option<String>,
     search: Option<String>,
     filters: Option<HistoryAdvancedFilters>,
 ) -> Result<i64, String> {
-    get_history_count_from_db(source, search, filters)
+    tokio::task::spawn_blocking(move || get_history_count_from_db(source, search, filters))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn get_tags() -> Result<Vec<HistoryTag>, String> {
-    get_tags_from_db()
+pub async fn get_tags() -> Result<Vec<HistoryTag>, String> {
+    tokio::task::spawn_blocking(get_tags_from_db)
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn get_collections() -> Result<Vec<HistoryCollection>, String> {
-    get_collections_from_db()
+pub async fn get_collections() -> Result<Vec<HistoryCollection>, String> {
+    tokio::task::spawn_blocking(get_collections_from_db)
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn create_collection(name: String, color: Option<String>) -> Result<HistoryCollection, String> {
-    create_collection_in_db(name, color)
+pub async fn create_collection(
+    name: String,
+    color: Option<String>,
+) -> Result<HistoryCollection, String> {
+    tokio::task::spawn_blocking(move || create_collection_in_db(name, color))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn rename_collection(id: String, name: String) -> Result<(), String> {
-    rename_collection_in_db(id, name)
+pub async fn rename_collection(id: String, name: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || rename_collection_in_db(id, name))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn delete_collection(id: String) -> Result<(), String> {
-    delete_collection_from_db(id)
+pub async fn delete_collection(id: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || delete_collection_from_db(id))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn assign_history_tags(history_id: String, tags: Vec<String>) -> Result<(), String> {
-    assign_history_tags_in_db(history_id, tags)
+pub async fn assign_history_tags(history_id: String, tags: Vec<String>) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || assign_history_tags_in_db(history_id, tags))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn assign_history_collections(
+pub async fn assign_history_collections(
     history_id: String,
     collection_ids: Vec<String>,
 ) -> Result<(), String> {
-    assign_history_collections_in_db(history_id, collection_ids)
+    tokio::task::spawn_blocking(move || {
+        assign_history_collections_in_db(history_id, collection_ids)
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn remove_history_tag(history_id: String, tag_id: String) -> Result<(), String> {
-    remove_history_tag_from_db(history_id, tag_id)
+pub async fn remove_history_tag(history_id: String, tag_id: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || remove_history_tag_from_db(history_id, tag_id))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn remove_history_from_collection(
+pub async fn remove_history_from_collection(
     history_id: String,
     collection_id: String,
 ) -> Result<(), String> {
-    remove_history_from_collection_in_db(history_id, collection_id)
+    tokio::task::spawn_blocking(move || {
+        remove_history_from_collection_in_db(history_id, collection_id)
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn check_file_exists(filepath: String) -> bool {
-    std::path::Path::new(&filepath).exists()
+pub async fn check_file_exists(filepath: String) -> bool {
+    tokio::task::spawn_blocking(move || std::path::Path::new(&filepath).exists())
+        .await
+        .unwrap_or(false)
 }
 
 #[derive(serde::Serialize)]
@@ -219,8 +270,7 @@ fn build_renamed_path(old_path: &Path, new_name: &str) -> Result<(PathBuf, Strin
     Ok((parent.join(new_file_name), validated_name))
 }
 
-#[tauri::command]
-pub fn rename_downloaded_file(
+fn rename_downloaded_file_sync(
     filepath: String,
     new_name: String,
     history_id: Option<String>,
@@ -266,17 +316,32 @@ pub fn rename_downloaded_file(
 }
 
 #[tauri::command]
-pub fn sync_history_renamed_entry(
+pub async fn rename_downloaded_file(
+    filepath: String,
+    new_name: String,
+    history_id: Option<String>,
+) -> Result<RenameDownloadedFileResult, String> {
+    tokio::task::spawn_blocking(move || rename_downloaded_file_sync(filepath, new_name, history_id))
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
+}
+
+#[tauri::command]
+pub async fn sync_history_renamed_entry(
     id: String,
     filepath: String,
     title: String,
 ) -> Result<(), String> {
-    let trimmed_title = title.trim();
-    if trimmed_title.is_empty() {
-        return Err("File name cannot be empty".to_string());
-    }
+    tokio::task::spawn_blocking(move || {
+        let trimmed_title = title.trim();
+        if trimmed_title.is_empty() {
+            return Err("File name cannot be empty".to_string());
+        }
 
-    update_history_filepath_and_title_by_id(id, filepath, trimmed_title.to_string())
+        update_history_filepath_and_title_by_id(id, filepath, trimmed_title.to_string())
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
@@ -499,7 +564,7 @@ mod tests {
             .expect("insert history row");
         }
 
-        let result = rename_downloaded_file(
+        let result = rename_downloaded_file_sync(
             old.to_string_lossy().to_string(),
             "renamed".to_string(),
             Some(history_id.clone()),
@@ -545,7 +610,7 @@ mod tests {
             .expect("insert history row");
         }
 
-        let result = rename_downloaded_file(
+        let result = rename_downloaded_file_sync(
             old.to_string_lossy().to_string(),
             "movie-new".to_string(),
             None,

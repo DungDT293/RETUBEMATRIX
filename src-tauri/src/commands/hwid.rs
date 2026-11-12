@@ -3,6 +3,8 @@
 use crate::utils::hwid::{get_system_hwid, HwidInfo};
 
 #[tauri::command]
-pub fn get_system_hwid_cmd() -> Result<HwidInfo, String> {
-    get_system_hwid()
+pub async fn get_system_hwid_cmd() -> Result<HwidInfo, String> {
+    tokio::task::spawn_blocking(get_system_hwid)
+        .await
+        .map_err(|e| format!("Task join error: {e}"))?
 }

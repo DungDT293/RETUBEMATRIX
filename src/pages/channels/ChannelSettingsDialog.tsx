@@ -330,7 +330,7 @@ export function ChannelSettingsDialog({
             </TabsTrigger>
             <TabsTrigger value="bkt" className="flex items-center gap-1 text-xs py-1.5">
               <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Gán Hồ Sơ (1-1)</span>
+              <span>Kênh Đích (Chức năng 2)</span>
               {bktProfileId ? (
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 ml-0.5" />
               ) : (
@@ -582,11 +582,13 @@ export function ChannelSettingsDialog({
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                 <UserCheck className="w-4 h-4 text-emerald-500" />
-                <span>Gán Hồ Sơ Trình Duyệt &amp; Kênh Đích (Đối Chiếu 1-1)</span>
+                <span>Gán Hồ Sơ Kênh Đích (Chức Năng 2 - Đối Chiếu 1-1)</span>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Liên kết kênh đối thủ này với một Hồ Sơ Chromium nuôi kênh cụ thể. Giúp ngăn ngừa
-                100% rủi ro lấy video của ngách này đăng nhầm sang kênh ngách khác.
+                Liên kết kênh đối thủ này với một Hồ Sơ Chromium Kênh Đích (Chức năng 2). Video sau
+                khi kiểm tra bản quyền đạt chuẩn sạch sẽ tự động Reup Lv.1 và đăng lên Kênh Đích
+                này. Quá trình kiểm tra bản quyền (BKT) được xử lý riêng biệt bởi Pool Kênh Test
+                (Chức năng 5).
               </p>
             </div>
 
@@ -594,7 +596,7 @@ export function ChannelSettingsDialog({
             <div className="space-y-2 p-3.5 rounded-lg border border-border/60 bg-card/60">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-medium">
-                  Hồ sơ Chromium hệ thống (Target Profile)
+                  Hồ sơ Kênh Đích xuất bản (Target Profile)
                 </Label>
                 <span className="text-[10px] text-muted-foreground">
                   Kho hồ sơ: {profiles.length} profile
@@ -609,7 +611,7 @@ export function ChannelSettingsDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__" className="text-xs text-amber-500 font-medium">
-                    ⚠️ -- Chưa gán hồ sơ (Dễ nhầm lẫn) --
+                    -- Chưa gán Kênh Đích (Dễ nhầm lẫn) --
                   </SelectItem>
                   {profiles.map((p) => (
                     <SelectItem key={p.id} value={p.id} className="text-xs">
@@ -646,12 +648,12 @@ export function ChannelSettingsDialog({
                   <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
                   <div className="space-y-0.5">
                     <span className="font-semibold">
-                      ✓ Đã khớp 1-1 với hồ sơ:{' '}
+                      Đã khớp 1-1 với Kênh Đích:{' '}
                       {profiles.find((p) => p.id === bktProfileId)?.profile_name || bktProfileId}
                     </span>
                     <p className="text-[11px] opacity-90">
-                      Mọi video cào và tải từ kênh đối thủ này được chỉ định xuất bản hoặc test bản
-                      quyền trên profile này.
+                      Mọi video cào từ kênh đối thủ này sau khi kiểm tra bản quyền sạch sẽ tự động
+                      Reup Lv.1 và xuất bản lên hồ sơ Kênh Đích này.
                     </p>
                   </div>
                 </div>
@@ -659,10 +661,10 @@ export function ChannelSettingsDialog({
                 <div className="p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-xs text-amber-600 dark:text-amber-400">
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
                   <div className="space-y-0.5">
-                    <span className="font-semibold">Cảnh báo: Chưa gán kênh đích 1-1!</span>
+                    <span className="font-semibold">Cảnh báo: Chưa gán Kênh Đích 1-1</span>
                     <p className="text-[11px] opacity-90">
-                      Dashboard sẽ gắn nhãn cảnh báo màu hổ phách để nhắc nhở tránh nhầm lẫn giữa
-                      các kênh đối thủ và kênh nuôi.
+                      Dashboard sẽ gắn nhãn cảnh báo để nhắc nhở tránh nhầm lẫn giữa các kênh đối
+                      thủ và kênh nuôi chính thức.
                     </p>
                   </div>
                 </div>
@@ -704,8 +706,9 @@ export function ChannelSettingsDialog({
                   Bật chế độ Shadow Check (Test BKT ngầm)
                 </Label>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Video nghi vấn dính bản quyền sẽ tự động được gửi sang Kênh Test BKT của hồ sơ này
-                  để quét Content ID trên YouTube Studio trước khi xuất bản.
+                  Video tải về sẽ tự động gửi vào Pool Kênh Test BKT (Chức năng 5) để quét Content
+                  ID unlisted. Nếu sạch sẽ tự động Reup Lv.1 và xuất bản lên Kênh Đích đã gán ở
+                  trên.
                 </p>
               </div>
               <Switch id="bkt-toggle" checked={bktTestMode} onCheckedChange={setBktTestMode} />

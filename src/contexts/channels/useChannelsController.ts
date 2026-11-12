@@ -1109,14 +1109,19 @@ export function useChannelsController(): ChannelsContextType {
           const channelInfo = followedChannelsRef.current.find(
             (c) => c.url === targetChannelUrl || c.name === targetChannelName,
           );
-          if (channelInfo?.bkt_profile_id || channelInfo?.bkt_test_mode) {
+          const targetProfile =
+            channelInfo?.target_profile_id || channelInfo?.bkt_profile_id || null;
+          const vBktStatus = (video as any).bkt_check_status;
+          const isAlreadyProcessed =
+            vBktStatus === 'green_clean' || vBktStatus === 'red_matched' || vBktStatus === 'failed';
+          if ((targetProfile || channelInfo?.bkt_test_mode) && !isAlreadyProcessed) {
             try {
               const filePath = await getChannelVideoFilepath(video.id);
               if (filePath) {
                 const aiTitle = getBestAutoPilotTitle(video.title);
                 const adaptedDesc = adaptCompetitorDescription({
                   originalDescription: '',
-                  targetChannelName: channelInfo.name,
+                  targetChannelName: channelInfo?.name,
                   videoTitle: aiTitle,
                   includeFairUseDisclaimer: true,
                 });
@@ -1129,8 +1134,10 @@ export function useChannelsController(): ChannelsContextType {
                       videoPath: filePath,
                       videoSourceType: 'channel_video',
                       sourceRefId: video.id,
-                      mainTargetProfileId: channelInfo.bkt_profile_id || null,
-                      autoPublishMain: Boolean(channelInfo.bkt_profile_id),
+                      channelId: channelInfo?.id,
+                      mainTargetProfileId: targetProfile,
+                      targetProfileId: targetProfile,
+                      autoPublishMain: Boolean(targetProfile),
                       targetTitle: aiTitle,
                       targetDescription: adaptedDesc,
                       thumbnailPath: thumbPath,
@@ -1142,7 +1149,7 @@ export function useChannelsController(): ChannelsContextType {
                   `[Auto-Pilot Manual] Đã điều phối video '${video.title}' vào BKT Test & Auto-Publish!`,
                 );
                 toastRef.current?.info({
-                  title: '🚀 Auto-Pilot BKT',
+                  title: 'Auto-Pilot BKT',
                   description:
                     'Video đã tải xong, đang tự động đưa vào Reup Lv.1 & Test Bản Quyền ngầm!',
                 });
@@ -1496,9 +1503,27 @@ export function useChannelsController(): ChannelsContextType {
         const acceptedVideos: ChannelVideo[] = [];
         const skippedFilterVideos: ChannelVideo[] = [];
 
+        const channelContentType = (targetChannel?.youtube_content_type || 'videos').toLowerCase();
+
         for (const video of newVideos) {
           let skip = false;
           const dur = video.duration ?? 0;
+          const vt = (video.video_type || '').toLowerCase();
+          const isShortVideo =
+            vt === 'short' ||
+            vt === 'shorts' ||
+            Boolean(video.url?.includes('/shorts/')) ||
+            (dur > 0 && dur <= 60);
+
+          // Kiểm tra loại nội dung cấu hình của kênh:
+          if (channelContentType === 'videos' && isShortVideo) {
+            // Kênh chỉ nhận video dài: Bỏ qua toàn bộ video Shorts để tránh tải đầy ổ cứng
+            skip = true;
+          } else if (channelContentType === 'shorts' && !isShortVideo) {
+            // Kênh chỉ nhận shorts: Bỏ qua video dài
+            skip = true;
+          }
+
           if (minDuration != null && minDuration > 0 && dur < minDuration) {
             skip = true;
           }
@@ -1678,7 +1703,17 @@ export function useChannelsController(): ChannelsContextType {
             await updateChannelVideoStatus({ id: video.id, status: 'downloaded' });
 
             // KÍCH HOẠT QUY TRÌNH AUTO-PILOT (REUP LV.1 -> BKT TEST -> AUTO PUBLISH MAIN CHANNEL)
-            if (targetChannel?.bkt_profile_id || targetChannel?.bkt_test_mode) {
+            const targetProfile =
+              targetChannel?.target_profile_id || targetChannel?.bkt_profile_id || null;
+            const isAlreadyProcessed =
+              video.bkt_check_status === 'green_clean' ||
+              video.bkt_check_status === 'red_matched' ||
+              video.bkt_check_status === 'failed';
+            if (
+              targetChannel &&
+              (targetProfile || targetChannel.bkt_test_mode) &&
+              !isAlreadyProcessed
+            ) {
               try {
                 const filePath = await getChannelVideoFilepath(video.video_id);
                 if (filePath) {
@@ -1698,8 +1733,10 @@ export function useChannelsController(): ChannelsContextType {
                         videoPath: filePath,
                         videoSourceType: 'channel_video',
                         sourceRefId: video.id || video.video_id,
-                        mainTargetProfileId: targetChannel.bkt_profile_id || null,
-                        autoPublishMain: Boolean(targetChannel.bkt_profile_id),
+                        channelId: targetChannel.id,
+                        mainTargetProfileId: targetProfile,
+                        targetProfileId: targetProfile,
+                        autoPublishMain: Boolean(targetProfile),
                         targetTitle: aiTitle,
                         targetDescription: adaptedDesc,
                         thumbnailPath: thumbPath,
@@ -1711,7 +1748,7 @@ export function useChannelsController(): ChannelsContextType {
                     `[Auto-Pilot] Đã điều phối video '${video.title}' vào BKT Test & Auto-Publish!`,
                   );
                   toastRef.current?.info({
-                    title: '🚀 Auto-Pilot',
+                    title: 'Auto-Pilot',
                     description:
                       'Video đã tải xong, đang tự động đưa vào Reup Lv.1 & Test Bản Quyền ngầm!',
                   });

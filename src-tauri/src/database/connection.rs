@@ -626,6 +626,17 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
         [],
     )
     .ok();
+    conn.execute(
+        "ALTER TABLE followed_channels ADD COLUMN target_profile_id TEXT",
+        [],
+    )
+    .ok();
+    // Seamless sync: Migrate existing bkt_profile_id to target_profile_id
+    conn.execute(
+        "UPDATE followed_channels SET target_profile_id = bkt_profile_id WHERE (target_profile_id IS NULL OR target_profile_id = '') AND (bkt_profile_id IS NOT NULL AND bkt_profile_id != '')",
+        [],
+    )
+    .ok();
 
     // Migration: Add risk status, BKT auto-test & Reup level flags to channel_videos
     conn.execute(
@@ -840,11 +851,20 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN target_description TEXT", []).ok();
     conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN target_tags TEXT", []).ok();
     conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN thumbnail_path TEXT", []).ok();
+    conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN channel_id TEXT", []).ok();
+    conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN target_profile_id TEXT", []).ok();
+    // Seamless sync: Migrate main_target_profile_id to target_profile_id
+    conn.execute(
+        "UPDATE bkt_test_jobs SET target_profile_id = main_target_profile_id WHERE (target_profile_id IS NULL OR target_profile_id = '') AND (main_target_profile_id IS NOT NULL AND main_target_profile_id != '')",
+        [],
+    ).ok();
 
-    // Seamless migration: If legacy youwee.db exists, import existing data
+    // Seamless migration: If legacy youwee.db exists, import existing data ONCE (preserve backup)
     if let Some(parent) = app_data_dir.parent() {
-        let old_youwee_db = parent.join("com.vanloctech.youwee").join("youwee.db");
-        if old_youwee_db.exists() {
+        let old_dir = parent.join("com.vanloctech.youwee");
+        let old_youwee_db = old_dir.join("youwee.db");
+        let migrated_flag = old_dir.join("youwee.db.migrated");
+        if old_youwee_db.exists() && !migrated_flag.exists() {
             let old_path_str = old_youwee_db.to_string_lossy().to_string();
             if conn.execute("ATTACH DATABASE ?1 AS old_youwee_db", params![old_path_str]).is_ok() {
                 let _ = conn.execute("INSERT OR IGNORE INTO bkt_test_channels SELECT * FROM old_youwee_db.bkt_test_channels", []);
@@ -852,9 +872,14 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
                 let _ = conn.execute("INSERT OR IGNORE INTO channel_videos SELECT * FROM old_youwee_db.channel_videos", []);
                 let _ = conn.execute("INSERT OR IGNORE INTO outlier_videos SELECT * FROM old_youwee_db.outlier_videos", []);
                 let _ = conn.execute("DETACH DATABASE old_youwee_db", []);
+                // Tạo cờ đánh dấu đã migration xong để không import đè lại dữ liệu người dùng đã xóa
+                let _ = std::fs::copy(&old_youwee_db, &migrated_flag);
             }
         }
     }
+
+    // Startup Reconcile Sweep: Quét và giải phóng các tác vụ BKT bị gián đoạn khi app tắt/khởi động lại
+    let _ = super::reconcile_bkt_jobs_on_startup_db(&conn);
 
     DB_CONNECTION
         .set(Mutex::new(conn))

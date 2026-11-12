@@ -51,10 +51,9 @@ pub struct MultiBrowserProfile {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct MultiBrowserProfileInput {
     pub id: Option<String>,
-    #[serde(alias = "profile_name")]
+    #[serde(alias = "profileName", alias = "profile_name", alias = "name")]
     pub profile_name: String,
     #[serde(default)]
     pub proxy: Option<String>,
@@ -62,7 +61,7 @@ pub struct MultiBrowserProfileInput {
     pub group: Option<String>,
     #[serde(default)]
     pub locale: Option<String>,
-    #[serde(default, alias = "youtube_preferred_channel")]
+    #[serde(default, alias = "youtubePreferredChannel", alias = "youtube_preferred_channel")]
     pub youtube_preferred_channel: Option<String>,
     #[serde(default)]
     pub note: Option<String>,
@@ -71,27 +70,26 @@ pub struct MultiBrowserProfileInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct MultiBrowserUploadParams {
-    #[serde(alias = "profile_id")]
+    #[serde(alias = "profileId", alias = "profile_id")]
     pub profile_id: String,
-    #[serde(alias = "video_path")]
+    #[serde(alias = "videoPath", alias = "video_path")]
     pub video_path: String,
     pub title: String,
     pub description: String,
     #[serde(default)]
     pub tags: Option<String>,
-    #[serde(default, alias = "thumbnail_path")]
+    #[serde(default, alias = "thumbnailPath", alias = "thumbnail_path")]
     pub thumbnail_path: Option<String>,
     #[serde(default)]
     pub visibility: Option<String>,
-    #[serde(default, alias = "schedule_date")]
+    #[serde(default, alias = "scheduleDate", alias = "schedule_date")]
     pub schedule_date: Option<String>,
-    #[serde(default, alias = "schedule_time")]
+    #[serde(default, alias = "scheduleTime", alias = "schedule_time")]
     pub schedule_time: Option<String>,
-    #[serde(default, alias = "pinned_comment")]
+    #[serde(default, alias = "pinnedComment", alias = "pinned_comment")]
     pub pinned_comment: Option<String>,
-    #[serde(default, alias = "preferred_channel")]
+    #[serde(default, alias = "preferredChannel", alias = "preferred_channel")]
     pub preferred_channel: Option<String>,
 }
 

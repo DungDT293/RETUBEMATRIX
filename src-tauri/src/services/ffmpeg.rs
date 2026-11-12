@@ -361,17 +361,49 @@ pub async fn probe_video_duration(app: &AppHandle, input_path: &str) -> Option<f
     }
 }
 
-/// Tính toán số luồng CPU an toàn chống nghẽn trên VPS ít core
+/// Gán cờ Creation Flags cho Windows:
+/// - CREATE_NO_WINDOW (0x08000000): Không hiện cửa sổ console màu đen.
+/// - BELOW_NORMAL_PRIORITY_CLASS (0x00004000): Gán mức ưu tiên dưới bình thường để Windows
+///   luôn ưu tiên CPU cho UI, chuột, âm thanh và trình duyệt của người dùng.
+#[inline]
+pub fn configure_ffmpeg_background_cmd(cmd: &mut Command) {
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt as WindowsCommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        const BELOW_NORMAL_PRIORITY_CLASS: u32 = 0x0000_4000;
+        cmd.as_std_mut()
+            .creation_flags(CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS);
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        cmd.hide_window();
+    }
+}
+
+/// Tính toán số luồng CPU an toàn dựa trên số core khả dụng
+pub fn calculate_safe_ffmpeg_threads(available_cores: usize) -> usize {
+    if available_cores <= 2 {
+        1
+    } else if available_cores <= 4 {
+        // Máy 3-4 cores: Dùng 2 luồng, chừa 1-2 core cho OS và UI
+        2
+    } else if available_cores <= 8 {
+        // Máy 5-8 cores: Dùng 3 luồng (tối ưu cho 6-8 core, vẫn chừa > 50% CPU cho tác vụ khác)
+        3
+    } else {
+        // Máy > 8 cores: Giới hạn tối đa 4 luồng, hoàn toàn ngăn chặn tình trạng chiếm dụng 100% CPU
+        4
+    }
+}
+
+/// Tính toán số luồng CPU an toàn chống nghẽn, đảm bảo máy người dùng luôn mượt mà khi encode video
+/// Desktop client không bao giờ dùng "0" (unbounded threads) vì sẽ chiếm 100% CPU làm đơ máy/chuột/UI.
 pub fn get_safe_ffmpeg_threads() -> String {
     let available_cores = std::thread::available_parallelism()
         .map(|n| n.get())
         .unwrap_or(2);
-    if available_cores <= 4 {
-        // Trên VPS 2-4 vCPU, chừa lại 1 core cho hệ điều hành và browser không bị freeze
-        (available_cores.saturating_sub(1)).max(1).to_string()
-    } else {
-        "0".to_string()
-    }
+    calculate_safe_ffmpeg_threads(available_cores).to_string()
 }
 
 /// Thực thi lệnh FFmpeg với streaming progress thời gian thực lên Frontend
@@ -381,6 +413,9 @@ async fn execute_ffmpeg_with_progress(
     total_duration: f64,
     stage_name: &str,
 ) -> Result<(), String> {
+    // Đảm bảo cờ ưu tiên ngầm và ẩn window luôn được áp dụng nhất quán trước khi spawn
+    configure_ffmpeg_background_cmd(&mut cmd);
+
     cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
     cmd.kill_on_drop(true);
     let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn FFmpeg: {}", e))?;
@@ -769,7 +804,7 @@ pub async fn clean_video_metadata(
         "copy",
         &temp_clean_str,
     ]);
-    cmd.hide_window();
+    configure_ffmpeg_background_cmd(&mut cmd);
 
     let output = cmd.output().await.map_err(|e| format!("Failed to execute FFmpeg: {}", e))?;
 
@@ -883,7 +918,7 @@ pub async fn apply_reup_modifications(
         "-map_metadata:s", "-1",
         &temp_mod_str,
     ]);
-    cmd.hide_window();
+    configure_ffmpeg_background_cmd(&mut cmd);
 
     let output = cmd.output().await.map_err(|e| format!("Failed to execute FFmpeg: {}", e))?;
     if !output.status.success() {
@@ -930,6 +965,102 @@ pub fn calculate_file_hashes(filepath: &str) -> Result<(String, String), String>
     let md5_hash = hex::encode(md5_hasher.finalize());
     let sha_hash = hex::encode(sha_hasher.finalize());
     Ok((md5_hash, sha_hash))
+}
+
+/// Calculate MD5 and SHA256 checksums of a file on a background blocking thread
+pub async fn calculate_file_hashes_async(filepath: &str) -> Result<(String, String), String> {
+    let path = filepath.to_string();
+    tokio::task::spawn_blocking(move || calculate_file_hashes(&path))
+        .await
+        .map_err(|e| format!("Task spawn_blocking failed for file hashes: {}", e))?
+}
+
+static HW_ENCODER_CACHE: tokio::sync::OnceCell<String> = tokio::sync::OnceCell::const_new();
+
+/// Tu dong phat hien GPU Hardware Acceleration ho tro cho FFmpeg
+/// Thu tu uu tien: h264_nvenc -> h264_qsv -> h264_videotoolbox -> fallback libx264
+pub async fn probe_hardware_encoder(app: &AppHandle) -> String {
+    HW_ENCODER_CACHE
+        .get_or_init(|| async {
+            let ffmpeg_path = match get_ffmpeg_path(app).await {
+                Some(p) => p,
+                None => return "libx264".to_string(),
+            };
+
+            let candidates: [(&str, &[&str]); 3] = [
+                ("h264_nvenc", &["-preset", "p1", "-cq", "20"]),
+                ("h264_qsv", &["-preset", "veryfast", "-global_quality", "20"]),
+                ("h264_videotoolbox", &["-q:v", "65"]),
+            ];
+
+            for (encoder_name, extra_args) in candidates {
+                let mut cmd = Command::new(&ffmpeg_path);
+                cmd.args([
+                    "-nostats",
+                    "-loglevel", "error",
+                    "-f", "lavfi",
+                    "-i", "color=c=black:s=64x64:d=0.05",
+                    "-c:v", encoder_name,
+                ]);
+                for extra in extra_args {
+                    cmd.arg(extra);
+                }
+                cmd.args(["-f", "null", "-"]);
+                configure_ffmpeg_background_cmd(&mut cmd);
+                cmd.stdout(Stdio::null());
+                cmd.stderr(Stdio::null());
+
+                if let Ok(status) = cmd.status().await {
+                    if status.success() {
+                        log::info!("[FFMPEG] Detected working hardware encoder: {}", encoder_name);
+                        return encoder_name.to_string();
+                    }
+                }
+            }
+
+            log::info!("[FFMPEG] No working hardware encoder found, falling back to libx264");
+            "libx264".to_string()
+        })
+        .await
+        .clone()
+}
+
+/// Lay danh sach tham so encoder phu hop voi tung loai encoder
+pub fn get_encoder_args(encoder: &str, crf: &str) -> Vec<String> {
+    match encoder {
+        "h264_nvenc" => vec![
+            "-c:v".to_string(),
+            "h264_nvenc".to_string(),
+            "-preset".to_string(),
+            "p1".to_string(),
+            "-cq".to_string(),
+            crf.to_string(),
+        ],
+        "h264_qsv" => vec![
+            "-c:v".to_string(),
+            "h264_qsv".to_string(),
+            "-preset".to_string(),
+            "veryfast".to_string(),
+            "-global_quality".to_string(),
+            crf.to_string(),
+        ],
+        "h264_videotoolbox" => vec![
+            "-c:v".to_string(),
+            "h264_videotoolbox".to_string(),
+            "-q:v".to_string(),
+            "65".to_string(),
+        ],
+        _ => vec![
+            "-c:v".to_string(),
+            "libx264".to_string(),
+            "-preset".to_string(),
+            "ultrafast".to_string(),
+            "-crf".to_string(),
+            crf.to_string(),
+            "-tune".to_string(),
+            "fastdecode".to_string(),
+        ],
+    }
 }
 
 /// Append 16-64 random bytes to video container to guarantee 100% unique MD5/SHA256
@@ -991,7 +1122,7 @@ pub async fn run_reup_pipeline_v1(
     input_path: &str,
     output_path: Option<&str>,
 ) -> Result<ReupPipelineResult, String> {
-    let (orig_md5, orig_sha) = calculate_file_hashes(input_path).unwrap_or_default();
+    let (orig_md5, orig_sha) = calculate_file_hashes_async(input_path).await.unwrap_or_default();
 
     let ffmpeg_path = get_ffmpeg_path(app)
         .await
@@ -1030,7 +1161,7 @@ pub async fn run_reup_pipeline_v1(
     let total_duration = probe_video_duration(app, input_path).await.unwrap_or(0.0);
     let safe_threads = get_safe_ffmpeg_threads();
 
-    let vf = "scale=iw*1.01:ih*1.01,crop=iw/1.01:ih/1.01,setpts=PTS/1.03";
+    let vf = "scale=iw*1.01:ih*1.01,crop=iw/1.01:ih/1.01,scale=trunc(iw/2)*2:trunc(ih/2)*2,setpts=PTS/1.03";
     let af = format!("asetrate={sr}*1.02,aresample={sr},atempo={:.6}", 1.03 / 1.02);
 
     let mut cmd = Command::new(&ffmpeg_path);
@@ -1053,11 +1184,14 @@ pub async fn run_reup_pipeline_v1(
         cmd.arg("-an");
     }
 
+    let encoder = probe_hardware_encoder(app).await;
+    let enc_args = get_encoder_args(&encoder, "20");
+    for arg in enc_args {
+        cmd.arg(arg);
+    }
+
     cmd.args([
-        "-c:v", "libx264",
-        "-preset", "ultrafast",
-        "-crf", "20",
-        "-tune", "fastdecode",
+        "-pix_fmt", "yuv420p",
         "-map_metadata", "-1",
         "-metadata", "title=",
         "-metadata", "artist=",
@@ -1065,7 +1199,7 @@ pub async fn run_reup_pipeline_v1(
         "-fflags", "+bitexact",
         &temp_output_str,
     ]);
-    cmd.hide_window();
+    configure_ffmpeg_background_cmd(&mut cmd);
 
     if let Err(e) = execute_ffmpeg_with_progress(app, cmd, total_duration, "Reup Cấp 1").await {
         std::fs::remove_file(&temp_output_path).ok();
@@ -1096,11 +1230,11 @@ pub async fn run_reup_pipeline_v1(
     // Append 32 random bytes padding
     append_random_padding_bytes(&target_output_str, 32)?;
 
-    let (new_md5, new_sha) = calculate_file_hashes(&target_output_str).unwrap_or_default();
+    let (new_md5, new_sha) = calculate_file_hashes_async(&target_output_str).await.unwrap_or_default();
 
     log::info!(
-        "[REUP V1] Transformed: {} -> {} (MD5: {} -> {}, SHA256: {} -> {})",
-        input_path, target_output_str, orig_md5, new_md5, orig_sha, new_sha
+        "[REUP V1] Transformed: {} -> {} (MD5: {} -> {}, SHA256: {} -> {}) [GPU: {}]",
+        input_path, target_output_str, orig_md5, new_md5, orig_sha, new_sha, encoder
     );
 
     Ok(ReupPipelineResult {
@@ -1126,7 +1260,7 @@ pub async fn run_reup_pipeline_v2(
     input_path: &str,
     output_path: Option<&str>,
 ) -> Result<ReupPipelineResult, String> {
-    let (orig_md5, orig_sha) = calculate_file_hashes(input_path).unwrap_or_default();
+    let (orig_md5, orig_sha) = calculate_file_hashes_async(input_path).await.unwrap_or_default();
 
     let ffmpeg_path = get_ffmpeg_path(app)
         .await
@@ -1165,7 +1299,7 @@ pub async fn run_reup_pipeline_v2(
     let total_duration = probe_video_duration(app, input_path).await.unwrap_or(0.0);
     let safe_threads = get_safe_ffmpeg_threads();
 
-    let vf = "hflip,scale=iw*1.03:ih*1.03,crop=iw/1.03:ih/1.03,noise=alls=2:allf=t+u,eq=contrast=1.05:brightness=0.03:saturation=1.05,setpts=PTS/1.05";
+    let vf = "hflip,scale=iw*1.03:ih*1.03,crop=iw/1.03:ih/1.03,scale=trunc(iw/2)*2:trunc(ih/2)*2,noise=alls=2:allf=t+u,eq=contrast=1.05:brightness=0.03:saturation=1.05,setpts=PTS/1.05";
     let af = format!("asetrate={sr}*1.04,aresample={sr},atempo={:.6}", 1.05 / 1.04);
 
     let mut cmd = Command::new(&ffmpeg_path);
@@ -1188,11 +1322,14 @@ pub async fn run_reup_pipeline_v2(
         cmd.arg("-an");
     }
 
+    let encoder = probe_hardware_encoder(app).await;
+    let enc_args = get_encoder_args(&encoder, "21");
+    for arg in enc_args {
+        cmd.arg(arg);
+    }
+
     cmd.args([
-        "-c:v", "libx264",
-        "-preset", "ultrafast",
-        "-crf", "21",
-        "-tune", "fastdecode",
+        "-pix_fmt", "yuv420p",
         "-map_metadata", "-1",
         "-metadata", "title=",
         "-metadata", "artist=",
@@ -1200,7 +1337,7 @@ pub async fn run_reup_pipeline_v2(
         "-fflags", "+bitexact",
         &temp_output_str,
     ]);
-    cmd.hide_window();
+    configure_ffmpeg_background_cmd(&mut cmd);
 
     if let Err(e) = execute_ffmpeg_with_progress(app, cmd, total_duration, "Reup Cấp 2").await {
         std::fs::remove_file(&temp_output_path).ok();
@@ -1231,11 +1368,11 @@ pub async fn run_reup_pipeline_v2(
     // Append 48 random bytes padding
     append_random_padding_bytes(&target_output_str, 48)?;
 
-    let (new_md5, new_sha) = calculate_file_hashes(&target_output_str).unwrap_or_default();
+    let (new_md5, new_sha) = calculate_file_hashes_async(&target_output_str).await.unwrap_or_default();
 
     log::info!(
-        "[REUP V2] Deep transformed: {} -> {} (MD5: {} -> {}, SHA256: {} -> {})",
-        input_path, target_output_str, orig_md5, new_md5, orig_sha, new_sha
+        "[REUP V2] Deep transformed: {} -> {} (MD5: {} -> {}, SHA256: {} -> {}) [GPU: {}]",
+        input_path, target_output_str, orig_md5, new_md5, orig_sha, new_sha, encoder
     );
 
     Ok(ReupPipelineResult {
@@ -1251,9 +1388,203 @@ pub async fn run_reup_pipeline_v2(
     })
 }
 
+/// Khâu 3: Reup Pipeline Adaptive (Thích ứng thông minh theo kết quả Preflight Scan)
+/// - Nếu has_logo: áp dụng overlay che góc đối xứng / góc logo bằng bilinear blur siêu nhẹ
+/// - Nếu has_subtitles: áp dụng bilinear downscale-upscale blur dải đáy (crop=iw:ih*ratio:0:ih*(1-ratio),scale=iw/4:ih/4,scale=iw*4:ih*4:flags=bilinear)
+/// - Nếu không có cả 2: chạy luồng tinh gọn 100% độ nét
+/// - Metadata: -map_metadata -1 -metadata title="" -metadata artist="" -metadata comment="" -fflags +bitexact
+/// - Hash: Ghi thêm 32 bytes padding ngẫu nhiên vào cuối container file
+pub async fn run_reup_pipeline_adaptive(
+    app: &AppHandle,
+    input_path: &str,
+    output_path: Option<&str>,
+    preflight: Option<crate::services::PreflightReport>,
+) -> Result<ReupPipelineResult, String> {
+    let (orig_md5, orig_sha) = calculate_file_hashes_async(input_path).await.unwrap_or_default();
+
+    let ffmpeg_path = get_ffmpeg_path(app)
+        .await
+        .ok_or_else(|| "FFmpeg binary not found".to_string())?;
+
+    let in_path = std::path::Path::new(input_path);
+    if !in_path.exists() {
+        return Err(format!("File does not exist: {}", input_path));
+    }
+
+    let report = match preflight {
+        Some(p) => p,
+        None => crate::services::scan_video_preflight(app, input_path).await?,
+    };
+
+    let target_output_buf = match output_path {
+        Some(out) if !out.trim().is_empty() => std::path::PathBuf::from(out.trim()),
+        _ => in_path.to_path_buf(),
+    };
+
+    if let Some(parent) = target_output_buf.parent() {
+        if !parent.as_os_str().is_empty() && !parent.exists() {
+            std::fs::create_dir_all(parent)
+                .map_err(|e| format!("Không thể tạo thư mục cha {}: {}", parent.display(), e))?;
+        }
+    }
+
+    let parent_dir = target_output_buf.parent().unwrap_or_else(|| std::path::Path::new("."));
+    let temp_output_path = parent_dir.join(format!(
+        "reup_adaptive_tmp_{}_{}",
+        uuid::Uuid::new_v4().simple(),
+        target_output_buf.file_name().and_then(|n| n.to_str()).unwrap_or("output.mp4")
+    ));
+    let temp_output_str = temp_output_path.to_string_lossy().to_string();
+    let has_audio = probe_has_audio_stream(app, input_path).await;
+    let sr = if has_audio {
+        probe_audio_sample_rate(app, input_path).await
+    } else {
+        48000
+    };
+    let total_duration = probe_video_duration(app, input_path).await.unwrap_or(0.0);
+    let safe_threads = get_safe_ffmpeg_threads();
+
+    // Xây dựng bộ lọc Video Filter thích ứng
+    let has_logo = report.has_logo;
+    let has_subtitles = report.has_subtitles;
+    let logo_corner = report
+        .logo_corner
+        .as_deref()
+        .or(report.logo_position.as_deref())
+        .unwrap_or("top_right");
+    let sub_ratio = report.subtitle_roi_ratio.unwrap_or(0.15).clamp(0.10, 0.25);
+    let sub_top_offset = 1.0 - sub_ratio;
+
+    let (logo_crop, logo_overlay) = match logo_corner {
+        "top_left" => ("iw*0.22:ih*0.18:0:0", "0:0"),
+        "bottom_left" => ("iw*0.22:ih*0.18:0:ih*0.82", "0:H-h"),
+        "bottom_right" => ("iw*0.22:ih*0.18:iw*0.78:ih*0.82", "W-w:H-h"),
+        _ => ("iw*0.22:ih*0.18:iw*0.78:0", "W-w:0"), // top_right mặc định
+    };
+
+    let vf = match (has_logo, has_subtitles) {
+        (true, true) => {
+            format!(
+                "split=3[main][logo_in][sub_in];[logo_in]crop={logo_crop},scale=iw/4:ih/4,scale=iw*4:ih*4:flags=bilinear[blurred_logo];[sub_in]crop=iw:ih*{sub_ratio:.3}:0:ih*{sub_top_offset:.3},scale=iw/4:ih/4,scale=iw*4:ih*4:flags=bilinear[blurred_sub];[main][blurred_logo]overlay={logo_overlay}[tmp];[tmp][blurred_sub]overlay=0:H-h,scale=iw*1.01:ih*1.01,crop=iw/1.01:ih/1.01,scale=trunc(iw/2)*2:trunc(ih/2)*2,setpts=PTS/1.03"
+            )
+        }
+        (true, false) => {
+            format!(
+                "split=2[main][logo_in];[logo_in]crop={logo_crop},scale=iw/4:ih/4,scale=iw*4:ih*4:flags=bilinear[blurred_logo];[main][blurred_logo]overlay={logo_overlay},scale=iw*1.01:ih*1.01,crop=iw/1.01:ih/1.01,scale=trunc(iw/2)*2:trunc(ih/2)*2,setpts=PTS/1.03"
+            )
+        }
+        (false, true) => {
+            format!(
+                "split=2[main][sub_in];[sub_in]crop=iw:ih*{sub_ratio:.3}:0:ih*{sub_top_offset:.3},scale=iw/4:ih/4,scale=iw*4:ih*4:flags=bilinear[blurred_sub];[main][blurred_sub]overlay=0:H-h,scale=iw*1.01:ih*1.01,crop=iw/1.01:ih/1.01,scale=trunc(iw/2)*2:trunc(ih/2)*2,setpts=PTS/1.03"
+            )
+        }
+        (false, false) => {
+            // Luồng tinh gọn giữ 100% độ nét, chỉ biến đổi nhẹ tỉ lệ và speed để đổi hash/perceptual fingerprint
+            "scale=iw*1.01:ih*1.01,crop=iw/1.01:ih/1.01,scale=trunc(iw/2)*2:trunc(ih/2)*2,setpts=PTS/1.03".to_string()
+        }
+    };
+
+    let af = format!("asetrate={sr}*1.02,aresample={sr},atempo={:.6}", 1.03 / 1.02);
+
+    let mut cmd = Command::new(&ffmpeg_path);
+    cmd.args([
+        "-y",
+        "-threads", &safe_threads,
+        "-progress", "pipe:1",
+        "-nostats",
+        "-i", input_path,
+        "-vf", &vf,
+    ]);
+
+    if has_audio {
+        cmd.args([
+            "-af", &af,
+            "-c:a", "aac",
+            "-b:a", "192k",
+        ]);
+    } else {
+        cmd.arg("-an");
+    }
+
+    let encoder = probe_hardware_encoder(app).await;
+    let enc_args = get_encoder_args(&encoder, "20");
+    for arg in enc_args {
+        cmd.arg(arg);
+    }
+
+    cmd.args([
+        "-pix_fmt", "yuv420p",
+        "-map_metadata", "-1",
+        "-metadata", "title=",
+        "-metadata", "artist=",
+        "-metadata", "comment=",
+        "-fflags", "+bitexact",
+        &temp_output_str,
+    ]);
+    configure_ffmpeg_background_cmd(&mut cmd);
+
+    if let Err(e) = execute_ffmpeg_with_progress(app, cmd, total_duration, "Reup Adaptive").await {
+        std::fs::remove_file(&temp_output_path).ok();
+        return Err(format!("FFmpeg Reup Pipeline Adaptive failed: {}", e));
+    }
+
+    let target_output_str = target_output_buf.to_string_lossy().to_string();
+    let is_in_place = target_output_buf == in_path;
+
+    if is_in_place {
+        std::fs::remove_file(input_path).map_err(|e| format!("Failed to remove original file: {}", e))?;
+        if std::fs::rename(&temp_output_path, input_path).is_err() {
+            std::fs::copy(&temp_output_path, input_path)
+                .map_err(|e| format!("Failed to copy processed file in-place: {}", e))?;
+            std::fs::remove_file(&temp_output_path).ok();
+        }
+    } else {
+        if target_output_buf.exists() {
+            std::fs::remove_file(&target_output_buf).ok();
+        }
+        if std::fs::rename(&temp_output_path, &target_output_buf).is_err() {
+            std::fs::copy(&temp_output_path, &target_output_buf)
+                .map_err(|e| format!("Failed to copy processed file to target: {}", e))?;
+            std::fs::remove_file(&temp_output_path).ok();
+        }
+    }
+
+    // Append 32 random bytes padding
+    append_random_padding_bytes(&target_output_str, 32)?;
+
+    let (new_md5, new_sha) = calculate_file_hashes_async(&target_output_str).await.unwrap_or_default();
+
+    log::info!(
+        "[REUP ADAPTIVE] Transformed: {} -> {} (MD5: {} -> {}, SHA256: {} -> {}) [GPU: {}]",
+        input_path, target_output_str, orig_md5, new_md5, orig_sha, new_sha, encoder
+    );
+
+    let stage_desc = match (has_logo, has_subtitles) {
+        (true, true) => format!("che logo ({}) + làm mờ subtitle dải đáy", logo_corner),
+        (true, false) => format!("che logo ({})", logo_corner),
+        (false, true) => "làm mờ subtitle dải đáy".to_string(),
+        (false, false) => "tinh gọn 100% độ nét".to_string(),
+    };
+
+    Ok(ReupPipelineResult {
+        success: true,
+        level: 3,
+        risk_status: "green".to_string(),
+        original_md5: Some(orig_md5),
+        new_md5: Some(new_md5),
+        original_sha256: Some(orig_sha),
+        new_sha256: Some(new_sha),
+        output_path: target_output_str,
+        message: format!("Reup Pipeline Adaptive hoàn tất ({} [GPU: {}])", stage_desc, encoder),
+    })
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{ffmpeg_version_has_update, normalize_ffmpeg_release_version};
+    use super::{
+        calculate_safe_ffmpeg_threads, ffmpeg_version_has_update, get_safe_ffmpeg_threads,
+        normalize_ffmpeg_release_version,
+    };
 
     #[test]
     fn normalizes_ffmpeg_macos_release_tags() {
@@ -1274,5 +1605,36 @@ mod tests {
             "2026.06.11"
         ));
         assert!(!ffmpeg_version_has_update("2026.06.11", "2026.06.11"));
+    }
+
+    #[test]
+    fn test_calculate_safe_ffmpeg_threads() {
+        // <= 2 cores: 1 thread
+        assert_eq!(calculate_safe_ffmpeg_threads(1), 1);
+        assert_eq!(calculate_safe_ffmpeg_threads(2), 1);
+
+        // 3-4 cores: 2 threads
+        assert_eq!(calculate_safe_ffmpeg_threads(3), 2);
+        assert_eq!(calculate_safe_ffmpeg_threads(4), 2);
+
+        // 5-8 cores: 3 threads
+        assert_eq!(calculate_safe_ffmpeg_threads(5), 3);
+        assert_eq!(calculate_safe_ffmpeg_threads(6), 3);
+        assert_eq!(calculate_safe_ffmpeg_threads(8), 3);
+
+        // > 8 cores: max 4 threads
+        assert_eq!(calculate_safe_ffmpeg_threads(9), 4);
+        assert_eq!(calculate_safe_ffmpeg_threads(12), 4);
+        assert_eq!(calculate_safe_ffmpeg_threads(16), 4);
+        assert_eq!(calculate_safe_ffmpeg_threads(32), 4);
+        assert_eq!(calculate_safe_ffmpeg_threads(64), 4);
+    }
+
+    #[test]
+    fn test_get_safe_ffmpeg_threads_never_zero() {
+        let threads_str = get_safe_ffmpeg_threads();
+        let threads_num = threads_str.parse::<usize>().expect("Should be a valid number");
+        assert!(threads_num >= 1 && threads_num <= 4);
+        assert_ne!(threads_str, "0");
     }
 }

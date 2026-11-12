@@ -640,7 +640,7 @@ export function AiTitleThumbnailTab({
                   className="w-full text-xs gap-2 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-medium"
                 >
                   <Check className="w-3.5 h-3.5" />
-                  <span>Gán Thumbnail Này Vào Kênh BKT & Kênh Chính</span>
+                  <span>Gán Thumbnail Này Vào Kênh Test & Kênh Chính</span>
                 </Button>
               )}
             </div>

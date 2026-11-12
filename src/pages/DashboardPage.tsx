@@ -16,11 +16,13 @@ import {
   Rocket,
   Server,
   ShieldCheck,
+  Square,
   Tv,
   UserCheck,
+  XCircle,
   Zap,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Page } from '@/components/layout/Sidebar';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -30,7 +32,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { getDailyReportStats } from '@/contexts/channels/channels-client';
+import {
+  cancelAllBktJobs,
+  cancelBktJob,
+  getDailyReportStats,
+} from '@/contexts/channels/channels-client';
 import type {
   DailyReportStats,
   FollowedChannel,
@@ -242,66 +248,123 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
   const [updatedAt, setUpdatedAt] = useState<string>(() => cachedUpdatedAt);
   const [showRunDetails, setShowRunDetails] = useState(false);
 
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [dailyData, mbStats, chData, prData] = await Promise.all([
-        getDailyReportStats(timeFilter).catch((err) => {
-          console.warn('Lỗi getDailyReportStats:', err);
-          return null;
-        }),
-        invoke<MultiBrowserStats>('get_multibrowser_stats').catch(() => EMPTY_STATS),
-        invoke<FollowedChannel[]>('get_followed_channels').catch(() => []),
-        invoke<MultiBrowserProfile[]>('get_multibrowser_profiles').catch(() => []),
-      ]);
+  const isFetchingRef = useRef(false);
+  const pendingEventReloadRef = useRef(false);
+  const fetchSeqRef = useRef(0);
+  const isMountedRef = useRef(true);
 
-      if (dailyData) {
-        cachedDailyStats = dailyData;
-        setDailyStats(dailyData);
-      }
-
-      const mergedStats = {
-        ...EMPTY_STATS,
-        ...mbStats,
-        run_summary: {
-          ...EMPTY_STATS.run_summary,
-          ...(mbStats?.run_summary || {}),
-        },
-      };
-
-      cachedStats = mergedStats;
-      cachedChannels = chData;
-      cachedProfiles = prData;
-
-      setStats(mergedStats);
-      setChannels(chData);
-      setProfiles(prData);
-
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('vi-VN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      });
-      cachedUpdatedAt = timeStr;
-      setUpdatedAt(timeStr);
-    } catch (e) {
-      console.error('Lỗi khi tải dữ liệu dashboard:', e);
-    } finally {
-      setLoading(false);
-    }
-  }, [timeFilter]);
-
-  // Tự động polling mỗi 5 giây + Lắng nghe sự kiện thời gian thực (Sub-second Sync)
   useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 5000);
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
+  const fetchDashboardData = useCallback(
+    async (silent = false) => {
+      const reqSeq = ++fetchSeqRef.current;
+      if (isFetchingRef.current) {
+        if (!silent) {
+          pendingEventReloadRef.current = true;
+        }
+        return;
+      }
+      isFetchingRef.current = true;
+      if (!silent) {
+        setLoading(true);
+      }
+      try {
+        const [dailyData, mbStats, chData, prData] = await Promise.all([
+          getDailyReportStats(timeFilter).catch((err) => {
+            console.warn('Lỗi getDailyReportStats:', err);
+            return null;
+          }),
+          invoke<MultiBrowserStats>('get_multibrowser_stats').catch(() => EMPTY_STATS),
+          invoke<FollowedChannel[]>('get_followed_channels').catch(() => []),
+          invoke<MultiBrowserProfile[]>('get_multibrowser_profiles').catch(() => []),
+        ]);
+
+        if (!isMountedRef.current || reqSeq !== fetchSeqRef.current) {
+          return;
+        }
+
+        if (dailyData) {
+          cachedDailyStats = dailyData;
+          setDailyStats(dailyData);
+        }
+
+        const mergedStats = {
+          ...EMPTY_STATS,
+          ...mbStats,
+          run_summary: {
+            ...EMPTY_STATS.run_summary,
+            ...(mbStats?.run_summary || {}),
+          },
+        };
+
+        cachedStats = mergedStats;
+        cachedChannels = chData;
+        cachedProfiles = prData;
+
+        setStats(mergedStats);
+        setChannels(chData);
+        setProfiles(prData);
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        });
+        cachedUpdatedAt = timeStr;
+        setUpdatedAt(timeStr);
+      } catch (e) {
+        console.error('Lỗi khi tải dữ liệu dashboard:', e);
+      } finally {
+        isFetchingRef.current = false;
+        if (isMountedRef.current) {
+          setLoading(false);
+          if (pendingEventReloadRef.current) {
+            pendingEventReloadRef.current = false;
+            window.setTimeout(() => {
+              if (isMountedRef.current) {
+                void fetchDashboardData(true);
+              }
+            }, 150);
+          }
+        }
+      }
+    },
+    [timeFilter],
+  );
+
+  const loadData = useCallback(async () => {
+    await fetchDashboardData(false);
+  }, [fetchDashboardData]);
+
+  // Tự động polling mỗi 5 giây khi cửa sổ hiển thị + Lắng nghe sự kiện thời gian thực (single-flight)
+  useEffect(() => {
+    void fetchDashboardData(false);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return;
+      }
+      void fetchDashboardData(true);
+    }, 5000);
+
+    let cancelled = false;
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     const triggerDebouncedLoad = () => {
+      if (cancelled) return;
+      if (isFetchingRef.current) {
+        pendingEventReloadRef.current = true;
+        return;
+      }
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
-        loadData();
+        if (!cancelled) {
+          void fetchDashboardData(true);
+        }
       }, 300);
     };
 
@@ -314,6 +377,7 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
     ];
 
     return () => {
+      cancelled = true;
       clearInterval(interval);
       if (debounceTimer) clearTimeout(debounceTimer);
       unlistenPromises.forEach((p) => {
@@ -322,7 +386,7 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
         }).catch(() => {});
       });
     };
-  }, [loadData]);
+  }, [fetchDashboardData]);
 
   // Bộ lọc timeline
   const filteredEvents = useMemo(() => {
@@ -343,6 +407,44 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
     return events;
   }, [dailyStats, timelineCategory]);
 
+  const hasActiveBktTasks = useMemo(() => {
+    return (dailyStats?.timelineEvents || []).some(
+      (e) =>
+        e.eventType === 'bkt_test' &&
+        ['queued', 'reuping', 'uploading', 'checking', 'pending'].includes(e.status),
+    );
+  }, [dailyStats]);
+
+  const [cancellingJobId, setCancellingJobId] = useState<string | null>(null);
+  const [cancellingAll, setCancellingAll] = useState(false);
+
+  const handleCancelSingleBkt = useCallback(
+    async (jobId: string) => {
+      try {
+        setCancellingJobId(jobId);
+        await cancelBktJob(jobId);
+        await loadData();
+      } catch (err) {
+        console.error('Lỗi hủy tác vụ BKT:', err);
+      } finally {
+        setCancellingJobId(null);
+      }
+    },
+    [loadData],
+  );
+
+  const handleCancelAllBkt = useCallback(async () => {
+    try {
+      setCancellingAll(true);
+      await cancelAllBktJobs();
+      await loadData();
+    } catch (err) {
+      console.error('Lỗi hủy toàn bộ tác vụ BKT:', err);
+    } finally {
+      setCancellingAll(false);
+    }
+  }, [loadData]);
+
   const runSummary = stats.run_summary || EMPTY_STATS.run_summary;
   const recentRuns = runSummary?.recent_runs || [];
   const recentSessions = runSummary?.recent_sessions || [];
@@ -361,8 +463,8 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
               Bảng Điều Khiển Vận Hành Hằng Ngày
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Theo dõi trực tiếp chuỗi: Cào video đối thủ ➔ Tải về ➔ Test BKT Studio ➔ Xuất bản Kênh
-              Đích.
+              Theo dõi trực tiếp chuỗi: Cào video đối thủ ➔ Tải về ➔ Test Bản Quyền Studio ➔ Xuất
+              bản Kênh Đích.
             </p>
           </div>
 
@@ -481,9 +583,7 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
           >
             <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-emerald-500" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">
-                Kiểm tra Bản Quyền BKT
-              </span>
+              <span className="text-xs font-medium text-muted-foreground">Kiểm tra Bản Quyền</span>
               <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <ShieldCheck className="w-4 h-4" />
               </div>
@@ -527,11 +627,13 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
             </div>
           </button>
 
-          {/* KPI 5: Quota test BKT còn lại */}
+          {/* KPI 5: Quota test Bản Quyền còn lại */}
           <div className="surface-card p-4 relative overflow-hidden border border-border">
             <span className="absolute inset-y-2 left-0 w-1 rounded-r bg-amber-500" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">Quota Test BKT Còn</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                Quota Test Bản Quyền Còn
+              </span>
               <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
                 <Zap className="w-4 h-4" />
               </div>
@@ -564,69 +666,87 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                   </span>
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Dòng thời gian vận hành: Tải video, kiểm tra bản quyền BKT và xuất bản kênh đích (
+                  Dòng thời gian vận hành: Tải video, kiểm tra bản quyền và xuất bản kênh đích (
                   {dailyStats?.targetDate || 'Hôm nay'}).
                 </p>
               </div>
             </div>
 
-            {/* Filter Tabs cho Timeline */}
-            <div className="flex flex-wrap items-center gap-1.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setTimelineCategory('all')}
-                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
-                  timelineCategory === 'all'
-                    ? 'bg-primary/20 text-primary font-semibold border border-primary/40'
-                    : 'text-muted-foreground hover:bg-muted/40'
-                }`}
-              >
-                Tất cả ({dailyStats?.timelineEvents?.length ?? 0})
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimelineCategory('publish')}
-                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
-                  timelineCategory === 'publish'
-                    ? 'bg-purple-500/20 text-purple-400 font-semibold border border-purple-500/40'
-                    : 'text-muted-foreground hover:bg-muted/40'
-                }`}
-              >
-                Xuất bản đích ({dailyStats?.totalPublishedMainToday ?? 0})
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimelineCategory('bkt')}
-                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
-                  timelineCategory === 'bkt'
-                    ? 'bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/40'
-                    : 'text-muted-foreground hover:bg-muted/40'
-                }`}
-              >
-                Test BKT ({dailyStats?.totalBktTestedToday ?? 0})
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimelineCategory('download')}
-                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
-                  timelineCategory === 'download'
-                    ? 'bg-blue-500/20 text-blue-400 font-semibold border border-blue-500/40'
-                    : 'text-muted-foreground hover:bg-muted/40'
-                }`}
-              >
-                Tải về ({dailyStats?.totalDownloadedToday ?? 0})
-              </button>
-              <button
-                type="button"
-                onClick={() => setTimelineCategory('discovered')}
-                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
-                  timelineCategory === 'discovered'
-                    ? 'bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/40'
-                    : 'text-muted-foreground hover:bg-muted/40'
-                }`}
-              >
-                Cào video ({dailyStats?.totalDiscoveredToday ?? 0})
-              </button>
+            {/* Filter Tabs & Nút Dừng tác vụ Test */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              {hasActiveBktTasks && (
+                <button
+                  type="button"
+                  disabled={cancellingAll}
+                  onClick={handleCancelAllBkt}
+                  className="px-2.5 py-1 rounded-md text-[11px] font-semibold border border-destructive/40 text-destructive bg-destructive/10 hover:bg-destructive hover:text-white flex items-center gap-1.5 transition-colors"
+                >
+                  {cancellingAll ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Square className="w-3 h-3 fill-current" />
+                  )}
+                  Dừng tất cả tác vụ Test
+                </button>
+              )}
+
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setTimelineCategory('all')}
+                  className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                    timelineCategory === 'all'
+                      ? 'bg-primary/20 text-primary font-semibold border border-primary/40'
+                      : 'text-muted-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  Tất cả ({dailyStats?.timelineEvents?.length ?? 0})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTimelineCategory('publish')}
+                  className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                    timelineCategory === 'publish'
+                      ? 'bg-purple-500/20 text-purple-400 font-semibold border border-purple-500/40'
+                      : 'text-muted-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  Xuất bản đích ({dailyStats?.totalPublishedMainToday ?? 0})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTimelineCategory('bkt')}
+                  className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                    timelineCategory === 'bkt'
+                      ? 'bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/40'
+                      : 'text-muted-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  Test Bản Quyền ({dailyStats?.totalBktTestedToday ?? 0})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTimelineCategory('download')}
+                  className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                    timelineCategory === 'download'
+                      ? 'bg-blue-500/20 text-blue-400 font-semibold border border-blue-500/40'
+                      : 'text-muted-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  Tải về ({dailyStats?.totalDownloadedToday ?? 0})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTimelineCategory('discovered')}
+                  className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                    timelineCategory === 'discovered'
+                      ? 'bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/40'
+                      : 'text-muted-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  Cào video ({dailyStats?.totalDiscoveredToday ?? 0})
+                </button>
+              </div>
             </div>
           </div>
 
@@ -642,9 +762,13 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                 {filteredEvents.map((ev) => {
                   const isClean = ev.status === 'green_clean';
                   const isClaim = ev.status === 'red_matched';
+                  const isFailed = ev.status === 'failed';
                   const isPublish = ev.eventType === 'auto_publish';
                   const isDownload = ev.eventType === 'download';
                   const isDiscovered = ev.eventType === 'discovered';
+                  const isRunningBkt =
+                    ev.eventType === 'bkt_test' &&
+                    ['queued', 'reuping', 'uploading', 'checking', 'pending'].includes(ev.status);
 
                   return (
                     <div key={ev.id} className="relative group">
@@ -657,11 +781,13 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                               ? 'bg-emerald-500 text-white'
                               : isClaim
                                 ? 'bg-rose-500 text-white'
-                                : isDownload
-                                  ? 'bg-blue-500 text-white'
-                                  : isDiscovered
-                                    ? 'bg-sky-500 text-white'
-                                    : 'bg-amber-500 text-white'
+                                : isFailed
+                                  ? 'bg-rose-600 text-white'
+                                  : isDownload
+                                    ? 'bg-blue-500 text-white'
+                                    : isDiscovered
+                                      ? 'bg-sky-500 text-white'
+                                      : 'bg-amber-500 text-white'
                         }`}
                       >
                         {isPublish ? (
@@ -670,6 +796,8 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                           <CheckCircle2 className="w-2.5 h-2.5" />
                         ) : isClaim ? (
                           <AlertTriangle className="w-2.5 h-2.5" />
+                        ) : isFailed ? (
+                          <XCircle className="w-2.5 h-2.5" />
                         ) : isDownload ? (
                           <Download className="w-2.5 h-2.5" />
                         ) : isDiscovered ? (
@@ -695,25 +823,46 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                                     ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
                                     : isClaim
                                       ? 'border-rose-500/40 text-rose-400 bg-rose-500/10'
-                                      : isDownload
-                                        ? 'border-blue-500/40 text-blue-400 bg-blue-500/10'
-                                        : isDiscovered
-                                          ? 'border-sky-500/40 text-sky-400 bg-sky-500/10'
-                                          : 'border-amber-500/40 text-amber-400 bg-amber-500/10'
+                                      : isFailed
+                                        ? 'border-rose-500/40 text-rose-400 bg-rose-500/10'
+                                        : isDownload
+                                          ? 'border-blue-500/40 text-blue-400 bg-blue-500/10'
+                                          : isDiscovered
+                                            ? 'border-sky-500/40 text-sky-400 bg-sky-500/10'
+                                            : 'border-amber-500/40 text-amber-400 bg-amber-500/10'
                               }`}
                             >
                               {isPublish
                                 ? 'Xuất bản đích'
                                 : isClean
-                                  ? 'BKT Sạch Bản Quyền'
+                                  ? 'Sạch Bản Quyền'
                                   : isClaim
-                                    ? 'BKT Dính Claim'
-                                    : isDownload
-                                      ? 'Tải video'
-                                      : isDiscovered
-                                        ? 'Cào video mới'
-                                        : 'BKT Đang Test'}
+                                    ? 'Dính Bản Quyền'
+                                    : isFailed
+                                      ? 'Test Thất Bại'
+                                      : isDownload
+                                        ? 'Tải video'
+                                        : isDiscovered
+                                          ? 'Cào video mới'
+                                          : 'Đang Kiểm Tra'}
                             </Badge>
+
+                            {isRunningBkt && (
+                              <button
+                                type="button"
+                                disabled={cancellingJobId === ev.id}
+                                onClick={() => handleCancelSingleBkt(ev.id)}
+                                title="Dừng tác vụ kiểm tra này"
+                                className="text-[10px] px-2 py-0.5 rounded border border-destructive/40 text-destructive bg-destructive/10 hover:bg-destructive hover:text-white flex items-center gap-1 transition-colors"
+                              >
+                                {cancellingJobId === ev.id ? (
+                                  <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                                ) : (
+                                  <Square className="w-2.5 h-2.5 fill-current" />
+                                )}
+                                Dừng
+                              </button>
+                            )}
                           </div>
                           {ev.channelName && (
                             <span className="text-[11px] text-muted-foreground flex items-center gap-1">
@@ -760,8 +909,9 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                     </Badge>
                   </h3>
                   <div className="text-[11px] text-muted-foreground">
-                    Khớp 1-1: {channels.filter((c) => c.bkt_profile_id).length}/{channels.length}{' '}
-                    kênh • Kênh sạch:{' '}
+                    Khớp 1-1:{' '}
+                    {channels.filter((c) => c.target_profile_id || c.bkt_profile_id).length}/
+                    {channels.length} kênh • Kênh sạch:{' '}
                     {channels.filter((c) => !c.risk_status || c.risk_status === 'green').length}
                   </div>
                 </div>
@@ -796,7 +946,10 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                     </tr>
                   ) : (
                     channels.map((ch) => {
-                      const matchedProfile = profiles.find((p) => p.id === ch.bkt_profile_id);
+                      const targetId = ch.target_profile_id || ch.bkt_profile_id;
+                      const matchedProfile = profiles.find(
+                        (p) => p.id === targetId || p.profile_name === targetId,
+                      );
                       return (
                         <tr key={ch.id} className="hover:bg-muted/20 transition-colors">
                           <td className="py-2 px-3 font-medium text-foreground truncate max-w-[180px]">
@@ -808,6 +961,12 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                 {matchedProfile.profile_name}
                               </span>
+                            ) : targetId ? (
+                              <span className="text-emerald-400/90 flex items-center gap-1 font-mono text-[11px]">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80" />
+                                Hồ sơ (
+                                {targetId.length > 8 ? `${targetId.slice(0, 8)}...` : targetId})
+                              </span>
                             ) : (
                               <span className="text-amber-500 text-[11px]">Chưa gán đích</span>
                             )}
@@ -816,12 +975,12 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                             {ch.total_videos || 0}
                           </td>
                           <td className="py-2 px-3 text-right">
-                            {matchedProfile ? (
+                            {matchedProfile || targetId ? (
                               <Badge
                                 variant="outline"
                                 className="text-emerald-400 border-emerald-500/30 text-[9px]"
                               >
-                                ✓ Khớp 1-1
+                                Đã khớp 1-1
                               </Badge>
                             ) : (
                               <button

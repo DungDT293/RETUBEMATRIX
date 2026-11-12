@@ -65,7 +65,8 @@ pub fn get_followed_channels_db() -> Result<Vec<FollowedChannel>, String> {
                     download_video_codec, download_audio_bitrate, download_preferred_fps,
                     youtube_content_type, total_videos, youtube_channel_id,
                     reup_mod_enabled, reup_mod_speed, reup_mod_pitch, reup_mod_flip, reup_mod_crop,
-                    custom_filename_template, risk_status, risk_reason, bkt_test_mode, bkt_profile_id
+                    custom_filename_template, risk_status, risk_reason, bkt_test_mode, bkt_profile_id,
+                    COALESCE(target_profile_id, bkt_profile_id) AS target_profile_id
              FROM followed_channels ORDER BY created_at DESC",
         )
         .map_err(|e| format!("Failed to prepare query: {}", e))?;
@@ -107,6 +108,7 @@ pub fn get_followed_channels_db() -> Result<Vec<FollowedChannel>, String> {
                 risk_reason: row.get(31)?,
                 bkt_test_mode: row.get::<_, Option<i64>>(32)?.map(|v| v != 0),
                 bkt_profile_id: row.get(33)?,
+                target_profile_id: row.get(34)?,
             })
         })
         .map_err(|e| format!("Query failed: {}", e))?
@@ -127,7 +129,8 @@ pub fn get_followed_channel_db(id: String) -> Result<FollowedChannel, String> {
                 download_video_codec, download_audio_bitrate, download_preferred_fps,
                 youtube_content_type, total_videos, youtube_channel_id,
                 reup_mod_enabled, reup_mod_speed, reup_mod_pitch, reup_mod_flip, reup_mod_crop,
-                custom_filename_template, risk_status, risk_reason, bkt_test_mode, bkt_profile_id
+                custom_filename_template, risk_status, risk_reason, bkt_test_mode, bkt_profile_id,
+                COALESCE(target_profile_id, bkt_profile_id) AS target_profile_id
          FROM followed_channels WHERE id = ?1",
         params![id],
         |row| {
@@ -166,6 +169,7 @@ pub fn get_followed_channel_db(id: String) -> Result<FollowedChannel, String> {
                 risk_reason: row.get(31)?,
                 bkt_test_mode: row.get::<_, Option<i64>>(32)?.map(|v| v != 0),
                 bkt_profile_id: row.get(33)?,
+                target_profile_id: row.get(34)?,
             })
         },
     )
@@ -271,7 +275,8 @@ pub fn update_channel_bkt_config_db(
     conn.execute(
         "UPDATE followed_channels SET
             bkt_test_mode = ?1,
-            bkt_profile_id = ?2
+            bkt_profile_id = ?2,
+            target_profile_id = ?2
          WHERE id = ?3",
         params![if bkt_test_mode { 1 } else { 0 }, bkt_profile_id, channel_id],
     )
@@ -299,9 +304,9 @@ pub fn update_channel_video_risk_db(
     .map_err(|e| format!("Failed to update video risk: {}", e))?;
 
     if !channel_id.is_empty() {
-        let _ = recalculate_channel_risk_db(channel_id);
+        let _ = recalculate_channel_risk_with_conn(&conn, channel_id);
     } else {
-        let _ = recalculate_channel_risk_by_video_db(video_id);
+        let _ = recalculate_channel_risk_by_video_with_conn(&conn, video_id);
     }
 
     Ok(())
@@ -324,16 +329,16 @@ pub fn update_channel_video_bkt_status_db(
         params![status, restriction, bkt_youtube_id, video_id],
     )
     .map_err(|e| format!("Failed to update BKT check status: {}", e))?;
-    let _ = recalculate_channel_risk_by_video_db(video_id);
+    let _ = recalculate_channel_risk_by_video_with_conn(&conn, video_id);
     Ok(())
 }
 
-/// Recalculate channel risk status based on videos:
-/// - 2 consecutive videos with copyright issue ('red') -> channel marked RED (Blacklisted, stop scanning/downloading)
-/// - 1 video with copyright issue -> channel marked YELLOW
-/// - Otherwise -> channel marked GREEN
-pub fn recalculate_channel_risk_db(channel_id: &str) -> Result<String, String> {
-    let conn = get_db()?;
+/// Recalculate channel risk status using an already-locked connection.
+/// IMPORTANT: DB_CONNECTION uses a non-reentrant std::sync::Mutex, so nested helpers MUST share `conn`.
+pub fn recalculate_channel_risk_with_conn(
+    conn: &rusqlite::Connection,
+    channel_id: &str,
+) -> Result<String, String> {
     let mut stmt = conn
         .prepare(
             "SELECT video_id, risk_status, bkt_check_status FROM channel_videos
@@ -392,9 +397,11 @@ pub fn recalculate_channel_risk_db(channel_id: &str) -> Result<String, String> {
     Ok(status.to_string())
 }
 
-/// Automatically find channel_id by video_id and recalculate channel risk
-pub fn recalculate_channel_risk_by_video_db(video_id: &str) -> Result<Option<String>, String> {
-    let conn = get_db()?;
+/// Find channel_id by video_id and recalculate channel risk using an already-locked connection.
+pub fn recalculate_channel_risk_by_video_with_conn(
+    conn: &rusqlite::Connection,
+    video_id: &str,
+) -> Result<Option<String>, String> {
     let channel_id: Option<String> = conn
         .query_row(
             "SELECT channel_id FROM channel_videos WHERE video_id = ?1 OR id = ?1 LIMIT 1",
@@ -404,11 +411,26 @@ pub fn recalculate_channel_risk_by_video_db(video_id: &str) -> Result<Option<Str
         .ok();
 
     if let Some(cid) = channel_id {
-        let res = recalculate_channel_risk_db(&cid)?;
+        let res = recalculate_channel_risk_with_conn(conn, &cid)?;
         Ok(Some(res))
     } else {
         Ok(None)
     }
+}
+
+/// Recalculate channel risk status based on videos:
+/// - 2 consecutive videos with copyright issue ('red') -> channel marked RED (Blacklisted, stop scanning/downloading)
+/// - 1 video with copyright issue -> channel marked YELLOW
+/// - Otherwise -> channel marked GREEN
+pub fn recalculate_channel_risk_db(channel_id: &str) -> Result<String, String> {
+    let conn = get_db()?;
+    recalculate_channel_risk_with_conn(&conn, channel_id)
+}
+
+/// Automatically find channel_id by video_id and recalculate channel risk
+pub fn recalculate_channel_risk_by_video_db(video_id: &str) -> Result<Option<String>, String> {
+    let conn = get_db()?;
+    recalculate_channel_risk_by_video_with_conn(&conn, video_id)
 }
 
 /// Check if a video already exists in channel_videos
@@ -1186,7 +1208,8 @@ mod tests {
                 risk_status TEXT DEFAULT 'green',
                 risk_reason TEXT,
                 bkt_test_mode INTEGER DEFAULT 0,
-                bkt_profile_id TEXT
+                bkt_profile_id TEXT,
+                target_profile_id TEXT
             );
             CREATE TABLE IF NOT EXISTS channel_videos (
                 id TEXT PRIMARY KEY,
@@ -1232,6 +1255,11 @@ mod tests {
             DELETE FROM followed_channels;",
         )
         .expect("create channel videos table");
+        conn.execute(
+            "ALTER TABLE followed_channels ADD COLUMN target_profile_id TEXT",
+            [],
+        )
+        .ok();
     }
 
     fn insert_channel_video(channel_id: &str, video_id: &str, status: &str, created_at: &str) {
@@ -1469,5 +1497,52 @@ mod tests {
         toggle_channel_auto_download_db(&channel_id, true).expect("toggle auto download");
         let channel = get_followed_channel_db(channel_id).expect("get channel");
         assert!(channel.auto_download);
+    }
+
+    #[test]
+    fn nested_channel_risk_updates_do_not_deadlock() {
+        let _guard = db_test_guard();
+        ensure_test_channel_tables();
+
+        let channel_id = follow_channel_db(
+            "https://www.youtube.com/@risktest".to_string(),
+            "Risk Test".to_string(),
+            None,
+            "youtube".to_string(),
+            "best".to_string(),
+            "mp4".to_string(),
+            "h264".to_string(),
+            "192".to_string(),
+            "original".to_string(),
+            "videos".to_string(),
+        )
+        .expect("follow channel");
+        toggle_channel_auto_download_db(&channel_id, true).expect("enable auto download");
+
+        insert_channel_video(&channel_id, "vid_clean", "downloaded", "2026-11-12T08:00:00Z");
+        insert_channel_video(&channel_id, "vid_red_1", "downloaded", "2026-11-12T08:10:00Z");
+        insert_channel_video(&channel_id, "vid_red_2", "downloaded", "2026-11-12T08:20:00Z");
+
+        // 1. Direct green update via update_channel_video_bkt_status_db -> recalculate_channel_risk_by_video_with_conn
+        update_channel_video_bkt_status_db("vid_clean", "green_clean", Some("Clean"), Some("yt_1"))
+            .expect("update clean bkt status without deadlock");
+        let risk = recalculate_channel_risk_by_video_db("vid_clean")
+            .expect("recalculate by video without deadlock");
+        assert_eq!(risk.as_deref(), Some("green"));
+
+        // 2. One red video via empty channel_id fallback -> yellow
+        update_channel_video_risk_db("", "vid_red_1", "red", Some("Claim 1"), true)
+            .expect("update first red risk without channel_id deadlock");
+        let ch = get_followed_channel_db(channel_id.clone()).expect("get channel yellow");
+        assert_eq!(ch.risk_status.as_deref(), Some("yellow"));
+        assert!(ch.auto_download);
+
+        // 3. Two consecutive red videos via explicit channel_id -> red & auto_download disabled
+        update_channel_video_bkt_status_db("vid_red_2", "red_matched", Some("Claim 2"), Some("yt_2"))
+            .expect("update second red bkt status without deadlock");
+        let ch_red = get_followed_channel_db(channel_id).expect("get channel red");
+        assert_eq!(ch_red.risk_status.as_deref(), Some("red"));
+        assert!(!ch_red.auto_download);
+        assert!(ch_red.risk_reason.is_some());
     }
 }

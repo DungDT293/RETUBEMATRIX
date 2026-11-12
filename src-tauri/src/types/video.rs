@@ -64,6 +64,7 @@ pub struct PlaylistVideoEntry {
     pub channel: Option<String>,
     pub upload_date: Option<String>,
     pub playlist_title: Option<String>,
+    pub view_count: Option<i64>,
 }
 
 /// Subtitle information

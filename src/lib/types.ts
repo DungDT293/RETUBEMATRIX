@@ -872,6 +872,7 @@ export interface PlaylistVideoEntry {
   upload_timestamp?: number;
   video_type?: 'video' | 'short' | 'stream' | string;
   playlist_title?: string;
+  view_count?: number;
 }
 
 export type YoutubeChannelContentType = 'all' | 'videos' | 'shorts' | 'streams' | 'videos_shorts';
@@ -1379,6 +1380,7 @@ export interface FollowedChannel {
   risk_reason?: string;
   bkt_test_mode?: boolean;
   bkt_profile_id?: string;
+  target_profile_id?: string;
 }
 
 export interface ChannelVideo {
@@ -1609,7 +1611,9 @@ export interface BktTestJob {
   createdAt: string;
   updatedAt: string;
   mainTargetProfileId?: string | null;
+  targetProfileId?: string | null;
   autoPublishMain?: boolean | null;
+  uploadPercent?: number | null;
   targetTitle?: string | null;
   targetDescription?: string | null;
   targetTags?: string | null;
@@ -1621,7 +1625,9 @@ export interface BktBatchItemRequest {
   videoPath: string;
   videoSourceType?: string;
   sourceRefId?: string;
+  channelId?: string | null;
   mainTargetProfileId?: string | null;
+  targetProfileId?: string | null;
   autoPublishMain?: boolean | null;
   targetTitle?: string | null;
   targetDescription?: string | null;

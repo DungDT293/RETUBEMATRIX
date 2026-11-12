@@ -58,43 +58,52 @@ fn collect_scope_directories(paths: &[String]) -> Vec<PathBuf> {
 }
 
 #[tauri::command]
-pub fn allow_asset_file(app: AppHandle, path: String) -> Result<(), String> {
-    let normalized = normalize_asset_path(&path).ok_or_else(|| "Missing asset path".to_string())?;
-    let scopes = app.state::<Scopes>();
+pub async fn allow_asset_file(app: AppHandle, path: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || {
+        let normalized =
+            normalize_asset_path(&path).ok_or_else(|| "Missing asset path".to_string())?;
+        let scopes = app.state::<Scopes>();
 
-    if normalized.is_dir() {
-        scopes.allow_directory(&normalized, true).map_err(|e| {
-            format!(
-                "Failed to allow asset directory {}: {}",
-                normalized.display(),
-                e
-            )
-        })?;
-    } else {
-        scopes
-            .allow_file(&normalized)
-            .map_err(|e| format!("Failed to allow asset file {}: {}", normalized.display(), e))?;
-    }
+        if normalized.is_dir() {
+            scopes.allow_directory(&normalized, true).map_err(|e| {
+                format!(
+                    "Failed to allow asset directory {}: {}",
+                    normalized.display(),
+                    e
+                )
+            })?;
+        } else {
+            scopes
+                .allow_file(&normalized)
+                .map_err(|e| format!("Failed to allow asset file {}: {}", normalized.display(), e))?;
+        }
 
-    Ok(())
+        Ok(())
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[tauri::command]
-pub fn sync_asset_scope_paths(app: AppHandle, paths: Vec<String>) -> Result<usize, String> {
-    let scopes = app.state::<Scopes>();
-    let directories = collect_scope_directories(&paths);
+pub async fn sync_asset_scope_paths(app: AppHandle, paths: Vec<String>) -> Result<usize, String> {
+    tokio::task::spawn_blocking(move || {
+        let scopes = app.state::<Scopes>();
+        let directories = collect_scope_directories(&paths);
 
-    for directory in &directories {
-        scopes.allow_directory(directory, true).map_err(|e| {
-            format!(
-                "Failed to allow asset directory {}: {}",
-                directory.display(),
-                e
-            )
-        })?;
-    }
+        for directory in &directories {
+            scopes.allow_directory(directory, true).map_err(|e| {
+                format!(
+                    "Failed to allow asset directory {}: {}",
+                    directory.display(),
+                    e
+                )
+            })?;
+        }
 
-    Ok(directories.len())
+        Ok(directories.len())
+    })
+    .await
+    .map_err(|e| format!("Task join error: {e}"))?
 }
 
 #[cfg(all(test, target_os = "windows"))]

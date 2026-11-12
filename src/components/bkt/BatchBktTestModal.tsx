@@ -114,7 +114,7 @@ export function BatchBktTestModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-primary" />
-            Kiểm Tra Bản Quyền Trên Kênh Test (BKT)
+            Kiểm Tra Bản Quyền Trên Kênh Test
           </DialogTitle>
           <DialogDescription className="text-xs">
             Hệ thống sẽ chạy Reup Pipeline Lv.1 và tải video lên kênh test ở chế độ Không công khai

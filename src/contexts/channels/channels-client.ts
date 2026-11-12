@@ -408,3 +408,11 @@ export async function waitBktJobCompletion(
     timeoutSecs: timeoutSecs ?? 1800,
   });
 }
+
+export async function cancelBktJob(jobId: string): Promise<void> {
+  return await invoke<void>('cancel_bkt_job', { jobId, job_id: jobId });
+}
+
+export async function cancelAllBktJobs(): Promise<number> {
+  return await invoke<number>('cancel_all_bkt_jobs');
+}

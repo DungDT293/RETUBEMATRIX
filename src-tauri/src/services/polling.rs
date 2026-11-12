@@ -245,6 +245,7 @@ pub async fn fast_check_channel_rss(
     let title_re = regex::Regex::new(r#"<title>(.*?)</title>"#).map_err(|e| e.to_string())?;
     let pub_re = regex::Regex::new(r#"<published>(.*?)</published>"#).map_err(|e| e.to_string())?;
     let thumb_re = regex::Regex::new(r#"<media:thumbnail[^>]*url="([^"]+)""#).map_err(|e| e.to_string())?;
+    let views_re = regex::Regex::new(r#"<media:statistics[^>]*views="(\d+)""#).ok();
 
     let mut new_videos: Vec<ChannelVideo> = Vec::new();
     let now = chrono::Utc::now().to_rfc3339();
@@ -286,6 +287,12 @@ pub async fn fast_check_channel_rss(
             .map(|m| m.as_str().to_string())
             .or_else(|| Some(format!("https://i.ytimg.com/vi/{}/hqdefault.jpg", video_id)));
 
+        let view_count = views_re
+            .as_ref()
+            .and_then(|r| r.captures(entry_str))
+            .and_then(|c| c.get(1))
+            .and_then(|m| m.as_str().parse::<i64>().ok());
+
         let canonical_url = format!("https://www.youtube.com/watch?v={}", video_id);
         let (risk_status, risk_reason, is_duplicate) = evaluate_channel_and_video_risk(
             &channel.name,
@@ -294,7 +301,7 @@ pub async fn fast_check_channel_rss(
             &canonical_url,
         );
 
-        let is_bkt = if risk_status == "red" && !is_duplicate && channel.bkt_test_mode == Some(true) && channel.bkt_profile_id.is_some() {
+        let is_bkt = if risk_status == "red" && !is_duplicate && channel.bkt_test_mode == Some(true) && (channel.bkt_profile_id.is_some() || channel.target_profile_id.is_some()) {
             Some(true)
         } else {
             Some(false)
@@ -327,7 +334,7 @@ pub async fn fast_check_channel_rss(
             video_type: Some("video".to_string()),
             status,
             created_at: now.clone(),
-            view_count: None,
+            view_count,
             risk_status: Some(risk_status),
             risk_reason,
             is_bkt_test: is_bkt,
@@ -572,9 +579,9 @@ pub async fn check_channel_for_new_videos(
     app: &AppHandle,
     channel: &FollowedChannel,
 ) -> Result<usize, String> {
-    // Luôn ưu tiên quét toàn bộ các tab (all) nếu content_type là 'all' hoặc 'videos' mặc định
-    let content_type = if channel.youtube_content_type.is_empty() || channel.youtube_content_type == "videos" {
-        "all"
+    // Tôn trọng cấu hình youtube_content_type của kênh (mặc định là 'videos', không tự ý ép sang 'all' để tránh cào và tải rác toàn bộ Shorts)
+    let content_type = if channel.youtube_content_type.is_empty() {
+        "videos"
     } else {
         &channel.youtube_content_type
     };
@@ -902,6 +909,10 @@ pub async fn check_channel_for_new_videos(
                 None
             };
 
+            let view_count = json
+                .get("view_count")
+                .and_then(|v| v.as_i64().or_else(|| v.as_f64().map(|f| f as i64)));
+
             new_videos.push(ChannelVideo {
                 id: uuid::Uuid::new_v4().to_string(),
                 channel_id: channel.id.clone(),
@@ -915,7 +926,7 @@ pub async fn check_channel_for_new_videos(
                 video_type: Some(video_type),
                 status,
                 created_at: now.clone(),
-                view_count: None,
+                view_count,
                 risk_status: Some(risk_status),
                 risk_reason,
                 is_bkt_test: is_bkt,

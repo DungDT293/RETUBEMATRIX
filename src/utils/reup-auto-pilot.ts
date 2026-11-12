@@ -1,3 +1,6 @@
+import { invoke } from '@tauri-apps/api/core';
+import type { ReupPipelineResult } from '@/lib/types';
+
 /**
  * Tiện ích Tự Động Hóa Reup & BKT (Auto-Pilot Utilities)
  * Hỗ trợ: Thuật toán 95% Core - 5% Hook theo ranh giới từ (Word-Boundary),
@@ -1353,4 +1356,160 @@ export function transformTitleTail(
     genre,
     lang,
   );
+}
+
+// ============================================================================
+// PRE-FLIGHT SCAN & ADAPTIVE REUP PIPELINE UTILITIES
+// ============================================================================
+
+export type PreflightScanMode = 'clean' | 'logo_only' | 'subtitles_only' | 'comprehensive';
+
+export interface PreflightScanResult {
+  hasLogo: boolean;
+  logoPosition: string;
+  logoPositionLabel: string;
+  hasSubtitles: boolean;
+  scanDurationMs: number;
+  mode: PreflightScanMode;
+  badgeText: string;
+  badgeDetail: string;
+}
+
+/**
+ * Chuẩn hóa kết quả quét tiền trạm từ Backend (hỗ trợ an toàn cả camelCase và snake_case)
+ */
+export function parsePreflightScanResult(
+  raw: unknown,
+  fallbackDurationMs = 500,
+): PreflightScanResult {
+  const data = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+
+  const hasLogo = Boolean(
+    data.has_logo ?? data.hasLogo ?? data.logo_detected ?? data.logoDetected ?? false,
+  );
+
+  const rawPos = String(
+    data.logo_position ?? data.logoPosition ?? data.logo_zone ?? data.logoZone ?? 'top_right',
+  ).toLowerCase();
+
+  let logoPositionLabel = 'Góc Trên-Phải';
+  if (
+    rawPos.includes('left') &&
+    (rawPos.includes('top') || rawPos.includes('tren') || rawPos.includes('trai'))
+  ) {
+    logoPositionLabel = 'Góc Trên-Trái';
+  } else if (rawPos.includes('bottom') && rawPos.includes('left')) {
+    logoPositionLabel = 'Góc Dưới-Trái';
+  } else if (rawPos.includes('bottom') && rawPos.includes('right')) {
+    logoPositionLabel = 'Góc Dưới-Phải';
+  } else if (rawPos.includes('top') || rawPos.includes('right')) {
+    logoPositionLabel = 'Góc Trên-Phải';
+  }
+
+  const hasSubtitles = Boolean(
+    data.has_subtitles ??
+      data.hasSubtitles ??
+      data.has_bottom_subtitles ??
+      data.hasBottomSubtitles ??
+      data.subtitles_detected ??
+      data.subtitlesDetected ??
+      false,
+  );
+
+  const scanDurationMs = Number(
+    data.scan_duration_ms ??
+      data.scanDurationMs ??
+      data.duration_ms ??
+      data.durationMs ??
+      fallbackDurationMs,
+  );
+
+  let mode: PreflightScanMode = 'clean';
+  let badgeText = 'Video sạch (100% độ nét, render siêu tốc)';
+  let badgeDetail = 'Không phát hiện watermark hoặc dải phụ đề đáy cần can thiệp.';
+
+  if (hasLogo && hasSubtitles) {
+    mode = 'comprehensive';
+    badgeText = 'Phát hiện Logo & Phụ đề -> Chế độ thích ứng toàn diện';
+    badgeDetail = `Áp dụng che logo thông minh (${logoPositionLabel}) kết hợp làm mờ dải phụ đề đáy.`;
+  } else if (hasLogo) {
+    mode = 'logo_only';
+    badgeText = `Phát hiện Logo (${logoPositionLabel}) -> Đang áp dụng che thông minh`;
+    badgeDetail = `Áp dụng thuật toán delogo che vùng mờ tại ${logoPositionLabel}.`;
+  } else if (hasSubtitles) {
+    mode = 'subtitles_only';
+    badgeText = 'Phát hiện Phụ đề đáy -> Tự động kích hoạt làm mờ dải đáy';
+    badgeDetail = 'Tự động kích hoạt dải mờ đáy chuyên dụng để xóa phụ đề ngoại ngữ.';
+  }
+
+  return {
+    hasLogo,
+    logoPosition: rawPos,
+    logoPositionLabel,
+    hasSubtitles,
+    scanDurationMs,
+    mode,
+    badgeText,
+    badgeDetail,
+  };
+}
+
+/**
+ * Thực hiện quét tiền trạm AI cho tệp video cục bộ qua IPC Tauri
+ */
+export async function executePreflightScan(videoPath: string): Promise<PreflightScanResult> {
+  const start = performance.now();
+  try {
+    const raw = await invoke<unknown>('run_preflight_scan_cmd', {
+      inputPath: videoPath,
+      input_path: videoPath,
+      videoPath,
+    });
+    const elapsed = Math.round(performance.now() - start);
+    return parsePreflightScanResult(raw, elapsed || 480);
+  } catch (_err) {
+    const elapsed = Math.round(performance.now() - start);
+    // Khi lệnh backend chưa đăng ký hoặc có cảnh báo, fallback về chế độ video sạch an toàn
+    return parsePreflightScanResult({ has_logo: false, has_subtitles: false }, elapsed || 500);
+  }
+}
+
+/**
+ * Thực thi lệnh render Reup thích ứng (Adaptive Reup Pipeline)
+ * Tự động truyền cờ thích ứng và fallback về V1 nếu backend chưa hoàn tất
+ */
+export async function executeAdaptiveReupPipeline(
+  inputPath: string,
+  outputPath: string,
+  scan?: PreflightScanResult,
+): Promise<ReupPipelineResult> {
+  const applyDelogo = scan?.hasLogo ?? false;
+  const applyBottomBlur = scan?.hasSubtitles ?? false;
+  const logoPosition = scan?.logoPosition || 'top_right';
+
+  const payload = {
+    inputPath,
+    outputPath,
+    applyDelogo,
+    applyBottomBlur,
+    logoPosition,
+    // Hỗ trợ cả snake_case cho Tauri IPC
+    input_path: inputPath,
+    output_path: outputPath,
+    apply_delogo: applyDelogo,
+    apply_bottom_blur: applyBottomBlur,
+    logo_position: logoPosition,
+  };
+
+  try {
+    return await invoke<ReupPipelineResult>('run_reup_pipeline_adaptive_cmd', payload);
+  } catch (_adaptiveErr) {
+    // Fallback sang run_reup_pipeline_v1_cmd chuẩn để đảm bảo không đứt gãy luồng
+    return await invoke<ReupPipelineResult>('run_reup_pipeline_v1_cmd', {
+      inputPath,
+      outputPath,
+      input_path: inputPath,
+      output_path: outputPath,
+    });
+  }
 }

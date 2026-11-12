@@ -10,7 +10,6 @@ import {
   FileVideo,
   FlaskConical,
   FolderOpen,
-  Globe,
   Hash,
   Image as ImageIcon,
   Layers,
@@ -21,12 +20,14 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Square,
+  Timer,
   Tv,
   UploadCloud,
   Wand2,
   Zap,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AiTitleThumbnailTab } from '@/components/bkt/AiTitleThumbnailTab';
 import { BktChannelManagerTab } from '@/components/bkt/BktChannelManagerTab';
 import type { Page } from '@/components/layout';
@@ -49,6 +50,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
 import {
+  cancelAllBktJobs,
   checkBktCopyrightStatus,
   getBktTestChannels,
   getMultibrowserProfiles,
@@ -64,21 +66,26 @@ import { cn, maskProxy } from '@/lib/utils';
 import { workTelemetryService } from '@/services/workTelemetryService';
 import {
   adaptCompetitorDescription,
+  executeAdaptiveReupPipeline,
+  executePreflightScan,
   getBestAutoPilotTitle,
   getCompanionThumbnailPath,
   HOOK_BANK_EN,
   HOOK_BANK_VI,
+  type PreflightScanResult,
 } from '@/utils/reup-auto-pilot';
 
 export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void } = {}) {
   const toast = useToast();
   const { enqueueExternalUrl } = useDownload();
   const [activeTab, setActiveTab] = useState<
-    'pipeline' | 'bkt_upload' | 'bkt_channels' | 'ai_optimization'
-  >('pipeline');
+    'bkt_channels' | 'pipeline' | 'bkt_upload' | 'ai_optimization'
+  >('bkt_channels');
 
   // ================= PIPELINE STATE =================
   const [inputVideoPath, setInputVideoPath] = useState<string>('');
+  const [preflightScan, setPreflightScan] = useState<PreflightScanResult | null>(null);
+  const [isScanningPreflight, setIsScanningPreflight] = useState<boolean>(false);
   const [pipelineLevel, setPipelineLevel] = useState<'v1' | 'v2'>('v1');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [pipelineResult, setPipelineResult] = useState<ReupPipelineResult | null>(null);
@@ -189,10 +196,14 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
   const [isAutoPilotRunning, setIsAutoPilotRunning] = useState<boolean>(false);
   const [autoPilotStep, setAutoPilotStep] = useState<number>(0);
 
+  // Single-flight guards preventing overlapping IPC invocations
+  const isPublishingMainRef = useRef<boolean>(false);
+  const isCheckingStudioRef = useRef<boolean>(false);
+
   // ================= BKT MONITOR STATE =================
   const [isCheckingStudio, setIsCheckingStudio] = useState<boolean>(false);
   const [studioStatus, setStudioStatus] = useState<{
-    status: 'pending' | 'green_clean' | 'red_matched';
+    status: 'pending' | 'green_clean' | 'red_matched' | 'failed';
     restriction?: string;
     checked_at?: string;
   } | null>(null);
@@ -232,12 +243,12 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
           const firstAvailable = bktData.find((c) => c.isActive && c.remainingQuota > 0);
           return firstAvailable
             ? firstAvailable.profileId
-            : profData.length > 0
-              ? profData[0].id
+            : bktData.length > 0
+              ? bktData[0].profileId
               : '';
         });
-      } else if (profData.length > 0) {
-        setSelectedProfileId((prev) => prev || profData[0].id);
+      } else {
+        setSelectedProfileId('');
       }
     } catch (err) {
       console.error('Failed to load profiles:', err);
@@ -254,6 +265,27 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       }
     }
   }, [uploadVideoPath, inputVideoPath, uploadThumbnailPath]);
+
+  // Quét tiền trạm AI Pre-flight Scan (phát hiện Logo, watermark, phụ đề đáy ~0.5s)
+  const handleTriggerPreflightScan = useCallback(
+    async (path: string): Promise<PreflightScanResult | null> => {
+      if (!path || path.startsWith('http://') || path.startsWith('https://')) {
+        return null;
+      }
+      setIsScanningPreflight(true);
+      try {
+        const res = await executePreflightScan(path);
+        setPreflightScan(res);
+        return res;
+      } catch (err) {
+        console.warn('Preflight scan warning:', err);
+        return null;
+      } finally {
+        setIsScanningPreflight(false);
+      }
+    },
+    [],
+  );
 
   // Check candidate from Outlier Hunter
   useEffect(() => {
@@ -282,6 +314,9 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
           })
           .catch(() => {});
       }
+      if (!candidatePath.startsWith('http://') && !candidatePath.startsWith('https://')) {
+        void handleTriggerPreflightScan(candidatePath);
+      }
     }
     if (candidateDesc) {
       setUploadDescription(candidateDesc);
@@ -291,7 +326,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       setUploadTags(candidateTags);
       sessionStorage.removeItem('reup_input_video_tags');
     }
-  }, []);
+  }, [handleTriggerPreflightScan]);
 
   useEffect(() => {
     loadProfiles();
@@ -299,6 +334,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
 
   // Lắng nghe tiến trình FFmpeg và BKT Test Background Jobs
   useEffect(() => {
+    let cancelled = false;
     let unlistenProgress: (() => void) | undefined;
     let unlistenJob: (() => void) | undefined;
 
@@ -309,14 +345,20 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       eta_seconds?: number;
       status: string;
     }>('reup-pipeline-progress', (event) => {
+      if (cancelled) return;
       if (event.payload) {
         setReupProgress(event.payload);
       }
     }).then((fn) => {
-      unlistenProgress = fn;
+      if (cancelled) {
+        fn();
+      } else {
+        unlistenProgress = fn;
+      }
     });
 
     listen<BktTestJob>('bkt-test-job-updated', (event) => {
+      if (cancelled) return;
       const job = event.payload;
       if (!job) return;
       setActiveBackgroundJob(job);
@@ -327,6 +369,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       ) {
         setIsLoginRequiredError(true);
       }
+      if (job.videoSourceType === 'channel_video') return;
       if (job.status === 'green_clean') {
         setStudioStatus({
           status: 'green_clean',
@@ -339,12 +382,23 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
           restriction: job.restriction || job.errorMessage || 'Phát hiện khiếu nại Content ID',
           checked_at: new Date().toLocaleTimeString('vi-VN'),
         });
+      } else if (job.status === 'failed') {
+        setStudioStatus({
+          status: 'failed',
+          restriction: job.errorMessage || job.restriction || 'Kiểm tra bản quyền thất bại',
+          checked_at: new Date().toLocaleTimeString('vi-VN'),
+        });
       }
     }).then((fn) => {
-      unlistenJob = fn;
+      if (cancelled) {
+        fn();
+      } else {
+        unlistenJob = fn;
+      }
     });
 
     return () => {
+      cancelled = true;
       if (unlistenProgress) unlistenProgress();
       if (unlistenJob) unlistenJob();
     };
@@ -433,6 +487,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
             }
           })
           .catch(() => {});
+        void handleTriggerPreflightScan(selected);
       }
     } catch (err) {
       console.error('Pick video error:', err);
@@ -467,6 +522,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
             }
           })
           .catch(() => {});
+        void handleTriggerPreflightScan(selected);
       }
     } catch (err) {
       console.error('Pick upload video error:', err);
@@ -614,6 +670,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       overrideThumb?: string,
       overrideTags?: string,
     ) => {
+      if (isPublishingMainRef.current) return;
       const targetVideo = (
         overrideVideoPath ||
         uploadVideoPath ||
@@ -720,6 +777,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
         return;
       }
 
+      isPublishingMainRef.current = true;
       setIsPublishingMain(true);
       setMainPublishResult(null);
 
@@ -772,6 +830,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
           description: errStr,
         });
       } finally {
+        isPublishingMainRef.current = false;
         setIsPublishingMain(false);
       }
     },
@@ -792,6 +851,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
 
   // Check copyright status on YouTube Studio
   const handleCheckStudioStatus = useCallback(async () => {
+    if (isCheckingStudioRef.current) return;
     if (!selectedProfileId) {
       toast.warning({
         title: 'Chưa chọn Profile',
@@ -800,6 +860,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       });
       return;
     }
+    isCheckingStudioRef.current = true;
     setIsCheckingStudio(true);
     try {
       const res = await checkBktCopyrightStatus({
@@ -904,6 +965,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
         description: String(err),
       });
     } finally {
+      isCheckingStudioRef.current = false;
       setIsCheckingStudio(false);
     }
   }, [
@@ -957,23 +1019,36 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       fps: 0,
       speed: '0x',
       eta_seconds: 0,
-      status: 'Khởi tạo render...',
+      status: 'Quét tiền trạm và khởi tạo render...',
     });
 
     try {
-      // 1. REUP PIPELINE (LV1)
+      // 1. PRE-FLIGHT SCAN & ADAPTIVE REUP PIPELINE
+      let currentScan = preflightScan;
+      if (!currentScan) {
+        toast.info({
+          title: 'Auto-Pilot [1/4]: Đang quét tiền trạm AI (~0.5s)...',
+          description:
+            'Phân tích logo, watermark và phụ đề đáy để chọn chiến lược render tối ưu...',
+        });
+        currentScan = await handleTriggerPreflightScan(inputVideoPath);
+      }
+
       toast.info({
-        title: 'Auto-Pilot [1/4]: Xử lý Reup Cấp 1...',
-        description: 'Đang biến đổi MD5/SHA256, Speed 1.03x, Pitch 1.02x, xóa EXIF...',
+        title: 'Auto-Pilot [1/4]: Xử lý Reup Thích Ứng (Adaptive)...',
+        description: currentScan
+          ? `Chiến lược: ${currentScan.badgeText}`
+          : 'Đang biến đổi MD5/SHA256, Speed 1.03x, Pitch 1.02x, xóa EXIF...',
       });
       const ext = inputVideoPath.split('.').pop() || 'mp4';
       const base = inputVideoPath.slice(0, inputVideoPath.lastIndexOf('.'));
-      const outputPath = `${base}_reup_${pipelineLevel}_${Date.now()}.${ext}`;
+      const outputPath = `${base}_reup_adaptive_${Date.now()}.${ext}`;
 
-      const reupRes = await invoke<ReupPipelineResult>('run_reup_pipeline_v1_cmd', {
-        inputPath: inputVideoPath,
+      const reupRes = await executeAdaptiveReupPipeline(
+        inputVideoPath,
         outputPath,
-      });
+        currentScan || undefined,
+      );
       setPipelineResult(reupRes);
       setUploadVideoPath(reupRes.output_path);
       setIsProcessing(false);
@@ -1112,7 +1187,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
               <FlaskConical className="w-4 h-4 text-amber-500" />
             </div>
-            <h1 className="text-lg font-bold text-foreground">Reup Pipeline & Test Kênh BKT</h1>
+            <h1 className="text-lg font-bold text-foreground">Reup Pipeline & Test Bản Quyền</h1>
             <Badge
               variant="outline"
               className="bg-amber-500/10 text-amber-500 border-amber-500/20 text-xs py-0"
@@ -1121,8 +1196,8 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground">
-            Xử lý lách bản quyền video chuyên sâu (đổi Checksum MD5/SHA256, xóa metadata) &amp; Tự
-            động đăng test kiểm tra bản quyền ngầm trên kênh BKT
+            Quản lý kênh test bản quyền độc lập, xử lý lách bản quyền video chuyên sâu & tự động
+            kiểm tra trên YouTube Studio
           </p>
         </div>
 
@@ -1148,29 +1223,56 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Tự động từ đầu đến cuối: Lách Reup (Đổi MD5/Audio) -&gt; AI Tiêu Đề 95/5 &amp; Mô Tả
-                -&gt; Tự Nhận Thumbnail -&gt; Đăng Test BKT (Unlisted) -&gt; Tự Quét Studio -&gt; Tự
-                Đăng Kênh Chính khi Xanh!
+                -&gt; Tự Nhận Thumbnail -&gt; Đăng Test Bản Quyền (Unlisted) -&gt; Tự Quét Studio
+                -&gt; Tự Đăng Kênh Chính khi Xanh!
               </p>
             </div>
 
-            <Button
-              size="default"
-              onClick={handleRunAutoPilot}
-              disabled={!inputVideoPath || isAutoPilotRunning || isProcessing || isUploading}
-              className="gap-2 bg-gradient-to-r from-amber-500 to-emerald-600 hover:from-amber-600 hover:to-emerald-700 text-white font-semibold shadow-md shadow-emerald-500/20 text-xs px-5 h-9"
-            >
-              {isAutoPilotRunning ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Đang chạy Auto-Pilot (Bước {autoPilotStep}/4)...</span>
-                </>
-              ) : (
-                <>
-                  <Rocket className="w-4 h-4" />
-                  <span>Bắt Đầu Auto-Pilot 100% (1-Click)</span>
-                </>
+            <div className="flex items-center gap-2">
+              {isAutoPilotRunning && (
+                <Button
+                  size="default"
+                  variant="destructive"
+                  onClick={async () => {
+                    try {
+                      await cancelAllBktJobs();
+                      setIsAutoPilotRunning(false);
+                      setIsProcessing(false);
+                      setAutoPilotStep(0);
+                      setAutoPollSeconds(null);
+                      toast.info({
+                        title: 'Đã dừng Auto-Pilot',
+                        description: 'Tiến trình tự động hóa đã được hủy theo yêu cầu.',
+                      });
+                    } catch (err) {
+                      toast.error({ title: 'Lỗi dừng Auto-Pilot', description: String(err) });
+                    }
+                  }}
+                  className="gap-2 font-semibold text-xs px-4 h-9 shadow-sm"
+                >
+                  <Square className="w-4 h-4 fill-current" />
+                  <span>Dừng Auto-Pilot</span>
+                </Button>
               )}
-            </Button>
+              <Button
+                size="default"
+                onClick={handleRunAutoPilot}
+                disabled={!inputVideoPath || isAutoPilotRunning || isProcessing || isUploading}
+                className="gap-2 bg-gradient-to-r from-amber-500 to-emerald-600 hover:from-amber-600 hover:to-emerald-700 text-white font-semibold shadow-md shadow-emerald-500/20 text-xs px-5 h-9"
+              >
+                {isAutoPilotRunning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Đang chạy Auto-Pilot (Bước {autoPilotStep}/4)...</span>
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="w-4 h-4" />
+                    <span>Bắt Đầu Auto-Pilot 100% (1-Click)</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Progress bar thời gian thực khi Auto-Pilot đang render Reup */}
@@ -1200,22 +1302,22 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
         <Tabs
           value={activeTab}
           onValueChange={(v) =>
-            setActiveTab(v as 'pipeline' | 'bkt_upload' | 'bkt_channels' | 'ai_optimization')
+            setActiveTab(v as 'bkt_channels' | 'pipeline' | 'bkt_upload' | 'ai_optimization')
           }
           className="w-full space-y-5"
         >
           <TabsList className="grid grid-cols-4 max-w-2xl bg-muted/60 p-1 border border-border/40">
+            <TabsTrigger value="bkt_channels" className="flex items-center gap-1.5 text-xs py-2">
+              <Tv className="w-4 h-4 text-emerald-500" />
+              <span className="font-medium">1. Kênh Test Bản Quyền</span>
+            </TabsTrigger>
             <TabsTrigger value="pipeline" className="flex items-center gap-1.5 text-xs py-2">
               <Wand2 className="w-4 h-4 text-rose-500" />
-              <span className="font-medium">1. Xử Lý Reup</span>
+              <span className="font-medium">2. Xử Lý Reup</span>
             </TabsTrigger>
             <TabsTrigger value="bkt_upload" className="flex items-center gap-1.5 text-xs py-2">
               <FlaskConical className="w-4 h-4 text-amber-500" />
-              <span className="font-medium">2. Đăng BKT</span>
-            </TabsTrigger>
-            <TabsTrigger value="bkt_channels" className="flex items-center gap-1.5 text-xs py-2">
-              <Tv className="w-4 h-4 text-emerald-500" />
-              <span className="font-medium">3. Kênh Test BKT</span>
+              <span className="font-medium">3. Đăng Test Bản Quyền</span>
             </TabsTrigger>
             <TabsTrigger value="ai_optimization" className="flex items-center gap-1.5 text-xs py-2">
               <Sparkles className="w-4 h-4 text-purple-400" />
@@ -1223,7 +1325,12 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
             </TabsTrigger>
           </TabsList>
 
-          {/* ================= TAB 1: REUP PIPELINE ================= */}
+          {/* ================= TAB 1: QUẢN LÝ KÊNH TEST BẢN QUYỀN ================= */}
+          <TabsContent value="bkt_channels" className="space-y-5">
+            <BktChannelManagerTab />
+          </TabsContent>
+
+          {/* ================= TAB 2: REUP PIPELINE ================= */}
           <TabsContent value="pipeline" className="space-y-5">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column: Input Video & Config */}
@@ -1281,6 +1388,85 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                         <p className="text-xs font-mono font-medium text-foreground break-all">
                           {inputVideoPath}
                         </p>
+
+                        {/* Pre-flight Scan Smart Status */}
+                        {!inputVideoPath.startsWith('http://') &&
+                          !inputVideoPath.startsWith('https://') && (
+                            <div className="mt-3 pt-2.5 border-t border-border/40 flex flex-wrap items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {isScanningPreflight ? (
+                                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-medium bg-muted/60 text-muted-foreground border border-border/50">
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                                    <span>Đang quét tiền trạm AI (~0.5s)...</span>
+                                  </div>
+                                ) : preflightScan ? (
+                                  <>
+                                    <div
+                                      className={cn(
+                                        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border',
+                                        preflightScan.mode === 'clean' &&
+                                          'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+                                        preflightScan.mode === 'logo_only' &&
+                                          'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+                                        preflightScan.mode === 'subtitles_only' &&
+                                          'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+                                        preflightScan.mode === 'comprehensive' &&
+                                          'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
+                                      )}
+                                    >
+                                      {preflightScan.mode === 'clean' && (
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                                      )}
+                                      {preflightScan.mode === 'logo_only' && (
+                                        <ShieldAlert className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                                      )}
+                                      {preflightScan.mode === 'subtitles_only' && (
+                                        <Tv className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                                      )}
+                                      {preflightScan.mode === 'comprehensive' && (
+                                        <Wand2 className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />
+                                      )}
+                                      <span>{preflightScan.badgeText}</span>
+                                    </div>
+
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-muted-foreground bg-muted/50 border border-border/40">
+                                      <Timer className="w-3 h-3 text-muted-foreground" />
+                                      <span>
+                                        {preflightScan.scanDurationMs > 0
+                                          ? `${(preflightScan.scanDurationMs / 1000).toFixed(2)}s`
+                                          : '~0.5s'}
+                                      </span>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleTriggerPreflightScan(inputVideoPath)}
+                                    className="h-7 px-2.5 text-xs gap-1.5 border-dashed border-primary/40 text-primary hover:bg-primary/5"
+                                  >
+                                    <Zap className="w-3 h-3 text-primary" />
+                                    <span>Quét tiền trạm AI (~0.5s)</span>
+                                  </Button>
+                                )}
+                              </div>
+
+                              {preflightScan && !isScanningPreflight && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleTriggerPreflightScan(inputVideoPath)}
+                                  className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                                  title="Quét lại tiền trạm video"
+                                >
+                                  <RefreshCw className="w-3 h-3" />
+                                  <span>Quét lại</span>
+                                </Button>
+                              )}
+                            </div>
+                          )}
                       </div>
                     ) : (
                       <div className="py-4 text-center text-xs text-muted-foreground">
@@ -1494,14 +1680,14 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                         </div>
                       )}
 
-                      {/* Chuyển nhanh sang Test BKT */}
+                      {/* Chuyển nhanh sang Test Bản Quyền */}
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setActiveTab('bkt_upload')}
                         className="w-full gap-2 text-xs border-amber-500/30 text-amber-500 hover:bg-amber-500/10 font-medium"
                       >
-                        <span>Chuyển video này sang Test Kênh BKT</span>
+                        <span>Chuyển video này sang Kênh Test Bản Quyền</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Button>
                     </div>
@@ -1520,79 +1706,99 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
             </div>
           </TabsContent>
 
-          {/* ================= TAB 2: BKT SHADOW TEST ================= */}
+          {/* ================= TAB 3: ĐĂNG TEST BẢN QUYỀN ================= */}
           <TabsContent value="bkt_upload" className="space-y-5">
             {/* Real-time Background Task Monitor Banner */}
             {activeBackgroundJob &&
               (activeBackgroundJob.status === 'queued' ||
+                activeBackgroundJob.status === 'pending' ||
                 activeBackgroundJob.status === 'reuping' ||
                 activeBackgroundJob.status === 'uploading' ||
-                activeBackgroundJob.status === 'checking') && (
-                <Card className="p-4 border-primary/40 bg-primary/5 backdrop-blur-sm space-y-3 animate-in fade-in">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-primary">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Tiến Trình Chạy Ngầm BKT Đang Hoạt Động</span>
+                activeBackgroundJob.status === 'checking') &&
+              (() => {
+                const pctMatch = activeBackgroundJob.restriction?.match(/\b(\d{1,3})%/);
+                const livePct =
+                  activeBackgroundJob.uploadPercent ??
+                  (pctMatch ? Math.min(100, Math.max(0, Number(pctMatch[1]))) : null);
+                return (
+                  <Card className="p-4 border-primary/40 bg-primary/5 backdrop-blur-sm space-y-3 animate-in fade-in">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Tiến Trình Chạy Ngầm Test Bản Quyền Đang Hoạt Động</span>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className="border-primary/40 text-primary text-[10px] font-mono uppercase"
+                      >
+                        {activeBackgroundJob.status}
+                        {livePct !== null && activeBackgroundJob.status === 'uploading'
+                          ? ` ${livePct}%`
+                          : ''}
+                      </Badge>
                     </div>
-                    <Badge
-                      variant="outline"
-                      className="border-primary/40 text-primary text-[10px] font-mono uppercase"
-                    >
-                      {activeBackgroundJob.status}
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-foreground font-medium truncate">
-                    Video: {activeBackgroundJob.videoTitle}
-                  </div>
-                  <div className="grid grid-cols-4 gap-2 text-[11px] pt-1">
-                    <div
-                      className={cn(
-                        'p-2 rounded border text-center font-medium',
-                        activeBackgroundJob.status === 'queued'
-                          ? 'bg-primary/20 border-primary text-primary'
-                          : 'bg-muted/30 border-border/30 text-muted-foreground',
-                      )}
-                    >
-                      1. Xếp hàng
+                    <div className="text-xs text-foreground font-medium truncate">
+                      Video: {activeBackgroundJob.videoTitle}
                     </div>
-                    <div
-                      className={cn(
-                        'p-2 rounded border text-center font-medium',
-                        activeBackgroundJob.status === 'reuping'
-                          ? 'bg-primary/20 border-primary text-primary'
-                          : 'bg-muted/30 border-border/30 text-muted-foreground',
-                      )}
-                    >
-                      2. Render Reup
+                    <div className="grid grid-cols-4 gap-2 text-[11px] pt-1">
+                      <div
+                        className={cn(
+                          'p-2 rounded border text-center font-medium',
+                          activeBackgroundJob.status === 'queued'
+                            ? 'bg-primary/20 border-primary text-primary'
+                            : 'bg-muted/30 border-border/30 text-muted-foreground',
+                        )}
+                      >
+                        1. Xếp hàng
+                      </div>
+                      <div
+                        className={cn(
+                          'p-2 rounded border text-center font-medium',
+                          activeBackgroundJob.status === 'uploading'
+                            ? 'bg-primary/20 border-primary text-primary'
+                            : 'bg-muted/30 border-border/30 text-muted-foreground',
+                        )}
+                      >
+                        2. Tải lên Studio
+                      </div>
+                      <div
+                        className={cn(
+                          'p-2 rounded border text-center font-medium',
+                          activeBackgroundJob.status === 'checking' ||
+                            activeBackgroundJob.status === 'pending'
+                            ? 'bg-primary/20 border-primary text-primary'
+                            : 'bg-muted/30 border-border/30 text-muted-foreground',
+                        )}
+                      >
+                        3. Quét Content ID
+                      </div>
+                      <div
+                        className={cn(
+                          'p-2 rounded border text-center font-medium',
+                          activeBackgroundJob.status === 'reuping'
+                            ? 'bg-primary/20 border-primary text-primary'
+                            : 'bg-muted/30 border-border/30 text-muted-foreground',
+                        )}
+                      >
+                        4. Reup &amp; Kênh Đích
+                      </div>
                     </div>
-                    <div
-                      className={cn(
-                        'p-2 rounded border text-center font-medium',
-                        activeBackgroundJob.status === 'uploading'
-                          ? 'bg-primary/20 border-primary text-primary'
-                          : 'bg-muted/30 border-border/30 text-muted-foreground',
-                      )}
-                    >
-                      3. Tải lên Unlisted
-                    </div>
-                    <div
-                      className={cn(
-                        'p-2 rounded border text-center font-medium',
-                        activeBackgroundJob.status === 'checking'
-                          ? 'bg-primary/20 border-primary text-primary'
-                          : 'bg-muted/30 border-border/30 text-muted-foreground',
-                      )}
-                    >
-                      4. Quét Studio Content ID
-                    </div>
-                  </div>
-                  {activeBackgroundJob.restriction && (
-                    <div className="text-[11px] text-muted-foreground">
-                      Chi tiết: {activeBackgroundJob.restriction}
-                    </div>
-                  )}
-                </Card>
-              )}
+                    {livePct !== null && activeBackgroundJob.status === 'uploading' && (
+                      <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full bg-primary transition-all duration-300"
+                          style={{ width: `${livePct}%` }}
+                        />
+                      </div>
+                    )}
+                    {activeBackgroundJob.restriction && (
+                      <div className="text-[11px] text-muted-foreground">
+                        Chi tiết: {activeBackgroundJob.restriction}
+                      </div>
+                    )}
+                  </Card>
+                );
+              })()}
 
             {/* Cảnh báo chưa đăng nhập Google Studio */}
             {isLoginRequiredError && (
@@ -1601,7 +1807,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                   <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                   <span>
                     Hồ sơ trình duyệt chưa đăng nhập tài khoản Google / YouTube Studio. Vui lòng mở
-                    Studio để đăng nhập trước khi chạy test BKT.
+                    Studio để đăng nhập trước khi chạy kiểm tra bản quyền.
                   </span>
                 </div>
                 <Button
@@ -1618,13 +1824,13 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column: BKT Upload Configuration */}
+              {/* Left Column: Test Upload Configuration */}
               <div className="lg:col-span-2 space-y-5">
                 <Card className="p-4 sm:p-5 border-border/60 bg-card/60 backdrop-blur-sm space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-semibold flex items-center gap-2">
                       <UploadCloud className="w-4 h-4 text-blue-500" />
-                      Tải Video Lên Kênh BKT để Thử Nghiệm
+                      Tải Video Lên Kênh Test để Thử Nghiệm
                     </Label>
                     <Badge
                       variant="outline"
@@ -1641,18 +1847,18 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                         <span className="font-semibold">Chưa có Hồ sơ trình duyệt nào!</span>
                         <p className="text-[11px] text-muted-foreground">
                           Để tải video ngầm và kiểm tra bản quyền, vui lòng vào menu "Hồ sơ trình
-                          duyệt" tạo profile và đăng nhập tài khoản kênh BKT.
+                          duyệt" tạo profile và đăng nhập tài khoản Kênh Test.
                         </p>
                       </div>
                     </div>
                   )}
 
-                  {/* 1. Chọn Profile Browser Multi BKT */}
+                  {/* 1. Chọn Kênh Test Bản Quyền */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label className="text-xs font-medium flex items-center gap-1.5">
-                        <Globe className="w-3.5 h-3.5 text-primary" />
-                        Hồ sơ Browser Multi đích (Kênh BKT đã đăng nhập YouTube)
+                        <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+                        Kênh Test Bản Quyền (Mượn slot Unlisted kiểm tra bản quyền ngầm)
                       </Label>
                       {selectedProfileId && (
                         <Button
@@ -1661,10 +1867,10 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                           size="sm"
                           onClick={() => handleOpenProfileStudio()}
                           className="h-6 px-2 text-[11px] text-primary hover:text-primary hover:bg-primary/10 gap-1"
-                          title="Mở trực tiếp YouTube Studio của hồ sơ này"
+                          title="Mở trực tiếp YouTube Studio của Kênh Test này"
                         >
                           <ExternalLink className="w-3 h-3" />
-                          <span>Mở Studio</span>
+                          <span>Mở Studio Kênh Test</span>
                         </Button>
                       )}
                     </div>
@@ -1675,6 +1881,8 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                           onValueChange={(val) => {
                             handleChangeBktProfileId(val);
                             setStudioStatus(null);
+                            setActiveBackgroundJob(null);
+                            setUploadResult(null);
                             setAutoPollSeconds(null);
                             setPollRetryCount(0);
                             setIsLoginRequiredError(false);
@@ -1683,64 +1891,39 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                           <SelectTrigger className="h-9 text-xs bg-muted/40 border-border/50">
                             <SelectValue
                               placeholder={
-                                profiles.length === 0 ? 'Chưa có profile nào...' : 'Chọn Profile...'
+                                bktChannels.length === 0
+                                  ? 'Chưa có Kênh Test nào...'
+                                  : 'Chọn Kênh Test Bản Quyền...'
                               }
                             />
                           </SelectTrigger>
                           <SelectContent>
-                            {bktChannels.length > 0 && (
-                              <div className="px-2 py-1 text-[10px] font-semibold text-primary uppercase tracking-wider">
-                                Kênh Test Bản Quyền (Giới hạn 15 video/ngày)
-                              </div>
-                            )}
-                            {bktChannels.map((bc) => (
-                              <SelectItem
-                                key={`bkt-${bc.id}`}
-                                value={bc.profileId}
-                                className="text-xs"
-                              >
-                                <span className="font-medium text-foreground">{bc.name}</span>
-                                <span
-                                  className={cn(
-                                    'text-[10px] ml-2 font-mono',
-                                    bc.remainingQuota <= 0
-                                      ? 'text-rose-400'
-                                      : bc.remainingQuota <= 3
-                                        ? 'text-amber-400'
-                                        : 'text-emerald-400',
-                                  )}
+                            {bktChannels.length > 0 ? (
+                              bktChannels.map((bc) => (
+                                <SelectItem
+                                  key={`bkt-${bc.id}`}
+                                  value={bc.profileId}
+                                  className="text-xs"
                                 >
-                                  (Còn {bc.remainingQuota}/{bc.dailyQuota} lượt)
-                                </span>
-                              </SelectItem>
-                            ))}
-
-                            {profiles.length > 0 && (
-                              <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-1 border-t border-border/30">
-                                Tất cả Hồ sơ Profile
-                              </div>
-                            )}
-                            {profiles.length === 0 && bktChannels.length === 0 ? (
-                              <SelectItem value="__none__" disabled className="text-xs">
-                                Chưa có profile nào. Tạo tại Quản lý Profile.
-                              </SelectItem>
-                            ) : (
-                              profiles.map((p) => (
-                                <SelectItem key={p.id} value={p.id} className="text-xs">
-                                  <span className="font-medium text-foreground">
-                                    {p.profile_name}
+                                  <span className="font-medium text-foreground">{bc.name}</span>
+                                  <span
+                                    className={cn(
+                                      'text-[10px] ml-2 font-mono',
+                                      bc.remainingQuota <= 0
+                                        ? 'text-rose-400'
+                                        : bc.remainingQuota <= 3
+                                          ? 'text-amber-400'
+                                          : 'text-emerald-400',
+                                    )}
+                                  >
+                                    (Còn {bc.remainingQuota}/{bc.dailyQuota} lượt test)
                                   </span>
-                                  {p.proxy ? (
-                                    <span className="text-[10px] text-muted-foreground ml-2">
-                                      (Proxy: {maskProxy(p.proxy)})
-                                    </span>
-                                  ) : (
-                                    <span className="text-[10px] text-muted-foreground ml-2">
-                                      (IP Trực tiếp)
-                                    </span>
-                                  )}
                                 </SelectItem>
                               ))
+                            ) : (
+                              <SelectItem value="__none__" disabled className="text-xs">
+                                Chưa có kênh test nào. Tạo tại tab '1. Kênh Test Bản Quyền'.
+                              </SelectItem>
                             )}
                           </SelectContent>
                         </Select>
@@ -1823,11 +2006,24 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                   {/* 4. Tiêu đề & Mô tả */}
                   <div className="grid grid-cols-1 gap-3 pt-1">
                     <div className="space-y-1">
-                      <Label className="text-xs font-medium">Tiêu đề video test:</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-medium">Tiêu đề video test:</Label>
+                        <span
+                          className={cn(
+                            'text-[10px] font-mono',
+                            uploadTitle.length > 90
+                              ? 'text-amber-400 font-bold'
+                              : 'text-muted-foreground',
+                          )}
+                        >
+                          {uploadTitle.length}/100 ký tự
+                        </span>
+                      </div>
                       <Input
                         value={uploadTitle}
-                        onChange={(e) => setUploadTitle(e.target.value)}
-                        placeholder="Tiêu đề video tải lên"
+                        onChange={(e) => setUploadTitle(e.target.value.slice(0, 100))}
+                        maxLength={100}
+                        placeholder="Tiêu đề video tải lên (tối đa 100 ký tự)"
                         className="h-8 text-xs bg-muted/40"
                       />
                     </div>
@@ -1877,7 +2073,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                       ) : (
                         <>
                           <UploadCloud className="w-4 h-4" />
-                          <span>Tải Lên Kênh BKT để Test</span>
+                          <span>Tải Lên Kênh Test để Kiểm Tra</span>
                         </>
                       )}
                     </Button>
@@ -1900,7 +2096,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                         Tự Động Đăng Kênh Chính (Auto-Publish)
                       </Label>
                       <p className="text-[11px] text-muted-foreground">
-                        Tự động đẩy video + thumbnail + metadata sang Kênh Chính khi BKT Xanh
+                        Tự động đẩy video + thumbnail + metadata sang Kênh Chính khi Sạch Bản Quyền
                       </p>
                     </div>
                     <Switch checked={autoPublishMain} onCheckedChange={handleToggleAutoPublish} />
@@ -2042,7 +2238,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                     <div className="p-3 rounded-lg border border-blue-500/30 bg-blue-500/10 space-y-1">
                       <span className="text-[11px] font-semibold text-blue-400 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        Đã tải lên kênh BKT thành công!
+                        Đã tải lên Kênh Test thành công!
                       </span>
                       {uploadResult.video_url && (
                         <a
@@ -2078,6 +2274,15 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                           >
                             <ShieldAlert className="w-3.5 h-3.5 mr-1 text-rose-400" />
                             Dính Bản Quyền (Content ID)
+                          </Badge>
+                        )}
+                        {studioStatus.status === 'failed' && (
+                          <Badge
+                            variant="outline"
+                            className="bg-rose-500/15 text-rose-400 border-rose-500/30 text-xs px-2 py-0.5"
+                          >
+                            <AlertTriangle className="w-3.5 h-3.5 mr-1 text-rose-400" />
+                            Kiểm tra thất bại
                           </Badge>
                         )}
                         {studioStatus.status === 'pending' && (
@@ -2130,7 +2335,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                       <ShieldCheck className="w-8 h-8 text-muted-foreground/30 mx-auto" />
                       <p>Chưa có dữ liệu kiểm tra bản quyền.</p>
                       <p className="text-[11px] text-muted-foreground/70">
-                        Sau khi video được đăng lên kênh BKT, bấm "Quét kết quả" để đọc trạng thái
+                        Sau khi video được đăng lên Kênh Test, bấm "Quét kết quả" để đọc trạng thái
                         Restrictions từ YouTube Studio.
                       </p>
                     </div>
@@ -2138,11 +2343,6 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                 </Card>
               </div>
             </div>
-          </TabsContent>
-
-          {/* ================= TAB 3: QUẢN LÝ KÊNH TEST BẢN QUYỀN ================= */}
-          <TabsContent value="bkt_channels" className="space-y-5">
-            <BktChannelManagerTab />
           </TabsContent>
 
           {/* ================= TAB 4: AI TỐI ƯU TIÊU ĐỀ & THUMBNAIL ================= */}

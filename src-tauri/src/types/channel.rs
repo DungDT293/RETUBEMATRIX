@@ -45,6 +45,7 @@ pub struct FollowedChannel {
     pub risk_reason: Option<String>,
     pub bkt_test_mode: Option<bool>,
     pub bkt_profile_id: Option<String>,
+    pub target_profile_id: Option<String>,
 }
 
 /// A video belonging to a followed channel
