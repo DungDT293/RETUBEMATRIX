@@ -24,10 +24,11 @@ _LOCK = threading.Lock()
 
 
 def _state_path() -> Path:
-    # Import lazily so importing this module never fails on odd environments.
-    from sidecar.utils.lock import first_writable_path
+    from core.paths import user_data_path
 
-    return first_writable_path(".tmp", "overlay_state.json")
+    path = user_data_path(".tmp", "overlay_state.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def _normkey(user_data_dir: Any) -> str:

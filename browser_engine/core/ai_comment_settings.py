@@ -13,13 +13,13 @@ import logging
 from typing import Any
 
 from core import secure_store
-from core.paths import app_path
+from core.paths import user_data_path
 from core import ai_oauth_store
 from core import ai_provider_registry
 
 logger = logging.getLogger(__name__)
 
-_SETTINGS_PATH = app_path("security", "ai_comment_settings.json")
+_SETTINGS_PATH = user_data_path("security", "ai_comment_settings.json")
 DEFAULT_ENDPOINT = "http://localhost:20128/v1"
 DEFAULT_MODEL = "local-model"
 DEFAULT_TEMPERATURE = 0.8

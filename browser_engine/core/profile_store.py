@@ -20,7 +20,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from core.paths import app_path, profile_data_dir, profile_data_path, profile_data_roots
+from core.paths import profile_data_path, profile_data_roots
 from core.proxy_format import canonical_proxy_with_scheme, normalize_proxy_scheme, proxy_scheme_from_input
 
 logger = logging.getLogger(__name__)
@@ -149,10 +149,10 @@ def profile_dir_for_identity(profile_name: str, identity_email: str = "", profil
     return validate_profile_name(f"{base}_{suffix}"[:64].rstrip(" ."))
 
 def _legacy_profile_dir_or_new(profile_name: str, profile_id: str = "") -> str:
-    """Preserve old browser folders when profiles.json lacks profile_dir."""
+    """Preserve old canonical browser folders when profiles.json lacks profile_dir."""
     try:
         legacy_dir = validate_profile_name(profile_name)
-        if (PROFILES_ROOT / legacy_dir).exists() or (app_path("profiles") / legacy_dir).exists() or profile_data_dir(legacy_dir).exists():
+        if (PROFILES_ROOT / legacy_dir).exists():
             return legacy_dir
     except ValueError:
         pass
@@ -160,64 +160,39 @@ def _legacy_profile_dir_or_new(profile_name: str, profile_id: str = "") -> str:
 
 
 def _metadata_read_path(primary: Path, filename: str) -> Path:
-    """Pick usable metadata without letting an empty root hide recoverable rows."""
-    candidates = [primary, *(root / filename for root in _configured_metadata_roots(primary))]
-    first_empty: Path | None = None
-    first_invalid: Path | None = None
-    for candidate in candidates:
-        if not candidate.exists():
-            continue
-        try:
-            rows = _read_profile_rows(candidate)
-        except ProfilePersistenceError:
-            first_invalid = first_invalid or candidate
-            logger.warning("Bỏ qua metadata profile không hợp lệ: %s", candidate)
-            continue
-        if rows:
-            if candidate != primary:
-                logger.warning("Dùng metadata profile từ root cũ: %s", candidate)
-            return candidate
-        first_empty = first_empty or candidate
-    return first_empty or first_invalid or primary
+    """Always read canonical metadata from the primary data root without external fallback."""
+    _ = filename
+    return primary
 
 
 def _configured_metadata_roots(primary: Path) -> tuple[Path, ...]:
-    """Return alternate roots only when callers did not replace test metadata paths."""
-    configured = profile_data_path(primary.name)
-    try:
-        if primary.resolve() != configured.resolve():
-            return ()
-    except OSError:
-        if primary != configured:
-            return ()
-    return profile_data_roots()[1:]
+    """External fallback roots are disabled to keep RETubeMatrix isolated."""
+    _ = primary
+    return ()
 
 
 def profile_recovery_diagnostics() -> dict:
-    """Return read-only metadata/root hints for an empty or failed profile list."""
+    """Return read-only metadata/root hints for the canonical profile data root."""
+    canonical_root = PROFILES_ROOT.parent
     metadata: list[dict[str, str | int | bool]] = []
-    for root in profile_data_roots():
-        path = root / "profiles.json"
-        if not path.exists():
-            metadata.append({"root": str(root), "state": "missing", "count": 0})
-            continue
+    path = canonical_root / "profiles.json"
+    if not path.exists():
+        metadata.append({"root": str(canonical_root), "state": "missing", "count": 0})
+    else:
         try:
             rows = _read_profile_rows(path)
-            metadata.append({"root": str(root), "state": "valid", "count": len(rows)})
+            metadata.append({"root": str(canonical_root), "state": "valid", "count": len(rows)})
         except ProfilePersistenceError as exc:
-            metadata.append({"root": str(root), "state": "corrupt", "count": 0, "error": str(exc)})
+            metadata.append({"root": str(canonical_root), "state": "corrupt", "count": 0, "error": str(exc)})
 
     candidates: list[str] = []
-    for root in profile_data_roots():
-        profiles_root = root / "profiles"
-        if not profiles_root.is_dir():
-            continue
+    if PROFILES_ROOT.is_dir():
         try:
-            for child in profiles_root.iterdir():
-                if child.is_dir() and _is_chromium_profile_dir(child):
-                    candidates.append(f"{profiles_root}:{child.name}")
+            for child in PROFILES_ROOT.iterdir():
+                if child.is_dir() and not _is_reparse_point(child) and _is_chromium_profile_dir(child):
+                    candidates.append(f"{PROFILES_ROOT}:{child.name}")
         except OSError:
-            continue
+            pass
     nonempty_metadata = any(int(item.get("count", 0)) > 0 for item in metadata)
     warning = ""
     if candidates and not nonempty_metadata:
@@ -226,7 +201,7 @@ def profile_recovery_diagnostics() -> dict:
         warning = "Metadata hồ sơ bị hỏng; folder Chromium vẫn được giữ nguyên để khôi phục."
     return {
         "metadata": metadata,
-        "data_root": str(PROFILES_ROOT.parent),
+        "data_root": str(canonical_root),
         "recovery_available": bool(candidates),
         "recovery_candidates": candidates,
         "warning": warning,
@@ -244,57 +219,14 @@ def load_profiles_with_diagnostics() -> tuple[list[dict], dict]:
 
 
 def _protect_empty_profile_write(profiles: list[dict]) -> None:
-    """Reject accidental empty writes when another root still has profile metadata."""
-    if profiles:
-        return
-    for root in profile_data_roots():
-        candidate = root / "profiles.json"
-        if candidate == PROFILES_JSON or not candidate.exists():
-            continue
-        try:
-            if _read_profile_rows(candidate):
-                raise ProfilePersistenceError(
-                    "Từ chối ghi danh sách hồ sơ rỗng vì còn metadata hồ sơ ở root khác; hãy khôi phục hoặc xác nhận rõ."
-                )
-        except ProfilePersistenceError:
-            raise
-        except Exception:
-            continue
-
-
+    """Empty writes are permitted within the isolated canonical root."""
+    _ = profiles
+    return None
 
 
 def _migrate_legacy_metadata_once() -> None:
-    """Tự động đồng bộ và nạp hồ sơ từ các vị trí legacy (reupytb, BrowserMulti) nếu chưa có."""
-    from core.paths import legacy_profile_data_roots
-    for root in legacy_profile_data_roots():
-        source = root / "profiles.json"
-        if not source.is_file():
-            continue
-        try:
-            legacy_rows = _read_profile_rows(source)
-            if not legacy_rows:
-                continue
-            canonical_rows = _read_profile_rows(PROFILES_JSON) if PROFILES_JSON.exists() else []
-            existing_ids = {r.get("id") for r in canonical_rows if isinstance(r, dict)}
-            deleted_rows = _read_profile_rows(DELETED_PROFILES_JSON) if DELETED_PROFILES_JSON.exists() else []
-            deleted_ids = {r.get("id") for r in deleted_rows if isinstance(r, dict)}
-
-            added = False
-            for r in legacy_rows:
-                if not isinstance(r, dict):
-                    continue
-                pid = r.get("id")
-                if pid and pid not in existing_ids and pid not in deleted_ids:
-                    canonical_rows.append(r)
-                    existing_ids.add(pid)
-                    added = True
-            if added:
-                PROFILES_JSON.parent.mkdir(parents=True, exist_ok=True)
-                PROFILES_JSON.write_text(json.dumps(canonical_rows, ensure_ascii=False, indent=2), encoding="utf-8")
-                logger.info("Đã tự động đồng bộ hồ sơ từ %s sang %s", source, PROFILES_JSON)
-        except Exception as exc:
-            logger.warning("Lỗi đồng bộ hồ sơ cũ từ %s: %s", source, exc)
+    """Disabled: keep RETubeMatrix isolated from external BrowserMulti and reupytb data."""
+    return None
 
 
 def _is_chromium_profile_dir(path: Path) -> bool:
@@ -314,62 +246,12 @@ def live_chromium_pids_for_path(path: Path) -> list[int]:
 
 
 def _migrate_legacy_profile_dirs_once() -> None:
-    """Copy only closed, valid Chromium folders; leave legacy folders intact."""
-    if not getattr(sys, "frozen", False) or not PROFILES_JSON.exists():
-        return
-    try:
-        rows = _read_profile_rows(PROFILES_JSON)
-    except ProfilePersistenceError:
-        return
-    for row in rows:
-        try:
-            name = validate_profile_name(row.get("profile_dir") or "")
-        except ValueError:
-            continue
-        destination = PROFILES_ROOT / name
-        if destination.exists():
-            continue
-        for root in profile_data_roots()[1:]:
-            source = root / "profiles" / name
-            if not source.is_dir() or _is_reparse_point(source):
-                continue
-            temp = destination.with_name(f"{name}.migrate.tmp")
-            try:
-                if live_chromium_pids_for_path(source):
-                    logger.warning("Không sao chép profile đang mở: %s", source)
-                    break
-                if not _is_chromium_profile_dir(source):
-                    logger.warning("Bỏ qua folder profile cũ không hợp lệ: %s", source)
-                    break
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                fd, temp_name = tempfile.mkstemp(
-                    prefix=f".{name}.migrate.",
-                    suffix=".tmp",
-                    dir=destination.parent,
-                )
-                os.close(fd)
-                temp = Path(temp_name)
-                temp.unlink(missing_ok=True)
-                try:
-                    shutil.copytree(source, temp, symlinks=False)
-                    temp.replace(destination)
-                finally:
-                    if temp.exists():
-                        shutil.rmtree(temp)
-                logger.warning("Đã sao chép folder profile từ %s sang %s", source, destination)
-            except OSError as exc:
-                logger.warning("Không sao chép được folder profile cũ %s: %s", source, exc)
-                try:
-                    if temp.exists():
-                        shutil.rmtree(temp)
-                except OSError:
-                    pass
-            break
+    """Disabled: keep RETubeMatrix profile folders strictly isolated."""
+    return None
 
 
 def _ensure_legacy_profile_migration() -> None:
-    _migrate_legacy_metadata_once()
-    _migrate_legacy_profile_dirs_once()
+    return None
 
 
 def _profiles_read_path() -> Path:
@@ -393,7 +275,9 @@ def _profile_snapshot_path(profile_dir: str | Path, profiles_root: Path | None =
 def _write_profile_snapshot(profile_dir: str, row: dict) -> None:
     try:
         path = _profile_snapshot_path(profile_dir)
-        path.parent.mkdir(parents=True, exist_ok=True)
+        # Never materialize empty stub directories for unlaunched/deleted profiles.
+        if not path.parent.is_dir():
+            return
         _atomic_write_profile_rows(path, [{key: value for key, value in row.items() if key != "deleted_at"}])
     except Exception as exc:
         logger.warning("Không ghi được snapshot metadata profile %s: %s", profile_dir, exc)
@@ -512,108 +396,137 @@ def _coerce_legacy_profile_row(raw: dict) -> tuple[dict, bool]:
 
 def load_profiles() -> list[dict]:
     """Đọc profiles từ JSON. Tạo file mới nếu chưa có."""
-    _ensure_legacy_profile_migration()
-    metadata_path = _profiles_read_path()
-    if not metadata_path.exists():
-        return []
-    try:
-        data = json.loads(metadata_path.read_text(encoding="utf-8-sig"))
-        profiles = data if isinstance(data, list) else data.get("profiles", [])
-        if not isinstance(profiles, list) or any(not isinstance(profile, dict) for profile in profiles):
-            raise ProfilePersistenceError(f"Định dạng {metadata_path.name} không hợp lệ")
-        normalized_rows: list[tuple[dict, bool]] = []
-        changed = False
-        for p in profiles:
-            try:
-                raw_row, row_changed = _coerce_legacy_profile_row(p)
-                row = dict(_DEFAULTS)
-                row.update(raw_row)
-                row["profile_name"] = validate_display_profile_name(row.get("profile_name", ""))
-                from core.engines.registry import normalize_engine_id
-                raw_engine = raw_row.get("engine", _DEFAULTS["engine"])
-                if not isinstance(raw_engine, str):
-                    raise ValueError("engine phải là chuỗi")
-                row["engine"] = normalize_engine_id(raw_engine)
-            except (TypeError, ValueError) as exc:
-                logger.warning("Bỏ qua hồ sơ không hợp lệ trong profiles.json: %s", exc)
-                changed = True
-                continue
-            changed = changed or row_changed
-            if not row["id"]:
-                row["id"] = _new_id()
-                changed = True
-            if not row.get("profile_dir"):
-                row["profile_dir"] = _legacy_profile_dir_or_new(row["profile_name"], row.get("id") or _new_id())
-                changed = True
+    with _PROFILE_MUTATION_LOCK:
+        metadata_path = _profiles_read_path()
+        try:
+            if metadata_path.exists():
+                data = json.loads(metadata_path.read_text(encoding="utf-8-sig"))
+                profiles = data if isinstance(data, list) else data.get("profiles", [])
+                if not isinstance(profiles, list) or any(not isinstance(profile, dict) for profile in profiles):
+                    raise ProfilePersistenceError(f"Định dạng {metadata_path.name} không hợp lệ")
             else:
+                profiles = []
+            normalized_rows: list[tuple[dict, bool]] = []
+            changed = False
+            for p in profiles:
                 try:
-                    row["profile_dir"] = validate_profile_name(row.get("profile_dir", ""))
-                except ValueError:
+                    raw_row, row_changed = _coerce_legacy_profile_row(p)
+                    row = dict(_DEFAULTS)
+                    row.update(raw_row)
+                    row["profile_name"] = validate_display_profile_name(row.get("profile_name", ""))
+                    from core.engines.registry import normalize_engine_id
+                    raw_engine = raw_row.get("engine", _DEFAULTS["engine"])
+                    if not isinstance(raw_engine, str):
+                        raise ValueError("engine phải là chuỗi")
+                    row["engine"] = normalize_engine_id(raw_engine)
+                except (TypeError, ValueError) as exc:
+                    logger.warning("Bỏ qua hồ sơ không hợp lệ trong profiles.json: %s", exc)
+                    changed = True
+                    continue
+                changed = changed or row_changed
+                if not row["id"]:
+                    row["id"] = _new_id()
+                    changed = True
+                if not row.get("profile_dir"):
                     row["profile_dir"] = _legacy_profile_dir_or_new(row["profile_name"], row.get("id") or _new_id())
                     changed = True
-            identity_email = extract_identity_email(row.get("email", ""), row.get("gmail", ""), row.get("google_keywords", ""))
-            old_seed = row.get("fingerprint_seed")
-            row["fingerprint_seed"] = normalize_fingerprint_seed(
-                row.get("fingerprint_seed"), row.get("profile_name", ""), identity_email
-            )
-            if str(old_seed if old_seed is not None else "") != str(row["fingerprint_seed"]):
-                changed = True
-            normalized_rows.append((row, row_changed))
-        result = []
-        seen_names: set[str] = set()
-        for row, row_changed in sorted(normalized_rows, key=lambda item: item[1]):
-            name_key = _profile_match_key(row["profile_name"])
-            if name_key in seen_names:
-                logger.warning("Bỏ qua hồ sơ trùng tên trong profiles.json: %s", row["profile_name"])
-                changed = True
-                continue
-            seen_names.add(name_key)
-            result.append(row)
-
-        # Auto-recover any on-disk profiles with .browsermulti-profile.json not in profiles.json
-        existing_ids = {r.get("id") for r in result if r.get("id")}
-        for root in profile_data_roots():
-            for p_sub in [root / "profiles", root]:
-                if not p_sub.is_dir():
+                else:
+                    try:
+                        row["profile_dir"] = validate_profile_name(row.get("profile_dir", ""))
+                    except ValueError:
+                        row["profile_dir"] = _legacy_profile_dir_or_new(row["profile_name"], row.get("id") or _new_id())
+                        changed = True
+                identity_email = extract_identity_email(row.get("email", ""), row.get("gmail", ""), row.get("google_keywords", ""))
+                old_seed = row.get("fingerprint_seed")
+                row["fingerprint_seed"] = normalize_fingerprint_seed(
+                    row.get("fingerprint_seed"), row.get("profile_name", ""), identity_email
+                )
+                if str(old_seed if old_seed is not None else "") != str(row["fingerprint_seed"]):
+                    changed = True
+                normalized_rows.append((row, row_changed))
+            result = []
+            seen_names: set[str] = set()
+            for row, row_changed in sorted(normalized_rows, key=lambda item: item[1]):
+                name_key = _profile_match_key(row["profile_name"])
+                if name_key in seen_names:
+                    logger.warning("Bỏ qua hồ sơ trùng tên trong profiles.json: %s", row["profile_name"])
+                    changed = True
                     continue
+                seen_names.add(name_key)
+                result.append(row)
+
+            # Auto-recover only isolated, real Chromium folders inside canonical PROFILES_ROOT
+            # that are missing from profiles.json and have not been tombstoned.
+            existing_ids = {_case_key(r.get("id")) for r in result if r.get("id")}
+            try:
+                tombstoned_ids = {
+                    _case_key(row.get("id"))
+                    for row in _read_profile_rows(DELETED_PROFILES_JSON)
+                    if _case_key(row.get("id"))
+                }
+            except ProfilePersistenceError:
+                tombstoned_ids = set()
+
+            if PROFILES_ROOT.is_dir():
                 try:
-                    for c in p_sub.iterdir():
-                        if not c.is_dir():
+                    for c in PROFILES_ROOT.iterdir():
+                        if not c.is_dir() or _is_reparse_point(c):
                             continue
-                        meta_path = c / ".browsermulti-profile.json"
-                        if meta_path.exists():
-                            try:
-                                m_data = json.loads(meta_path.read_text(encoding="utf-8-sig"))
-                                m_row = m_data[0] if isinstance(m_data, list) and m_data else m_data
-                                m_id = m_row.get("id")
-                                m_name = m_row.get("profile_name")
-                                if m_id and m_id not in existing_ids and _profile_match_key(m_name) not in seen_names:
-                                    raw_row, _ = _coerce_legacy_profile_row(m_row)
-                                    rec_row = dict(_DEFAULTS)
-                                    rec_row.update(raw_row)
-                                    rec_row["profile_name"] = validate_display_profile_name(rec_row.get("profile_name", ""))
-                                    seen_names.add(_profile_match_key(rec_row["profile_name"]))
-                                    existing_ids.add(m_id)
-                                    result.append(rec_row)
-                                    changed = True
-                            except Exception:
-                                pass
+                        if not _is_chromium_profile_dir(c):
+                            continue
+                        meta_path = c / _PROFILE_SNAPSHOT_FILENAME
+                        if not meta_path.is_file() or _is_reparse_point(meta_path):
+                            continue
+                        try:
+                            c_dir = validate_profile_name(c.name)
+                            m_data = json.loads(meta_path.read_text(encoding="utf-8-sig"))
+                            m_row = m_data[0] if isinstance(m_data, list) and m_data else m_data
+                            if not isinstance(m_row, dict):
+                                continue
+                            m_id = str(m_row.get("id") or "").strip()
+                            m_id_key = _case_key(m_id)
+                            if not m_id_key or m_id_key in existing_ids or m_id_key in tombstoned_ids:
+                                continue
+                            raw_row, _ = _coerce_legacy_profile_row(m_row)
+                            rec_row = dict(_DEFAULTS)
+                            rec_row.update(raw_row)
+                            rec_row["id"] = m_id
+                            rec_row["profile_dir"] = c_dir
+                            rec_row["profile_name"] = validate_display_profile_name(rec_row.get("profile_name", ""))
+                            from core.engines.registry import normalize_engine_id
+                            raw_engine = raw_row.get("engine", _DEFAULTS["engine"])
+                            if not isinstance(raw_engine, str):
+                                continue
+                            rec_row["engine"] = normalize_engine_id(raw_engine)
+                            identity_email = extract_identity_email(
+                                rec_row.get("email", ""), rec_row.get("gmail", ""), rec_row.get("google_keywords", "")
+                            )
+                            rec_row["fingerprint_seed"] = normalize_fingerprint_seed(
+                                rec_row.get("fingerprint_seed"), rec_row.get("profile_name", ""), identity_email
+                            )
+                            rec_name_key = _profile_match_key(rec_row["profile_name"])
+                            if rec_name_key in seen_names:
+                                continue
+                            seen_names.add(rec_name_key)
+                            existing_ids.add(m_id_key)
+                            result.append(rec_row)
+                            changed = True
+                        except Exception:
+                            pass
                 except Exception:
                     pass
 
-        if changed:
-            save_profiles(result)
-        else:
-            _write_profile_snapshots(result)
-        return result
-    except ProfilePersistenceError:
-        raise
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-        logger.error("Lỗi đọc %s: %s", metadata_path, exc)
-        raise ProfilePersistenceError(f"Không đọc được {metadata_path.name}: {metadata_path}") from exc
-    except Exception as exc:
-        logger.exception("Lỗi xử lý %s", metadata_path)
-        raise ProfilePersistenceError(f"Không xử lý được {metadata_path.name}: {metadata_path}") from exc
+            if changed:
+                save_profiles(result)
+            return result
+        except ProfilePersistenceError:
+            raise
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            logger.error("Lỗi đọc %s: %s", metadata_path, exc)
+            raise ProfilePersistenceError(f"Không đọc được {metadata_path.name}: {metadata_path}") from exc
+        except Exception as exc:
+            logger.exception("Lỗi xử lý %s", metadata_path)
+            raise ProfilePersistenceError(f"Không xử lý được {metadata_path.name}: {metadata_path}") from exc
 
 def save_profiles(profiles: list[dict]) -> bool:
     """Ghi toàn bộ profiles ra JSON — dùng atomic write để tránh corrupt."""
@@ -673,6 +586,9 @@ def add_profile(profile_name: str, proxy: str = "", group: str = "Default",
     profile_name = validate_display_profile_name(profile_name)
     with _PROFILE_MUTATION_LOCK:
         profiles = load_profiles()
+        target_key = _profile_match_key(profile_name)
+        if any(_profile_match_key(p.get("profile_name", "")) == target_key for p in profiles if p.get("profile_name")):
+            raise ProfileConflictError(f"Hồ sơ tên '{profile_name}' đã tồn tại")
         profile_id = _new_id()
         identity_email = extract_identity_email(identity_email, google_keywords)
         row = dict(_DEFAULTS)
@@ -846,8 +762,20 @@ def restore_deleted_profile(profile_id: str) -> dict:
             ("thư mục", "profile_dir"),
         )
         for label, field in conflicts:
-            value = _case_key(restored.get(field))
-            if value and any(_case_key(row.get(field)) == value for row in profiles):
+            if field == "profile_name":
+                raw_name = str(restored.get(field) or "").strip()
+                if raw_name:
+                    value = _profile_match_key(raw_name)
+                    conflict = any(
+                        row.get(field) and _profile_match_key(str(row.get(field) or "")) == value
+                        for row in profiles
+                    )
+                else:
+                    conflict = False
+            else:
+                value = _case_key(restored.get(field))
+                conflict = bool(value) and any(_case_key(row.get(field)) == value for row in profiles)
+            if conflict:
                 raise ProfileConflictError(f"Xung đột {label} hồ sơ")
 
         new_profiles = [*profiles, restored]
@@ -1138,31 +1066,83 @@ def duplicate_profile(profile_id: str) -> dict | None:
         return row
 
 
+def _prepare_profile_updates(kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Normalize and validate profile update fields consistently."""
+    prepared = dict(kwargs)
+    if "engine" in prepared:
+        from core.engines.registry import normalize_engine_id
+        if not isinstance(prepared["engine"], str):
+            raise ValueError("engine phải là chuỗi")
+        prepared["engine"] = normalize_engine_id(prepared["engine"])
+    if "profile_name" in prepared:
+        if not isinstance(prepared["profile_name"], str):
+            raise ValueError("profile_name phải là chuỗi")
+        prepared["profile_name"] = validate_display_profile_name(prepared["profile_name"])
+    if "proxy" in prepared:
+        proxy = str(prepared["proxy"] or "")
+        scheme = prepared.get("proxy_scheme", "")
+        prepared["proxy"] = normalize_proxy_input(proxy, scheme)
+        prepared["proxy_scheme"] = normalize_profile_proxy_scheme(proxy, scheme) if proxy else ""
+    elif "proxy_scheme" in prepared:
+        prepared["proxy_scheme"] = normalize_proxy_scheme(prepared["proxy_scheme"])
+    return prepared
+
+
 def update_profile(profile_id: str, **kwargs) -> bool:
     """Cập nhật một hoặc nhiều field của profile theo id."""
-    if "engine" in kwargs:
-        from core.engines.registry import normalize_engine_id
-        if not isinstance(kwargs["engine"], str):
-            raise ValueError("engine phải là chuỗi")
-        kwargs["engine"] = normalize_engine_id(kwargs["engine"])
-    if "profile_name" in kwargs:
-        if not isinstance(kwargs["profile_name"], str):
-            raise ValueError("profile_name phải là chuỗi")
-        kwargs["profile_name"] = validate_display_profile_name(kwargs["profile_name"])
-    if "proxy" in kwargs:
-        proxy = str(kwargs["proxy"] or "")
-        scheme = kwargs.get("proxy_scheme", "")
-        kwargs["proxy"] = normalize_proxy_input(proxy, scheme)
-        kwargs["proxy_scheme"] = normalize_profile_proxy_scheme(proxy, scheme) if proxy else ""
-    elif "proxy_scheme" in kwargs:
-        kwargs["proxy_scheme"] = normalize_proxy_scheme(kwargs["proxy_scheme"])
+    prepared = _prepare_profile_updates(kwargs)
     with _PROFILE_MUTATION_LOCK:
         profiles = load_profiles()
+        target_key = _case_key(profile_id)
+        if "profile_name" in prepared:
+            new_name_key = _profile_match_key(prepared["profile_name"])
+            if any(
+                _case_key(other.get("id")) != target_key
+                and other.get("profile_name")
+                and _profile_match_key(other.get("profile_name", "")) == new_name_key
+                for other in profiles
+            ):
+                raise ProfileConflictError(f"Hồ sơ tên '{prepared['profile_name']}' đã tồn tại")
         for p in profiles:
-            if p.get("id") == profile_id:
-                p.update(kwargs)
+            if p.get("id") == profile_id or _case_key(p.get("id")) == target_key:
+                p.update(prepared)
                 return save_profiles(profiles)
         return False
+
+
+def bulk_update_profiles(updates_by_id: dict[str, dict[str, Any]]) -> int:
+    """Update multiple profiles in one atomic read-modify-save transaction."""
+    if not updates_by_id:
+        return 0
+    prepared_by_key = {
+        _case_key(pid): _prepare_profile_updates(fields)
+        for pid, fields in updates_by_id.items()
+        if pid and isinstance(fields, dict)
+    }
+    if not prepared_by_key:
+        return 0
+    with _PROFILE_MUTATION_LOCK:
+        profiles = load_profiles()
+        updated = 0
+        for p in profiles:
+            pkey = _case_key(p.get("id"))
+            if pkey in prepared_by_key:
+                p.update(prepared_by_key[pkey])
+                updated += 1
+        if updated == 0:
+            return 0
+        seen_names: set[str] = set()
+        for p in profiles:
+            name = p.get("profile_name", "")
+            if not name:
+                continue
+            name_key = _profile_match_key(name)
+            if name_key in seen_names:
+                raise ProfileConflictError(f"Hồ sơ tên '{name}' bị trùng khi cập nhật hàng loạt")
+            seen_names.add(name_key)
+        if not save_profiles(profiles):
+            raise ProfilePersistenceError("Không lưu được cập nhật hàng loạt hồ sơ")
+        return updated
 
 
 def update_run_result(
@@ -1340,19 +1320,12 @@ def merge_excel_data(profiles: list[dict], excel_rows: list[dict]) -> list[dict]
 
 
 def _read_recovery_metadata(primary: Path, filename: str) -> tuple[list[dict], str, str, str]:
-    """Read canonical metadata, with an optional valid legacy fallback."""
+    """Read canonical metadata only; never fall back to external profile stores."""
+    _ = filename
     try:
         rows = _read_profile_rows(primary)
         return rows, "valid", "", str(primary)
     except ProfilePersistenceError as canonical_error:
-        for root in profile_data_roots()[1:]:
-            candidate = root / filename
-            try:
-                rows = _read_profile_rows(candidate)
-            except ProfilePersistenceError:
-                continue
-            logger.warning("Dùng metadata %s từ root cũ để khôi phục", filename)
-            return rows, "legacy", str(canonical_error), str(candidate)
         return [], "corrupt", str(canonical_error), str(primary)
 
 

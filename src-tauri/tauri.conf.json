@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "RETubeMatrix",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "identifier": "com.retubematrix.app",
   "build": {
     "frontendDist": "../dist",
@@ -40,7 +40,11 @@
     "active": true,
     "targets": ["app", "dmg", "deb", "appimage", "msi", "nsis"],
     "resources": {
-      "../browser_engine/": "browser_engine/",
+      "../browser_engine/actions/": "browser_engine/actions/",
+      "../browser_engine/core/": "browser_engine/core/",
+      "../browser_engine/outlier_hunter.py": "browser_engine/outlier_hunter.py",
+      "../browser_engine/requirements.txt": "browser_engine/requirements.txt",
+      "../browser_engine/runner.py": "browser_engine/runner.py",
       "../roots/": "roots/",
       "python/": "python/",
       "bin/": "bin/"

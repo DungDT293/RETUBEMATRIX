@@ -308,6 +308,7 @@ pub fn mark_job_as_failed(app: &AppHandle, job: &mut BktTestJob, err_msg: String
     job.restriction = Some(err_msg.clone());
     job.error_message = Some(err_msg.clone());
     let _ = app.emit("bkt-test-job-updated", &job);
+    crate::commands::profiles::clear_stats_cache();
 
     if job.video_source_type == "channel_video" {
         if let Some(ref ref_id) = job.source_ref_id {
@@ -577,7 +578,26 @@ pub async fn save_bkt_test_channel(
 
     // Nếu chưa có profile_id (tạo mới từ modal chuẩn hóa), tự động sinh Profile Chromium riêng biệt cho kênh test
     if input.profile_id.trim().is_empty() {
-        let test_prof_name = format!("[BKT Test] {}", input.name.trim());
+        let base_name = format!("[BKT Test] {}", input.name.trim());
+        let existing_profiles = crate::commands::profiles::get_all_raw_multibrowser_profiles(app.clone())
+            .await
+            .unwrap_or_default();
+        let normalize_key = |s: &str| -> String {
+            s.split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .to_lowercase()
+        };
+        let existing_keys: std::collections::HashSet<String> = existing_profiles
+            .iter()
+            .map(|p| normalize_key(&p.profile_name))
+            .collect();
+        let mut test_prof_name = base_name.clone();
+        let mut suffix = 2usize;
+        while existing_keys.contains(&normalize_key(&test_prof_name)) {
+            test_prof_name = format!("{base_name} #{suffix}");
+            suffix += 1;
+        }
         let new_prof = crate::commands::profiles::save_multibrowser_profile(
             app.clone(),
             crate::types::MultiBrowserProfileInput {
@@ -808,7 +828,7 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
     let _ = app.emit("bkt-test-job-updated", &job);
 
     // BƯỚC 0: Pre-flight Profile Validation & Auto-Heal (< 0.05s)
-    let profiles = match crate::commands::profiles::get_multibrowser_profiles(app.clone()).await {
+    let profiles = match crate::commands::profiles::get_all_raw_multibrowser_profiles(app.clone()).await {
         Ok(profs) => profs,
         Err(e) => {
             log::warn!("[BKT PRE-FLIGHT] Không thể lấy danh sách profiles để kiểm tra: {e}");
@@ -1068,6 +1088,7 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
                 if is_bkt_job_cancelled(&job.id) {
                     let _ = child.kill().await;
                     set_current_bkt_child_pid(0);
+        crate::commands::profiles::clear_stats_cache();
                     return;
                 }
                 let trimmed = line.trim();
@@ -1106,6 +1127,7 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
                             if cur_pct <= 0 && last_meaningful_upload_at.elapsed() >= std::time::Duration::from_secs(900) {
                                 let _ = child.kill().await;
                                 set_current_bkt_child_pid(0);
+        crate::commands::profiles::clear_stats_cache();
                                 final_status = "failed".to_string();
                                 final_restriction = "Quá trình tải lên bị treo tại 0% quá 15 phút trên YouTube Studio — đã dừng để tránh treo hàng đợi.".to_string();
                                 break;
@@ -1113,6 +1135,7 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
                             if !msg_changed && last_meaningful_upload_at.elapsed() >= std::time::Duration::from_secs(2400) {
                                 let _ = child.kill().await;
                                 set_current_bkt_child_pid(0);
+        crate::commands::profiles::clear_stats_cache();
                                 final_status = "failed".to_string();
                                 final_restriction = format!("Tiến trình tải lên đứng yên quá 40 phút ({msg}) — đã dừng để tránh treo hàng đợi.");
                                 break;
@@ -1231,6 +1254,7 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
             }
         };
         set_current_bkt_child_pid(0);
+        crate::commands::profiles::clear_stats_cache();
 
         // Nếu tiến trình kết thúc sớm mà chưa nhận JSON kết quả cuối (crash/đứt kết nối),
         // chuyển sang failed rõ ràng thay vì nhầm là Timeout. Ngược lại, nếu đã trả về JSON kết quả cuối mà vẫn pending

@@ -78,7 +78,7 @@ export function BktChannelManagerTab() {
     try {
       const [chData, profData, jobData] = await Promise.all([
         getBktTestChannels(),
-        getMultibrowserProfiles(),
+        getMultibrowserProfiles({ includeBkt: true }),
         getBktTestJobs(50),
       ]);
       setChannels(chData);

@@ -234,13 +234,22 @@ class AuthenticatedProxyBridge:
                 lines = header.decode("latin-1", "replace").split("\r\n")
                 if self._scheme == "socks5":
                     lines[0] = f"{request_line.split(' ', 1)[0]} {target_path} HTTP/1.1"
-                    filtered = [line for line in lines[1:] if line.lower() != "proxy-connection: keep-alive"]
-                    rewritten = ("\r\n".join([lines[0], *filtered])).encode("latin-1", "replace")
+                    filtered = [
+                        line for line in lines[1:]
+                        if line and not line.lower().startswith("connection:") and not line.lower().startswith("proxy-connection:")
+                    ]
+                    filtered.append("Connection: close")
+                    rewritten = ("\r\n".join([lines[0], *filtered]) + "\r\n\r\n").encode("latin-1", "replace")
                 else:
-                    filtered = [line for line in lines if line and not line.lower().startswith("proxy-authorization:")]
+                    filtered = [
+                        line for line in lines
+                        if line and not line.lower().startswith("proxy-authorization:") and not line.lower().startswith("connection:") and not line.lower().startswith("proxy-connection:")
+                    ]
                     if self._username or self._password:
                         cred = base64.b64encode(f"{self._username}:{self._password}".encode("latin-1")).decode("ascii")
                         filtered.insert(1, f"Proxy-Authorization: Basic {cred}")
+                    filtered.append("Connection: close")
+                    filtered.append("Proxy-Connection: close")
                     rewritten = ("\r\n".join(filtered) + "\r\n\r\n").encode("latin-1")
 
                 await asyncio.get_running_loop().sock_sendall(upstream, rewritten)

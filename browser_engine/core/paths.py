@@ -18,7 +18,7 @@ def user_data_root() -> Path:
     """Return a per-user writable directory for RETubeMatrix browser data."""
     override = os.environ.get("RETUBEMATRIX_BROWSER_DATA_DIR", "").strip()
     if override:
-        return Path(override)
+        return Path(override).expanduser()
     base = os.environ.get("LOCALAPPDATA")
     if base:
         return Path(base) / "RETubeMatrix" / "browser_engine"
@@ -42,21 +42,12 @@ def profile_data_path(*parts: str) -> Path:
 
 
 def legacy_profile_data_roots() -> tuple[Path, ...]:
-    """Fallback legacy roots: reupytb and BrowserMulti when profiles exist there."""
-    base = os.environ.get("LOCALAPPDATA")
-    roots: list[Path] = []
-    if base:
-        reup = Path(base) / "reupytb" / "browser_engine"
-        if reup.exists():
-            roots.append(reup)
-        bm = Path(base) / "BrowserMulti"
-        if bm.exists():
-            roots.append(bm)
-    return tuple(roots)
+    """External legacy roots disabled so RETubeMatrix never mixes BrowserMulti/reupytb data."""
+    return ()
 
 
 def profile_data_dir(profile_dir: str, root: str | Path | None = None) -> Path:
-    """Resolve existing profile data without moving or overwriting it."""
+    """Resolve existing profile data strictly within the isolated RETubeMatrix root."""
     name = str(profile_dir or "").strip()
     candidate_name = Path(name)
     if not name or candidate_name.name != name or name in {".", ".."} or any(char in name for char in "/\\:"):
@@ -64,12 +55,7 @@ def profile_data_dir(profile_dir: str, root: str | Path | None = None) -> Path:
     if root is not None:
         selected_root = validate_profile_data_root(root)
         return selected_root / name
-    roots = profile_data_roots()
-    for data_root in roots:
-        candidate = data_root / "profiles" / name
-        if candidate.is_dir():
-            return candidate
-    return roots[0] / "profiles" / name
+    return profile_data_root() / "profiles" / name
 
 
 def validate_profile_data_root(root: str | Path) -> Path:
@@ -80,16 +66,8 @@ def validate_profile_data_root(root: str | Path) -> Path:
 
 
 def profile_data_roots() -> tuple[Path, ...]:
-    """Return canonical root first, then compatible legacy roots."""
-    roots: list[Path] = []
-    for root in (profile_data_root(), *legacy_profile_data_roots()):
-        try:
-            key = str(root.resolve()).casefold()
-        except OSError:
-            key = str(root).casefold()
-        if all(str(existing).casefold() != key for existing in roots):
-            roots.append(root)
-    return tuple(roots)
+    """Return only the isolated canonical root for RETubeMatrix."""
+    return (profile_data_root(),)
 
 
 def profile_data_path_in_root(root: Path, *parts: str) -> Path:
@@ -97,12 +75,5 @@ def profile_data_path_in_root(root: Path, *parts: str) -> Path:
 
 
 def profile_metadata_path(filename: str) -> Path:
-    """Use canonical metadata, falling back to an old executable root."""
-    canonical = profile_data_path(filename)
-    if canonical.exists():
-        return canonical
-    for root in legacy_profile_data_roots():
-        candidate = root / filename
-        if candidate.exists():
-            return candidate
-    return canonical
+    """Return canonical RETubeMatrix metadata path without falling back to external tools."""
+    return profile_data_path(filename)

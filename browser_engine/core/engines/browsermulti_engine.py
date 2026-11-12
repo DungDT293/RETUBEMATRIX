@@ -43,9 +43,6 @@ RUNTIME_MAPPINGS: dict[str, tuple[Path, ...]] = {
         Path(sys.executable).resolve().parent / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
         Path(os.environ.get("LOCALAPPDATA", "")) / "RETubeMatrix" / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
         Path(os.environ.get("PROGRAMFILES", r"C:\Program Files")) / "RETubeMatrix" / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
-        # Legacy data dirs kept for migration from earlier builds
-        Path(os.environ.get("LOCALAPPDATA", "")) / "reupytb" / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
-        Path(os.environ.get("PROGRAMFILES", r"C:\Program Files")) / "reupytb" / "roots" / "browsermulti" / DEFAULT_BROWSERMULTI_VERSION / "chrome.exe",
         # Gói đóng gói runtime
         APP_ROOT / "browsermulti-155.0.8059.12-win64" / "browsermulti-155.0.8059.12-win64" / "chrome.exe",
         REPO_ROOT / "browsermulti-155.0.8059.12-win64" / "browsermulti-155.0.8059.12-win64" / "chrome.exe",
@@ -200,13 +197,14 @@ class BrowserMultiEngine(BaseBrowserEngine):
 
     def build_launch_args(self, spec: BrowserLaunchSpec) -> list[str]:
         options = spec.engine_options
+        lang = (spec.locale or "").strip() or "vi-VN"
         args = [
             "--no-first-run",
             "--no-default-browser-check",
             "--disable-session-crashed-bubble",
             "--webrtc-ip-handling-policy=disable_non_proxied_udp",
             "--disable-quic",
-            "--lang=vi-VN",
+            f"--lang={lang}",
             "--homepage=https://www.google.com",
             "--disable-component-update",
         ]

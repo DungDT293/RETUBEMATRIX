@@ -22,6 +22,7 @@ class CloakBrowserEngine(BaseBrowserEngine):
             *spec.window_args(),
             f"--force-device-scale-factor={float(options.get('scale_factor', 1.0)):.4f}",
             f"--homepage={options.get('homepage', 'https://www.google.com/')}",
+            "--webrtc-ip-handling-policy=disable_non_proxied_udp",
             "--disable-component-update",
             "--disable-quic",
         ]

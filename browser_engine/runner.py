@@ -40,6 +40,7 @@ try:
         save_profiles,
         add_profile,
         update_profile,
+        bulk_update_profiles,
         delete_profile,
     )
     from core.paths import profile_data_dir, profile_data_root, user_data_root
@@ -91,33 +92,30 @@ def _clean_profile_locks(profile_dir_name: str, force_kill_live: bool = False):
         pdir = profile_data_dir(profile_dir_name)
         if force_kill_live and pdir.is_dir():
             try:
+                from core.engines.browsermulti_native import graceful_terminate_pids
                 from core.window_icon_badge import chrome_pids_for_user_data_dir
-                import psutil
                 pids = chrome_pids_for_user_data_dir(str(pdir))
-                for pid in pids:
-                    try:
-                        if psutil.pid_exists(pid):
-                            proc = psutil.Process(pid)
-                            for child in proc.children(recursive=True):
-                                try:
-                                    child.kill()
-                                except Exception:
-                                    pass
-                            proc.kill()
-                    except Exception:
-                        pass
                 if pids:
-                    time.sleep(0.5)
+                    graceful_terminate_pids(pids, timeout=8.0)
             except Exception:
                 pass
         if pdir.is_dir():
-            for fname in ("SingletonLock", "SingletonCookie", "SingletonSocket", "lockfile", "browsermulti_session.pid"):
-                lock_file = pdir / fname
-                try:
-                    if lock_file.exists():
-                        lock_file.unlink(missing_ok=True)
-                except Exception:
-                    pass
+            live_pids: list[int] = []
+            try:
+                from core.window_icon_badge import chrome_pids_for_user_data_dir
+                live_pids = chrome_pids_for_user_data_dir(str(pdir))
+            except Exception:
+                live_pids = []
+
+            # If Chromium is still alive, NEVER delete SingletonLock / Cookie / Socket to prevent corrupting active sessions
+            if not live_pids:
+                for fname in ("SingletonLock", "SingletonCookie", "SingletonSocket", "lockfile", "browsermulti_session.pid"):
+                    lock_file = pdir / fname
+                    try:
+                        if lock_file.exists():
+                            lock_file.unlink(missing_ok=True)
+                    except Exception:
+                        pass
     except Exception:
         pass
 
@@ -454,27 +452,31 @@ def action_stop_profile(args):
         profiles = load_profiles()
         p = next((x for x in profiles if x.get("id") == p_id or x.get("profile_name") == p_id), None)
         p_dir = p.get("profile_dir") or p.get("profile_name") or p_id if p else p_id
+        pdir_path = profile_data_dir(p_dir)
 
-        # Kill process if PID exists
-        try:
-            pdir_path = profile_data_dir(p_dir)
-            pid_file = pdir_path / "browsermulti_session.pid"
-            if pid_file.exists():
+        # Collect target PIDs
+        target_pids: set[int] = set()
+        pid_file = pdir_path / "browsermulti_session.pid"
+        if pid_file.exists():
+            try:
                 pid_str = pid_file.read_text(encoding="utf-8").strip()
-                if pid_str.isdigit() and psutil is not None:
-                    pid = int(pid_str)
-                    if psutil.pid_exists(pid):
-                        proc = psutil.Process(pid)
-                        for child in proc.children(recursive=True):
-                            try:
-                                child.kill()
-                            except Exception:
-                                pass
-                        proc.kill()
+                if pid_str.isdigit():
+                    target_pids.add(int(pid_str))
+            except Exception:
+                pass
+        try:
+            from core.window_icon_badge import chrome_pids_for_user_data_dir
+            for pid in chrome_pids_for_user_data_dir(str(pdir_path)):
+                target_pids.add(int(pid))
         except Exception:
             pass
 
-        _clean_profile_locks(p_dir, force_kill_live=True)
+        # Phase 1 + Phase 2 Graceful Shutdown
+        if target_pids:
+            from core.engines.browsermulti_native import graceful_terminate_pids
+            graceful_terminate_pids(list(target_pids), timeout=8.0)
+
+        _clean_profile_locks(p_dir, force_kill_live=False)
         update_profile(p_id, last_run_status="stopped")
         print(json.dumps({"success": True, "message": f"Đã dừng hồ sơ {p_id}"}, ensure_ascii=False))
         sys.stdout.flush()
@@ -487,13 +489,47 @@ def action_bulk_stop(args):
     try:
         payload = get_payload(args)
         ids = payload.get("profile_ids") or []
+        profiles = load_profiles()
+        matched_ids: list[str] = []
+        all_target_pids: set[int] = set()
+        profile_dirs: list[str] = []
+
         for p_id in ids:
             try:
-                profiles = load_profiles()
                 p = next((x for x in profiles if x.get("id") == p_id or x.get("profile_name") == p_id), None)
-                p_dir = p.get("profile_dir") or p.get("profile_name") or p_id if p else p_id
-                _clean_profile_locks(p_dir, force_kill_live=True)
-                update_profile(p_id, last_run_status="stopped")
+                p_dir = (p.get("profile_dir") or p.get("profile_name") or p_id) if p else p_id
+                profile_dirs.append(p_dir)
+                pdir_path = profile_data_dir(p_dir)
+
+                pid_file = pdir_path / "browsermulti_session.pid"
+                if pid_file.exists():
+                    try:
+                        pid_str = pid_file.read_text(encoding="utf-8").strip()
+                        if pid_str.isdigit():
+                            all_target_pids.add(int(pid_str))
+                    except Exception:
+                        pass
+                try:
+                    from core.window_icon_badge import chrome_pids_for_user_data_dir
+                    for pid in chrome_pids_for_user_data_dir(str(pdir_path)):
+                        all_target_pids.add(int(pid))
+                except Exception:
+                    pass
+
+                matched_ids.append(str(p.get("id") if p else p_id))
+            except Exception:
+                pass
+
+        if all_target_pids:
+            from core.engines.browsermulti_native import graceful_terminate_pids
+            graceful_terminate_pids(list(all_target_pids), timeout=8.0)
+
+        for p_dir in profile_dirs:
+            _clean_profile_locks(p_dir, force_kill_live=False)
+
+        if matched_ids:
+            try:
+                bulk_update_profiles({pid: {"last_run_status": "stopped"} for pid in matched_ids})
             except Exception:
                 pass
         print(json.dumps({"success": True, "stopped_count": len(ids)}, ensure_ascii=False))
@@ -543,7 +579,17 @@ def action_arrange_windows(args):
 
 def _clean_profile_cache_dir(pdir_path: Path) -> float:
     """Dọn dẹp an toàn các thư mục cache phình to trong User Data Dir mà không làm mất phiên đăng nhập."""
+    # Abort clean if Chromium is currently running for this profile to prevent corruption or file lock
+    try:
+        from core.window_icon_badge import chrome_pids_for_user_data_dir
+        if chrome_pids_for_user_data_dir(str(pdir_path)):
+            logger.info("Chromium đang hoạt động trên profile %s; bỏ qua dọn dẹp cache.", pdir_path)
+            return 0.0
+    except Exception:
+        pass
+
     cleaned_mb = 0.0
+    # NEVER delete Service Worker, ScriptCache, CacheStorage, or blob_storage to preserve Google sign-in session
     cache_subdirs = [
         "Cache",
         "Code Cache",
@@ -552,9 +598,6 @@ def _clean_profile_cache_dir(pdir_path: Path) -> float:
         "GrShaderCache",
         "ShaderCache",
         "Media Cache",
-        "blob_storage",
-        "Service Worker/CacheStorage",
-        "Service Worker/ScriptCache",
     ]
     search_roots = [pdir_path, pdir_path / "Default"]
     protected_patterns = {
@@ -569,6 +612,8 @@ def _clean_profile_cache_dir(pdir_path: Path) -> float:
         "bookmarks",
         "network",
         "transportsecurity",
+        "service worker",
+        "blob_storage",
     }
     for root in search_roots:
         if not root.exists():
@@ -576,8 +621,14 @@ def _clean_profile_cache_dir(pdir_path: Path) -> float:
         for sub in cache_subdirs:
             target = root / sub
             if target.exists():
-                if any(prot in str(target).lower() for prot in protected_patterns):
+                try:
+                    rel_path = str(target.relative_to(pdir_path)).lower().replace("\\", "/")
+                except Exception:
+                    rel_path = target.name.lower()
+
+                if any(prot in rel_path for prot in protected_patterns):
                     continue
+
                 try:
                     size = sum(f.stat().st_size for f in target.rglob("*") if f.is_file())
                     cleaned_mb += size / (1024 * 1024)
@@ -637,12 +688,9 @@ def action_update_profile_meta(args):
 def action_bulk_set_group(args):
     try:
         payload = get_payload(args)
-        ids = payload.get("profile_ids") or []
+        ids = [str(pid) for pid in (payload.get("profile_ids") or []) if pid]
         group = (payload.get("group") or "Default").strip()
-        count = 0
-        for p_id in ids:
-            if update_profile(p_id, group=group):
-                count += 1
+        count = bulk_update_profiles({p_id: {"group": group} for p_id in ids})
         print(json.dumps({"success": True, "updated_count": count, "group": group}, ensure_ascii=False))
         sys.stdout.flush()
     except Exception as e:
@@ -767,12 +815,6 @@ async def _async_open_profile(profile_id: str, target_url: str | None = None):
         except Exception:
             pass
         _clean_profile_locks(profile_dir)
-        # Tự động dọn dẹp blob_storage và cache nặng sau khi upload video để bảo toàn bộ nhớ
-        try:
-            pdir_path = profile_data_dir(profile_dir)
-            _clean_profile_cache_dir(pdir_path)
-        except Exception as cache_clean_err:
-            logger.debug("Tự động dọn cache sau upload gặp lỗi nhẹ: %s", cache_clean_err)
         update_profile(profile_id, last_run_status="stopped")
 
 
@@ -905,12 +947,6 @@ async def _async_upload_video(args):
         except Exception:
             pass
         _clean_profile_locks(profile_dir)
-        # Tự động dọn dẹp blob_storage và cache nặng sau khi upload video để bảo toàn bộ nhớ
-        try:
-            pdir_path = profile_data_dir(profile_dir)
-            _clean_profile_cache_dir(pdir_path)
-        except Exception as cache_clean_err:
-            logger.debug("Tự động dọn cache sau upload gặp lỗi nhẹ: %s", cache_clean_err)
         update_profile(profile_id, last_run_status="stopped")
 
 

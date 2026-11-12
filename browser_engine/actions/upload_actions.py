@@ -27,11 +27,11 @@ from actions.youtube_channel import (
     PreferredYouTubeChannelError,
     ensure_preferred_youtube_channel,
 )
-from core.paths import app_path
+from core.paths import user_data_path
 
 logger = logging.getLogger(__name__)
 
-PENDING_COMMENTS_FILE = app_path("pending_comments.jsonl")
+PENDING_COMMENTS_FILE = user_data_path("pending_comments.jsonl")
 
 
 def _truncate_utf16(text: str, max_units: int = 92) -> str:

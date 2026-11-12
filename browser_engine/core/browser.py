@@ -4,6 +4,7 @@ import importlib.util
 import json
 import logging
 import os
+import shutil
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -299,23 +300,46 @@ def _ensure_browsermulti_startup_preferences(user_data_dir: Path) -> bool:
     """Deep-merge Google startup preferences before Chromium launch."""
     default_dir = user_data_dir / "Default"
     preferences_path = default_dir / "Preferences"
+    backup_path = preferences_path.with_suffix(".bak")
     temporary_path = preferences_path.with_suffix(".tmp")
     try:
         default_dir.mkdir(parents=True, exist_ok=True)
-        try:
-            preferences = json.loads(preferences_path.read_text(encoding="utf-8")) if preferences_path.exists() else {}
-        except (OSError, UnicodeError, json.JSONDecodeError):
-            preferences = {}
+        preferences = {}
+        if preferences_path.exists():
+            try:
+                preferences = json.loads(preferences_path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                logger.warning("Cannot read Chrome Preferences: %s", exc)
+                if backup_path.exists():
+                    try:
+                        preferences = json.loads(backup_path.read_text(encoding="utf-8"))
+                    except Exception:
+                        return False
+                else:
+                    return False
+
         if not isinstance(preferences, dict):
-            preferences = {}
+            return False
+
         session = preferences.setdefault("session", {})
         if not isinstance(session, dict):
             session = {}
             preferences["session"] = session
-        session["restore_on_startup"] = 4
-        session["startup_urls"] = [GOOGLE_HOME_URL]
-        preferences["homepage"] = GOOGLE_HOME_URL
-        preferences["homepage_is_newtabpage"] = False
+
+        # Only set default restore_on_startup if not already configured by profile
+        if "restore_on_startup" not in session:
+            session["restore_on_startup"] = 4
+            session["startup_urls"] = [GOOGLE_HOME_URL]
+
+        preferences.setdefault("homepage", GOOGLE_HOME_URL)
+        preferences.setdefault("homepage_is_newtabpage", False)
+
+        if preferences_path.exists():
+            try:
+                shutil.copy2(preferences_path, backup_path)
+            except Exception:
+                pass
+
         payload = json.dumps(preferences, ensure_ascii=False, separators=(",", ":"))
         for attempt, delay in enumerate((0.05, 0.1, 0.2), start=1):
             try:
@@ -341,19 +365,28 @@ def ensure_google_search_provider(user_data_dir: Path) -> bool:
     """Ensure Chromium omnibox searches Google instead of treating words as URLs."""
     default_dir = user_data_dir / "Default"
     preferences_path = default_dir / "Preferences"
+    backup_path = preferences_path.with_suffix(".bak")
+    temporary_path = preferences_path.with_suffix(".tmp")
     try:
         default_dir.mkdir(parents=True, exist_ok=True)
+        preferences = {}
         if preferences_path.exists():
             try:
                 preferences = json.loads(preferences_path.read_text(encoding="utf-8"))
             except Exception as exc:
                 logger.warning("Cannot read Chrome Preferences for Google search provider: %s", exc)
-                preferences = {}
+                if backup_path.exists():
+                    try:
+                        preferences = json.loads(backup_path.read_text(encoding="utf-8"))
+                    except Exception:
+                        return False
+                else:
+                    return False
         else:
             preferences = {}
 
         if not isinstance(preferences, dict):
-            preferences = {}
+            return False
 
         preferences["default_search_provider"] = _google_search_provider_preferences()
         preferences["homepage"] = GOOGLE_HOME_URL
@@ -362,10 +395,28 @@ def ensure_google_search_provider(user_data_dir: Path) -> bool:
         if isinstance(browser_preferences, dict):
             browser_preferences["show_home_button"] = True
 
-        preferences_path.write_text(
-            json.dumps(preferences, ensure_ascii=False, separators=(",", ":")),
-            encoding="utf-8",
-        )
+        if preferences_path.exists():
+            try:
+                shutil.copy2(preferences_path, backup_path)
+            except Exception:
+                pass
+
+        payload = json.dumps(preferences, ensure_ascii=False, separators=(",", ":"))
+        for attempt, delay in enumerate((0.05, 0.1, 0.2), start=1):
+            try:
+                temporary_path.write_text(payload, encoding="utf-8")
+                os.replace(temporary_path, preferences_path)
+                return True
+            except (PermissionError, FileNotFoundError) as exc:
+                if attempt == 3:
+                    raise
+                logger.debug("Preferences replace retry %d: %s", attempt, exc)
+                time.sleep(delay)
+            finally:
+                try:
+                    temporary_path.unlink(missing_ok=True)
+                except OSError:
+                    pass
         return True
     except Exception as exc:
         logger.warning("Cannot write Google search provider Preferences: %s", exc)
@@ -1011,12 +1062,13 @@ class CloakSession:
         if engine.engine_id == "browsermulti":
             _ensure_browsermulti_startup_preferences(user_data_dir)
         seed = _normalize_fingerprint_seed(fingerprint_seed, profile_name)
+        launch_options = _profile_launch_options(profile_data)
         spec = BrowserLaunchSpec(
             user_data_dir=user_data_dir,
             headless=False,
             proxy=None,
-            locale=None,
-            timezone=None,
+            locale=launch_options.get("locale"),
+            timezone=launch_options.get("timezone"),
             window_width=w,
             window_height=h,
             window_x=x,
@@ -1075,7 +1127,6 @@ class CloakSession:
             if not any(arg == flag or arg.startswith(flag_key + "=") for arg in launch_args):
                 launch_args.append(flag)
         self._launch_args = list(launch_args)
-        launch_options = _profile_launch_options(profile_data)
         logger.info("Browser launch flags | profile=%s | engine=%s | args=%s", profile_name, engine.engine_id, launch_args)
         logger.info(
             "Browser engine launch plan | profile=%s | engine=%s | window=%dx%d | position=%d,%d | chromium_placement=%s | args=%d | mute_audio=%s",

@@ -1,20 +1,21 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-dialog';
-import type {
-  BktBatchDispatchRequest,
-  BktDispatchResult,
-  BktTestChannel,
-  BktTestChannelInput,
-  BktTestJob,
-  ChannelStats,
-  ChannelVideo,
-  DailyReportStats,
-  DownloadProgress,
-  FollowedChannel,
-  MultiBrowserProfile,
-  PlaylistVideoEntry,
-  YoutubeChannelContentType,
+import {
+  type BktBatchDispatchRequest,
+  type BktDispatchResult,
+  type BktTestChannel,
+  type BktTestChannelInput,
+  type BktTestJob,
+  type ChannelStats,
+  type ChannelVideo,
+  type DailyReportStats,
+  type DownloadProgress,
+  type FollowedChannel,
+  isBktTestProfile,
+  type MultiBrowserProfile,
+  type PlaylistVideoEntry,
+  type YoutubeChannelContentType,
 } from '@/lib/types';
 
 type ChannelInfo = {
@@ -354,8 +355,23 @@ export async function checkBktCopyrightStatus(input: {
   });
 }
 
-export async function getMultibrowserProfiles(): Promise<MultiBrowserProfile[]> {
-  return await invoke<MultiBrowserProfile[]>('get_multibrowser_profiles');
+export async function getMultibrowserProfiles(opts?: {
+  includeBkt?: boolean;
+}): Promise<MultiBrowserProfile[]> {
+  const includeBkt = opts?.includeBkt ?? false;
+  const raw =
+    (await invoke<MultiBrowserProfile[]>('get_multibrowser_profiles', {
+      includeBkt,
+      include_bkt: includeBkt,
+    })) || [];
+  if (includeBkt) {
+    return raw;
+  }
+  return raw.filter((p) => !isBktTestProfile(p));
+}
+
+export async function getAllMultibrowserProfiles(): Promise<MultiBrowserProfile[]> {
+  return getMultibrowserProfiles({ includeBkt: true });
 }
 
 export async function getBktTestChannels(): Promise<BktTestChannel[]> {

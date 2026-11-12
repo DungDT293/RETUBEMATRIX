@@ -65,22 +65,132 @@ def actual_browser_pid(process: NativeBrowserProcess, user_data_dir: Path, timeo
     raise RuntimeError(f"Không xác định được Browser PID thực của profile native{detail}")
 
 
-def terminate_profile_processes(user_data_dir: Path) -> list[int]:
-    """Terminate every exact-profile Chromium process when session owner is stale."""
+def _send_wm_close_to_pids(pids: list[int]) -> bool:
+    """Send WM_CLOSE to all top-level windows of specified PIDs for graceful shutdown."""
+    if not pids or os.name != "nt":
+        return False
+    sent = False
+    try:
+        import ctypes
+        from ctypes import wintypes
+        user32 = ctypes.windll.user32
+        WM_CLOSE = 0x0010
+        pid_set = {int(p) for p in pids}
+        enum_proc_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+        def enum_proc(hwnd: int, _lparam: int) -> bool:
+            try:
+                proc_id = wintypes.DWORD()
+                user32.GetWindowThreadProcessId(hwnd, ctypes.byref(proc_id))
+                if proc_id.value in pid_set:
+                    user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+                    nonlocal sent
+                    sent = True
+            except Exception:
+                pass
+            return True
+
+        cb = enum_proc_type(enum_proc)
+        user32.EnumWindows(cb, 0)
+    except Exception:
+        pass
+    return sent
+
+
+def graceful_terminate_pids(target_pids: list[int], timeout: float = 8.0) -> None:
+    """Terminate PIDs with 2-phase graceful shutdown: WM_CLOSE / terminate first, wait, then kill."""
+    if not target_pids:
+        return
+    all_pids: set[int] = {int(p) for p in target_pids if int(p) > 0}
+    try:
+        import psutil
+        for pid in list(all_pids):
+            try:
+                if psutil.pid_exists(pid):
+                    proc = psutil.Process(pid)
+                    for child in proc.children(recursive=True):
+                        all_pids.add(int(child.pid))
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    if not all_pids:
+        return
+
+    # Phase 1: Graceful close
+    if os.name == "nt":
+        _send_wm_close_to_pids(list(all_pids))
+        try:
+            import psutil
+            for pid in all_pids:
+                try:
+                    if psutil.pid_exists(pid):
+                        psutil.Process(pid).terminate()
+                except Exception:
+                    pass
+        except Exception:
+            pass
+    else:
+        for pid in all_pids:
+            try:
+                os.kill(pid, 15)
+            except OSError:
+                pass
+
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        alive = False
+        try:
+            import psutil
+            for pid in all_pids:
+                if psutil.pid_exists(pid):
+                    if psutil.Process(pid).status() != getattr(psutil, "STATUS_ZOMBIE", "zombie"):
+                        alive = True
+                        break
+        except Exception:
+            alive = False
+        if not alive:
+            return
+        time.sleep(0.15)
+
+    # Phase 2: Force kill remaining
+    if os.name == "nt":
+        for pid in all_pids:
+            try:
+                subprocess.run(
+                    ["taskkill.exe", "/PID", str(pid), "/T", "/F"],
+                    check=False,
+                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except Exception:
+                pass
+    else:
+        try:
+            import psutil
+            for pid in all_pids:
+                try:
+                    if psutil.pid_exists(pid):
+                        psutil.Process(pid).kill()
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+
+def terminate_profile_processes(user_data_dir: Path, graceful_timeout: float = 8.0) -> list[int]:
+    """Gracefully terminate every exact-profile Chromium process, escalating to kill only on timeout."""
     profile_dir = str(user_data_dir)
     try:
         target_pids = chrome_pids_for_user_data_dir(profile_dir)
     except ChromiumProcessInspectionError:
         return []
-    if os.name == "nt":
-        for target_pid in target_pids:
-            subprocess.run(
-                ["taskkill.exe", "/PID", str(target_pid), "/T", "/F"],
-                check=False,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+    if not target_pids:
+        return []
+
+    graceful_terminate_pids(target_pids, timeout=graceful_timeout)
     return target_pids
 
 
@@ -88,36 +198,30 @@ def terminate_native_process(
     process: NativeBrowserProcess,
     user_data_dir: Path,
     actual_pid: int | None = None,
+    graceful_timeout: float = 8.0,
 ) -> None:
-    """Terminate only the validated native profile process tree."""
+    """Terminate the validated native profile process tree gracefully, then force-kill if needed."""
     profile_dir = str(user_data_dir)
+    target_pids: list[int] = []
     if actual_pid is not None and int(actual_pid) > 0:
-        target_pids = [int(actual_pid)]
-        if int(process.pid) != int(actual_pid):
-            target_pids.append(int(process.pid))
-    else:
+        target_pids.append(int(actual_pid))
+    try:
+        live_pids = chrome_pids_for_user_data_dir(profile_dir)
+        target_pids.extend(live_pids)
+    except Exception:
+        pass
+    if not target_pids:
         try:
-            target_pids = chrome_pids_for_user_data_dir(profile_dir)
+            root_pid = chromium_root_pid_for_user_data_dir(profile_dir)
+            if root_pid:
+                target_pids.append(root_pid)
         except Exception:
-            target_pids = []
-        if not target_pids:
-            try:
-                target_pids = [chromium_root_pid_for_user_data_dir(profile_dir)]
-            except Exception:
-                target_pids = []
-        if int(process.pid) not in target_pids:
-            target_pids.append(int(process.pid))
-    if os.name == "nt":
-        for target_pid in dict.fromkeys(target_pids):
-            subprocess.run(
-                ["taskkill.exe", "/PID", str(target_pid), "/T", "/F"],
-                check=False,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-    elif process.poll() is None:
-        process.process.terminate()
+            pass
+    if int(process.pid) not in target_pids:
+        target_pids.append(int(process.pid))
+    target_pids = list(dict.fromkeys(target_pids))
+
+    graceful_terminate_pids(target_pids, timeout=graceful_timeout)
 
 
 def wait_for_profile_exit(user_data_dir: Path, timeout: float = 10.0) -> list[int] | None:

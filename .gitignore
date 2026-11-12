@@ -76,5 +76,11 @@ BAO_CAO_KIEM_THU_*.html
 scratch/
 testreup/
 browser_engine/.tmp/
+browser_engine/logs/
+browser_engine/profiles/
+browser_engine/security/
+browser_engine/pending_comments.jsonl
+browser_engine/**/__pycache__/
 MO_APP_TEST.bat
 RETubeMatrix.exe
+/target/

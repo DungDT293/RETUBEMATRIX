@@ -208,6 +208,41 @@ fn get_runner_path(app: &AppHandle) -> PathBuf {
     PathBuf::from("browser_engine/runner.py")
 }
 
+pub fn resolve_browser_data_dir(
+    env_override: Option<&str>,
+    local_appdata: Option<&str>,
+    tauri_local_data_dir: Option<&Path>,
+) -> Option<PathBuf> {
+    if let Some(raw) = env_override {
+        let trimmed = raw.trim();
+        if !trimmed.is_empty() {
+            return Some(PathBuf::from(trimmed));
+        }
+    }
+    if let Some(local) = local_appdata {
+        let trimmed = local.trim();
+        if !trimmed.is_empty() {
+            return Some(PathBuf::from(trimmed).join("RETubeMatrix").join("browser_engine"));
+        }
+    }
+    tauri_local_data_dir.map(|dir| {
+        dir.parent()
+            .map(|parent| parent.join("RETubeMatrix").join("browser_engine"))
+            .unwrap_or_else(|| dir.join("browser_engine"))
+    })
+}
+
+pub fn get_browser_data_dir(app: Option<&AppHandle>) -> Option<PathBuf> {
+    let env_override = std::env::var("RETUBEMATRIX_BROWSER_DATA_DIR").ok();
+    let local_appdata = std::env::var("LOCALAPPDATA").ok();
+    let tauri_local = app.and_then(|a| a.path().local_data_dir().ok());
+    resolve_browser_data_dir(
+        env_override.as_deref(),
+        local_appdata.as_deref(),
+        tauri_local.as_deref(),
+    )
+}
+
 pub fn create_runner_cmd(app: &AppHandle) -> (Command, PathBuf) {
     let python = get_python_exe(Some(app));
     let runner = get_runner_path(app);
@@ -220,6 +255,10 @@ pub fn create_runner_cmd(app: &AppHandle) -> (Command, PathBuf) {
     }
     cmd.env("PYTHONUTF8", "1");
     cmd.env("PYTHONIOENCODING", "utf-8");
+    cmd.env("PYTHONDONTWRITEBYTECODE", "1");
+    if let Some(data_dir) = get_browser_data_dir(Some(app)) {
+        cmd.env("RETUBEMATRIX_BROWSER_DATA_DIR", &data_dir);
+    }
     cmd.arg("-X").arg("utf8");
 
     // Inject YTDLP_BIN to ensure Outlier Hunter and Background Engines always find yt-dlp
@@ -303,18 +342,49 @@ use std::time::Instant;
 
 static STATS_CACHE: Mutex<Option<(Instant, serde_json::Value)>> = Mutex::new(None);
 
-#[tauri::command]
-pub async fn get_multibrowser_profiles(app: AppHandle) -> Result<Vec<MultiBrowserProfile>, String> {
+pub fn clear_stats_cache() {
+    if let Ok(mut guard) = STATS_CACHE.lock() {
+        *guard = None;
+    }
+}
+
+/// Kiểm tra xem profile có thuộc Pool Kênh Test Bản Quyền (BKT Test) hay không.
+pub fn is_bkt_test_profile(
+    p: &MultiBrowserProfile,
+    bkt_profile_ids: Option<&std::collections::HashSet<String>>,
+) -> bool {
+    if let Some(ids) = bkt_profile_ids {
+        if ids.contains(&p.id) {
+            return true;
+        }
+    }
+    let group = p.group.as_deref().unwrap_or("").trim().to_lowercase();
+    let name = p.profile_name.trim().to_lowercase();
+    group == "kênh test bkt"
+        || group == "kenh test bkt"
+        || group.contains("kênh test bkt")
+        || group.contains("bkt test")
+        || name.starts_with("[bkt test]")
+        || name.contains("[bkt test]")
+}
+
+/// Đọc toàn bộ profiles thô từ profiles.json hoặc Python runner (kể cả hồ sơ BKT test).
+pub async fn get_all_raw_multibrowser_profiles(app: AppHandle) -> Result<Vec<MultiBrowserProfile>, String> {
     // FAST PATH: Đọc trực tiếp từ profiles.json của RETubeMatrix trên đĩa ngoài reactor thread.
     // TUYỆT ĐỐI KHÔNG đọc trộm hoặc fallback sang BrowserMulti hay reupytb để đảm bảo dữ liệu RETubeMatrix hoàn toàn cô lập và sạch sẽ.
-    if let Some(profiles_opt) = tokio::task::spawn_blocking(|| {
-        let local_appdata = std::env::var("LOCALAPPDATA").ok()?;
-        let retube_profile_path = std::path::PathBuf::from(local_appdata)
-            .join("RETubeMatrix")
-            .join("browser_engine")
-            .join("profiles.json");
+    let data_dir_opt = get_browser_data_dir(Some(&app));
+    if let Some(profiles_opt) = tokio::task::spawn_blocking(move || {
+        let data_dir = data_dir_opt?;
+        let retube_profile_path = data_dir.join("profiles.json");
 
         if !retube_profile_path.exists() {
+            // Chỉ fallback sang Python tự phục hồi nếu chính thư mục profiles nội bộ của RETubeMatrix đã có folder con.
+            let profiles_dir = data_dir.join("profiles");
+            if let Ok(mut entries) = std::fs::read_dir(&profiles_dir) {
+                if entries.any(|entry| entry.ok().map(|ent| ent.path().is_dir()).unwrap_or(false)) {
+                    return None;
+                }
+            }
             return Some(Vec::new());
         }
 
@@ -458,6 +528,32 @@ pub async fn get_multibrowser_profiles(app: AppHandle) -> Result<Vec<MultiBrowse
 }
 
 #[tauri::command]
+#[allow(non_snake_case)]
+pub async fn get_multibrowser_profiles(
+    app: AppHandle,
+    include_bkt: Option<bool>,
+    include_bkt_test: Option<bool>,
+    includeBkt: Option<bool>,
+    includeBktTest: Option<bool>,
+) -> Result<Vec<MultiBrowserProfile>, String> {
+    let include = include_bkt
+        .or(include_bkt_test)
+        .or(includeBkt)
+        .or(includeBktTest)
+        .unwrap_or(false);
+    let mut profiles = get_all_raw_multibrowser_profiles(app).await?;
+    if !include {
+        let bkt_ids: std::collections::HashSet<String> = crate::database::get_bkt_test_channels_db()
+            .unwrap_or_default()
+            .into_iter()
+            .map(|c| c.profile_id)
+            .collect();
+        profiles.retain(|p| !is_bkt_test_profile(p, Some(&bkt_ids)));
+    }
+    Ok(profiles)
+}
+
+#[tauri::command]
 pub async fn save_multibrowser_profile(
     app: AppHandle,
     profile: MultiBrowserProfileInput,
@@ -501,11 +597,12 @@ pub async fn save_multibrowser_profile(
 
     if let Some(prof_val) = val.get("profile") {
         if let Ok(p) = serde_json::from_value::<MultiBrowserProfile>(prof_val.clone()) {
+            clear_stats_cache();
             return Ok(p);
         }
     }
 
-    let profiles = get_multibrowser_profiles(app).await?;
+    let profiles = get_all_raw_multibrowser_profiles(app).await?;
     let target_name = profile.profile_name.trim();
     let found = profiles
         .into_iter()
@@ -518,9 +615,7 @@ pub async fn save_multibrowser_profile(
         })
         .ok_or_else(|| "Đã lưu nhưng không tìm lại được profile vừa lưu".to_string())?;
 
-    if let Ok(mut guard) = STATS_CACHE.lock() {
-        *guard = None;
-    }
+    clear_stats_cache();
     Ok(found)
 }
 
@@ -554,9 +649,7 @@ pub async fn delete_multibrowser_profile(app: AppHandle, profile_id: String) -> 
         return Err(err.to_string());
     }
 
-    if let Ok(mut guard) = STATS_CACHE.lock() {
-        *guard = None;
-    }
+    clear_stats_cache();
 
     Ok(())
 }
@@ -605,6 +698,7 @@ pub async fn launch_multibrowser_profile(
     profile_id: String,
     target_url: Option<String>,
 ) -> Result<(), String> {
+    clear_stats_cache();
     let (mut cmd, runner) = create_runner_cmd(&app);
 
     tokio::spawn(async move {
@@ -622,6 +716,7 @@ pub async fn launch_multibrowser_profile(
 
         if let Ok(mut child) = cmd.spawn() {
             let _ = child.wait().await;
+            clear_stats_cache();
         }
     });
 
@@ -704,6 +799,7 @@ pub async fn upload_video_multibrowser(
     }
 
     let status = child.wait().await.map_err(|e| format!("Lỗi chờ tiến trình upload: {e}"))?;
+    clear_stats_cache();
 
     if !status.success() && final_json_str.is_empty() {
         return Ok(MultiBrowserUploadResult {
@@ -742,6 +838,256 @@ pub async fn upload_video_multibrowser(
     Ok(res)
 }
 
+fn parse_utc_datetime(raw: &str) -> Option<chrono::DateTime<chrono::Utc>> {
+    let trimmed = raw.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(trimmed) {
+        return Some(dt.with_timezone(&chrono::Utc));
+    }
+    if let Ok(ndt) = chrono::NaiveDateTime::parse_from_str(trimmed, "%Y-%m-%dT%H:%M:%S%.f")
+        .or_else(|_| chrono::NaiveDateTime::parse_from_str(trimmed, "%Y-%m-%dT%H:%M:%S"))
+    {
+        return Some(chrono::DateTime::from_naive_utc_and_offset(ndt, chrono::Utc));
+    }
+    None
+}
+
+pub fn is_today_utc(iso_ts: &str, now_utc: chrono::DateTime<chrono::Utc>) -> bool {
+    parse_utc_datetime(iso_ts)
+        .map(|dt| dt.date_naive() == now_utc.date_naive())
+        .unwrap_or(false)
+}
+
+fn build_history_session(session_id: String, mut runs: Vec<serde_json::Value>, index: usize) -> serde_json::Value {
+    runs.sort_by_key(|run| {
+        run.get("finished_at")
+            .and_then(|v| v.as_str())
+            .and_then(parse_utc_datetime)
+    });
+
+    let mut min_start: Option<chrono::DateTime<chrono::Utc>> = None;
+    let mut max_finish: Option<chrono::DateTime<chrono::Utc>> = None;
+    let mut first_action: Option<String> = None;
+    let mut mixed_action = false;
+    let mut has_error = false;
+    let mut has_running = false;
+    let mut has_stopped = false;
+    let mut has_success = false;
+    let mut other_status: Option<String> = None;
+    let mut profile_keys = std::collections::HashSet::new();
+
+    for (idx, run) in runs.iter().enumerate() {
+        if let Some(finished) = run.get("finished_at").and_then(|v| v.as_str()).and_then(parse_utc_datetime) {
+            let dur_ms = (run.get("duration_seconds").and_then(|v| v.as_f64()).unwrap_or(0.0).max(0.0) * 1000.0).round() as i64;
+            let start = finished - chrono::Duration::milliseconds(dur_ms);
+            min_start = Some(min_start.map_or(start, |cur| cur.min(start)));
+            max_finish = Some(max_finish.map_or(finished, |cur| cur.max(finished)));
+        }
+        if let Some(act) = run.get("action").and_then(|v| v.as_str()).filter(|s| !s.is_empty()) {
+            match &first_action {
+                None => first_action = Some(act.to_string()),
+                Some(existing) if existing != act => mixed_action = true,
+                _ => {}
+            }
+        }
+        if let Some(st) = run.get("status").and_then(|v| v.as_str()).filter(|s| !s.is_empty()) {
+            match st {
+                "error" => has_error = true,
+                "running" => has_running = true,
+                "stopped" | "cancelled" => has_stopped = true,
+                "success" => has_success = true,
+                _ => {
+                    if other_status.is_none() {
+                        other_status = Some(st.to_string());
+                    }
+                }
+            }
+        }
+        let pkey = run
+            .get("id")
+            .and_then(|v| v.as_str())
+            .filter(|s| !s.is_empty())
+            .or_else(|| run.get("profile_name").and_then(|v| v.as_str()).filter(|s| !s.is_empty()))
+            .map(String::from)
+            .unwrap_or_else(|| idx.to_string());
+        profile_keys.insert(pkey);
+    }
+
+    let duration_seconds = match (min_start, max_finish) {
+        (Some(s), Some(f)) if f > s => {
+            (((f - s).num_milliseconds() as f64 / 1000.0) * 100.0).round() / 100.0
+        }
+        _ => 0.0,
+    };
+
+    let status = if has_error {
+        "error".to_string()
+    } else if has_running {
+        "running".to_string()
+    } else if has_stopped {
+        "stopped".to_string()
+    } else if has_success && other_status.is_none() {
+        "success".to_string()
+    } else {
+        other_status.unwrap_or_default()
+    };
+
+    let action = if mixed_action {
+        "mixed".to_string()
+    } else {
+        first_action.unwrap_or_default()
+    };
+
+    let sid = if session_id.is_empty() {
+        format!("legacy-{index}")
+    } else {
+        session_id
+    };
+
+    runs.reverse();
+    serde_json::json!({
+        "session_id": sid,
+        "action": action,
+        "status": status,
+        "started_at": min_start.map(|dt| dt.to_rfc3339()).unwrap_or_default(),
+        "finished_at": max_finish.map(|dt| dt.to_rfc3339()).unwrap_or_default(),
+        "duration_seconds": duration_seconds,
+        "profile_count": profile_keys.len(),
+        "runs": runs,
+    })
+}
+
+pub fn compute_run_history_summary(
+    history_path: Option<&Path>,
+    now_utc: chrono::DateTime<chrono::Utc>,
+) -> serde_json::Value {
+    let mut parsed_records: Vec<serde_json::Value> = Vec::new();
+    if let Some(path) = history_path {
+        if path.exists() {
+            if let Ok(content) = std::fs::read_to_string(path) {
+                let all_lines: Vec<&str> = content.lines().filter(|l| !l.trim().is_empty()).collect();
+                let start = all_lines.len().saturating_sub(500);
+                for line in &all_lines[start..] {
+                    if let Ok(val) = serde_json::from_str::<serde_json::Value>(line.trim()) {
+                        if val.is_object() {
+                            parsed_records.push(val);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    let today_run_count = parsed_records
+        .iter()
+        .filter(|r| {
+            r.get("finished_at")
+                .and_then(|v| v.as_str())
+                .map(|ts| is_today_utc(ts, now_utc))
+                .unwrap_or(false)
+        })
+        .count();
+
+    let session_slice_start = parsed_records.len().saturating_sub(160);
+    let session_runs = &parsed_records[session_slice_start..];
+    let mut explicit: std::collections::BTreeMap<String, Vec<serde_json::Value>> = std::collections::BTreeMap::new();
+    let mut legacy: Vec<Vec<serde_json::Value>> = Vec::new();
+    let mut current: Vec<serde_json::Value> = Vec::new();
+    let mut current_end: Option<chrono::DateTime<chrono::Utc>> = None;
+    let mut current_action = String::new();
+    let max_gap = chrono::Duration::minutes(20);
+
+    for run in session_runs {
+        let sid = run.get("session_id").and_then(|v| v.as_str()).unwrap_or("").trim();
+        if !sid.is_empty() {
+            explicit.entry(sid.to_string()).or_default().push(run.clone());
+            continue;
+        }
+        let finish_dt = run.get("finished_at").and_then(|v| v.as_str()).and_then(parse_utc_datetime);
+        let dur_ms = (run.get("duration_seconds").and_then(|v| v.as_f64()).unwrap_or(0.0).max(0.0) * 1000.0).round() as i64;
+        let start_dt = finish_dt.map(|f| f - chrono::Duration::milliseconds(dur_ms));
+        let action = run.get("action").and_then(|v| v.as_str()).unwrap_or("").to_string();
+
+        let same_chain = !current.is_empty()
+            && match (start_dt, current_end) {
+                (Some(s), Some(ce)) => s <= ce + max_gap,
+                _ => false,
+            }
+            && (current_action.is_empty() || action == current_action);
+
+        if !same_chain {
+            if !current.is_empty() {
+                legacy.push(current);
+            }
+            current = vec![run.clone()];
+            current_action = action;
+            current_end = finish_dt;
+        } else {
+            current.push(run.clone());
+            if let Some(f) = finish_dt {
+                if current_end.map_or(true, |ce| f > ce) {
+                    current_end = Some(f);
+                }
+            }
+        }
+    }
+    if !current.is_empty() {
+        legacy.push(current);
+    }
+
+    let mut sessions: Vec<serde_json::Value> = Vec::new();
+    for (idx, (sid, grouped)) in explicit.into_iter().enumerate() {
+        sessions.push(build_history_session(sid, grouped, idx));
+    }
+    let base_idx = sessions.len();
+    for (idx, grouped) in legacy.into_iter().enumerate() {
+        sessions.push(build_history_session(String::new(), grouped, base_idx + idx));
+    }
+    sessions.sort_by(|a, b| {
+        let fa = a.get("finished_at").and_then(|v| v.as_str()).unwrap_or("");
+        let fb = b.get("finished_at").and_then(|v| v.as_str()).unwrap_or("");
+        fb.cmp(fa)
+    });
+    sessions.truncate(20);
+
+    let today_runtime_seconds: f64 = sessions
+        .iter()
+        .filter(|s| {
+            s.get("finished_at")
+                .and_then(|v| v.as_str())
+                .map(|ts| is_today_utc(ts, now_utc))
+                .unwrap_or(false)
+        })
+        .map(|s| s.get("duration_seconds").and_then(|v| v.as_f64()).unwrap_or(0.0))
+        .sum();
+    let today_session_count = sessions
+        .iter()
+        .filter(|s| {
+            s.get("finished_at")
+                .and_then(|v| v.as_str())
+                .map(|ts| is_today_utc(ts, now_utc))
+                .unwrap_or(false)
+        })
+        .count();
+
+    let mut recent_runs: Vec<serde_json::Value> = parsed_records.into_iter().rev().take(20).collect();
+    let last_run = recent_runs.first().cloned();
+    if recent_runs.len() > 20 {
+        recent_runs.truncate(20);
+    }
+
+    serde_json::json!({
+        "last_run": last_run,
+        "today_runtime_seconds": (today_runtime_seconds * 100.0).round() / 100.0,
+        "today_run_count": today_run_count,
+        "today_session_count": today_session_count,
+        "recent_runs": recent_runs,
+        "recent_sessions": sessions,
+    })
+}
+
 #[tauri::command]
 pub async fn get_multibrowser_stats(app: AppHandle) -> Result<serde_json::Value, String> {
     // 1. Kiểm tra cache trong bộ nhớ (hiệu lực 3.5 giây) để loại bỏ 100% độ trễ khi chuyển tab Dashboard / Profiles
@@ -754,7 +1100,18 @@ pub async fn get_multibrowser_stats(app: AppHandle) -> Result<serde_json::Value,
     }
 
     // 2. FAST PATH trong Rust: Tính toán chỉ số trực tiếp từ profiles.json mà không cần khởi tạo tiến trình Python (0.1ms vs 1500ms)
-    if let Ok(profiles) = get_multibrowser_profiles(app.clone()).await {
+    // TUYỆT ĐỐI KHÔNG tính hồ sơ thuộc pool Kênh Test BKT vào chỉ số hồ sơ kiếm tiền / kênh đích của Chức năng 2.
+    if let Ok(raw_profiles) = get_all_raw_multibrowser_profiles(app.clone()).await {
+        let bkt_ids: std::collections::HashSet<String> = crate::database::get_bkt_test_channels_db()
+            .unwrap_or_default()
+            .into_iter()
+            .map(|c| c.profile_id)
+            .collect();
+        let profiles: Vec<MultiBrowserProfile> = raw_profiles
+            .into_iter()
+            .filter(|p| !is_bkt_test_profile(p, Some(&bkt_ids)))
+            .collect();
+        let now_utc = chrono::Utc::now();
         let total = profiles.len();
         let running_profiles: Vec<serde_json::Value> = profiles
             .iter()
@@ -772,18 +1129,41 @@ pub async fn get_multibrowser_stats(app: AppHandle) -> Result<serde_json::Value,
             .collect();
         let running_count = running_profiles.len();
 
-        let error_profiles: Vec<&MultiBrowserProfile> = profiles
+        let mut error_profiles: Vec<&MultiBrowserProfile> = profiles
             .iter()
             .filter(|p| p.last_run_status.as_deref() == Some("error"))
             .collect();
-        let error_today = error_profiles.len();
+        error_profiles.sort_by(|a, b| {
+            let ta = a.last_run_time.as_deref().unwrap_or("");
+            let tb = b.last_run_time.as_deref().unwrap_or("");
+            tb.cmp(ta)
+        });
+
+        let error_today = error_profiles
+            .iter()
+            .filter(|p| {
+                p.last_run_time
+                    .as_deref()
+                    .map(|ts| is_today_utc(ts, now_utc))
+                    .unwrap_or(false)
+            })
+            .count();
 
         let success_today = profiles
             .iter()
-            .filter(|p| p.last_run_status.as_deref() == Some("success"))
+            .filter(|p| {
+                p.last_run_status.as_deref() == Some("success")
+                    && p.last_run_time
+                        .as_deref()
+                        .map(|ts| is_today_utc(ts, now_utc))
+                        .unwrap_or(false)
+            })
             .count();
 
-        let ready = total.saturating_sub(running_count + error_today);
+        let ready = profiles
+            .iter()
+            .filter(|p| !matches!(p.last_run_status.as_deref(), Some("running" | "opening" | "error")))
+            .count();
 
         let recent_errors: Vec<serde_json::Value> = error_profiles
             .into_iter()
@@ -798,37 +1178,26 @@ pub async fn get_multibrowser_stats(app: AppHandle) -> Result<serde_json::Value,
             })
             .collect();
 
-        // Đọc lịch sử chạy gần nhất từ logs/run_history.jsonl ngoài Tokio reactor thread
-        let history_candidates = vec![
-            get_runner_path(&app)
-                .parent()
-                .map(|p| p.join("logs").join("run_history.jsonl")),
-            std::env::current_exe()
-                .ok()
-                .and_then(|e| e.parent().map(|p| p.join("browser_engine").join("logs").join("run_history.jsonl"))),
-            std::env::current_dir()
-                .ok()
-                .map(|cwd| cwd.join("browser_engine").join("logs").join("run_history.jsonl")),
-        ];
+        // Đọc lịch sử chạy gần nhất chỉ từ user_data_root/logs/run_history.jsonl ngoài Tokio reactor thread
+        let data_dir_opt = get_browser_data_dir(Some(&app));
+        let data_dir_str = data_dir_opt
+            .as_ref()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_default();
+        let history_path_opt = data_dir_opt.map(|d| d.join("logs").join("run_history.jsonl"));
 
-        let recent_runs: Vec<serde_json::Value> = tokio::task::spawn_blocking(move || {
-            let mut runs = Vec::new();
-            if let Some(history_path) = history_candidates.into_iter().flatten().find(|p| p.exists()) {
-                if let Ok(content) = std::fs::read_to_string(&history_path) {
-                    for line in content.lines().rev().take(10) {
-                        if let Ok(val) = serde_json::from_str::<serde_json::Value>(line.trim()) {
-                            runs.push(val);
-                        }
-                    }
-                }
-            }
-            runs
+        let run_summary = tokio::task::spawn_blocking(move || {
+            compute_run_history_summary(history_path_opt.as_deref(), now_utc)
         })
         .await
-        .unwrap_or_default();
-
-        let last_run = recent_runs.first().cloned();
-        let today_run_count = recent_runs.len();
+        .unwrap_or_else(|_| serde_json::json!({
+            "last_run": null,
+            "today_runtime_seconds": 0,
+            "today_run_count": 0,
+            "today_session_count": 0,
+            "recent_runs": [],
+            "recent_sessions": []
+        }));
 
         let stats_val = serde_json::json!({
             "total_profiles": total,
@@ -839,19 +1208,12 @@ pub async fn get_multibrowser_stats(app: AppHandle) -> Result<serde_json::Value,
             "running_profiles": running_profiles,
             "recent_errors": recent_errors,
             "warnings": [],
-            "run_summary": {
-                "last_run": last_run,
-                "today_runtime_seconds": 0,
-                "today_run_count": today_run_count,
-                "today_session_count": 0,
-                "recent_runs": recent_runs,
-                "recent_sessions": []
-            },
+            "run_summary": run_summary,
             "system_info": {
                 "os": "Windows",
                 "ram": "Sẵn sàng (Tối ưu)",
                 "python": "Python 3 (Cực nhanh)",
-                "data_dir": ""
+                "data_dir": data_dir_str
             }
         });
 
@@ -913,6 +1275,7 @@ pub async fn stop_multibrowser_profile(app: AppHandle, profile_id: String) -> Re
         return Err(err.to_string());
     }
 
+    clear_stats_cache();
     Ok(())
 }
 
@@ -944,6 +1307,7 @@ pub async fn bulk_stop_multibrowser_profiles(app: AppHandle, profile_ids: Vec<St
         return Err(err.to_string());
     }
 
+    clear_stats_cache();
     Ok(())
 }
 
@@ -1012,6 +1376,7 @@ const PROTECTED_PROFILE_WHITELIST: &[&str] = &[
     "login data",
     "login data-journal",
     "preferences",
+    "preferences.bak",
     "secure preferences",
     "web data",
     "web data-journal",
@@ -1022,6 +1387,13 @@ const PROTECTED_PROFILE_WHITELIST: &[&str] = &[
     "session storage",
     "extension state",
     "extensions",
+    "network",
+    "history",
+    "history-journal",
+    "bookmarks",
+    "service worker",
+    "blob_storage",
+    "transportsecurity",
 ];
 
 const TARGET_CACHE_PATH_PARTS: &[&[&str]] = &[
@@ -1030,9 +1402,6 @@ const TARGET_CACHE_PATH_PARTS: &[&[&str]] = &[
     &["Default", "GPUCache"],
     &["Default", "DawnCache"],
     &["Default", "Media Cache"],
-    &["Default", "Service Worker", "CacheStorage"],
-    &["Default", "Service Worker", "ScriptCache"],
-    &["Default", "blob_storage"],
     &["Default", "File System"],
     &["Default", "VideoDecodeStats"],
     &["Cache"],
@@ -1047,6 +1416,16 @@ const TARGET_CACHE_PATH_PARTS: &[&[&str]] = &[
     &["BrowserMetrics"],
 ];
 
+fn is_protected_profile_path(path: &Path) -> bool {
+    for comp in path.components() {
+        let s = comp.as_os_str().to_string_lossy().to_lowercase();
+        if PROTECTED_PROFILE_WHITELIST.contains(&s.as_str()) {
+            return true;
+        }
+    }
+    false
+}
+
 pub fn clean_profile_cache_native_internal(profile_dir: &Path) -> u64 {
     let mut total_freed: u64 = 0;
     if !profile_dir.exists() || !profile_dir.is_dir() {
@@ -1059,20 +1438,17 @@ pub fn clean_profile_cache_native_internal(profile_dir: &Path) -> u64 {
             target = target.join(part);
         }
 
-        if !target.exists() {
+        if !target.exists() || is_protected_profile_path(&target) {
             continue;
-        }
-
-        if let Some(name) = target.file_name().and_then(|n| n.to_str()) {
-            if PROTECTED_PROFILE_WHITELIST.contains(&name.to_lowercase().as_str()) {
-                continue;
-            }
         }
 
         if target.is_dir() {
             if let Ok(entries) = std::fs::read_dir(&target) {
                 for entry in entries.flatten() {
                     let ep = entry.path();
+                    if is_protected_profile_path(&ep) {
+                        continue;
+                    }
                     if ep.is_file() {
                         if let Ok(meta) = ep.metadata() {
                             total_freed += meta.len();
@@ -1081,7 +1457,11 @@ pub fn clean_profile_cache_native_internal(profile_dir: &Path) -> u64 {
                     } else if ep.is_dir() {
                         if let Ok(sub_entries) = std::fs::read_dir(&ep) {
                             for sub in sub_entries.flatten() {
-                                if let Ok(m) = sub.metadata() {
+                                let sp = sub.path();
+                                if is_protected_profile_path(&sp) {
+                                    continue;
+                                }
+                                if let Ok(m) = sp.metadata() {
                                     if m.is_file() {
                                         total_freed += m.len();
                                     }
@@ -1104,29 +1484,88 @@ pub fn clean_profile_cache_native_internal(profile_dir: &Path) -> u64 {
     total_freed
 }
 
+fn is_safe_profile_dirname(name: &str) -> bool {
+    let trimmed = name.trim();
+    !trimmed.is_empty()
+        && trimmed != "."
+        && trimmed != ".."
+        && !trimmed.contains(['/', '\\', ':', '\0'])
+        && !trimmed.contains("..")
+}
+
+pub fn resolve_profile_dir_path(data_dir: &Path, profile_id: &str) -> Result<PathBuf, String> {
+    let profiles_root = data_dir.join("profiles");
+    let profiles_json = data_dir.join("profiles.json");
+    let lookup_key = profile_id.trim();
+
+    if profiles_json.is_file() {
+        if let Ok(content) = std::fs::read_to_string(&profiles_json) {
+            if let Ok(rows) = serde_json::from_str::<Vec<serde_json::Value>>(&content) {
+                let matched = rows.iter().find(|row| {
+                    let row_id = row.get("id").and_then(|v| v.as_str()).unwrap_or("").trim();
+                    let row_name = row.get("profile_name").and_then(|v| v.as_str()).unwrap_or("").trim();
+                    (!row_id.is_empty() && row_id.eq_ignore_ascii_case(lookup_key))
+                        || (!row_name.is_empty() && row_name == lookup_key)
+                });
+                if let Some(row) = matched {
+                    let raw_dir = row
+                        .get("profile_dir")
+                        .and_then(|v| v.as_str())
+                        .map(str::trim)
+                        .unwrap_or("");
+                    if !is_safe_profile_dirname(raw_dir) {
+                        return Err(format!("Tên thư mục hồ sơ không hợp lệ cho profile_id: {profile_id}"));
+                    }
+                    let resolved = profiles_root.join(raw_dir);
+                    if resolved.is_dir() {
+                        return Ok(resolved);
+                    }
+                    return Err(format!("Không tìm thấy thư mục hồ sơ '{}' cho profile_id: {profile_id}", raw_dir));
+                }
+            }
+        }
+    }
+
+    if is_safe_profile_dirname(lookup_key) {
+        let direct = profiles_root.join(lookup_key);
+        if direct.is_dir() {
+            return Ok(direct);
+        }
+    }
+
+    Err(format!("Không tìm thấy thư mục hồ sơ cho profile_id: {profile_id}"))
+}
+
 #[tauri::command]
 pub async fn clean_multibrowser_profile_cache_native(
-    _app: AppHandle,
+    app: AppHandle,
     profile_id: String,
 ) -> Result<String, String> {
+    let data_dir = get_browser_data_dir(Some(&app))
+        .ok_or_else(|| "Không xác định được thư mục dữ liệu RETubeMatrix".to_string())?;
     tokio::task::spawn_blocking(move || {
-        let local_appdata = std::env::var("LOCALAPPDATA").map_err(|e| e.to_string())?;
-        let profile_dir = PathBuf::from(&local_appdata)
-            .join("RETubeMatrix")
-            .join("browser_engine")
-            .join("profiles")
-            .join(&profile_id);
+        let profile_dir = resolve_profile_dir_path(&data_dir, &profile_id)?;
 
-        if !profile_dir.exists() || !profile_dir.is_dir() {
-            return Err(format!("Không tìm thấy thư mục hồ sơ cho profile_id: {profile_id}"));
+        let singleton_lock = profile_dir.join("SingletonLock");
+        if singleton_lock.exists() {
+            if std::fs::OpenOptions::new().write(true).open(&singleton_lock).is_err() {
+                return Err("Hồ sơ đang mở trong trình duyệt. Vui lòng đóng trình duyệt trước khi dọn dẹp cache.".to_string());
+            }
+        }
+        let lockfile = profile_dir.join("lockfile");
+        if lockfile.exists() {
+            if std::fs::OpenOptions::new().write(true).open(&lockfile).is_err() {
+                return Err("Hồ sơ đang mở trong trình duyệt. Vui lòng đóng trình duyệt trước khi dọn dẹp cache.".to_string());
+            }
         }
 
         let freed_bytes = clean_profile_cache_native_internal(&profile_dir);
         let freed_mb = (freed_bytes as f64) / (1024.0 * 1024.0);
 
         log::info!(
-            "[CLEAN CACHE NATIVE] Đã dọn dẹp cache cho profile {}: {:.2} MB",
+            "[CLEAN CACHE NATIVE] Đã dọn dẹp cache cho profile {} ({}): {:.2} MB",
             profile_id,
+            profile_dir.display(),
             freed_mb
         );
 
@@ -1184,6 +1623,7 @@ pub async fn update_multibrowser_profile_meta(
         return Err(err.to_string());
     }
 
+    clear_stats_cache();
     Ok(())
 }
 
@@ -1222,5 +1662,95 @@ pub async fn bulk_set_multibrowser_group(
         return Err(err.to_string());
     }
 
+    clear_stats_cache();
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{compute_run_history_summary, is_today_utc, resolve_browser_data_dir, resolve_profile_dir_path};
+    use std::path::{Path, PathBuf};
+
+    fn make_temp_dir(label: &str) -> PathBuf {
+        let unique = format!(
+            "retubematrix_test_{}_{}_{}",
+            label,
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0)
+        );
+        let dir = std::env::temp_dir().join(unique);
+        std::fs::create_dir_all(&dir).expect("create temp test dir");
+        dir
+    }
+
+    #[test]
+    fn resolve_browser_data_dir_prefers_env_then_localappdata_then_tauri_parent() {
+        let tauri_local = Path::new(r"C:\Users\Alice\AppData\Local\com.retubematrix.app");
+        assert_eq!(
+            resolve_browser_data_dir(Some(r"D:\CustomData"), Some(r"C:\Users\Alice\AppData\Local"), Some(tauri_local)),
+            Some(PathBuf::from(r"D:\CustomData"))
+        );
+        assert_eq!(
+            resolve_browser_data_dir(None, Some(r"C:\Users\Alice\AppData\Local"), Some(tauri_local)),
+            Some(PathBuf::from(r"C:\Users\Alice\AppData\Local").join("RETubeMatrix").join("browser_engine"))
+        );
+        assert_eq!(
+            resolve_browser_data_dir(Some("   "), None, Some(tauri_local)),
+            Some(PathBuf::from(r"C:\Users\Alice\AppData\Local").join("RETubeMatrix").join("browser_engine"))
+        );
+    }
+
+    #[test]
+    fn is_today_utc_filters_stale_runs_by_utc_date() {
+        let now = chrono::DateTime::parse_from_rfc3339("2026-11-12T10:00:00Z")
+            .unwrap()
+            .with_timezone(&chrono::Utc);
+        assert!(is_today_utc("2026-11-12T00:05:00+00:00", now));
+        assert!(is_today_utc("2026-11-12T06:00:00+07:00", now) == false);
+        assert!(!is_today_utc("2026-11-11T23:59:59+00:00", now));
+        assert!(!is_today_utc("", now));
+    }
+
+    #[test]
+    fn compute_run_history_summary_aggregates_today_metrics_and_sessions() {
+        let dir = make_temp_dir("run_history");
+        let log_file = dir.join("run_history.jsonl");
+        let lines = [
+            r#"{"id":"p1","profile_name":"One","action":"upload","status":"success","duration_seconds":10.5,"finished_at":"2026-11-12T08:00:00+00:00","session_id":"s-today"}"#,
+            r#"{"id":"p2","profile_name":"Two","action":"upload","status":"success","duration_seconds":20.0,"finished_at":"2026-11-12T08:00:30+00:00","session_id":"s-today"}"#,
+            r#"{"id":"p3","profile_name":"Old","action":"nurture","status":"error","duration_seconds":5.0,"finished_at":"2026-11-11T12:00:00+00:00","session_id":"s-old"}"#,
+        ];
+        std::fs::write(&log_file, lines.join("\n")).unwrap();
+
+        let now = chrono::DateTime::parse_from_rfc3339("2026-11-12T10:00:00Z")
+            .unwrap()
+            .with_timezone(&chrono::Utc);
+        let summary = compute_run_history_summary(Some(&log_file), now);
+        assert_eq!(summary["today_run_count"], 2);
+        assert_eq!(summary["today_session_count"], 1);
+        assert!(summary["today_runtime_seconds"].as_f64().unwrap() >= 40.0);
+        assert_eq!(summary["recent_runs"].as_array().unwrap().len(), 3);
+        assert_eq!(summary["recent_sessions"].as_array().unwrap().len(), 2);
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn resolve_profile_dir_path_maps_uuid_and_rejects_traversal() {
+        let dir = make_temp_dir("resolve_profile_dir");
+        let profiles_root = dir.join("profiles");
+        let target_folder = profiles_root.join("kênh-a_deadbeef");
+        std::fs::create_dir_all(&target_folder).unwrap();
+        std::fs::write(
+            dir.join("profiles.json"),
+            r#"[{"id":"uuid-123","profile_name":"Kenh A","profile_dir":"kênh-a_deadbeef"}]"#,
+        )
+        .unwrap();
+
+        let resolved = resolve_profile_dir_path(&dir, "uuid-123").unwrap();
+        assert_eq!(resolved, target_folder);
+        assert!(resolve_profile_dir_path(&dir, "../escape").is_err());
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }

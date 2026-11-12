@@ -7,6 +7,22 @@ RETubeMatrix 的所有重要更改都将记录在此文件中。
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-12
+
+### 变更
+
+- **彻底隔离 RETubeMatrix 浏览器配置与运行时数据** - 将浏览器配置存储（`profiles.json`、`deleted_profiles.json` 与 Chromium 用户目录）、运行日志（`run_history.jsonl`）、窗口图标、叠加层状态、AI 评论配置、待发评论及二进制查找统一迁移至 RETubeMatrix 专属数据目录（`%LOCALAPPDATA%\RETubeMatrix\browser_engine` / `RETUBEMATRIX_BROWSER_DATA_DIR`），完全移除从外部 `BrowserMulti` 或旧版 `reupytb` 目录自动读取、回退或迁移的逻辑。
+- **纯净安装包打包与作用域受限的 NSIS 安装卸载** - 将 `bundle.resources` 显式限定为 `actions/`、`core/`、`runner.py`、`outlier_hunter.py` 与 `requirements.txt`，防止开发期 `.tmp/`、`logs/` 和 `__pycache__/` 被打入安装包；同时将 NSIS 进程终止限定在 `$INSTDIR` 安装目录内，并在用户勾选删除数据时清理 `%LOCALAPPDATA%\RETubeMatrix\browser_engine`（覆盖升级时完整保留）。
+
+### 修复
+
+- **严格隔离 BKT 测试池配置与功能 2 及仪表盘** - 彻底杜绝版权测试池配置（`group: "Kênh Test BKT"`、`name: "[BKT Test] *"` 及 SQLite 中登记的测试频道 ID）泄露至功能 2（浏览器配置管理）、功能 1（对手频道 1 对 1 绑定）、快速上传弹窗以及仪表盘目标配置指标统计。在分组过滤器中排除测试分组，禁止手动创建保留命名空间的 BKT 配置，并通过 `include_bkt: true` 保证功能 5（BKT 测试频道管理）对自有配置的独占访问。
+- **持久保持 Google 登录态与两阶段优雅关闭** - 在 `browsermulti_native.py` 和 `runner.py` 中将所有即时 `taskkill /F` 强制终止重构为两阶段优雅关闭（向各配置顶层窗口发送 Win32 `WM_CLOSE` 并等待最多 8 秒，允许 Chromium 完整将 SQLite WAL 刷新落盘：`Cookies`、`Login Data`、`Network Persistent State`，并写入 `profile.exit_type = Normal`），仅在超时后执行强制终止。
+- **保护 Service Worker 与会话缓存防误删** - 在 Rust 后端与 Python 执行器中彻底从缓存清理列表中移除 `Service Worker/CacheStorage`、`Service Worker/ScriptCache` 和 `blob_storage`，在配置处于运行状态时终止清理，并移除普通关闭流程 `finally` 块中的自动清理，永久保全 Google / YouTube Studio 会话登录凭据。
+- **原子写入 Preferences 与 WebRTC IP 泄漏防护** - 将 `Preferences` 直接覆写优化为 `.tmp` 临时文件原子替换并保留 `.bak` 备份，避免在会话存在时覆写 `restore_on_startup`，正确透传配置 `locale` 至 `--lang` 参数，强制追加 `--webrtc-ip-handling-policy=disable_non_proxied_udp` 防止 WebRTC 泄露真实本机 IP，并在明文 HTTP 代理转发中注入 `Connection: close` 消除跨域连接复用问题。
+- **防止已删除配置复活与空占位目录生成** - 在 `profile_store.py` 磁盘自动恢复阶段严格校验 `deleted_profiles.json` 墓碑与有效 Chromium 目录结构，取消只读 `load_profiles()` 时的快照重写，禁止在浏览器首次启动前创建空目录，并在 `add_profile`、`update_profile`、`restore_deleted_profile` 及 BKT 测试频道自动命名（`[BKT Test]`）中统一执行大小写与空白规范化重名校验。
+- **修复仪表盘当日统计准确性与缓存路径解析** - 更新 `get_multibrowser_stats` 与 `clean_multibrowser_profile_cache_native`，按 UTC 日期过滤当日成功/失败与运行次数，从 `user_data_root/logs/run_history.jsonl` 计算真实会话与时长，在所有配置与 BKT 生命周期变更时刷新 `STATS_CACHE`，由 UUID `profile_id` 精确解析 `profile_dir`，并在 `runner.py` 中合并批量停用和分组写入操作。
+
 ## [1.0.3] - 2026-11-12
 
 ### 新增

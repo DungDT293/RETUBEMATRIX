@@ -35,10 +35,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type {
-  MultiBrowserProfile,
-  MultiBrowserUploadParams,
-  MultiBrowserUploadResult,
+import {
+  isBktTestProfile,
+  type MultiBrowserProfile,
+  type MultiBrowserUploadParams,
+  type MultiBrowserUploadResult,
 } from '@/lib/types';
 
 interface QuickUploadDialogProps {
@@ -93,12 +94,16 @@ export function QuickUploadDialog({
       setUploadResult(null);
       setLogs([]);
 
-      // Fetch profiles
-      invoke<MultiBrowserProfile[]>('get_multibrowser_profiles')
+      // Fetch profiles (chỉ lấy profile đích, loại bỏ hồ sơ test BKT)
+      invoke<MultiBrowserProfile[]>('get_multibrowser_profiles', {
+        includeBkt: false,
+        include_bkt: false,
+      })
         .then((data) => {
-          setProfiles(data || []);
-          if (!selectedProfileId && data && data.length > 0) {
-            setSelectedProfileId(initialProfileId || data[0].id);
+          const list = (data || []).filter((p) => !isBktTestProfile(p));
+          setProfiles(list);
+          if (!selectedProfileId && list.length > 0) {
+            setSelectedProfileId(initialProfileId || list[0].id);
           }
         })
         .catch((err) => console.error('Lỗi lấy danh sách profiles:', err));

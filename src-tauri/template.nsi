@@ -32,6 +32,16 @@ ManifestDPIAwareness PerMonitorV2
 ${StrCase}
 ${StrLoc}
 
+!macro KillScopedAppProcesses TARGET_DIR
+  nsExec::Exec 'taskkill /F /IM ${MAINBINARYNAME}.exe /T'
+  nsExec::Exec 'taskkill /F /IM retubematrix-yt-dlp.exe /T'
+  ${If} "${TARGET_DIR}" != ""
+    System::Call 'Kernel32::SetEnvironmentVariable(t "RTM_KILL_DIR", t "${TARGET_DIR}")'
+    nsExec::Exec "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $\"$$d = ($$env:RTM_KILL_DIR).TrimEnd('\') + '\'; Get-CimInstance Win32_Process | Where-Object { $$_.ExecutablePath -and $$_.ExecutablePath.StartsWith($$d, [System.StringComparison]::OrdinalIgnoreCase) -and $$_.Name -match '^(RETubeMatrix|chrome|browsermulti|python|retubematrix-yt-dlp)\.exe$$' } | ForEach-Object { Stop-Process -Id $$_.ProcessId -Force -ErrorAction SilentlyContinue }$\""
+    System::Call 'Kernel32::SetEnvironmentVariable(t "RTM_KILL_DIR", i 0)'
+  ${EndIf}
+!macroend
+
 {{#if installer_hooks}}
 !include "{{installer_hooks}}"
 {{/if}}
@@ -366,11 +376,7 @@ Function PageLeaveReinstall
     ClearErrors
 
     ; Auto-terminate all running app processes before executing uninstaller
-    nsExec::Exec 'taskkill /F /IM ${MAINBINARYNAME}.exe /T'
-    nsExec::Exec 'taskkill /F /IM retubematrix-yt-dlp.exe /T'
-    nsExec::Exec 'taskkill /F /IM browsermulti.exe /T'
-    nsExec::Exec 'taskkill /F /IM python.exe /T'
-    nsExec::Exec 'taskkill /F /IM msedgewebview2.exe /T'
+    !insertmacro KillScopedAppProcesses "$INSTDIR"
     Sleep 500
 
     ${If} $WixMode = 1
@@ -389,11 +395,10 @@ Function PageLeaveReinstall
     BringToFront
 
     ; Forced kill and clean up stale binary so reinstall never halts with "Unable to uninstall"
-    nsExec::Exec 'taskkill /F /IM ${MAINBINARYNAME}.exe /T'
-    nsExec::Exec 'taskkill /F /IM retubematrix-yt-dlp.exe /T'
-    nsExec::Exec 'taskkill /F /IM browsermulti.exe /T'
-    nsExec::Exec 'taskkill /F /IM python.exe /T'
-    nsExec::Exec 'taskkill /F /IM msedgewebview2.exe /T'
+    !insertmacro KillScopedAppProcesses "$INSTDIR"
+    ${If} $4 != ""
+      !insertmacro KillScopedAppProcesses "$4"
+    ${EndIf}
     Delete /REBOOTOK "$INSTDIR\${MAINBINARYNAME}.exe"
     ${If} $4 != ""
       Delete /REBOOTOK "$4\${MAINBINARYNAME}.exe"
@@ -677,11 +682,7 @@ Section Install
   SetOutPath $INSTDIR
 
   ; Terminate any running RETubeMatrix instances before overwriting files
-  nsExec::Exec 'taskkill /F /IM ${MAINBINARYNAME}.exe /T'
-  nsExec::Exec 'taskkill /F /IM retubematrix-yt-dlp.exe /T'
-  nsExec::Exec 'taskkill /F /IM browsermulti.exe /T'
-  nsExec::Exec 'taskkill /F /IM python.exe /T'
-  nsExec::Exec 'taskkill /F /IM msedgewebview2.exe /T'
+  !insertmacro KillScopedAppProcesses "$INSTDIR"
   Sleep 500
 
   !ifmacrodef NSIS_HOOK_PREINSTALL
@@ -822,9 +823,7 @@ FunctionEnd
 Section Uninstall
 
   ; Terminate any running RETubeMatrix instances before uninstalling
-  nsExec::Exec 'taskkill /F /IM ${MAINBINARYNAME}.exe /T'
-  nsExec::Exec 'taskkill /F /IM retubematrix-yt-dlp.exe /T'
-  nsExec::Exec 'taskkill /F /IM browsermulti.exe /T'
+  !insertmacro KillScopedAppProcesses "$INSTDIR"
   Sleep 500
 
   !ifmacrodef NSIS_HOOK_PREUNINSTALL
@@ -933,6 +932,8 @@ Section Uninstall
     SetShellVarContext current
     RmDir /r "$APPDATA\${BUNDLEID}"
     RmDir /r "$LOCALAPPDATA\${BUNDLEID}"
+    RmDir /r "$LOCALAPPDATA\${PRODUCTNAME}\browser_engine"
+    RMDir "$LOCALAPPDATA\${PRODUCTNAME}"
   ${EndIf}
 
   !ifmacrodef NSIS_HOOK_POSTUNINSTALL

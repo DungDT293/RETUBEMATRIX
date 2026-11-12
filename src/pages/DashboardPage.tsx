@@ -37,13 +37,14 @@ import {
   cancelBktJob,
   getDailyReportStats,
 } from '@/contexts/channels/channels-client';
-import type {
-  DailyReportStats,
-  FollowedChannel,
-  MultiBrowserProfile,
-  MultiBrowserStats,
-  RunSessionRecord,
-  RunSummaryRecord,
+import {
+  type DailyReportStats,
+  type FollowedChannel,
+  isBktTestProfile,
+  type MultiBrowserProfile,
+  type MultiBrowserStats,
+  type RunSessionRecord,
+  type RunSummaryRecord,
 } from '@/lib/types';
 
 interface DashboardPageProps {
@@ -281,7 +282,10 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
           }),
           invoke<MultiBrowserStats>('get_multibrowser_stats').catch(() => EMPTY_STATS),
           invoke<FollowedChannel[]>('get_followed_channels').catch(() => []),
-          invoke<MultiBrowserProfile[]>('get_multibrowser_profiles').catch(() => []),
+          invoke<MultiBrowserProfile[]>('get_multibrowser_profiles', {
+            includeBkt: false,
+            include_bkt: false,
+          }).catch(() => []),
         ]);
 
         if (!isMountedRef.current || reqSeq !== fetchSeqRef.current) {
@@ -302,13 +306,14 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
           },
         };
 
+        const targetProfiles = (prData || []).filter((p) => !isBktTestProfile(p));
         cachedStats = mergedStats;
         cachedChannels = chData;
-        cachedProfiles = prData;
+        cachedProfiles = targetProfiles;
 
         setStats(mergedStats);
         setChannels(chData);
-        setProfiles(prData);
+        setProfiles(targetProfiles);
 
         const now = new Date();
         const timeStr = now.toLocaleTimeString('vi-VN', {

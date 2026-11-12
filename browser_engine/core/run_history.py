@@ -12,11 +12,11 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from core.paths import app_path
+from core.paths import user_data_path
 
 logger = logging.getLogger(__name__)
 
-RUN_HISTORY_FILE = app_path("logs", "run_history.jsonl")
+RUN_HISTORY_FILE = user_data_path("logs", "run_history.jsonl")
 _MAX_RECORDS = 500
 
 

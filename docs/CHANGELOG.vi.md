@@ -7,6 +7,22 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-12
+
+### Thay đổi
+
+- **Cô Lập Hoàn Toàn Dữ Liệu Profile & Runtime Khỏi BrowserMulti/Legacy** - Tách biệt 100% kho hồ sơ trình duyệt (`profiles.json`, `deleted_profiles.json`, thư mục Chromium), nhật ký chạy (`run_history.jsonl`), icon cửa sổ, trạng thái overlay, cấu hình AI bình luận, hàng đợi bình luận và đường dẫn binary vào thư mục dữ liệu chuẩn của RETubeMatrix (`%LOCALAPPDATA%\RETubeMatrix\browser_engine` / `RETUBEMATRIX_BROWSER_DATA_DIR`), loại bỏ hoàn toàn cơ chế tự động đọc trộm, fallback hay sao chép từ `BrowserMulti` hoặc thư mục `reupytb` cũ.
+- **Làm Sạch Gói Cài Đặt & Tối Ưu NSIS Installer/Uninstaller** - Chỉ đóng gói tường minh mã nguồn `browser_engine` (`actions/`, `core/`, `runner.py`, `outlier_hunter.py`, `requirements.txt`), loại bỏ hoàn toàn file runtime `.tmp/`, `logs/`, `__pycache__/`. Giới hạn thao tác tắt tiến trình trong NSIS đúng phạm vi thư mục `$INSTDIR` và hỗ trợ xóa sạch `%LOCALAPPDATA%\RETubeMatrix\browser_engine` khi người dùng chọn xóa dữ liệu lúc gỡ cài đặt (giữ nguyên khi nâng cấp).
+
+### Sửa lỗi
+
+- **Cô Lập Triệt Để Hồ Sơ Pool Kênh Test BKT Khỏi Chức Năng 2 & Dashboard** - Ngăn chặn hoàn toàn việc hiển thị các hồ sơ thuộc pool Kiểm Tra Bản Quyền (`group: "Kênh Test BKT"`, `name: "[BKT Test] *"`, cùng ID kênh test lưu trong SQLite) tại Chức năng 2 (Hồ sơ trình duyệt nuôi/kênh đích), Chức năng 1 (Mapping 1-1 kênh đối thủ), hộp thoại Tải lên nhanh và thẻ thống kê hồ sơ Bảng điều khiển. Loại bỏ nhóm test khỏi bộ lọc nhóm, chặn người dùng tạo hồ sơ trùng định danh BKT và giữ nguyên quyền quản lý độc quyền tại Chức năng 5 qua cờ `include_bkt: true`.
+- **Bảo Toàn Phiên Đăng Nhập Google & Tắt Trình Duyệt Êm Đẹp 2 Giai Đoạn** - Thay thế toàn bộ các lệnh `taskkill /F` cưỡng bức tức thời bằng cơ chế đóng êm đẹp 2 giai đoạn (gửi Win32 `WM_CLOSE` đến các cửa sổ top-level của profile và chờ tối đa 8s cho Chromium tự xả bộ nhớ và flush SQLite WAL xuống đĩa: `Cookies`, `Login Data`, `Network Persistent State`, ghi `profile.exit_type = Normal`), chỉ cưỡng bức tắt khi quá thời gian chờ.
+- **Bảo Vệ Service Worker & Ngăn Chặn Xóa Nhầm Cache Phiên** - Loại bỏ hoàn toàn `Service Worker/CacheStorage`, `Service Worker/ScriptCache` và `blob_storage` khỏi danh sách dọn dẹp cache ở cả Rust backend và Python runner. Hủy bỏ dọn dẹp cache nếu profile đang mở trình duyệt và loại bỏ lệnh tự động quét xóa cache trong khối `finally` của luồng mở trình duyệt thông thường để giữ phiên đăng nhập Google/YouTube Studio vĩnh viễn.
+- **Ghi Tệp Cấu Hình Preferences Nguyên Tử & Chống Rò Rỉ IP WebRTC** - Chuyển việc ghi đè `Preferences` sang cơ chế ghi nguyên tử qua file tạm `.tmp` và `os.replace` kèm file sao lưu `.bak`, không ghi đè `restore_on_startup` khi profile đã có phiên, truyền đúng `locale` vào flag `--lang`, bổ sung `--webrtc-ip-handling-policy=disable_non_proxied_udp` chống lộ IP thật qua WebRTC và cô lập kết nối HTTP plain proxy bằng `Connection: close`.
+- **Chống Hồi Sinh Hồ Sơ Đã Xóa & Tạo Thư Mục Rỗng** - Bổ sung kiểm tra danh sách tombstone `deleted_profiles.json` và cấu trúc Chromium hợp lệ trước khi tự khôi phục hồ sơ, ngừng ghi đè snapshot khi chỉ đọc `load_profiles()`, không tạo thư mục rỗng trước khi mở Chromium và kiểm tra trùng tên hồ sơ đồng bộ giữa `add_profile`, `update_profile`, `restore_deleted_profile` cùng luồng tự tạo hồ sơ `[BKT Test]`.
+- **Chuẩn Hóa Thống Kê Dashboard & Dọn Cache Theo Profile Directory** - Cập nhật `get_multibrowser_stats` và `clean_multibrowser_profile_cache_native` để lọc đúng số lượt thành công/lỗi/phiên trong ngày, đọc nhật ký từ `user_data_root/logs/run_history.jsonl`, xóa `STATS_CACHE` sau mọi thao tác profile và BKT, ánh xạ chuẩn `profile_id` sang `profile_dir` và gộp cập nhật hàng loạt trong `runner.py`.
+
 ## [1.0.3] - 2026-11-12
 
 ### Thêm mới

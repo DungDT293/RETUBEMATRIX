@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-12
+
+### Changed
+
+- **Complete Runtime & Profile Storage Isolation** - Isolated RETubeMatrix browser profile stores (`profiles.json`, `deleted_profiles.json`, Chromium folders), automation logs (`run_history.jsonl`), window badge icons, overlay state, AI comment settings, pending comments, and binary lookups into canonical user data (`%LOCALAPPDATA%\RETubeMatrix\browser_engine` / `RETUBEMATRIX_BROWSER_DATA_DIR`), removing all automatic imports, fallbacks, or copies from external `BrowserMulti` or legacy `reupytb` folders.
+- **Clean Installer Packaging & Scoped Uninstall Hygiene** - Restricted Tauri `bundle.resources` to explicit `browser_engine` source directories (`actions/`, `core/`, `runner.py`, `outlier_hunter.py`, `requirements.txt`) so dev `.tmp/`, `logs/`, and `__pycache__/` artifacts are never packaged into installers. Scoped NSIS installer/uninstaller process termination to binaries inside `$INSTDIR` and ensured opt-in "Delete App Data" uninstalls remove `%LOCALAPPDATA%\RETubeMatrix\browser_engine` while preserving data on upgrades.
+
+### Fixed
+
+- **Strict UI & Backend Isolation for BKT Test Pool Profiles** - Prevented BKT Copyright Testing profiles (`group: "Kênh Test BKT"`, `name: "[BKT Test] *"`, and database-registered test pool IDs) from leaking into Feature 2 (Browser Profiles), Feature 1 (Channel 1-to-1 Mapping), Quick Upload dialog, or Dashboard target profile metrics. Excluded BKT test groups from UI dropdown filters and prevented manual profile creation under reserved BKT namespaces, while ensuring Feature 5 (BKT Channel Manager) retains exclusive access via `include_bkt: true`.
+- **Session Persistence & Graceful Chromium Shutdown** - Replaced immediate `taskkill /F` terminations with a two-phase graceful shutdown (`WM_CLOSE` to top-level profile windows with wait bounded up to 8s) across `browsermulti_native.py` and `runner.py`, allowing Chromium to checkpoint SQLite WAL databases (`Cookies`, `Login Data`, `Network Persistent State`) and write `profile.exit_type = Normal`.
+- **Protected Service Worker & Safe Cache Cleaner** - Removed `Service Worker/CacheStorage`, `Service Worker/ScriptCache`, and `blob_storage` from profile cache cleaners in both Rust backend and Python runner, aborting cache cleanup if Chromium is actively running, and preventing automatic cache purges in normal profile close handlers to permanently preserve active Google/YouTube sessions.
+- **Atomic Preferences & WebRTC IP Leak Prevention** - Replaced direct `Preferences` writes with atomic temp-file replace and `.bak` backups, prevented overwriting `restore_on_startup` when sessions exist, passed profile-configured `locale` to `--lang`, enforced `--webrtc-ip-handling-policy=disable_non_proxied_udp` on all engines, and injected `Connection: close` on plain HTTP loopback proxy requests to prevent cross-host connection reuse.
+- **Profile Tombstone Resurrection & Empty Stub Prevention** - Guarded on-disk profile auto-recovery in `profile_store.py` against `deleted_profiles.json` tombstones and non-Chromium stub directories, removed unnecessary snapshot writes on read-only `load_profiles()` calls, prevented empty folder creation before Chromium launch, and enforced case/whitespace-normalized uniqueness across `add_profile`, `update_profile`, `restore_deleted_profile`, and BKT test channel profile creation (`[BKT Test] <name>`).
+- **Accurate Dashboard Stats & Profile Cache Cleanup** - Updated `get_multibrowser_stats` and `clean_multibrowser_profile_cache_native` to filter daily success/error/run counts by UTC date, compute real session/runtime metrics from `user_data_root/logs/run_history.jsonl`, invalidate `STATS_CACHE` across profile/BKT lifecycle transitions, resolve `profile_dir` safely from UUID `profile_id`, and batch bulk stop/group updates in `runner.py`.
+
 ## [1.0.3] - 2026-11-12
 
 ### Added

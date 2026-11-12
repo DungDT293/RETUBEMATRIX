@@ -31,10 +31,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { QuickUploadDialog } from '@/components/upload/QuickUploadDialog';
-import type {
-  MultiBrowserProfile,
-  MultiBrowserProfileInput,
-  MultiBrowserProxyTestResult,
+import {
+  isBktTestProfile,
+  type MultiBrowserProfile,
+  type MultiBrowserProfileInput,
+  type MultiBrowserProxyTestResult,
 } from '@/lib/types';
 import { maskProxy } from '@/lib/utils';
 import { workTelemetryService } from '@/services/workTelemetryService';
@@ -236,8 +237,12 @@ export function ProfilesPage() {
     try {
       if (!silent) setLoading(true);
       setError('');
-      const data = await invoke<MultiBrowserProfile[]>('get_multibrowser_profiles');
-      const list = data || [];
+      const data = await invoke<MultiBrowserProfile[]>('get_multibrowser_profiles', {
+        includeBkt: false,
+        include_bkt: false,
+      });
+      // TUYỆT ĐỐI KHÔNG hiển thị hồ sơ thuộc pool Kênh Test BKT tại Chức năng 2
+      const list = (data || []).filter((p) => !isBktTestProfile(p));
       cachedProfilesList = list;
       setProfiles(list);
     } catch (err) {
@@ -267,11 +272,21 @@ export function ProfilesPage() {
     return () => clearInterval(interval);
   }, [profiles, fetchProfiles]);
 
-  // Extract distinct groups
+  // Extract distinct groups (tuyệt đối loại trừ nhóm Kênh Test BKT)
   const groups = useMemo(() => {
+    const isExcludedGroup = (g: string) => {
+      const lower = g.trim().toLowerCase();
+      return (
+        lower === 'kênh test bkt' ||
+        lower === 'kenh test bkt' ||
+        lower === 'bkt test' ||
+        lower.includes('kênh test bkt') ||
+        lower.includes('bkt test')
+      );
+    };
     const set = new Set<string>();
     for (const p of profiles) {
-      if (p.group?.trim()) {
+      if (p.group?.trim() && !isExcludedGroup(p.group)) {
         set.add(p.group.trim());
       }
     }
@@ -283,7 +298,11 @@ export function ProfilesPage() {
       if (raw) {
         const custom = JSON.parse(raw);
         if (Array.isArray(custom)) {
-          for (const c of custom) set.add(c);
+          for (const c of custom) {
+            if (typeof c === 'string' && c.trim() && !isExcludedGroup(c)) {
+              set.add(c.trim());
+            }
+          }
         }
       }
     } catch {}
@@ -369,6 +388,20 @@ export function ProfilesPage() {
   const handleSaveProfile = async () => {
     if (!formName.trim()) {
       setFormError('Vui lòng nhập tên hồ sơ');
+      return;
+    }
+
+    const lowerName = formName.trim().toLowerCase();
+    const lowerGroup = formGroup.trim().toLowerCase();
+    if (
+      lowerName.startsWith('[bkt test]') ||
+      lowerGroup === 'kênh test bkt' ||
+      lowerGroup === 'kenh test bkt' ||
+      lowerGroup === 'bkt test'
+    ) {
+      setFormError(
+        'Tên hồ sơ hoặc nhóm này được dành riêng cho hệ thống Kiểm Tra Bản Quyền (BKT Test). Vui lòng chọn tên hoặc nhóm khác.',
+      );
       return;
     }
 

@@ -1461,6 +1461,29 @@ export interface MultiBrowserProfile {
   last_run_error?: string;
 }
 
+/**
+ * Kiểm tra xem một profile có thuộc Pool Kênh Test Bản Quyền (BKT Test) hay không.
+ * Các profile BKT Test thuộc nhóm riêng biệt 'Kênh Test BKT' hoặc có tiền tố '[BKT Test]'
+ * và TUYỆT ĐỐI không được hiển thị tại Chức năng 2 (Hồ sơ trình duyệt nuôi/kênh đích)
+ * hoặc dropdown mapping kênh đối thủ Chức năng 1.
+ */
+export function isBktTestProfile(
+  p: { group?: string | null; profile_name?: string } | null | undefined,
+): boolean {
+  if (!p) return false;
+  const group = (p.group || '').trim().toLowerCase();
+  const name = (p.profile_name || '').trim().toLowerCase();
+  return (
+    group === 'kênh test bkt' ||
+    group === 'kenh test bkt' ||
+    group.includes('kênh test bkt') ||
+    group.includes('kenh test bkt') ||
+    group.includes('bkt test') ||
+    name.startsWith('[bkt test]') ||
+    name.includes('[bkt test]')
+  );
+}
+
 export interface RunSummaryRecord {
   id?: string;
   profile_name?: string;

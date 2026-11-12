@@ -8,10 +8,26 @@ from ctypes import wintypes
 from pathlib import Path
 from typing import Any
 
-from core.paths import app_path
+from core.paths import user_data_path
 from core.profile_store import load_profiles
 
 logger = logging.getLogger(__name__)
+
+
+def _normalize_user_data_dir(path_str: Any) -> str:
+    raw = str(path_str or "").strip().strip('"')
+    if not raw:
+        return ""
+    try:
+        resolved = os.path.realpath(raw)
+    except Exception:
+        resolved = os.path.abspath(raw)
+    return os.path.normcase(resolved)
+
+
+def _is_chromium_process_name(name_or_exe: str) -> bool:
+    val = (name_or_exe or "").lower()
+    return "chrome" in val or "chromium" in val or "browsermulti" in val or "cloak" in val
 
 
 class ChromiumProcessInspectionError(RuntimeError):
@@ -132,7 +148,7 @@ def make_badged_icon(exe_path: str | Path, number: int) -> Path | None:
         return None
 
     try:
-        badge_dir = app_path(".tmp", "window_number_icons")
+        badge_dir = user_data_path(".tmp", "window_number_icons")
         badge_dir.mkdir(parents=True, exist_ok=True)
         safe_number = max(1, min(int(number), 999))
         path = badge_dir / f"chrome_badge_{safe_number}.ico"
@@ -249,7 +265,7 @@ def chrome_pids_by_user_data_dir() -> dict[str, list[int]]:
                 name = (proc.info.get("name") or "").lower()
             except Exception:
                 continue
-            if "chrome" not in name and "chromium" not in name and "browsermulti" not in name:
+            if not _is_chromium_process_name(name):
                 continue
             if proc.info.get("status") == getattr(psutil, "STATUS_ZOMBIE", "zombie"):
                 continue
@@ -261,17 +277,16 @@ def chrome_pids_by_user_data_dir() -> dict[str, list[int]]:
                 data_dir = _user_data_dir_from_cmdline(cmdline)
                 if not data_dir:
                     continue
-                try:
-                    norm = os.path.normcase(os.path.abspath(data_dir))
-                except Exception:
-                    norm = os.path.normcase(data_dir)
+                norm = _normalize_user_data_dir(data_dir)
+                if not norm:
+                    continue
                 result.setdefault(norm, []).append(int(proc.info["pid"]))
             except (psutil.AccessDenied, psutil.NoSuchProcess):
                 continue
             except Exception:
                 continue
     except Exception as exc:
-        logger.debug("Cannot enumerate Chromium processes: %s", exc)
+        raise ChromiumProcessInspectionError(f"Cannot enumerate Chromium processes: {exc}") from exc
     return result
 
 
@@ -298,50 +313,38 @@ def chrome_pids_for_user_data_dir(user_data_dir: str) -> list[int]:
     try:
         from core.paths import profile_data_dir
         resolved = profile_data_dir(user_data_dir)
-        target = os.path.normcase(os.path.abspath(str(resolved)))
+        target = _normalize_user_data_dir(resolved)
     except Exception:
-        try:
-            target = os.path.normcase(os.path.abspath(user_data_dir))
-        except Exception:
-            target = os.path.normcase(user_data_dir)
+        target = _normalize_user_data_dir(user_data_dir)
 
-    target_base = os.path.basename(target)
-
-    if _PROCESS_CACHE is not None:
-        pids = _PROCESS_CACHE.get(target, [])
-        if pids:
-            return pids
-        for k, v in _PROCESS_CACHE.items():
-            if os.path.basename(k) == target_base:
-                return v
+    if not target:
         return []
 
+    if _PROCESS_CACHE is not None:
+        return _PROCESS_CACHE.get(target, [])
+
     pids_map = chrome_pids_by_user_data_dir()
-    pids = pids_map.get(target, [])
-    if pids:
-        return pids
-    for k, v in pids_map.items():
-        if os.path.basename(k) == target_base:
-            return v
-    return []
+    return pids_map.get(target, [])
 
 
 
 
 def exact_profile_process_snapshot(user_data_dir: str) -> list[dict[str, Any]]:
     """Capture exact-profile process topology without mutating any process."""
-    target = os.path.normcase(os.path.abspath(user_data_dir))
+    target = _normalize_user_data_dir(user_data_dir)
+    if not target:
+        return []
     rows: list[dict[str, Any]] = []
     try:
         import psutil  # type: ignore[import-not-found]
         for proc in psutil.process_iter(["pid", "ppid", "name", "cmdline", "status"]):
             try:
                 name = str(proc.info.get("name") or "").lower()
-                if "chrome" not in name and "chromium" not in name:
+                if not _is_chromium_process_name(name):
                     continue
                 cmdline = list(proc.info.get("cmdline") or [])
                 data_dir = _user_data_dir_from_cmdline(cmdline)
-                if not data_dir or os.path.normcase(os.path.abspath(data_dir)) != target:
+                if not data_dir or _normalize_user_data_dir(data_dir) != target:
                     continue
                 try:
                     status = str(proc.status())
@@ -375,16 +378,17 @@ def chromium_process_for_pid(pid: int, user_data_dir: str) -> bool:
         if not process.is_running() or process.status() == getattr(psutil, "STATUS_ZOMBIE", "zombie"):
             return False
         name = process.name().lower()
-        if "chrome" not in name and "chromium" not in name:
+        if not _is_chromium_process_name(name):
             return False
         cmdline = process.cmdline()
         data_dir = _user_data_dir_from_cmdline(cmdline)
-        if not data_dir or os.path.normcase(os.path.abspath(data_dir)) != os.path.normcase(os.path.abspath(user_data_dir)):
+        target = _normalize_user_data_dir(user_data_dir)
+        if not data_dir or not target or _normalize_user_data_dir(data_dir) != target:
             return False
         if any(arg.startswith("--type=") for arg in cmdline):
             return False
         executable = Path(str(cmdline[0] if cmdline else process.name())).name.lower()
-        if "chrome" not in executable and "chromium" not in executable:
+        if not _is_chromium_process_name(executable):
             return False
         return not any(arg.startswith("--type=") for arg in cmdline)
     except psutil.NoSuchProcess:
@@ -401,19 +405,21 @@ def chromium_root_pid_for_user_data_dir(user_data_dir: str) -> int:
         import psutil  # type: ignore[import-not-found]
     except Exception as exc:
         raise ChromiumProcessInspectionError("psutil is unavailable") from exc
-    target = os.path.normcase(os.path.abspath(user_data_dir))
+    target = _normalize_user_data_dir(user_data_dir)
+    if not target:
+        return 0
     matches: list[int] = []
     try:
         for proc in psutil.process_iter(["pid", "name", "cmdline", "status"]):
             try:
                 name = str(proc.info.get("name") or "").lower()
-                if "chrome" not in name and "chromium" not in name:
+                if not _is_chromium_process_name(name):
                     continue
                 if proc.info.get("status") == getattr(psutil, "STATUS_ZOMBIE", "zombie"):
                     continue
                 cmdline = proc.info.get("cmdline") or []
                 data_dir = _user_data_dir_from_cmdline(cmdline)
-                if not data_dir or os.path.normcase(os.path.abspath(data_dir)) != target:
+                if not data_dir or _normalize_user_data_dir(data_dir) != target:
                     continue
                 if any(arg.startswith("--type=") for arg in cmdline):
                     continue
@@ -439,9 +445,11 @@ def _chrome_pids_for_user_data_dir(user_data_dir: str) -> list[int]:
 
 
 def _user_data_dir_from_cmdline(cmdline: list[str]) -> str | None:
-    for arg in cmdline:
+    for i, arg in enumerate(cmdline):
         if arg.startswith("--user-data-dir="):
             return arg.split("=", 1)[1].strip().strip('"')
+        if arg == "--user-data-dir" and i + 1 < len(cmdline):
+            return cmdline[i + 1].strip().strip('"')
     return None
 
 
