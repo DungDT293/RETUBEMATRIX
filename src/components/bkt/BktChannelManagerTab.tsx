@@ -483,12 +483,21 @@ export function BktChannelManagerTab() {
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-semibold text-sm text-foreground">{ch.name}</span>
                         {ch.isActive ? (
-                          <Badge
-                            variant="outline"
-                            className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] px-1.5 py-0"
-                          >
-                            Hoạt động
-                          </Badge>
+                          prof ? (
+                            <Badge
+                              variant="outline"
+                              className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] px-1.5 py-0"
+                            >
+                              Hoạt động
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className="bg-rose-500/10 text-rose-400 border-rose-500/20 text-[10px] px-1.5 py-0"
+                            >
+                              Thiếu Hồ Sơ Chromium
+                            </Badge>
+                          )
                         ) : (
                           <Badge
                             variant="outline"
@@ -508,9 +517,13 @@ export function BktChannelManagerTab() {
                         <UserCheck className="w-3 h-3 text-primary/70" />
                         <span>
                           Hồ sơ Chromium:{' '}
-                          <strong className="text-foreground">
-                            {prof ? prof.profile_name : `[Kênh Test] ${ch.name}`}
-                          </strong>
+                          {prof ? (
+                            <strong className="text-foreground">{prof.profile_name}</strong>
+                          ) : (
+                            <strong className="text-rose-400">
+                              Chưa gắn hồ sơ hợp lệ (ID: {ch.profileId || 'Trống'})
+                            </strong>
+                          )}
                         </span>
                       </p>
                     </div>

@@ -129,7 +129,7 @@ export function CompetitorSeoDialog({
 
       if (res.success) {
         toast.success({
-          title: 'Cấu hình Kênh Studio thành công! 🎉',
+          title: 'Cấu hình Kênh Studio thành công!',
           description:
             'Đã tự động điền Từ khóa kênh, thiết lập Không dành cho trẻ em và điền Thẻ video mặc định.',
         });
@@ -195,8 +195,17 @@ export function CompetitorSeoDialog({
     setDefaultTags(defaultTags.filter((_, i) => i !== index));
   };
 
-  const keywordsChars = channelKeywords.join(', ').length;
-  const defaultTagsChars = defaultTags.join(', ').length;
+  const calcTotalChars = (items: string[]) => {
+    return items.reduce((acc, it) => {
+      const clean = it.trim().replace(/^["',]+|["',]+$/g, '');
+      if (!clean) return acc;
+      const quotePenalty = clean.includes(' ') ? 2 : 0;
+      return acc + clean.length + quotePenalty + 1;
+    }, 0);
+  };
+
+  const keywordsChars = calcTotalChars(channelKeywords);
+  const defaultTagsChars = calcTotalChars(defaultTags);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -300,9 +309,9 @@ export function CompetitorSeoDialog({
                     </Button>
                     <Badge
                       variant="outline"
-                      className={`text-[10px] ${keywordsChars <= 480 ? 'text-emerald-500 border-emerald-500/30' : 'text-amber-500 border-amber-500/30'}`}
+                      className={`text-[10px] ${keywordsChars <= 450 ? 'text-emerald-500 border-emerald-500/30' : 'text-amber-500 border-amber-500/30'}`}
                     >
-                      {keywordsChars}/480 ký tự ({keywordsChars <= 480 ? 'An toàn' : 'Tự động cắt'})
+                      {keywordsChars}/450 ký tự ({keywordsChars <= 450 ? 'An toàn' : 'Tự động cắt'})
                     </Badge>
                     <Badge
                       variant="outline"
@@ -408,10 +417,10 @@ export function CompetitorSeoDialog({
                     </Button>
                     <Badge
                       variant="outline"
-                      className={`text-[10px] ${defaultTagsChars <= 480 ? 'text-blue-500 border-blue-500/30' : 'text-amber-500 border-amber-500/30'}`}
+                      className={`text-[10px] ${defaultTagsChars <= 450 ? 'text-blue-500 border-blue-500/30' : 'text-amber-500 border-amber-500/30'}`}
                     >
-                      {defaultTagsChars}/480 ký tự (
-                      {defaultTagsChars <= 480 ? 'An toàn' : 'Tự động cắt'})
+                      {defaultTagsChars}/450 ký tự (
+                      {defaultTagsChars <= 450 ? 'An toàn' : 'Tự động cắt'})
                     </Badge>
                     <Badge
                       variant="outline"

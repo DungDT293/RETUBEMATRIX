@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
 import {
+  cancelAllBktJobs,
   dispatchBatchBktTest,
   getAllChannelStats,
   getChannelVideoFilepath,
@@ -27,6 +28,7 @@ import type {
 import { cn } from '@/lib/utils';
 import { ChannelCard, type ChannelReupProgress } from '@/pages/channels/ChannelCard';
 import { ChannelVideoAccordion } from '@/pages/channels/ChannelVideoAccordion';
+import { parseVideoUploadEpoch } from '@/pages/channels/channelUtils';
 import { workTelemetryService } from '@/services/workTelemetryService';
 import {
   adaptCompetitorDescription,
@@ -250,7 +252,10 @@ export function ChannelsPage() {
       let videos = channelVideosMap[channelId] || [];
       if (videos.length === 0) {
         try {
-          videos = await getSavedChannelVideos({ channelId, status: null, limit: 10 });
+          videos = await getSavedChannelVideos({ channelId, status: null, limit: 0 });
+          if (videos.length > 0) {
+            setChannelVideosMap((prev) => ({ ...prev, [channelId]: videos }));
+          }
         } catch (e) {
           console.warn('Lỗi getSavedChannelVideos:', e);
         }
@@ -266,7 +271,10 @@ export function ChannelsPage() {
         }));
         try {
           await checkChannelNow(channel);
-          videos = await getSavedChannelVideos({ channelId, status: null, limit: 10 });
+          videos = await getSavedChannelVideos({ channelId, status: null, limit: 0 });
+          if (videos.length > 0) {
+            setChannelVideosMap((prev) => ({ ...prev, [channelId]: videos }));
+          }
         } catch (err) {
           console.warn('Lỗi checkChannelNow:', err);
         }
@@ -288,9 +296,7 @@ export function ChannelsPage() {
 
       // Sắp xếp video theo thời gian upload mới nhất
       const sortedNewest = [...validVideos].sort((a, b) => {
-        const timeA = a.upload_timestamp ?? (a.upload_date ? parseInt(a.upload_date, 10) : 0) ?? 0;
-        const timeB = b.upload_timestamp ?? (b.upload_date ? parseInt(b.upload_date, 10) : 0) ?? 0;
-        return timeB - timeA;
+        return parseVideoUploadEpoch(b) - parseVideoUploadEpoch(a);
       });
 
       const top5 = sortedNewest.slice(0, 5);
@@ -491,6 +497,31 @@ export function ChannelsPage() {
               competitor_channel_id: channel.id,
               status: 'red',
             });
+
+            // Nếu phát hiện 2 video dính bản quyền liên tiếp: dừng ngay quy trình và khóa kênh vào danh sách đen!
+            if (redCount >= 2) {
+              setReupProgressMap((prev) => ({
+                ...prev,
+                [channelId]: {
+                  channelId,
+                  isRunning: false,
+                  currentStep: stepIndex,
+                  totalSteps: total,
+                  progressText:
+                    'Phát hiện 2 video dính bản quyền liên tiếp. Đã dừng quy trình và đưa kênh vào Danh Sách Đen (Kênh Rủi Ro).',
+                  status: 'error',
+                },
+              }));
+              try {
+                await toggleChannelAutoDownload(channelId, false);
+                await refreshChannels();
+              } catch {}
+              toast.error({
+                title: 'Kênh Rủi Ro - Đã Dừng Auto Reup',
+                message: `Kênh "${channel.name}" có 2 video dính bản quyền liên tiếp. Hệ thống đã tự động khóa kênh vào danh sách đen để bảo vệ kênh đích!`,
+              });
+              break;
+            }
           } else if (finishedJob.status === 'failed') {
             const isUserCancelled =
               finishedJob.restriction?.includes('hủy') ||
@@ -515,12 +546,50 @@ export function ChannelsPage() {
               }));
               return;
             }
+
+            setReupProgressMap((prev) => ({
+              ...prev,
+              [channelId]: {
+                channelId,
+                isRunning: true,
+                currentStep: stepIndex,
+                totalSteps: total,
+                progressText: `[${stepIndex}/${total}] Lỗi kiểm tra: ${finishedJob.errorMessage || finishedJob.restriction || 'Thất bại'}`,
+                status: 'running',
+              },
+            }));
           }
         } catch (waitErr) {
           console.error(`Lỗi khi chờ BKT video ${v.title}:`, waitErr);
+          setReupProgressMap((prev) => ({
+            ...prev,
+            [channelId]: {
+              channelId,
+              isRunning: true,
+              currentStep: stepIndex,
+              totalSteps: total,
+              progressText: `[${stepIndex}/${total}] Lỗi tác vụ: ${waitErr}`,
+              status: 'running',
+            },
+          }));
         }
 
         await new Promise((r) => setTimeout(r, 1000));
+      }
+
+      if (abortController.signal.aborted) {
+        setReupProgressMap((prev) => ({
+          ...prev,
+          [channelId]: {
+            channelId,
+            isRunning: false,
+            currentStep: 0,
+            totalSteps: 0,
+            progressText: 'Đã dừng quy trình theo yêu cầu của người dùng.',
+            status: 'idle',
+          },
+        }));
+        return;
       }
 
       setReupProgressMap((prev) => ({
@@ -594,6 +663,12 @@ export function ChannelsPage() {
       }
 
       try {
+        await cancelAllBktJobs();
+      } catch (cancelErr) {
+        console.warn('Lỗi khi hủy tiến trình BKT đang chạy:', cancelErr);
+      }
+
+      try {
         await toggleChannelAutoDownload(channelId, false);
         await updateChannelBktConfig({
           channelId,
@@ -621,6 +696,53 @@ export function ChannelsPage() {
       }
     }
   };
+
+  // Dừng ngay quy trình Auto Reup 1-by-1
+  const handleStopAutoReup = useCallback(
+    async (channelId: string) => {
+      const controller = autoReupAbortControllersRef.current.get(channelId);
+      if (controller) {
+        controller.abort();
+        autoReupAbortControllersRef.current.delete(channelId);
+      }
+
+      setReupProgressMap((prev) => ({
+        ...prev,
+        [channelId]: {
+          channelId,
+          isRunning: false,
+          currentStep: 0,
+          totalSteps: 0,
+          progressText: 'Đã dừng quy trình Auto Reup theo yêu cầu.',
+          status: 'idle',
+        },
+      }));
+
+      try {
+        await cancelAllBktJobs();
+      } catch (cancelErr) {
+        console.warn('Lỗi khi hủy tiến trình BKT đang chạy:', cancelErr);
+      }
+
+      try {
+        await toggleChannelAutoDownload(channelId, false);
+        await updateChannelBktConfig({
+          channelId,
+          bktTestMode: false,
+          bktProfileId: null,
+        });
+        await refreshChannels();
+      } catch (err) {
+        console.warn('Lỗi khi cập nhật trạng thái tắt Auto Reup:', err);
+      }
+
+      toast.info({
+        title: 'Đã dừng Auto Reup',
+        message: 'Đã hủy quy trình Reup tuần tự thành công.',
+      });
+    },
+    [refreshChannels, toast],
+  );
 
   // Video selection helpers
   const handleToggleVideoSelection = (videoId: string) => {
@@ -817,6 +939,7 @@ export function ChannelsPage() {
                     onUpdateSettings={updateChannelSettings}
                     onRefreshChannels={refreshChannels}
                     reupProgress={reupProgressMap[channel.id]}
+                    onStopAutoReup={handleStopAutoReup}
                     onClearReupProgress={(id) =>
                       setReupProgressMap((prev) => {
                         const next = { ...prev };

@@ -556,7 +556,7 @@ pub fn get_channel_videos_db(
                     "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
                             risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
                      FROM channel_videos WHERE channel_id = ?1 AND status = ?2
-                     ORDER BY created_at DESC LIMIT ?3",
+                     ORDER BY COALESCE(upload_timestamp, 0) DESC, upload_date DESC, created_at DESC LIMIT ?3",
                 )
                 .map_err(|e| format!("Failed to prepare query: {}", e))?;
             let res = stmt.query_map(params![channel_id, s, limit_val], parse_row)
@@ -570,7 +570,7 @@ pub fn get_channel_videos_db(
                     "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
                             risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
                      FROM channel_videos WHERE channel_id = ?1 AND status = ?2
-                     ORDER BY created_at DESC",
+                     ORDER BY COALESCE(upload_timestamp, 0) DESC, upload_date DESC, created_at DESC",
                 )
                 .map_err(|e| format!("Failed to prepare query: {}", e))?;
             let res = stmt.query_map(params![channel_id, s], parse_row)
@@ -586,7 +586,7 @@ pub fn get_channel_videos_db(
                     "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
                             risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
                      FROM channel_videos WHERE channel_id = ?1
-                     ORDER BY created_at DESC LIMIT ?2",
+                     ORDER BY COALESCE(upload_timestamp, 0) DESC, upload_date DESC, created_at DESC LIMIT ?2",
                 )
                 .map_err(|e| format!("Failed to prepare query: {}", e))?;
             let res = stmt.query_map(params![channel_id, limit_val], parse_row)
@@ -600,7 +600,7 @@ pub fn get_channel_videos_db(
                     "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
                             risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
                      FROM channel_videos WHERE channel_id = ?1
-                     ORDER BY created_at DESC",
+                     ORDER BY COALESCE(upload_timestamp, 0) DESC, upload_date DESC, created_at DESC",
                 )
                 .map_err(|e| format!("Failed to prepare query: {}", e))?;
             let res = stmt.query_map(params![channel_id], parse_row)

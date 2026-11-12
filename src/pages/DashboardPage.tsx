@@ -19,6 +19,7 @@ import {
   Square,
   Tv,
   UserCheck,
+  Wand2,
   XCircle,
   Zap,
 } from 'lucide-react';
@@ -243,7 +244,7 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
   const [channels, setChannels] = useState<FollowedChannel[]>(() => cachedChannels || []);
   const [profiles, setProfiles] = useState<MultiBrowserProfile[]>(() => cachedProfiles || []);
   const [timelineCategory, setTimelineCategory] = useState<
-    'all' | 'publish' | 'bkt' | 'download' | 'discovered'
+    'all' | 'publish' | 'reup' | 'bkt' | 'download' | 'discovered'
   >('all');
   const [loading, setLoading] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<string>(() => cachedUpdatedAt);
@@ -379,6 +380,8 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
       listen('channel-bkt-test-queued', triggerDebouncedLoad),
       listen('channel-new-videos', triggerDebouncedLoad),
       listen('download-completed', triggerDebouncedLoad),
+      listen('reup-pipeline-progress', triggerDebouncedLoad),
+      listen('reup-pipeline-completed', triggerDebouncedLoad),
     ];
 
     return () => {
@@ -399,6 +402,17 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
     if (timelineCategory === 'all') return events;
     if (timelineCategory === 'publish') {
       return events.filter((e) => e.eventType === 'auto_publish');
+    }
+    if (timelineCategory === 'reup') {
+      return events.filter(
+        (e) =>
+          e.eventType === 'reup' ||
+          e.status === 'reuping' ||
+          e.status === 'reup_done' ||
+          (e.details?.includes('Reup') ?? false) ||
+          (e.details?.includes('DA_EDIT') ?? false) ||
+          (e.details?.includes('làm sạch') ?? false),
+      );
     }
     if (timelineCategory === 'bkt') {
       return events.filter((e) => e.eventType === 'bkt_test');
@@ -601,11 +615,11 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
               <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold">
                 Sạch: {dailyStats?.bktCleanCount ?? 0}
               </span>
+              <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-bold">
+                Reup: {dailyStats?.totalReupToday ?? 0}
+              </span>
               <span className="px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-400 font-bold">
                 Dính: {dailyStats?.bktClaimedCount ?? 0}
-              </span>
-              <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 font-bold">
-                Chờ: {dailyStats?.bktPendingCount ?? 0}
               </span>
             </div>
           </button>
@@ -720,6 +734,17 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setTimelineCategory('reup')}
+                  className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                    timelineCategory === 'reup'
+                      ? 'bg-amber-500/20 text-amber-400 font-semibold border border-amber-500/40'
+                      : 'text-muted-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  Xử lý Reup ({dailyStats?.totalReupToday ?? 0})
+                </button>
+                <button
+                  type="button"
                   onClick={() => setTimelineCategory('bkt')}
                   className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
                     timelineCategory === 'bkt'
@@ -769,11 +794,19 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                   const isClaim = ev.status === 'red_matched';
                   const isFailed = ev.status === 'failed';
                   const isPublish = ev.eventType === 'auto_publish';
+                  const isReup =
+                    ev.eventType === 'reup' ||
+                    ev.status === 'reuping' ||
+                    ev.status === 'reup_done' ||
+                    (ev.details?.includes('DA_EDIT') ?? false) ||
+                    (ev.details?.includes('Reup') ?? false) ||
+                    (ev.details?.includes('làm sạch') ?? false);
+                  const isReuping = ev.status === 'reuping';
                   const isDownload = ev.eventType === 'download';
                   const isDiscovered = ev.eventType === 'discovered';
                   const isRunningBkt =
                     ev.eventType === 'bkt_test' &&
-                    ['queued', 'reuping', 'uploading', 'checking', 'pending'].includes(ev.status);
+                    ['queued', 'uploading', 'checking', 'pending'].includes(ev.status);
 
                   return (
                     <div key={ev.id} className="relative group">
@@ -782,21 +815,31 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                         className={`absolute -left-[31px] top-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] ring-4 ring-background ${
                           isPublish
                             ? 'bg-purple-500 text-white'
-                            : isClean
-                              ? 'bg-emerald-500 text-white'
-                              : isClaim
-                                ? 'bg-rose-500 text-white'
-                                : isFailed
-                                  ? 'bg-rose-600 text-white'
-                                  : isDownload
-                                    ? 'bg-blue-500 text-white'
-                                    : isDiscovered
-                                      ? 'bg-sky-500 text-white'
-                                      : 'bg-amber-500 text-white'
+                            : isReup
+                              ? isReuping
+                                ? 'bg-amber-500 text-white'
+                                : 'bg-teal-500 text-white'
+                              : isClean
+                                ? 'bg-emerald-500 text-white'
+                                : isClaim
+                                  ? 'bg-rose-500 text-white'
+                                  : isFailed
+                                    ? 'bg-rose-600 text-white'
+                                    : isDownload
+                                      ? 'bg-blue-500 text-white'
+                                      : isDiscovered
+                                        ? 'bg-sky-500 text-white'
+                                        : 'bg-amber-500 text-white'
                         }`}
                       >
                         {isPublish ? (
                           <Rocket className="w-2.5 h-2.5" />
+                        ) : isReup ? (
+                          isReuping ? (
+                            <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                          ) : (
+                            <Wand2 className="w-2.5 h-2.5" />
+                          )
                         ) : isClean ? (
                           <CheckCircle2 className="w-2.5 h-2.5" />
                         ) : isClaim ? (
@@ -824,32 +867,40 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                               className={`text-[10px] px-1.5 py-0 uppercase font-bold tracking-wider ${
                                 isPublish
                                   ? 'border-purple-500/40 text-purple-400 bg-purple-500/10'
-                                  : isClean
-                                    ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
-                                    : isClaim
-                                      ? 'border-rose-500/40 text-rose-400 bg-rose-500/10'
-                                      : isFailed
+                                  : isReup
+                                    ? isReuping
+                                      ? 'border-amber-500/40 text-amber-400 bg-amber-500/10'
+                                      : 'border-teal-500/40 text-teal-400 bg-teal-500/10'
+                                    : isClean
+                                      ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
+                                      : isClaim
                                         ? 'border-rose-500/40 text-rose-400 bg-rose-500/10'
-                                        : isDownload
-                                          ? 'border-blue-500/40 text-blue-400 bg-blue-500/10'
-                                          : isDiscovered
-                                            ? 'border-sky-500/40 text-sky-400 bg-sky-500/10'
-                                            : 'border-amber-500/40 text-amber-400 bg-amber-500/10'
+                                        : isFailed
+                                          ? 'border-rose-500/40 text-rose-400 bg-rose-500/10'
+                                          : isDownload
+                                            ? 'border-blue-500/40 text-blue-400 bg-blue-500/10'
+                                            : isDiscovered
+                                              ? 'border-sky-500/40 text-sky-400 bg-sky-500/10'
+                                              : 'border-amber-500/40 text-amber-400 bg-amber-500/10'
                               }`}
                             >
                               {isPublish
                                 ? 'Xuất bản đích'
-                                : isClean
-                                  ? 'Sạch Bản Quyền'
-                                  : isClaim
-                                    ? 'Dính Bản Quyền'
-                                    : isFailed
-                                      ? 'Test Thất Bại'
-                                      : isDownload
-                                        ? 'Tải video'
-                                        : isDiscovered
-                                          ? 'Cào video mới'
-                                          : 'Đang Kiểm Tra'}
+                                : isReup
+                                  ? isReuping
+                                    ? 'Đang Xử Lý Reup'
+                                    : 'Đã Edit Hoàn Tất'
+                                  : isClean
+                                    ? 'Sạch Bản Quyền'
+                                    : isClaim
+                                      ? 'Dính Bản Quyền'
+                                      : isFailed
+                                        ? 'Test Thất Bại'
+                                        : isDownload
+                                          ? 'Tải video'
+                                          : isDiscovered
+                                            ? 'Cào video mới'
+                                            : 'Đang Kiểm Tra'}
                             </Badge>
 
                             {isRunningBkt && (

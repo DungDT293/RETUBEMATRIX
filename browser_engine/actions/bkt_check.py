@@ -42,6 +42,37 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def is_browser_disconnected(page: Any) -> bool:
+    """Kiểm tra nhanh xem page, context hoặc browser đã bị đóng hay mất kết nối CDP chưa."""
+    try:
+        if page.is_closed():
+            return True
+        if hasattr(page, "context"):
+            ctx = page.context
+            if hasattr(ctx, "is_closed") and ctx.is_closed():
+                return True
+            if hasattr(ctx, "browser") and ctx.browser:
+                if hasattr(ctx.browser, "is_connected") and not ctx.browser.is_connected():
+                    return True
+        return False
+    except Exception:
+        return True
+
+
+def is_target_closed_exception(exc: BaseException) -> bool:
+    """Phát hiện ngoại lệ liên quan đến việc đóng hoặc sập trình duyệt / CDP."""
+    msg = str(exc).lower()
+    return any(k in msg for k in [
+        "target closed",
+        "target page, context or browser has been closed",
+        "browser has been closed",
+        "connection closed",
+        "context closed",
+        "target crashed",
+        "targetclosederror",
+    ])
+
+
 async def setup_low_end_route_interception(page: Any) -> None:
     """
     Tối ưu máy yếu (Low-end hardware: 4GB - 8GB RAM, CPU 2-4 cores):
@@ -605,11 +636,18 @@ async def check_copyright_and_restrictions(
         # Chờ tối đa 15s cho hàng video đầu tiên xuất hiện (tránh quét DOM lúc đang skeleton loading)
         try:
             await page.wait_for_selector('ytcp-video-row', timeout=15000)
-        except Exception:
-            logger.warning("Không tìm thấy ytcp-video-row nào trong bảng Videos")
+        except Exception as exc:
+            if is_browser_disconnected(page) or is_target_closed_exception(exc):
+                raise RuntimeError("Cửa sổ/thẻ YouTube Studio đã bị đóng hoặc mất kết nối (TargetClosedError).")
+            logger.warning("Không tìm thấy ytcp-video-row nào trong bảng Videos: %s", exc)
             return []
 
-        return await page.evaluate(build_extract_table_rows_js())
+        try:
+            return await page.evaluate(build_extract_table_rows_js())
+        except Exception as eval_exc:
+            if is_browser_disconnected(page) or is_target_closed_exception(eval_exc):
+                raise RuntimeError("Trình duyệt YouTube Studio đã bị đóng khi đọc danh sách video.")
+            raise
 
     # 1. Mở YouTube Studio Content Uploads
     logger.info("Mở YouTube Studio để kiểm tra bản quyền Content ID...")
@@ -653,6 +691,7 @@ async def check_copyright_and_restrictions(
     last_upload_emit_time = 0.0
     no_pct_upload_cycles = 0
     poll_cycle = 0
+    bkt_reload_fail_streak = 0
 
     def _norm_title_kw(raw: Optional[str]) -> str:
         t = re.sub(r'^\s*\[BKT Check\]\s*', '', str(raw or ''), flags=re.IGNORECASE)
@@ -674,18 +713,26 @@ async def check_copyright_and_restrictions(
             "チェック", "処理中", "검토 중", "처리 중",
         ])
 
+    pending_row_streak = 0
     while True:
         poll_cycle += 1
-        if page.is_closed():
-            raise RuntimeError("Cửa sổ/thẻ YouTube Studio đã bị đóng khi đang kiểm tra Content ID.")
+        if is_browser_disconnected(page):
+            raise RuntimeError("Cửa sổ/thẻ YouTube Studio hoặc trình duyệt Chromium đã bị đóng hoặc mất kết nối.")
 
-        if emit_upload_events and saw_active_upload:
+        if emit_upload_events and saw_active_upload and not upload_done_emitted:
             try:
                 alive = bool(await page.evaluate("() => Boolean(window.__bktUploadSessionAlive)"))
                 if not alive:
-                    raise RuntimeError(
-                        "Trang YouTube Studio vừa bị tải lại (reload) khi video chưa tải xong 100%, làm gián đoạn luồng tải lên."
-                    )
+                    bkt_reload_fail_streak += 1
+                    # Chỉ coi là reload thật nếu mất cờ liên tiếp >= 4 chu kỳ và URL đã bay khỏi YouTube Studio
+                    if bkt_reload_fail_streak >= 4:
+                        cur_u = str(getattr(page, "url", "") or "")
+                        if "studio.youtube.com" not in cur_u:
+                            raise RuntimeError(
+                                "Trang YouTube Studio vừa bị tải lại (reload) khi video chưa tải xong 100%, làm gián đoạn luồng tải lên."
+                            )
+                else:
+                    bkt_reload_fail_streak = 0
             except RuntimeError:
                 raise
             except Exception:
@@ -702,9 +749,9 @@ async def check_copyright_and_restrictions(
                 nav_check.get("url"),
                 off_elapsed,
             )
-            if off_elapsed >= 60.0 and not saw_active_upload:
+            if off_elapsed >= 90.0:
                 raise RuntimeError(
-                    f"Không thể đưa trình duyệt về trang Nội dung Studio (hiện đang kẹt ở {nav_check.get('pageType')}: {nav_check.get('url')})"
+                    f"Không thể đưa trình duyệt về trang Nội dung Studio sau 90 giây (hiện đang kẹt ở {nav_check.get('pageType')}: {nav_check.get('url')})"
                 )
             await asyncio.sleep(2.0)
             continue
@@ -1245,10 +1292,34 @@ async def check_copyright_and_restrictions(
                 print(progress_line)
                 sys.stdout.flush()
 
+        # Khi upload hoàn tất, giải phóng cờ upload để điều hướng linh hoạt hơn
+        if upload_done_emitted and saw_active_upload:
+            saw_active_upload = False
+            nav_state["saw_active_upload"] = False
+
+        # Phát heartbeat định kỳ gửi về Rust backend để chống timeout
+        if poll_cycle % 2 == 0:
+            print(json.dumps({
+                "event": "heartbeat",
+                "poll_cycle": poll_cycle,
+                "elapsed_total": round(elapsed_total, 1),
+                "youtube_video_id": discovered_vid,
+                "stage": "uploading" if any_uploading else "checking",
+            }, ensure_ascii=False))
+            sys.stdout.flush()
+
         # Khi đang upload % trên bảng Nội dung: poll nhẹ 2.5s và TUYỆT ĐỐI KHÔNG click refresh tab!
         if any_uploading or "__pending_new_row__" in classified:
+            if "__pending_new_row__" in classified:
+                pending_row_streak += 1
+                if pending_row_streak >= 36:  # 36 * 2.5s = 90 giây
+                    raise RuntimeError("Bảng video YouTube Studio không nạp được hàng video mới sau hơn 90 giây (trình duyệt có thể đã bị treo hoặc đóng).")
+            else:
+                pending_row_streak = 0
             await asyncio.sleep(2.5)
             continue
+        else:
+            pending_row_streak = 0
 
         min_est = min([c.get("estimated_minutes") for c in clean_results.values() if c.get("estimated_minutes") is not None], default=None)
         if min_est is not None and min_est > 3:
@@ -1261,8 +1332,8 @@ async def check_copyright_and_restrictions(
         logger.info("Đang chờ YouTube phân tích Content ID (ngủ %ds)...", sleep_secs)
         await asyncio.sleep(sleep_secs)
 
-        if page.is_closed():
-            raise RuntimeError("Cửa sổ/thẻ YouTube Studio đã bị đóng trong lúc chờ kiểm tra Content ID.")
+        if is_browser_disconnected(page):
+            raise RuntimeError("Cửa sổ/thẻ YouTube Studio hoặc trình duyệt Chromium đã bị đóng trong lúc chờ kiểm tra Content ID.")
 
         # Làm mới nhẹ bảng video qua SPA chỉ khi đã ở trang Nội dung và upload đã xong 100%
         if poll_cycle % 2 == 0:

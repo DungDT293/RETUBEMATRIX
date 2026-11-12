@@ -340,6 +340,8 @@ export function useChannelsController(): ChannelsContextType {
   // Selection state
   const [selectedVideoIds, setSelectedVideoIds] = useState<Set<string>>(new Set());
   const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
+  const downloadingIdsRef = useRef<Set<string>>(downloadingIds);
+  downloadingIdsRef.current = downloadingIds;
   const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
@@ -866,10 +868,14 @@ export function useChannelsController(): ChannelsContextType {
     ) => {
       const targetChannelUrl = customChannelUrl || browseUrl;
       const targetChannelName = customChannelName || browseChannelName;
-      const selectedVideosToDownload =
+      const candidateList =
         customVideos && customVideos.length > 0
           ? customVideos
           : browseVideos.filter((v) => selectedVideoIds.has(v.id));
+      const selectedVideosToDownload = candidateList.filter(
+        (v) => !downloadingIdsRef.current.has(v.id),
+      );
+      if (selectedVideosToDownload.length === 0) return;
       const duplicateCandidates = selectedVideosToDownload.map((video) => ({
         video,
         url: video.url,
@@ -1031,6 +1037,7 @@ export function useChannelsController(): ChannelsContextType {
         video: PlaylistVideoEntry;
         downloadId: string;
       }) => {
+        downloadingIdsRef.current.add(video.id);
         downloadIdMapRef.current.set(downloadId, {
           videoId: video.id,
           channelUrl: targetChannelUrl,
@@ -1111,7 +1118,7 @@ export function useChannelsController(): ChannelsContextType {
           );
           const targetProfile =
             channelInfo?.target_profile_id || channelInfo?.bkt_profile_id || null;
-          const vBktStatus = (video as any).bkt_check_status;
+          const vBktStatus = (video as { bkt_check_status?: string }).bkt_check_status;
           const isAlreadyProcessed =
             vBktStatus === 'green_clean' || vBktStatus === 'red_matched' || vBktStatus === 'failed';
           if ((targetProfile || channelInfo?.bkt_test_mode) && !isAlreadyProcessed) {
@@ -1233,6 +1240,7 @@ export function useChannelsController(): ChannelsContextType {
       const { videoId, channelUrl } = mapping;
 
       if (progress.status === 'finished') {
+        downloadingIdsRef.current.delete(videoId);
         setVideoStates((prev) => {
           const next = new Map(prev);
           next.set(videoId, { status: 'completed', progress: 100, speed: '' });
@@ -1243,6 +1251,7 @@ export function useChannelsController(): ChannelsContextType {
           next.delete(videoId);
           return next;
         });
+        downloadingIdsRef.current.delete(videoId);
         downloadIdMapRef.current.delete(progress.id);
 
         // Persist download status to DB
@@ -1275,6 +1284,7 @@ export function useChannelsController(): ChannelsContextType {
           next.delete(videoId);
           return next;
         });
+        downloadingIdsRef.current.delete(videoId);
         downloadIdMapRef.current.delete(progress.id);
       } else {
         setVideoStates((prev) => {
@@ -1432,6 +1442,13 @@ export function useChannelsController(): ChannelsContextType {
       } = event.payload;
 
       try {
+        // Nếu kênh đang ở chế độ Auto Reup (đã gán kênh đích), luồng tuần tự 1-by-1
+        // chịu trách nhiệm tải từng video và dọn sạch đĩa; bỏ qua tải hàng loạt để tránh tràn ổ cứng.
+        const targetCh = followedChannelsRef.current.find((c) => c.id === channel_id);
+        if (targetCh && (targetCh.target_profile_id || targetCh.bkt_profile_id)) {
+          return;
+        }
+
         const newVideos = await getSavedChannelVideos({
           channelId: channel_id,
           status: 'new',

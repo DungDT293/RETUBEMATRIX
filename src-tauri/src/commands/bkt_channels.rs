@@ -67,6 +67,72 @@ pub fn unmark_job_id_as_cancelled(job_id: &str) {
     }
 }
 
+/// Đảm bảo tiêu đề YouTube luôn an toàn tuyệt đối dưới max_len ký tự (mặc định 95),
+/// cắt lùi theo ranh giới từ vựng (Word-Boundary) để không bao giờ cắt đứt nửa từ hay để dấu câu thừa.
+pub fn sanitize_youtube_title_safe(raw: &str, max_len: usize) -> String {
+    let trimmed = raw.trim();
+    if trimmed.chars().count() <= max_len {
+        return trimmed.to_string();
+    }
+    let candidate: String = trimmed.chars().take(max_len).collect();
+    let min_boundary = (max_len * 4) / 10;
+    if let Some(last_space_idx) = candidate.rfind(|c: char| c.is_whitespace() || c == ' ') {
+        if last_space_idx >= min_boundary {
+            let sliced = &candidate[..last_space_idx];
+            return sliced
+                .trim_end_matches(|c: char| c.is_ascii_punctuation() || c == '—' || c == '–' || c == '|' || c == '•')
+                .trim()
+                .to_string();
+        }
+    }
+    candidate
+        .trim_end_matches(|c: char| c.is_ascii_punctuation() || c == '—' || c == '–' || c == '|' || c == '•')
+        .trim()
+        .to_string()
+}
+
+/// Cổng kiểm tra tính toàn vẹn của tệp video đã edit trước khi đưa sang Playwright upload
+pub async fn verify_video_ready_for_upload(video_path: &Path) -> Result<(), String> {
+    if !video_path.exists() {
+        return Err(format!("Tệp video không tồn tại: {}", video_path.display()));
+    }
+    if !video_path.is_file() {
+        return Err(format!("Đường dẫn không phải là tệp: {}", video_path.display()));
+    }
+    let metadata = std::fs::metadata(video_path)
+        .map_err(|e| format!("Không thể đọc thông tin tệp video: {e}"))?;
+    if metadata.len() < 100_000 {
+        return Err(format!(
+            "Tệp video bị hỏng hoặc kích thước quá nhỏ (chỉ {} bytes), không đủ điều kiện upload!",
+            metadata.len()
+        ));
+    }
+    // Thử mở tệp đọc thử để đảm bảo tiến trình FFmpeg / render đã flush và nhả khóa file hoàn toàn
+    let mut file_ready = false;
+    for attempt in 1..=5 {
+        match std::fs::File::open(video_path) {
+            Ok(_) => {
+                file_ready = true;
+                break;
+            }
+            Err(e) => {
+                log::warn!(
+                    "[INTEGRITY GATE] Tệp video đang bị khóa (lần thử {}/5): {e}. Chờ 300ms...",
+                    attempt
+                );
+                tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+            }
+        }
+    }
+    if !file_ready {
+        return Err(format!(
+            "Tệp video {} vẫn đang bị tiến trình khác chiếm dụng, chưa sẵn sàng tải lên!",
+            video_path.display()
+        ));
+    }
+    Ok(())
+}
+
 fn get_active_job_lock() -> &'static Mutex<Option<ActiveBktJobController>> {
     CURRENT_ACTIVE_JOB.get_or_init(|| Mutex::new(None))
 }
@@ -659,6 +725,10 @@ pub async fn dispatch_batch_bkt_test(
     }
     let today = Local::now().format("%Y-%m-%d").to_string();
 
+    let profiles = crate::commands::profiles::get_all_raw_multibrowser_profiles(app.clone())
+        .await
+        .unwrap_or_default();
+
     let mut allocation_plan: Vec<(usize, BktTestChannel)> = Vec::new();
 
     if let Some(target_id) = payload.target_test_channel_id.filter(|s| !s.trim().is_empty()) {
@@ -669,6 +739,10 @@ pub async fn dispatch_batch_bkt_test(
 
         if !target_ch.is_active {
             return Err(format!("Kênh test '{}' đang ở trạng thái Tạm dừng.", target_ch.name));
+        }
+
+        if let Err(prof_err) = resolve_profile_id_with_auto_heal(&target_ch.profile_id, &target_ch.name, &profiles) {
+            return Err(format!("Kênh test '{}' không thể sử dụng: {prof_err}", target_ch.name));
         }
 
         let needed = payload.items.len() as i64;
@@ -683,15 +757,19 @@ pub async fn dispatch_batch_bkt_test(
             allocation_plan.push((idx, target_ch.clone()));
         }
     } else {
-        // Tự động phân bổ (Load Balancing)
+        // Tự động phân bổ (Load Balancing) - Chỉ chọn kênh active, còn quota và hồ sơ profile thực sự tồn tại
         let mut active_channels: Vec<BktTestChannel> = channels
             .into_iter()
-            .filter(|c| c.is_active && c.remaining_quota > 0)
+            .filter(|c| {
+                c.is_active
+                    && c.remaining_quota > 0
+                    && resolve_profile_id_with_auto_heal(&c.profile_id, &c.name, &profiles).is_ok()
+            })
             .collect();
 
         if active_channels.is_empty() {
             return Err(
-                "Tất cả Kênh Test Bản Quyền đang hoạt động đều đã dùng hết hạn mức kiểm tra hôm nay (15 video/kênh/ngày). Vui lòng thêm kênh test mới hoặc chờ sang ngày mới để hệ thống tự động làm mới hạn mức.".to_string(),
+                "Tất cả Kênh Test Bản Quyền đang hoạt động đều đã dùng hết hạn mức kiểm tra hôm nay hoặc thiếu Hồ Sơ Trình Duyệt hợp lệ. Vui lòng kiểm tra lại Quản Lý Kênh Test BKT.".to_string(),
             );
         }
 
@@ -860,9 +938,47 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
         }
         Ok((eff_id, None)) => eff_id,
         Err(err_msg) => {
-            log::error!("[BKT PRE-FLIGHT] Thất bại ngay lập tức: {err_msg}");
-            mark_job_as_failed(&app, &mut job, err_msg);
-            return;
+            // AUTO-FALLBACK: Nếu profile của kênh test hiện tại không khả dụng, thử tìm kênh test dự phòng còn slot
+            let fallback_channel = database::get_bkt_test_channels_db()
+                .ok()
+                .and_then(|chs| {
+                    chs.into_iter().find(|c| {
+                        c.is_active
+                            && c.id != job.test_channel_id
+                            && c.remaining_quota > 0
+                            && resolve_profile_id_with_auto_heal(&c.profile_id, &c.name, &profiles).is_ok()
+                    })
+                });
+
+            if let Some(fb_ch) = fallback_channel {
+                let (fb_eff_id, _) = resolve_profile_id_with_auto_heal(&fb_ch.profile_id, &fb_ch.name, &profiles)
+                    .unwrap_or_else(|_| (fb_ch.profile_id.clone(), None));
+                log::warn!(
+                    "[BKT AUTO-FALLBACK] Profile '{}' của kênh '{}' không tồn tại. Tự động chuyển hướng job {} sang kênh dự phòng '{}' (Profile: '{}')",
+                    profile_id,
+                    job.test_channel_name.as_deref().unwrap_or(""),
+                    job.id,
+                    fb_ch.name,
+                    fb_eff_id
+                );
+                let _ = database::decrement_bkt_channel_used_db(&job.test_channel_id, 1);
+                let _ = database::increment_bkt_channel_used_db(&fb_ch.id, 1);
+                job.test_channel_id = fb_ch.id.clone();
+                job.test_channel_name = Some(fb_ch.name.clone());
+                if let Ok(conn) = database::get_db() {
+                    let now_str = Local::now().to_rfc3339();
+                    let _ = conn.execute(
+                        "UPDATE bkt_test_jobs SET test_channel_id = ?1, updated_at = ?2 WHERE id = ?3",
+                        params![&fb_ch.id, now_str, &job.id],
+                    );
+                }
+                let _ = app.emit("bkt-test-job-updated", &job);
+                fb_eff_id
+            } else {
+                log::error!("[BKT PRE-FLIGHT] Thất bại ngay lập tức: {err_msg}");
+                mark_job_as_failed(&app, &mut job, err_msg);
+                return;
+            }
         }
     };
 
@@ -1084,13 +1200,58 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
         if let Some(stdout) = child.stdout.take() {
             use tokio::io::AsyncBufReadExt;
             let mut reader = tokio::io::BufReader::new(stdout).lines();
-            while let Ok(Some(line)) = reader.next_line().await {
+            let mut consecutive_silence_count = 0u32;
+            loop {
                 if is_bkt_job_cancelled(&job.id) {
                     let _ = child.kill().await;
                     set_current_bkt_child_pid(0);
-        crate::commands::profiles::clear_stats_cache();
+                    crate::commands::profiles::clear_stats_cache();
                     return;
                 }
+
+                let line_res = tokio::time::timeout(
+                    std::time::Duration::from_secs(45),
+                    reader.next_line(),
+                ).await;
+
+                let line = match line_res {
+                    Ok(Ok(Some(l))) => {
+                        consecutive_silence_count = 0;
+                        l
+                    }
+                    Ok(Ok(None)) => {
+                        // EOF
+                        break;
+                    }
+                    Ok(Err(err)) => {
+                        log::warn!("[BKT Pipeline] Lỗi đọc stdout: {}", err);
+                        break;
+                    }
+                    Err(_) => {
+                        consecutive_silence_count += 1;
+                        match child.try_wait() {
+                            Ok(Some(status)) => {
+                                log::warn!("[BKT Pipeline] Tiến trình con đã kết thúc sớm với mã: {:?}", status);
+                                break;
+                            }
+                            Ok(None) => {
+                                if consecutive_silence_count >= 4 {
+                                    log::error!("[BKT Pipeline] Watchdog phát hiện tiến trình BKT im lặng quá 180s. Cưỡng chế dừng.");
+                                    let _ = child.kill().await;
+                                    final_status = "failed".to_string();
+                                    final_restriction = "Tiến trình kiểm tra BKT bị treo hoặc mất phản hồi quá 3 phút (Watchdog Timeout).".to_string();
+                                    break;
+                                }
+                                continue;
+                            }
+                            Err(e) => {
+                                log::warn!("[BKT Pipeline] Lỗi kiểm tra trạng thái child: {}", e);
+                                break;
+                            }
+                        }
+                    }
+                };
+
                 let trimmed = line.trim();
                 if trimmed.is_empty() {
                     continue;
@@ -1108,6 +1269,21 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
                             recorded_yt_video_id = Some(vid.to_string());
                             job.youtube_video_id = Some(vid.to_string());
                         }
+                    }
+
+                    // Sự kiện phục hồi tự động khi Chromium bị đóng / crash
+                    if ev_type == "auto_recovery" {
+                        let msg = parsed.get("message").and_then(|v| v.as_str()).unwrap_or("Đang tự động mở lại trình duyệt...");
+                        job.restriction = Some(msg.to_string());
+                        let _ = database::update_bkt_test_job_status_db(
+                            &job.id,
+                            "checking",
+                            job.reup_path.as_deref(),
+                            recorded_yt_video_id.as_deref(),
+                            Some(msg),
+                            None,
+                        );
+                        let _ = app.emit("bkt-test-job-updated", &job);
                     }
 
                     // 1. Sự kiện tiến trình upload stream (Ví dụ: "Đang tải lên YouTube Studio: 78% (Còn 20 giây)")
@@ -1257,10 +1433,10 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
         crate::commands::profiles::clear_stats_cache();
 
         // Nếu tiến trình kết thúc sớm mà chưa nhận JSON kết quả cuối (crash/đứt kết nối),
-        // chuyển sang failed rõ ràng thay vì nhầm là Timeout. Ngược lại, nếu đã trả về JSON kết quả cuối mà vẫn pending
-        // -> đó là timeout Content ID thực sự (xử lý ở nhánh fallback cuối hàm).
+        // chuyển sang failed rõ ràng thay vì để kẹt ở uploading/checking/pending.
         let clean_exit_with_results = exit_status_opt.map(|s| s.success()).unwrap_or(false) && saw_final_result_json;
-        if final_status == "pending" && !clean_exit_with_results {
+        let is_terminal = final_status == "green_clean" || final_status == "red_matched" || final_status == "failed";
+        if !is_terminal && !clean_exit_with_results {
             let tail_lines = stderr_tail.lock().await;
             let last_err_line = tail_lines
                 .iter()
@@ -1389,7 +1565,23 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
         }
 
         // BƯỚC REUP SAU TEST SẠCH: Video đạt chuẩn SẠCH BẢN QUYỀN -> Kích hoạt Reup Pipeline thích ứng làm sạch file
-        let reup_start_msg = "Sạch Bản Quyền! Đang quét Computer Vision & áp dụng Reup thích ứng làm sạch video...".to_string();
+        let orig_video_path = Path::new(&job.video_path);
+        let parent_dir = orig_video_path.parent().unwrap_or(Path::new("."));
+        let video_stem = orig_video_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("video");
+
+        // Tạo thư mục riêng biệt [DA_EDIT]_{video_stem} ngay trong thư mục chứa video gốc
+        let reup_folder = parent_dir.join(format!("[DA_EDIT]_{video_stem}"));
+        if let Err(err_mkdir) = std::fs::create_dir_all(&reup_folder) {
+            log::warn!("[REUP FOLDER] Không thể tạo thư mục {}: {err_mkdir}", reup_folder.display());
+        }
+
+        let target_completed_video = reup_folder.join(format!("{video_stem}_reup_ready.mp4"));
+        let target_completed_str = target_completed_video.to_string_lossy().to_string();
+
+        let reup_start_msg = format!("Sạch Bản Quyền! Đang render Reup thích ứng vào thư mục: [DA_EDIT]_{video_stem}...");
         let _ = database::update_bkt_test_job_status_db(
             &job.id,
             "reuping",
@@ -1402,7 +1594,7 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
         job.restriction = Some(reup_start_msg);
         let _ = app.emit("bkt-test-job-updated", &job);
 
-        let final_publish_path = match crate::services::run_reup_pipeline_adaptive(&app, &job.video_path, None, None).await {
+        let final_publish_path = match crate::services::run_reup_pipeline_adaptive(&app, &job.video_path, Some(&target_completed_str), None).await {
             Ok(res) => {
                 let out = res.output_path;
                 job.reup_path = Some(out.clone());
@@ -1411,7 +1603,7 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
             }
             Err(e) => {
                 log::warn!("Reup thích ứng gặp cảnh báo: {e}. Thử fallback qua Reup Lv.1.");
-                match crate::services::run_reup_pipeline_v1(&app, &job.video_path, None).await {
+                match crate::services::run_reup_pipeline_v1(&app, &job.video_path, Some(&target_completed_str)).await {
                     Ok(res1) => {
                         let out1 = res1.output_path;
                         job.reup_path = Some(out1.clone());
@@ -1419,12 +1611,60 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
                         out1
                     }
                     Err(e1) => {
-                        log::warn!("Reup Lv.1 fallback cũng gặp cảnh báo: {e1}. Sử dụng file video gốc.");
-                        job.video_path.clone()
+                        log::warn!("Reup Lv.1 fallback cũng gặp cảnh báo: {e1}. Sao chép file video gốc vào thư mục hoàn tất.");
+                        let _ = std::fs::copy(&job.video_path, &target_completed_video);
+                        job.reup_path = Some(target_completed_str.clone());
+                        target_completed_str.clone()
                     }
                 }
             }
         };
+
+        // Sao chép companion thumbnail vào thư mục [DA_EDIT]_{video_stem} nếu có
+        if let Some(ref thumb_src_str) = job.thumbnail_path {
+            let thumb_src = Path::new(thumb_src_str);
+            if thumb_src.exists() && thumb_src.is_file() {
+                let thumb_ext = thumb_src.extension().and_then(|e| e.to_str()).unwrap_or("jpg");
+                let dest_thumb = reup_folder.join(format!("{video_stem}_thumbnail.{thumb_ext}"));
+                if std::fs::copy(thumb_src, &dest_thumb).is_ok() {
+                    job.thumbnail_path = Some(dest_thumb.to_string_lossy().to_string());
+                    log::info!("[REUP FOLDER] Đã sao chép thumbnail hoàn chỉnh vào: {}", dest_thumb.display());
+                }
+            }
+        }
+
+        // Cổng kiểm tra tính toàn vẹn (Pre-Upload File Integrity Gate)
+        let final_video_path_obj = Path::new(&final_publish_path);
+        if let Err(integrity_err) = verify_video_ready_for_upload(final_video_path_obj).await {
+            log::error!("[BKT AUTO-PILOT] File video không đạt chuẩn kiểm tra tính toàn vẹn: {integrity_err}");
+            let fail_msg = format!("Sạch bản quyền, nhưng file edit không toàn vẹn trước khi đăng: {integrity_err}");
+            let _ = database::update_bkt_test_job_status_db(
+                &job.id,
+                "failed",
+                job.reup_path.as_deref(),
+                recorded_yt_video_id.as_deref(),
+                Some(&fail_msg),
+                Some(&fail_msg),
+            );
+            job.status = "failed".to_string();
+            job.restriction = Some(fail_msg.clone());
+            job.error_message = Some(fail_msg);
+            let _ = app.emit("bkt-test-job-updated", &job);
+            return;
+        }
+
+        let reup_done_msg = format!("Sạch Bản Quyền! Đã Edit hoàn tất trong thư mục: [DA_EDIT]_{video_stem}");
+        let _ = database::update_bkt_test_job_status_db(
+            &job.id,
+            "reuping",
+            job.reup_path.as_deref(),
+            recorded_yt_video_id.as_deref(),
+            Some(&reup_done_msg),
+            None,
+        );
+        job.restriction = Some(reup_done_msg);
+        let _ = app.emit("bkt-test-job-updated", &job);
+        let _ = app.emit("reup-pipeline-completed", &job);
 
         if is_bkt_job_cancelled(&job.id) {
             return;
@@ -1437,7 +1677,7 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
             .cloned();
         let will_auto_publish = job.auto_publish_main.unwrap_or(false) && effective_target_profile.is_some();
 
-        // Cập nhật trạng thái sau khi reup xong (nếu chuẩn bị tự động đăng sang Kênh Đích, giữ trạng thái non-terminal 'reuping' tránh race poll)
+        // Cập nhật trạng thái sau khi reup xong (nếu không tự động đăng sang Kênh Đích)
         if !will_auto_publish {
             let _ = database::update_bkt_test_job_status_db(
                 &job.id,
@@ -1455,10 +1695,10 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
         if will_auto_publish {
             let target_profile = effective_target_profile.unwrap();
             log::info!(
-                "[BKT AUTO-PILOT] Video đạt chuẩn SẠCH BẢN QUYỀN (green_clean) & đã Reup thích ứng. Bắt đầu tự động đăng lên Kênh Đích (Profile: {})!",
+                "[BKT AUTO-PILOT] Video đạt chuẩn SẠCH BẢN QUYỀN (green_clean) & đã đóng gói [DA_EDIT]_{video_stem}. Bắt đầu tự động đăng lên Kênh Đích (Profile: {})!",
                 target_profile
             );
-            let publish_wait_msg = "Sạch Bản Quyền & Đã Reup thích ứng! Đang tự động đăng sang Kênh Đích...".to_string();
+            let publish_wait_msg = format!("Đã Edit xong [DA_EDIT]_{video_stem}! Đang tự động đăng sang Kênh Đích...");
             let _ = database::update_bkt_test_job_status_db(
                 &job.id,
                 "reuping",
@@ -1472,11 +1712,7 @@ async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, profil
             let _ = app.emit("bkt-test-job-updated", &job);
 
             let raw_pub_title = job.target_title.clone().unwrap_or_else(|| job.video_title.clone());
-            let safe_pub_title = if raw_pub_title.trim().chars().count() > 95 {
-                raw_pub_title.trim().chars().take(95).collect::<String>()
-            } else {
-                raw_pub_title.trim().to_string()
-            };
+            let safe_pub_title = sanitize_youtube_title_safe(&raw_pub_title, 95);
 
             let upload_params = MultiBrowserUploadParams {
                 profile_id: target_profile.clone(),
@@ -1613,11 +1849,7 @@ pub async fn publish_bkt_job_to_main_cmd(
         .unwrap_or_else(|| job.video_path.clone());
 
     let raw_pub_title = job.target_title.clone().unwrap_or_else(|| job.video_title.clone());
-    let safe_pub_title = if raw_pub_title.trim().chars().count() > 95 {
-        raw_pub_title.trim().chars().take(95).collect::<String>()
-    } else {
-        raw_pub_title.trim().to_string()
-    };
+    let safe_pub_title = sanitize_youtube_title_safe(&raw_pub_title, 95);
 
     let upload_params = MultiBrowserUploadParams {
         profile_id: target_profile.clone(),

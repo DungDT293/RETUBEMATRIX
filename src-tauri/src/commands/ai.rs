@@ -1630,12 +1630,16 @@ pub async fn extract_video_seo_tags_cmd(
     app: AppHandle,
     video_url: String,
 ) -> Result<serde_json::Value, String> {
-    if video_url.trim().is_empty() {
+    let mut clean_url = video_url.trim().to_string();
+    if clean_url.is_empty() {
         return Err("URL video không được để trống".to_string());
     }
+    if !clean_url.starts_with("http://") && !clean_url.starts_with("https://") {
+        clean_url = format!("https://{}", clean_url);
+    }
 
-    validate_url(&video_url).map_err(|e| BackendError::from_message(e).to_wire_string())?;
-    let normalized = normalize_url(&video_url);
+    validate_url(&clean_url).map_err(|e| BackendError::from_message(e).to_wire_string())?;
+    let normalized = normalize_url(&clean_url);
 
     let mut args: Vec<String> = vec![
         "--skip-download".to_string(),
@@ -1644,7 +1648,7 @@ pub async fn extract_video_seo_tags_cmd(
         "--no-warnings".to_string(),
         "--ignore-no-formats-error".to_string(),
         "--socket-timeout".to_string(),
-        "10".to_string(),
+        "30".to_string(),
     ];
 
     if normalized.contains("youtube.com") || normalized.contains("youtu.be") {
@@ -1659,100 +1663,193 @@ pub async fn extract_video_seo_tags_cmd(
 
     let args_ref: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
 
-    let timeout_duration = std::time::Duration::from_secs(10);
+    let timeout_duration = std::time::Duration::from_secs(30);
     let run_fut = run_ytdlp_json(&app, &args_ref);
-    let raw_json = match tokio::time::timeout(timeout_duration, run_fut).await {
-        Ok(res) => res?,
-        Err(_) => return Err("Timeout 10s khi trích xuất thẻ SEO tags từ yt-dlp".to_string()),
+    let raw_json_res = tokio::time::timeout(timeout_duration, run_fut).await;
+
+    let parsed_val: Option<serde_json::Value> = match raw_json_res {
+        Ok(Ok(raw_json)) => serde_json::from_str(&raw_json).ok(),
+        _ => None,
     };
 
-    let parsed_val: serde_json::Value = serde_json::from_str(&raw_json)
-        .map_err(|e| format!("Lỗi phân tích cú pháp JSON yt-dlp: {}", e))?;
+    if let Some(parsed_val) = parsed_val {
+        let tags = parsed_val
+            .get("tags")
+            .and_then(|t| t.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|v| v.as_str().map(|s| s.trim().to_string()))
+                    .filter(|s| !s.is_empty())
+                    .collect::<Vec<String>>()
+            })
+            .unwrap_or_default();
 
-    let tags = parsed_val
-        .get("tags")
-        .and_then(|t| t.as_array())
-        .map(|arr| {
-            arr.iter()
-                .filter_map(|v| v.as_str().map(|s| s.trim().to_string()))
-                .filter(|s| !s.is_empty())
-                .collect::<Vec<String>>()
-        })
-        .unwrap_or_default();
+        let categories = parsed_val
+            .get("categories")
+            .and_then(|c| c.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|v| v.as_str().map(|s| s.trim().to_string()))
+                    .filter(|s| !s.is_empty())
+                    .collect::<Vec<String>>()
+            })
+            .unwrap_or_default();
 
-    let categories = parsed_val
-        .get("categories")
-        .and_then(|c| c.as_array())
-        .map(|arr| {
-            arr.iter()
-                .filter_map(|v| v.as_str().map(|s| s.trim().to_string()))
-                .filter(|s| !s.is_empty())
-                .collect::<Vec<String>>()
-        })
-        .unwrap_or_default();
+        let title = parsed_val
+            .get("title")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
 
-    let title = parsed_val
-        .get("title")
-        .and_then(|v| v.as_str())
-        .unwrap_or("")
-        .to_string();
+        let description = parsed_val
+            .get("description")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
 
-    let description = parsed_val
-        .get("description")
-        .and_then(|v| v.as_str())
-        .unwrap_or("")
-        .to_string();
+        let channel_follower_count = parsed_val
+            .get("channel_follower_count")
+            .and_then(|v| v.as_i64());
 
-    let channel_follower_count = parsed_val
-        .get("channel_follower_count")
-        .and_then(|v| v.as_i64());
+        let channel = parsed_val
+            .get("channel")
+            .or_else(|| parsed_val.get("uploader"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
 
-    let channel = parsed_val
-        .get("channel")
-        .or_else(|| parsed_val.get("uploader"))
-        .and_then(|v| v.as_str())
-        .unwrap_or("")
-        .to_string();
+        let view_count = parsed_val
+            .get("view_count")
+            .and_then(|v| v.as_i64());
 
-    let view_count = parsed_val
-        .get("view_count")
-        .and_then(|v| v.as_i64());
+        let id = parsed_val
+            .get("id")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
 
-    let id = parsed_val
-        .get("id")
-        .and_then(|v| v.as_str())
-        .unwrap_or("")
-        .to_string();
+        let thumbnail = parsed_val
+            .get("thumbnail")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string())
+            .or_else(|| {
+                parsed_val
+                    .get("thumbnails")
+                    .and_then(|arr| arr.as_array())
+                    .and_then(|arr| arr.last())
+                    .and_then(|v| v.get("url"))
+                    .and_then(|u| u.as_str())
+                    .map(|s| s.to_string())
+            })
+            .unwrap_or_else(|| {
+                if !id.is_empty() {
+                    format!("https://i.ytimg.com/vi/{}/maxresdefault.jpg", id)
+                } else {
+                    String::new()
+                }
+            });
 
-    // Drop raw strings and tree immediately to free memory
-    drop(parsed_val);
-    drop(raw_json);
+        drop(parsed_val);
 
-    let mut final_tags = tags;
-    if final_tags.is_empty() && !description.is_empty() {
-        for word in description.split_whitespace() {
-            if word.starts_with('#') && word.len() > 1 {
-                let clean = word.trim_matches(|c: char| !c.is_alphanumeric() && c != '_');
-                if !clean.is_empty() && !final_tags.iter().any(|t| t.eq_ignore_ascii_case(clean)) {
-                    final_tags.push(clean.to_string());
+        let mut final_tags = tags;
+        if final_tags.is_empty() && !description.is_empty() {
+            for word in description.split_whitespace() {
+                if word.starts_with('#') && word.len() > 1 {
+                    let clean = word.trim_matches(|c: char| !c.is_alphanumeric() && c != '_');
+                    if !clean.is_empty() && !final_tags.iter().any(|t| t.eq_ignore_ascii_case(clean)) {
+                        final_tags.push(clean.to_string());
+                    }
+                }
+            }
+        }
+
+        return Ok(serde_json::json!({
+            "success": true,
+            "id": id,
+            "title": title,
+            "tags": final_tags,
+            "categories": categories,
+            "description": description,
+            "thumbnail": thumbnail,
+            "thumbnail_url": thumbnail,
+            "channelFollowerCount": channel_follower_count,
+            "channel_follower_count": channel_follower_count,
+            "channel": channel,
+            "viewCount": view_count,
+            "view_count": view_count
+        }));
+    }
+
+    // Fallback: Nếu yt-dlp timeout hoặc lỗi, thử gọi trực tiếp YouTube oEmbed API
+    if normalized.contains("youtube.com") || normalized.contains("youtu.be") {
+        if let Ok(client) = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(8))
+            .build()
+        {
+            if let Ok(mut endpoint) = reqwest::Url::parse("https://www.youtube.com/oembed") {
+                endpoint
+                    .query_pairs_mut()
+                    .append_pair("url", &normalized)
+                    .append_pair("format", "json");
+
+                if let Ok(resp) = client.get(endpoint).send().await {
+                    if resp.status().is_success() {
+                        if let Ok(oembed_json) = resp.json::<serde_json::Value>().await {
+                            let title = oembed_json
+                                .get("title")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("")
+                                .to_string();
+                            let author = oembed_json
+                                .get("author_name")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("")
+                                .to_string();
+                            let mut thumb = oembed_json
+                                .get("thumbnail_url")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("")
+                                .to_string();
+
+                            let mut vid_id = String::new();
+                            if let Some(pos) = normalized.find("v=") {
+                                let sub = &normalized[pos + 2..];
+                                vid_id = sub.split('&').next().unwrap_or("").to_string();
+                            } else if let Some(pos) = normalized.find("youtu.be/") {
+                                let sub = &normalized[pos + 9..];
+                                vid_id = sub.split('?').next().unwrap_or("").to_string();
+                            } else if let Some(pos) = normalized.find("/shorts/") {
+                                let sub = &normalized[pos + 8..];
+                                vid_id = sub.split('?').next().unwrap_or("").to_string();
+                            }
+
+                            if !vid_id.is_empty() {
+                                thumb = format!("https://i.ytimg.com/vi/{}/maxresdefault.jpg", vid_id);
+                            }
+
+                            return Ok(serde_json::json!({
+                                "success": true,
+                                "id": vid_id,
+                                "title": title,
+                                "tags": Vec::<String>::new(),
+                                "categories": Vec::<String>::new(),
+                                "description": "",
+                                "thumbnail": thumb,
+                                "thumbnail_url": thumb,
+                                "channelFollowerCount": null,
+                                "channel_follower_count": null,
+                                "channel": author,
+                                "viewCount": null,
+                                "view_count": null
+                            }));
+                        }
+                    }
                 }
             }
         }
     }
 
-    Ok(serde_json::json!({
-        "success": true,
-        "id": id,
-        "title": title,
-        "tags": final_tags,
-        "categories": categories,
-        "description": description,
-        "channelFollowerCount": channel_follower_count,
-        "channel_follower_count": channel_follower_count,
-        "channel": channel,
-        "viewCount": view_count,
-        "view_count": view_count
-    }))
+    Err("Không thể trích xuất thông tin video từ yt-dlp hoặc YouTube oEmbed. Vui lòng kiểm tra lại đường dẫn video hoặc kết nối mạng.".to_string())
 }
 
 #[tauri::command]

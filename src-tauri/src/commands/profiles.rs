@@ -275,7 +275,9 @@ pub fn create_runner_cmd(app: &AppHandle) -> (Command, PathBuf) {
         app.path().resource_dir().ok().map(|r| r.join("bin").join("yt-dlp.exe")),
         app.path().app_data_dir().ok().map(|a| a.join("bin").join("yt-dlp.exe")),
         std::env::current_dir().ok().map(|cwd| cwd.join("src-tauri").join("bin").join("retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe")),
+        std::env::current_dir().ok().map(|cwd| cwd.join("src-tauri").join("bin").join("yt-dlp.exe")),
         std::env::current_dir().ok().map(|cwd| cwd.join("bin").join("retubematrix-yt-dlp-x86_64-pc-windows-msvc.exe")),
+        std::env::current_dir().ok().map(|cwd| cwd.join("bin").join("yt-dlp.exe")),
     ];
     for cand in ytdlp_candidates.into_iter().flatten() {
         if cand.exists() {
@@ -728,12 +730,24 @@ pub async fn upload_video_multibrowser(
     app: AppHandle,
     mut params: MultiBrowserUploadParams,
 ) -> Result<MultiBrowserUploadResult, String> {
-    // Luôn đảm bảo tiêu đề YouTube không bao giờ vượt quá 100 ký tự
+    // Luôn đảm bảo tiêu đề YouTube không bao giờ vượt quá 100 ký tự (an toàn tối đa 95 ký tự)
     let raw_t = params.title.trim();
-    if raw_t.chars().count() > 100 {
-        params.title = raw_t.chars().take(100).collect();
+    if raw_t.chars().count() > 95 {
+        params.title = crate::commands::bkt_channels::sanitize_youtube_title_safe(raw_t, 95);
     } else {
         params.title = raw_t.to_string();
+    }
+
+    // Kiểm tra tính toàn vẹn của tệp video trước khi gọi Playwright
+    let v_path = std::path::Path::new(&params.video_path);
+    if let Err(gate_err) = crate::commands::bkt_channels::verify_video_ready_for_upload(v_path).await {
+        log::error!("[UPLOAD GATE] File video không đạt chuẩn trước upload: {gate_err}");
+        return Ok(MultiBrowserUploadResult {
+            success: false,
+            video_url: None,
+            youtube_video_id: None,
+            error: Some(gate_err),
+        });
     }
 
     log::info!(
@@ -754,6 +768,7 @@ pub async fn upload_video_multibrowser(
         .arg(&data_b64);
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
+    cmd.kill_on_drop(true);
     cmd.hide_window();
 
     let mut child = cmd
@@ -765,11 +780,21 @@ pub async fn upload_video_multibrowser(
 
     let app_handle = app.clone();
     let profile_id = params.profile_id.clone();
+    let stderr_tail = std::sync::Arc::new(tokio::sync::Mutex::new(Vec::<String>::new()));
+    let stderr_tail_clone = stderr_tail.clone();
 
     tokio::spawn(async move {
         let reader = BufReader::new(stderr);
         let mut lines = reader.lines();
         while let Ok(Some(line)) = lines.next_line().await {
+            let trimmed = line.trim();
+            if !trimmed.is_empty() {
+                let mut buf = stderr_tail_clone.lock().await;
+                buf.push(trimmed.to_string());
+                if buf.len() > 25 {
+                    buf.remove(0);
+                }
+            }
             let _ = app_handle.emit(
                 "browser-upload-log",
                 serde_json::json!({
@@ -786,7 +811,23 @@ pub async fn upload_video_multibrowser(
     while let Ok(Some(line)) = lines.next_line().await {
         let trimmed = line.trim();
         if trimmed.starts_with('{') && trimmed.ends_with('}') {
-            final_json_str = trimmed.to_string();
+            if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(trimmed) {
+                let ev_type = parsed.get("event").and_then(|v| v.as_str()).unwrap_or("");
+                if ev_type == "upload_progress" {
+                    let _ = app.emit("browser-upload-progress", &parsed);
+                    let _ = app.emit(
+                        "browser-upload-log",
+                        serde_json::json!({
+                            "profile_id": &params.profile_id,
+                            "log": parsed.get("message").and_then(|m| m.as_str()).unwrap_or(trimmed)
+                        }),
+                    );
+                    continue;
+                }
+                if parsed.get("success").is_some() || parsed.get("video_url").is_some() {
+                    final_json_str = trimmed.to_string();
+                }
+            }
         } else {
             let _ = app.emit(
                 "browser-upload-log",
@@ -802,11 +843,24 @@ pub async fn upload_video_multibrowser(
     clear_stats_cache();
 
     if !status.success() && final_json_str.is_empty() {
+        let tail_lines = stderr_tail.lock().await;
+        let last_err_line = tail_lines
+            .iter()
+            .rev()
+            .find(|l| {
+                let low = l.to_lowercase();
+                !low.contains("deprecationwarning") && !low.contains("userwarning")
+            })
+            .cloned();
+        let err_desc = match last_err_line {
+            Some(err) => format!("Tiến trình upload bị ngắt ({status}): {err}"),
+            None => format!("Quá trình đăng video bị ngắt quãng hoặc gặp sự cố ({status})"),
+        };
         return Ok(MultiBrowserUploadResult {
             success: false,
             video_url: None,
             youtube_video_id: None,
-            error: Some("Quá trình đăng video bị ngắt quãng hoặc gặp sự cố".to_string()),
+            error: Some(err_desc),
         });
     }
 

@@ -1,6 +1,14 @@
 @echo off
-cd /d "d:\TOOL DUNG CODE\reupytb"
-start "reupytb-Vite" /min cmd /k "call npm run dev"
-timeout /t 2 /nobreak >nul
-start "reupytb-App" /D "d:\TOOL DUNG CODE\reupytb" "d:\TOOL DUNG CODE\reupytb\src-tauri\target\debug\youwee.exe"
-start "reupytb-Browser" /D "d:\TOOL DUNG CODE\reupytb" cmd /k "python browser_engine/runner.py --action open_profile --profile-id a82cd01c"
+cd /d "%~dp0"
+echo Starting RETubeMatrix...
+
+if exist "%~dp0src-tauri\target\release\RETubeMatrix.exe" (
+    start "" "%~dp0src-tauri\target\release\RETubeMatrix.exe"
+) else if exist "%~dp0src-tauri\target\debug\RETubeMatrix.exe" (
+    start "" "%~dp0src-tauri\target\debug\RETubeMatrix.exe"
+) else if exist "%~dp0src-tauri\target\debug\youwee.exe" (
+    start "" "%~dp0src-tauri\target\debug\youwee.exe"
+) else (
+    echo Khong tim thay binary. Dang khoi chay tauri dev...
+    call bun run tauri:dev
+)

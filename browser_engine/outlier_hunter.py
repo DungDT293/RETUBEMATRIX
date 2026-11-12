@@ -66,8 +66,8 @@ def get_ytdlp_bin() -> str:
 
 def parse_subscribers(val) -> int:
     """
-    Parse chính xác số lượng Subscribers từ số nguyên hoặc chuỗi định dạng (ví dụ '340K', '3.4M', '49N').
-    Tránh lỗi coi kênh 340K sub thành 340 sub.
+    Parse chính xác số lượng Subscribers từ số nguyên hoặc chuỗi định dạng (ví dụ '340K', '3.4M', '49N', '3,4 triệu').
+    Tránh lỗi coi kênh 340K sub thành 340 sub hoặc 3,4M thành 34M.
     """
     if val is None:
         return 0
@@ -77,14 +77,28 @@ def parse_subscribers(val) -> int:
     if not s:
         return 0
     import re
-    m = re.search(r"([\d\.,]+)\s*([KkMmBbNn]|TRIỆU|NGHÌN|TR|NG)?", s)
+    m = re.search(r"([\d\.,]+)\s*([KkMmBbNn]|TRIỆU|NGHÌN|TR|NG|TỶ)?", s)
     if not m:
         try:
             return safe_int(re.sub(r"[^\d]", "", s), 0)
         except Exception:
             return 0
-    num_str = m.group(1).replace(",", "")
+    num_part = m.group(1).strip()
     unit = (m.group(2) or "").upper()
+
+    # Xử lý dấu phân cách:
+    # Nếu có đơn vị (K, M, N, TRIỆU...): dấu phẩy là thập phân ('3,4M' -> '3.4')
+    # Nếu không có đơn vị: '340.000' hoặc '340,000' là phân cách hàng nghìn (-> 340000)
+    if unit:
+        num_str = num_part.replace(",", ".")
+    else:
+        if "." in num_part and len(num_part.split(".")[-1]) == 3:
+            num_str = num_part.replace(".", "")
+        elif "," in num_part and len(num_part.split(",")[-1]) == 3:
+            num_str = num_part.replace(",", "")
+        else:
+            num_str = num_part.replace(",", ".")
+
     try:
         base = float(num_str)
     except ValueError:
@@ -190,7 +204,10 @@ def is_reup_safe_and_valid_small_channel(video: Dict, settings: Dict) -> Tuple[b
 
     # 3. CHỐT CHẶN 3: PHÒNG VỆ SUB & LỖI PARSE (Tránh biến kênh triệu sub thành 340 sub)
     if raw_subs <= 0:
-        return False, "Loại bỏ: Không lấy được số Subscriber thật của kênh (Kênh ẩn sub hoặc thiếu dữ liệu)"
+        if views < 3000:
+            return False, "Loại bỏ: Không lấy được số Subscriber thật của kênh (Kênh ẩn sub hoặc thiếu dữ liệu)"
+        # Với video có lượt view tốt, tạm gán ngưỡng cơ sở để không vứt bỏ video đột biến
+        raw_subs = 10000
     
     # Nếu video > 500k views mà báo kênh < 1.000 sub -> 99.9% là lỗi parse chữ K/M/N (ví dụ 340K/340N -> 340)
     if views > 500_000 and raw_subs < 1_000:
@@ -203,7 +220,7 @@ def is_reup_safe_and_valid_small_channel(video: Dict, settings: Dict) -> Tuple[b
     # Kênh vượt quá Max Subscribers trong cấu hình (Linh hoạt: mặc định 150k subs, nếu ratio >= 3.0x cho phép tới 250k)
     base_max_subs = safe_int(settings.get("max_subscribers"), 150000)
     ratio_sub = views / max(raw_subs, 1)
-    max_subs = 250000 if ratio_sub >= 3.0 else base_max_subs
+    max_subs = max(base_max_subs, 250000) if ratio_sub >= 3.0 else base_max_subs
     if raw_subs > max_subs:
         return False, f"Kênh quá lớn: {raw_subs:,} subs (ngưỡng tối đa: {max_subs:,})"
 
@@ -268,11 +285,15 @@ def evaluate_outlier_candidate(
         return None, f"Chưa đạt Sub Outlier: {sub_outlier:.1f}x (<{min_sub_out}x)"
 
     # Bộ lọc Chống Buff View & Google Ads (Organic Engagement)
-    engagement_rate = (likes + comments) / views if views > 0 else 0.0
-    min_eng = safe_float(settings.get("min_engagement_rate"), 0.002)
-    min_cmt = safe_int(settings.get("min_comments"), 2)
-    if engagement_rate < min_eng and comments < min_cmt:
-        return None, f"Nghi vấn Ads/Buff: Engagement={engagement_rate*100:.2f}%, Cmt={comments}"
+    # Chỉ áp dụng khi có dữ liệu likes hoặc comments thực tế (tránh loại trừ nhầm các video từ search playlist)
+    if likes > 0 or comments > 0:
+        engagement_rate = (likes + comments) / views if views > 0 else 0.0
+        min_eng = safe_float(settings.get("min_engagement_rate"), 0.002)
+        min_cmt = safe_int(settings.get("min_comments"), 2)
+        if engagement_rate < min_eng and comments < min_cmt:
+            return None, f"Nghi vấn Ads/Buff: Engagement={engagement_rate*100:.2f}%, Cmt={comments}"
+    else:
+        engagement_rate = 0.01
 
     # Vận tốc View Trung bình (VPH) & Chuẩn bùng nổ thời gian thực
     avg_vph = views / hours
@@ -396,7 +417,16 @@ def fetch_channel_recent_videos(channel_url: str, limit: int = 15) -> List[Dict]
         target
     ]
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=5)
+        kwargs: Dict[str, Any] = {
+            "capture_output": True,
+            "text": True,
+            "encoding": "utf-8",
+            "errors": "ignore",
+            "timeout": 15,
+        }
+        if platform.system() == "Windows":
+            kwargs["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
+        res = subprocess.run(cmd, **kwargs)
         videos = []
         for line in res.stdout.splitlines():
             line = line.strip()
@@ -1386,6 +1416,7 @@ def _scan_single_query(
         cmd = [
             ytdlp_bin,
             "--dump-json",
+            "--flat-playlist",
             "--playlist-end", str(limit),
             "--no-warnings",
             target_url
@@ -1396,6 +1427,7 @@ def _scan_single_query(
         cmd = [
             ytdlp_bin,
             "--dump-json",
+            "--flat-playlist",
             "--playlist-end", str(limit),
             "--no-warnings",
             target_url
@@ -1406,6 +1438,7 @@ def _scan_single_query(
         cmd = [
             ytdlp_bin,
             "--dump-json",
+            "--flat-playlist",
             "--playlist-end", str(limit),
             "--no-warnings",
             target_url
@@ -1414,13 +1447,23 @@ def _scan_single_query(
         cmd = [
             ytdlp_bin,
             "--dump-json",
+            "--flat-playlist",
             "--playlist-end", str(limit),
             "--no-warnings",
             f"ytsearch{limit}:{query_text}"
         ]
 
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=45)
+        kwargs: Dict[str, Any] = {
+            "capture_output": True,
+            "text": True,
+            "encoding": "utf-8",
+            "errors": "ignore",
+            "timeout": 45,
+        }
+        if os.name == "nt":
+            kwargs["creationflags"] = 0x08000000  # CREATE_NO_WINDOW
+        res = subprocess.run(cmd, **kwargs)
     except Exception as e:
         logger.error(f"Lỗi chạy yt-dlp cho '{query_text}': {e}")
         return []
@@ -1465,6 +1508,9 @@ def _scan_single_query(
         if raw_subs_cand is None:
             raw_subs_cand = raw.get("subscribers") or raw.get("uploader_subscribers") or raw.get("channel_subscribers")
         parsed_subs = parse_subscribers(raw_subs_cand)
+        cand_views = safe_int(raw.get("view_count"), 0)
+        if parsed_subs <= 0 and cand_views >= 3000:
+            parsed_subs = 10000
 
         raw_tags = raw.get("tags") or []
         if isinstance(raw_tags, str):
@@ -1571,7 +1617,7 @@ def _scan_single_query(
                 "baseline_median_views": evaluation["baseline_median_views"],
                 "baseline_outlier_ratio": evaluation["baseline_outlier_ratio"],
                 "engagement_rate": evaluation["engagement_rate"],
-                "view_history": evaluation["view_history"],
+                "view_history": json.dumps(evaluation["view_history"], ensure_ascii=False) if isinstance(evaluation.get("view_history"), (list, dict)) else (evaluation.get("view_history") or "[]"),
                 "status": init_status,
                 "local_filepath": None,
                 "reup_filepath": None,

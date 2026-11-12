@@ -284,6 +284,8 @@ export interface VideoSeoTagsResult {
   tags: string[];
   categories?: string[];
   description?: string;
+  thumbnail?: string;
+  thumbnail_url?: string;
   channelFollowerCount?: number | null;
   channel_follower_count?: number | null;
   channel?: string;

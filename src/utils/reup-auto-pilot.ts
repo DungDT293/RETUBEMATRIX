@@ -144,6 +144,8 @@ export function detectTitleLanguage(title: string): AutoPilotLanguage {
  */
 export function safeTruncateGraphemes(text: string, maxGraphemes: number): string {
   if (!text) return '';
+  const trimmed = text.trim();
+  let segments: string[] = [];
   try {
     if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
       const segmenter = new (
@@ -154,16 +156,28 @@ export function safeTruncateGraphemes(text: string, maxGraphemes: number): strin
           ) => { segment: (input: string) => Iterable<{ segment: string }> };
         }
       ).Segmenter(undefined, { granularity: 'grapheme' });
-      const segments = Array.from(segmenter.segment(text), (s) => s.segment);
-      if (segments.length <= maxGraphemes) return text;
-      return segments.slice(0, maxGraphemes).join('').trim();
+      segments = Array.from(segmenter.segment(trimmed), (s) => s.segment);
     }
   } catch {
     // Fallback nếu không hỗ trợ
   }
-  const chars = Array.from(text);
-  if (chars.length <= maxGraphemes) return text;
-  return chars.slice(0, maxGraphemes).join('').trim();
+  if (segments.length === 0) {
+    segments = Array.from(trimmed);
+  }
+  if (segments.length <= maxGraphemes) return trimmed;
+
+  // Lấy tối đa maxGraphemes
+  const sliced = segments.slice(0, maxGraphemes).join('');
+  // Cắt lùi về ranh giới từ vựng (Word Boundary) gần nhất để không bao giờ bị đứt nửa từ
+  const lastSpaceIdx = Math.max(
+    sliced.lastIndexOf(' '),
+    sliced.lastIndexOf('\t'),
+    sliced.lastIndexOf('　'),
+  );
+  if (lastSpaceIdx >= Math.floor(maxGraphemes * 0.5)) {
+    return sliced.slice(0, lastSpaceIdx).trim();
+  }
+  return sliced.trim();
 }
 
 /**

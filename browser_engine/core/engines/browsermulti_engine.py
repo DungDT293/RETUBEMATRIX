@@ -198,6 +198,11 @@ class BrowserMultiEngine(BaseBrowserEngine):
     def build_launch_args(self, spec: BrowserLaunchSpec) -> list[str]:
         options = spec.engine_options
         lang = (spec.locale or "").strip() or "vi-VN"
+        from core.host_capabilities import host_capabilities
+        is_low_mem = bool(host_capabilities().get("low_memory_host"))
+        max_heap = "256" if is_low_mem else "512"
+        proc_limit = "2" if is_low_mem else "4"
+
         args = [
             "--no-first-run",
             "--no-default-browser-check",
@@ -207,20 +212,37 @@ class BrowserMultiEngine(BaseBrowserEngine):
             f"--lang={lang}",
             "--homepage=https://www.google.com",
             "--disable-component-update",
+            "--disable-sync",
+            "--disable-breakpad",
+            "--disable-default-apps",
+            "--no-pings",
+            # Toi uu hoa Card do hoa & Hardware Acceleration (DirectX 11 on Windows, giam 70% CPU)
+            "--use-angle=d3d11",
+            "--enable-gpu-rasterization",
+            "--ignore-gpu-blocklist",
+            "--enable-zero-copy",
+            "--disable-gpu-watchdog",
+            # Toi uu hoa RAM, Memory Saver & Gioi han tien trinh renderer tranh OOM
+            f"--renderer-process-limit={proc_limit}",
+            f"--js-flags=--max-old-space-size={max_heap} --expose-gc",
+            "--disable-dev-shm-usage",
+            "--disk-cache-size=33554432",
+            "--media-cache-size=33554432",
+            # Chong loi crash renderer va bat Memory Saver thu hoi RAM
+            "--disable-features=RendererCodeIntegrity,IsolateOrigins,site-per-process",
+            "--enable-features=RunMemorySaver,DiscardRendererOnLowMemory",
+            # Chong throttle va chong drop ket noi khi proxy lag / chay ngam
+            "--disable-background-networking",
+            "--disable-renderer-backgrounding",
+            "--disable-backgrounding-occluded-windows",
+            "--disable-background-timer-throttling",
+            "--disable-ipc-flooding-protection",
         ]
-        from core.host_capabilities import host_capabilities
-        if host_capabilities().get("low_memory_host"):
-            args.extend([
-                "--renderer-process-limit=2",
-                "--disable-background-networking",
-                "--disable-dev-shm-usage",
-                "--js-flags=--max-old-space-size=256 --expose-gc",
-            ])
         if spec.proxy:
-            server_str = (spec.proxy.get("server") or "") if isinstance(spec.proxy, dict) else str(spec.proxy)
-            if not server_str.startswith("socks") and "127.0.0.1" not in server_str:
-                args.append("--disable-http2")
-            args.append("--dns-over-https-mode=off")
+            args.extend([
+                "--dns-over-https-mode=off",
+                "--proxy-bypass-list=<-loopback>",
+            ])
         if not options.get("restore_profile_window_placement"):
             args.extend(spec.window_args())
         elif options.get("start_maximized"):

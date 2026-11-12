@@ -336,3 +336,41 @@ export function formatPostingScheduleVietnamese(scheduleStr?: string | null): st
     .replace(/\bSat\b/g, 'Thứ 7')
     .replace(/\bSun\b/g, 'Chủ nhật');
 }
+
+/**
+ * Chuyển đổi thời gian đăng video (upload_timestamp hoặc upload_date) về Unix timestamp (giây).
+ * Chuẩn hóa đồng nhất để so sánh và sắp xếp thứ tự video chính xác 100%.
+ */
+export function parseVideoUploadEpoch(v: {
+  upload_timestamp?: number | null;
+  upload_date?: string | null;
+  created_at?: string | null;
+}): number {
+  if (typeof v.upload_timestamp === 'number' && v.upload_timestamp > 0) {
+    return v.upload_timestamp;
+  }
+  if (v.upload_date) {
+    const clean = v.upload_date.trim();
+    if (clean.length === 8 && /^\d{8}$/.test(clean)) {
+      const year = parseInt(clean.slice(0, 4), 10);
+      const month = parseInt(clean.slice(4, 6), 10) - 1;
+      const day = parseInt(clean.slice(6, 8), 10);
+      const dt = new Date(Date.UTC(year, month, day));
+      if (!Number.isNaN(dt.getTime())) {
+        return Math.floor(dt.getTime() / 1000);
+      }
+    } else {
+      const dt = new Date(clean);
+      if (!Number.isNaN(dt.getTime())) {
+        return Math.floor(dt.getTime() / 1000);
+      }
+    }
+  }
+  if (v.created_at) {
+    const dt = new Date(v.created_at);
+    if (!Number.isNaN(dt.getTime())) {
+      return Math.floor(dt.getTime() / 1000);
+    }
+  }
+  return 0;
+}

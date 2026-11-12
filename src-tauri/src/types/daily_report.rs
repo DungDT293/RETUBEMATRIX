@@ -24,6 +24,7 @@ pub struct DailyReportStats {
     pub bkt_clean_count: i64,             // Video Sạch Bản Quyền (green_clean)
     pub bkt_claimed_count: i64,           // Video Dính Bản Quyền (red_matched)
     pub bkt_pending_count: i64,           // Video đang kiểm tra hoặc chờ
+    pub total_reup_today: i64,            // Video đang xử lý hoặc đã edit Reup hôm nay
     pub total_published_main_today: i64,  // Video đã xuất bản lên Kênh Đích hôm nay
     pub test_quota_total: i64,            // Tổng quota test trong ngày
     pub test_quota_used: i64,             // Đã dùng hôm nay

@@ -1,6 +1,6 @@
 [package]
 name = "retubematrix"
-version = "1.0.4"
+version = "1.0.5"
 description = "RETubeMatrix - Hệ Thống Săn Đề Xuất & Reup Tự Động Bản Quyền YouTube"
 authors = ["DungDT"]
 license = "MIT"

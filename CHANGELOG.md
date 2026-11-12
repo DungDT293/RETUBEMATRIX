@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-11-13
+
+### Added
+
+- **2-Strike Consecutive Copyright Blacklist & Auto-Halt** - Implemented automated risk assessment for competitor channels. Encountering two consecutive copyright strikes or failures (`redCount >= 2`) immediately marks the channel as `risk_status = "red"` (Kênh Rủi Ro), halts the auto-pilot pipeline, and alerts the user to prevent further quota consumption.
+- **Auto Reup Emergency Stop** - Wired the "Dừng Auto Reup" button on channel cards and global header directly to `cancelAllBktJobs()`, immediately aborting active background tasks, clearing progress banners, and unlocking the user interface.
+- **Browser Crash Auto-Recovery for BKT Studio Verification** - Added automatic Chromium disconnection and crash detection (`is_browser_disconnected`, `is_target_closed_exception`) with self-healing recovery in `runner.py`, automatically re-opening profiles and resuming Studio Content ID checks without re-uploading from scratch.
+
+### Changed
+
+- **Outlier Hunter Performance Optimization** - Replaced deep search scrapes with fast `--flat-playlist` queries, reducing scan duration from over 150 seconds down to 2-5 seconds. Updated the default search timeframe to `all` with instant client-side filtering on the toolbar.
+- **YouTube Studio Tag Limit Calculation** - Refined keyword trimming in channel settings automation with multi-word quote penalty calculation (max 450 characters safe margin), preventing YouTube Studio Save button disables.
+
+### Fixed
+
+- **Outlier Hunter Zero-Video Bug & Search Engagement Rejection** - Resolved a critical issue where 100% of candidate videos were falsely rejected due to missing like/comment counts in search playlist feeds. Guarded organic engagement checks to only apply when explicit like/comment metadata exists.
+- **Silent Error Swallowing in Rust IPC** - Surfaced structured runner errors and exit codes from Python subprocesses to Rust and Frontend instead of silently returning empty arrays with misleading toast messages.
+- **Serde Deserialization Mismatch on `view_history`** - Added a resilient `deserialize_string_or_seq` deserializer in `src-tauri/src/database/outliers.rs`, resolving serde type errors when handling JSON array sequences.
+- **Subscriber String Parsing for International Formats** - Fixed subscriber count parsing in `outlier_hunter.py` for Vietnamese and European decimal/thousands notations (`3,4M` vs `340.000`), preventing small-channel misidentifications.
+- **Concurrent Auto-Reup Download Clashing** - Fixed channel auto-download listener to prevent bulk-downloading all 5 videos simultaneously when auto-reup is active, enforcing strict 1-by-1 sequential execution.
+- **Infinite Polling Hang on Aborted Jobs** - Added a 45-second stdout read timeout watchdog in `bkt_channels.rs`, ensuring aborted or crashed jobs transition to failed status immediately.
+
 ## [1.0.4] - 2026-11-12
 
 ### Changed

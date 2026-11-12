@@ -1474,6 +1474,8 @@ pub async fn apply_competitor_seo_to_profile_cmd(
     cmd.arg(&runner)
         .arg("--action")
         .arg("configure_channel_settings")
+        .arg("--profile-id")
+        .arg(&profile_id)
         .arg("--data-b64")
         .arg(&data_b64);
     cmd.hide_window();

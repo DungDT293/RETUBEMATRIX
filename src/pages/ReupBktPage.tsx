@@ -73,6 +73,7 @@ import {
   HOOK_BANK_EN,
   HOOK_BANK_VI,
   type PreflightScanResult,
+  sanitizeYouTubeTitle,
 } from '@/utils/reup-auto-pilot';
 
 export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void } = {}) {
@@ -156,6 +157,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
     }
   });
   const [isPublishingMain, setIsPublishingMain] = useState<boolean>(false);
+  const [mainPublishProgress, setMainPublishProgress] = useState<string>('');
   const [mainPublishResult, setMainPublishResult] = useState<{
     success: boolean;
     video_url?: string;
@@ -286,6 +288,29 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
     },
     [],
   );
+
+  // Lắng nghe sự kiện tiến trình upload realtime từ Playwright (hỗ trợ hiển thị mượt mà qua proxy)
+  useEffect(() => {
+    let unlistenProgress: (() => void) | undefined;
+    listen<{ percent?: number; remaining?: string; message?: string }>(
+      'browser-upload-progress',
+      (event) => {
+        if (event.payload?.message) {
+          setMainPublishProgress(event.payload.message);
+        } else if (typeof event.payload?.percent === 'number') {
+          setMainPublishProgress(
+            `Đang tải lên: ${event.payload.percent}%${event.payload.remaining ? ` (${event.payload.remaining})` : ''}`,
+          );
+        }
+      },
+    ).then((unlisten) => {
+      unlistenProgress = unlisten;
+    });
+
+    return () => {
+      if (unlistenProgress) unlistenProgress();
+    };
+  }, []);
 
   // Check candidate from Outlier Hunter
   useEffect(() => {
@@ -568,7 +593,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       // Cập nhật sẵn sang tab test BKT
       setUploadVideoPath(res.output_path);
       const filename = res.output_path.split(/[\\/]/).pop() || 'Video Reup';
-      setUploadTitle(filename.replace(/\.[^/.]+$/, ''));
+      setUploadTitle((prev) => (prev?.trim() ? prev : filename.replace(/\.[^/.]+$/, '')));
 
       toast.success({
         title: 'Xử lý Reup hoàn tất!',
@@ -706,14 +731,16 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
           group.templates.some((tpl) => candidateTitle.includes(tpl.replace(/[—|]/g, '').trim())),
         );
 
-      const targetTitle =
+      const targetTitle = sanitizeYouTubeTitle(
         (overrideTitle
           ? overrideTitle.trim()
           : hasHook
             ? candidateTitle
             : getBestAutoPilotTitle(candidateTitle, 0, undefined, parsedTags)) ||
-        candidateTitle ||
-        'Video Reup Official';
+          candidateTitle ||
+          'Video Reup Official',
+        95,
+      );
 
       if (targetTitle !== uploadTitle) {
         setUploadTitle(targetTitle);
@@ -779,6 +806,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
 
       isPublishingMainRef.current = true;
       setIsPublishingMain(true);
+      setMainPublishProgress('Đang kết nối trình duyệt...');
       setMainPublishResult(null);
 
       toast.info({
@@ -832,6 +860,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
       } finally {
         isPublishingMainRef.current = false;
         setIsPublishingMain(false);
+        setMainPublishProgress('');
       }
     },
     [
@@ -891,8 +920,8 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
             description: 'YouTube Studio xác nhận không có bất kỳ hạn chế bản quyền nào.',
           });
 
-          // TỰ ĐỘNG BẮN LỆNH SANG KÊNH CHÍNH NẾU BẬT AUTO-PUBLISH
-          if (autoPublishMain && mainProfileId) {
+          // TỰ ĐỘNG BẮN LỆNH SANG KÊNH CHÍNH NẾU BẬT AUTO-PUBLISH (Chỉ khi không có tác vụ background worker đang chạy xử lý)
+          if (autoPublishMain && mainProfileId && !activeBackgroundJob) {
             void executePublishToMainChannel();
           }
         } else if (res.status === 'red_matched') {
@@ -977,6 +1006,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
     mainProfileId,
     executePublishToMainChannel,
     toast,
+    activeBackgroundJob,
   ]);
 
   // 100% Zero-Touch Auto-Pilot Pipeline
@@ -2167,7 +2197,7 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                         {isPublishingMain ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Đang đăng Kênh Chính...</span>
+                            <span>{mainPublishProgress || 'Đang đăng Kênh Chính...'}</span>
                           </>
                         ) : (
                           <>
@@ -2358,6 +2388,12 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                   : '')
               }
               activeThumbnailPath={uploadThumbnailPath}
+              activeVideoUrl={
+                inputVideoPath &&
+                (inputVideoPath.startsWith('http://') || inputVideoPath.startsWith('https://'))
+                  ? inputVideoPath
+                  : undefined
+              }
               activeTags={
                 uploadTags
                   ? uploadTags
@@ -2378,6 +2414,24 @@ export function ReupBktPage({ onNavigate }: { onNavigate?: (page: Page) => void 
                 toast.success({
                   title: 'Đã cập nhật thumbnail',
                   description: 'Ảnh bìa đã được gắn vào quy trình BKT Upload & Auto-Publish.',
+                });
+              }}
+              onApplyTags={(tagsArr) => {
+                const tagsStr = tagsArr.join(', ');
+                setUploadTags(tagsStr);
+                try {
+                  sessionStorage.setItem('reup_input_video_tags', tagsStr);
+                } catch {}
+                toast.success({
+                  title: 'Đã cập nhật Thẻ Tags',
+                  description: `Đã đồng bộ ${tagsArr.length} thẻ tags sang form BKT & Kênh Chính.`,
+                });
+              }}
+              onApplyDescription={(desc) => {
+                setUploadDescription(desc);
+                toast.success({
+                  title: 'Đã cập nhật Mô tả',
+                  description: 'Mô tả tối ưu đã được đồng bộ sang form BKT & Kênh Chính.',
                 });
               }}
               onNavigateToBkt={() => {

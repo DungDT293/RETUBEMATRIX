@@ -10,6 +10,7 @@ import {
   Settings,
   SlidersHorizontal,
   Sparkles,
+  Square,
   Trash2,
   UserCheck,
   Video,
@@ -52,6 +53,7 @@ interface ChannelCardProps {
   onRefreshChannels?: () => Promise<void>;
   reupProgress?: ChannelReupProgress;
   onClearReupProgress?: (channelId: string) => void;
+  onStopAutoReup?: (channelId: string) => void;
 }
 
 export function ChannelCard({
@@ -68,6 +70,7 @@ export function ChannelCard({
   onRefreshChannels,
   reupProgress,
   onClearReupProgress,
+  onStopAutoReup,
 }: ChannelCardProps) {
   const toast = useToast();
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -141,6 +144,14 @@ export function ChannelCard({
                     title={channel.risk_reason || 'Kênh có nguy cơ bản quyền cao'}
                   >
                     Kênh Rủi Ro
+                  </Badge>
+                ) : channel.risk_status === 'yellow' ? (
+                  <Badge
+                    variant="outline"
+                    className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[10px] py-0 cursor-help"
+                    title={channel.risk_reason || 'Kênh có video dính bản quyền (Cảnh báo)'}
+                  >
+                    Cảnh Báo Rủi Ro
                   </Badge>
                 ) : (
                   <Badge
@@ -353,7 +364,7 @@ export function ChannelCard({
         {/* Real-time Auto Reup Top 5 Progress Banner */}
         {reupProgress?.isRunning && (
           <div className="p-3 rounded-lg bg-gradient-to-r from-purple-500/10 via-purple-500/15 to-purple-500/10 border border-purple-500/30 text-xs shadow-sm space-y-2 animate-in fade-in">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <Loader2 className="w-4 h-4 animate-spin text-purple-400 shrink-0" />
                 <span className="font-semibold text-purple-300 shrink-0">
@@ -363,9 +374,24 @@ export function ChannelCard({
                   {reupProgress.progressText}
                 </span>
               </div>
-              <span className="text-[11px] font-mono font-bold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded border border-purple-500/30 shrink-0">
-                {Math.round((reupProgress.currentStep / reupProgress.totalSteps) * 100)}%
-              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-[11px] font-mono font-bold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded border border-purple-500/30">
+                  {Math.round((reupProgress.currentStep / reupProgress.totalSteps) * 100)}%
+                </span>
+                {onStopAutoReup && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="h-6 px-2 text-[11px] font-medium bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/40 rounded flex items-center gap-1 shadow-none transition-colors"
+                    onClick={() => onStopAutoReup(channel.id)}
+                    title="Dừng quy trình Auto Reup"
+                  >
+                    <Square className="w-3 h-3 fill-current" />
+                    <span>Dừng</span>
+                  </Button>
+                )}
+              </div>
             </div>
             <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden">
               <div

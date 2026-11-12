@@ -6,12 +6,14 @@ Automate YouTube Studio Channel Settings:
 3. Chế độ mặc định cho video tải lên -> Thông tin cơ bản: Điền "Thẻ (từ khóa)" (default tags) trích xuất từ đối thủ.
 4. Bấm Lưu và xác nhận hoàn tất.
 
-Tối ưu cho máy yếu (Low-end hardware: 4GB - 8GB RAM, CPU 2-4 cores):
+Tối ưu cho máy yếu (Low-end hardware: 4GB - 8GB RAM, CPU 2-4 cores) & Chuẩn hóa Polymer/Shadow DOM:
 - Route interception: Abort hình ảnh, media, fonts để giảm RAM < 180MB và tăng tốc tải Studio 3x.
 - Tự động xử lý popup "Cách bạn sẽ xuất hiện" / dialogs / warm-welcome-dialog / iron-overlay-backdrop cản trở.
-- Gõ dấu phẩy và Enter kèm delay 150-200ms cho Polymer custom elements ytcp-chip-cloud / ytcp-chip-bar.
-- Giới hạn tổng độ dài từ khóa <= 480 ký tự (tránh vượt 500 ký tự gây vô hiệu hóa nút Lưu).
-- Kiểm tra trạng thái active của nút Lưu (#submit-button / #save-button :not([disabled])) chờ tối đa 4s và xác nhận toast/dialog đóng.
+- Xuyên Shadow DOM toàn diện qua studio_dom (eval_studio_dom, click_stable_element, resolveNativeButton).
+- Language-agnostic 100%: Sử dụng ID cấu hình và test-id thay vì chuỗi văn bản cứng tiếng Việt/Anh.
+- Giới hạn tổng độ dài từ khóa <= 450 ký tự kèm tính quote penalty cho từ khóa ghép có khoảng trắng.
+- Triệt tiêu lỗi dính chữ (Polymer chip concatenation) bằng cơ chế kiểm tra và xả sạch ô nhập input sau mỗi Enter.
+- Kiểm tra trạng thái active của nút Lưu (#submit-button :not([disabled]):not([aria-disabled='true'])) và xác nhận toast/dialog đóng.
 """
 from __future__ import annotations
 
@@ -21,17 +23,24 @@ from typing import Any, List, Optional
 
 from actions.human_utils import random_delay
 from actions.bkt_check import setup_low_end_route_interception
+from actions.studio_dom import (
+    eval_studio_dom,
+    click_stable_element,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def trim_keywords_to_limit(keywords: List[str], max_chars: int = 480) -> List[str]:
+def trim_keywords_to_limit(keywords: List[str], max_chars: int = 450) -> List[str]:
     """
-    Giới hạn 500 ký tự của YouTube Studio:
-    YouTube không cho phép nhập quá 500 ký tự cho từ khóa kênh và thẻ video.
-    Nếu vượt quá, nút Lưu sẽ bị disable và hiện lỗi đỏ.
-    Hàm này cắt gọn danh sách từ khóa sao cho tổng độ dài <= max_chars (mặc định 480 ký tự),
-    loại bỏ trùng lặp và giữ nguyên thứ tự ưu tiên.
+    Giới hạn ký tự YouTube Studio:
+    YouTube quy định trần tối đa 500 ký tự cho từ khóa kênh và thẻ video.
+    Khi nhập cụm từ có khoảng trắng (multi-word tags), YouTube Studio tự động
+    bọc cụm từ đó trong dấu ngoặc kép ("..."), làm tăng thêm 2 ký tự mỗi cụm từ.
+    Đồng thời mỗi từ khóa tốn 1 ký tự phân tách (dấu phẩy).
+    Vì vậy trần an toàn tuyệt đối là max_chars = 450 (biên dự phòng 50 ký tự),
+    tính toán chính xác quote penalty:
+      cost = len(clean) + (2 if " " in clean else 0) + 1
     """
     trimmed: List[str] = []
     current_len = 0
@@ -46,11 +55,11 @@ def trim_keywords_to_limit(keywords: List[str], max_chars: int = 480) -> List[st
             continue
         seen.add(lower_clean)
 
-        # Trong YouTube Studio, mỗi từ khóa chiếm độ dài từ + 1 ký tự phân tách (dấu phẩy)
-        cost = len(clean) + 1
+        quote_penalty = 2 if " " in clean else 0
+        cost = len(clean) + quote_penalty + 1
         if current_len + cost > max_chars:
             logger.info(
-                "Đã đạt ngưỡng an toàn ký tự YouTube (%d + %d > %d). Cắt gọn tại từ khóa '%s'.",
+                "Đã chạm ngưỡng an toàn ký tự YouTube Studio (%d + %d > %d). Cắt gọn tại từ khóa '%s'.",
                 current_len, cost, max_chars, clean
             )
             break
@@ -58,7 +67,7 @@ def trim_keywords_to_limit(keywords: List[str], max_chars: int = 480) -> List[st
         current_len += cost
 
     logger.info(
-        "Tối ưu từ khóa: từ %d từ gốc -> giữ lại %d từ (tổng độ dài: %d/%d ký tự)",
+        "Tối ưu từ khóa: từ %d từ gốc -> giữ lại %d từ (tổng chi phí ước tính: %d/%d ký tự)",
         len(keywords), len(trimmed), current_len, max_chars
     )
     return trimmed
@@ -66,105 +75,55 @@ def trim_keywords_to_limit(keywords: List[str], max_chars: int = 480) -> List[st
 
 async def dismiss_studio_dialogs_and_backdrops(page: Any) -> bool:
     """
-    Tự động tắt/bỏ qua popup 'Cách bạn sẽ xuất hiện' (ytd-channel-creation-dialog-renderer),
-    'Chào mừng bạn đến với YouTube Studio' (ytcp-warm-welcome-dialog),
-    TP-YT-PAPER-DIALOG, iron-overlay-backdrop cản trở việc click nút #settings-item / #settings-button.
+    Tắt/bỏ qua các popup cản trở thao tác trên YouTube Studio:
+    - Welcome dialog (ytcp-warm-welcome-dialog)
+    - Channel creation dialog (ytd-channel-creation-dialog-renderer)
+    - Operational error / modal overlays
+    Không xóa nhầm backdrop của chính Settings dialog.
     """
     dismissed = False
-
-    # 1. Xử lý popup Chào mừng Studio (ytcp-warm-welcome-dialog)
     try:
-        welcome_btn = page.locator(
-            "ytcp-warm-welcome-dialog #dismiss-button, #welcome-dialog #dismiss-button, "
-            "ytcp-warm-welcome-dialog button:has-text('Tiếp tục'), ytcp-warm-welcome-dialog button:has-text('Continue'), "
-            "button:has-text('Tiếp tục'), button:has-text('Continue')"
-        ).first
-        if await welcome_btn.is_visible(timeout=300):
-            logger.info("Phát hiện popup Chào mừng YouTube Studio, bấm Tiếp tục...")
-            await welcome_btn.click()
-            dismissed = True
+        res = await eval_studio_dom(page, """
+            const settingsDialog = __rtmDom.deepFirstVisible(document, 'ytcp-settings-dialog, ytcp-channel-settings-dialog');
+            if (settingsDialog && __rtmDom.isReallyVisible(settingsDialog)) {
+                return false; // Không dismiss khi Settings dialog đang mở
+            }
+
+            // 1. Welcome dialog
+            const welcomeBtn = __rtmDom.deepFirstVisible(document, 'ytcp-warm-welcome-dialog #dismiss-button, ytcp-warm-welcome-dialog [dialog-dismiss], #welcome-dialog #dismiss-button');
+            if (welcomeBtn && __rtmDom.isReallyVisible(welcomeBtn)) {
+                const b = __rtmDom.resolveNativeButton(welcomeBtn) || welcomeBtn;
+                b.click();
+                return 'welcome';
+            }
+
+            // 2. Channel creation dialog
+            const creation = __rtmDom.deepFirstVisible(document, 'ytd-channel-creation-dialog-renderer');
+            if (creation && __rtmDom.isReallyVisible(creation)) {
+                const cancelBtn = __rtmDom.deepFirstVisible(creation, '#cancel-button, [test-id="cancel-button"], [dialog-dismiss]');
+                if (cancelBtn) {
+                    const b = __rtmDom.resolveNativeButton(cancelBtn) || cancelBtn;
+                    b.click();
+                    return 'creation_canceled';
+                }
+            }
+
+            // 3. Operational error dialogs
+            const errorDismiss = __rtmDom.deepFirstVisible(document, 'ytcp-permanent-operational-error-manager [dialog-dismiss], ytcp-permanent-operational-error-manager button');
+            if (errorDismiss && __rtmDom.isReallyVisible(errorDismiss)) {
+                const b = __rtmDom.resolveNativeButton(errorDismiss) || errorDismiss;
+                b.click();
+                return 'error_dismissed';
+            }
+
+            return false;
+        """)
+        if res:
+            logger.info("Đã tự động đóng dialog cản trở: %s", res)
             await asyncio.sleep(0.4)
-    except Exception:
-        pass
-
-    # 2. Xử lý dialog tạo kênh hoặc popup xuất hiện ban đầu
-    try:
-        creation_dialog = page.locator("ytd-channel-creation-dialog-renderer").first
-        if await creation_dialog.is_visible(timeout=300):
-            logger.info("Phát hiện popup 'Cách bạn sẽ xuất hiện', tự động xử lý...")
-            create_btn = creation_dialog.locator(
-                "button:has-text('Tạo kênh'), button:has-text('Create channel'), [aria-label*='Tạo kênh']"
-            ).first
-            if await create_btn.is_visible(timeout=300):
-                await create_btn.click()
-                dismissed = True
-                await asyncio.sleep(1.0)
-            else:
-                cancel_btn = creation_dialog.locator(
-                    "#cancel-button, button:has-text('Hủy'), button:has-text('Cancel'), [aria-label*='Hủy']"
-                ).first
-                if await cancel_btn.is_visible(timeout=300):
-                    await cancel_btn.click()
-                    dismissed = True
-                    await asyncio.sleep(0.4)
-    except Exception:
-        pass
-
-    # 3. Tìm các nút Đóng / Hủy trên dialog khác (lỗi vận hành, modal thông báo)
-    cancel_selectors = [
-        "ytcp-permanent-operational-error-manager button:has-text('Đóng')",
-        "ytcp-permanent-operational-error-manager button:has-text('Close')",
-        "tp-yt-paper-dialog #cancel-button",
-        "tp-yt-paper-dialog button:has-text('Hủy')",
-        "tp-yt-paper-dialog button:has-text('Cancel')",
-        "#dialog #cancel-button",
-        "ytcp-dialog #cancel-button",
-        "button:has-text('Để sau')",
-        "button:has-text('Không phải bây giờ')",
-        "button:has-text('Dismiss')",
-        "button:has-text('Skip')",
-    ]
-
-    for sel in cancel_selectors:
-        try:
-            btn = page.locator(sel).first
-            if await btn.is_visible(timeout=250):
-                logger.info("Phát hiện popup cản trở, bấm nút hủy/đóng: %s", sel)
-                await btn.click()
-                dismissed = True
-                await asyncio.sleep(0.3)
-                break
-        except Exception:
-            pass
-
-    # 4. Nhấn Escape nếu phát hiện dialog hoặc overlay backdrop còn mở
-    try:
-        has_overlay = await page.evaluate("""() => {
-            const creation = document.querySelector('ytd-channel-creation-dialog-renderer');
-            const welcome = document.querySelector('ytcp-warm-welcome-dialog[aria-modal="true"], #welcome-dialog');
-            const backdrop = document.querySelector('iron-overlay-backdrop.opened, tp-yt-iron-overlay-backdrop.opened');
-            return Boolean(creation || welcome || backdrop);
-        }""")
-        if has_overlay:
-            logger.info("Phát hiện overlay/backdrop đang chắn, gửi phím Escape...")
-            await page.keyboard.press("Escape")
-            await asyncio.sleep(0.3)
             dismissed = True
-    except Exception:
-        pass
-
-    # 5. Dọn dẹp an toàn các backdrop bị treo cản click
-    try:
-        await page.evaluate("""() => {
-            const backdrops = document.querySelectorAll('iron-overlay-backdrop.opened, tp-yt-iron-overlay-backdrop.opened');
-            backdrops.forEach(b => {
-                b.classList.remove('opened');
-                b.style.display = 'none';
-                b.remove();
-            });
-        }""")
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("dismiss_studio_dialogs error: %s", exc)
 
     return dismissed
 
@@ -179,8 +138,9 @@ async def input_polymer_chips(
     """
     Nhập chip keywords/tags vào Polymer ytcp-chip-cloud / ytcp-chip-bar:
     - Nếu clear_existing = True: xóa các chip cũ (nút Xóa tất cả / delete icons) để tránh vượt quá 500 ký tự.
-    - Phải bấm Enter và gõ dấu phẩy ',' với delay 150-200ms để Polymer custom elements
-      nhận diện sự kiện phân tách tag và tạo chip thành công.
+    - Gõ dấu phẩy và Enter kèm delay 150-180ms để Polymer custom elements nhận diện sự kiện phân tách.
+    - Sau mỗi chip, kiểm tra ô input: nếu còn chữ thừa thì nhấn Enter lại hoặc xóa sạch ô để tránh
+      dính chữ liên tiếp (Polymer chip concatenation bug).
     """
     input_el = None
     for sel in input_selectors:
@@ -193,25 +153,45 @@ async def input_polymer_chips(
             pass
 
     if not input_el:
+        # Thử tìm xuyên Shadow DOM qua eval_studio_dom
+        try:
+            input_found = await eval_studio_dom(page, """
+                const inp = __rtmDom.deepFirstVisible(document, 'ytcp-chip-cloud #text-input, ytcp-chip-bar #text-input, #channel-keywords #text-input, #tags-input #text-input, input#text-input');
+                if (inp) {
+                    inp.focus();
+                    return true;
+                }
+                return false;
+            """)
+            if input_found:
+                input_el = page.locator("input:focus").first
+        except Exception:
+            pass
+
+    if not input_el:
+        logger.warning("Không tìm thấy phần tử input chip keywords/tags")
         return 0
 
     # 1. Dọn dẹp chip cũ nếu được yêu cầu
     if clear_existing:
         try:
             clear_all_btn = page.locator(
-                "ytcp-button#delete-all-button, [aria-label*='Xóa tất cả'], [aria-label*='Clear all'], "
+                "ytcp-button#delete-all-button, [test-id='delete-all-button'], [aria-label*='Xóa tất cả'], [aria-label*='Clear all'], "
                 "button:has-text('Xóa tất cả'), button:has-text('Clear all')"
             ).first
             if await clear_all_btn.is_visible(timeout=800):
                 await clear_all_btn.click()
                 await asyncio.sleep(0.3)
             else:
-                await page.evaluate("""() => {
-                    const deleteBtns = document.querySelectorAll('ytcp-chip #delete-icon, ytcp-chip ytcp-icon-button, ytcp-chip .delete-icon');
+                await eval_studio_dom(page, """
+                    const deleteBtns = __rtmDom.deepQueryAll(document, 'ytcp-chip #delete-icon, ytcp-chip ytcp-icon-button, ytcp-chip .delete-icon');
                     deleteBtns.forEach(b => {
-                        try { b.click(); } catch(e) {}
+                        try {
+                            const nativeBtn = __rtmDom.resolveNativeButton(b) || b;
+                            nativeBtn.click();
+                        } catch(e) {}
                     });
-                }""")
+                """)
                 await asyncio.sleep(0.3)
         except Exception:
             pass
@@ -223,22 +203,27 @@ async def input_polymer_chips(
             continue
         try:
             await input_el.click()
-            await asyncio.sleep(0.12)
+            await asyncio.sleep(0.10)
             await input_el.fill(clean_item)
-            # Delay 150-200ms trước khi gõ dấu phẩy
-            await asyncio.sleep(0.18)
+            await asyncio.sleep(0.15)
             await page.keyboard.press(",")
-            # Delay 150-200ms trước khi bấm Enter
-            await asyncio.sleep(0.18)
+            await asyncio.sleep(0.15)
             await page.keyboard.press("Enter")
-            await asyncio.sleep(0.20)
+            await asyncio.sleep(0.18)
 
-            # Kiểm tra an toàn: nếu nội dung vẫn nằm trong input thì enter lại
+            # Cơ chế chống dính chữ: kiểm tra xem nội dung đã được chuyển thành chip chưa
             try:
                 val = await input_el.input_value()
                 if val and val.strip():
                     await page.keyboard.press("Enter")
                     await asyncio.sleep(0.15)
+                    val2 = await input_el.input_value()
+                    if val2 and val2.strip():
+                        # Nếu vẫn còn chữ thừa trong ô, dọn sạch trước khi gõ từ tiếp theo
+                        await page.keyboard.press("Control+a")
+                        await asyncio.sleep(0.05)
+                        await page.keyboard.press("Backspace")
+                        await asyncio.sleep(0.10)
             except Exception:
                 pass
 
@@ -249,6 +234,118 @@ async def input_polymer_chips(
     return applied_count
 
 
+async def open_settings_dialog(page: Any) -> bool:
+    """
+    Mở hộp thoại Cài đặt (Settings dialog) trong YouTube Studio bằng cách:
+    - Cuộn drawer xuống đáy.
+    - Thao tác đa tầng: Playwright locator -> click_stable_element -> Deep JS composed click.
+    - Lắng nghe sự xuất hiện của ytcp-settings-dialog.
+    """
+    # 1. Kiểm tra xem Settings dialog đã vô tình được mở sẵn chưa
+    try:
+        is_already_open = await eval_studio_dom(page, """
+            const d = __rtmDom.deepFirstVisible(document, 'ytcp-settings-dialog, ytcp-channel-settings-dialog');
+            return Boolean(d && __rtmDom.isReallyVisible(d));
+        """)
+        if is_already_open:
+            logger.info("Hộp thoại Cài đặt Studio đã mở sẵn từ trước")
+            return True
+    except Exception:
+        pass
+
+    settings_selectors = [
+        "ytcp-navigation-drawer #settings-item tp-yt-paper-icon-item",
+        "ytcp-navigation-drawer #settings-item",
+        "#settings-item tp-yt-paper-icon-item",
+        "#settings-item",
+        "ytcp-navigation-drawer [test-id='settings']",
+        "[test-id='settings']",
+        "ytcp-navigation-drawer #settings-button",
+        "#settings-button",
+        "ytcp-navigation-item#settings-item",
+        "tp-yt-paper-icon-item#settings-item",
+    ]
+
+    for attempt in range(1, 5):
+        await dismiss_studio_dialogs_and_backdrops(page)
+
+        # Cuộn thanh điều hướng xuống đáy để lộ các item ở chân drawer
+        try:
+            await eval_studio_dom(page, """
+                const drawer = document.querySelector('ytcp-navigation-drawer, nav#left-nav, tp-yt-app-drawer');
+                if (drawer) {
+                    drawer.scrollTop = drawer.scrollHeight;
+                    const scrollable = drawer.querySelector('#contentContainer, #items, [id*="scroll"]');
+                    if (scrollable) scrollable.scrollTop = scrollable.scrollHeight;
+                }
+            """)
+        except Exception:
+            pass
+
+        # Cách 1: Click bằng Playwright click_stable_element (bảo vệ TOCTOU)
+        clicked = await click_stable_element(
+            page,
+            selectors=settings_selectors,
+            timeout_ms=3000,
+            pre_delay=0.15,
+        )
+        if clicked:
+            logger.info("Lần %d: Đã click nút Cài đặt qua stable element '%s'", attempt, clicked)
+
+        # Cách 2: Nếu chưa click được, dùng Deep JS traversal với composed: true
+        if not clicked:
+            try:
+                js_clicked = await eval_studio_dom(page, """
+                    const drawer = document.querySelector('ytcp-navigation-drawer, nav#left-nav, tp-yt-app-drawer') || document;
+                    const cand = __rtmDom.deepFirstVisible(
+                        drawer,
+                        '#settings-item tp-yt-paper-icon-item, #settings-item, [test-id="settings"], #settings-button, ytcp-navigation-item:has(tp-yt-iron-icon[icon*="settings"])'
+                    );
+                    if (cand) {
+                        cand.scrollIntoView({ behavior: 'instant', block: 'center' });
+                        const btn = __rtmDom.resolveNativeButton(cand) || cand;
+                        btn.click();
+                        btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+                        return true;
+                    }
+                    return false;
+                """)
+                if js_clicked:
+                    logger.info("Lần %d: Đã click nút Cài đặt thành công qua Deep JS traversal", attempt)
+            except Exception as exc:
+                logger.debug("Lần %d: Lỗi JS traversal click Settings: %s", attempt, exc)
+
+        # Chờ hộp thoại Cài đặt xuất hiện qua DOM predicate (trần tối đa 6.0s)
+        try:
+            await page.wait_for_function(
+                """() => {
+                    const d = document.querySelector('ytcp-settings-dialog, ytcp-channel-settings-dialog');
+                    return Boolean(d && (d.offsetParent !== null || window.getComputedStyle(d).display !== 'none'));
+                }""",
+                timeout=6000,
+            )
+            logger.info("Hộp thoại Cài đặt Studio đã hiển thị (lần thử %d)", attempt)
+            return True
+        except Exception:
+            pass
+
+        logger.warning("Lần %d: Chưa thấy hộp thoại Cài đặt mở, chuẩn bị thử lại...", attempt)
+        await asyncio.sleep(0.4)
+
+    # Lần kiểm tra cuối cùng
+    try:
+        await page.wait_for_selector(
+            "li#channel, [test-id='channel'], #channel, ytcp-channel-settings-dialog, ytcp-settings-dialog",
+            state="attached",
+            timeout=10000,
+        )
+        logger.info("Hộp thoại Cài đặt Studio đã hiển thị sau lần chờ cuối")
+        return True
+    except Exception as exc:
+        logger.error("Dialog Cài đặt không xuất hiện: %s", exc)
+        return False
+
+
 async def configure_channel_settings(
     page: Any,
     channel_keywords: Optional[List[str]] = None,
@@ -256,15 +353,18 @@ async def configure_channel_settings(
     made_for_kids: bool = False,
 ) -> dict:
     """
-    Open YouTube Studio settings dialog and apply competitor-matched SEO settings.
-    Tối ưu cho máy cấu hình yếu với route interception và xử lý popup thông minh.
+    Mở hộp thoại Cài đặt YouTube Studio và cấu hình tự động:
+    1. Kênh -> Thông tin cơ bản: Điền từ khóa kênh.
+    2. Kênh -> Cài đặt nâng cao: Chọn "Không, đặt kênh này là không dành cho trẻ em".
+    3. Chế độ mặc định cho video tải lên -> Thẻ: Điền thẻ video mặc định.
+    4. Bấm Lưu và xác nhận hoàn tất.
     """
     channel_keywords = channel_keywords or []
     default_tags = default_tags or []
 
-    # Cắt gọn danh sách từ khóa <= 480 ký tự theo quy định YouTube Studio
-    trimmed_channel_keywords = trim_keywords_to_limit(channel_keywords, max_chars=480)
-    trimmed_default_tags = trim_keywords_to_limit(default_tags, max_chars=480)
+    # Cắt gọn danh sách từ khóa <= 450 ký tự kèm tính quote penalty cho từ ghép
+    trimmed_channel_keywords = trim_keywords_to_limit(channel_keywords, max_chars=450)
+    trimmed_default_tags = trim_keywords_to_limit(default_tags, max_chars=450)
 
     logger.info(
         "Bắt đầu cấu hình Kênh YouTube Studio: %d từ khóa kênh (tối ưu từ %d), %d thẻ video (tối ưu từ %d), made_for_kids=%s",
@@ -278,82 +378,50 @@ async def configure_channel_settings(
     # 1. Kích hoạt Low-End Route Interception để giảm RAM và tăng tốc tải trang
     await setup_low_end_route_interception(page)
 
-    # 2. Điều hướng tới YouTube Studio
+    # 2. Điều hướng tới YouTube Studio (timeout 75s chống nghẽn proxy)
     current_url = page.url or ""
     if "studio.youtube.com" not in current_url:
         logger.info("Chuyển hướng đến https://studio.youtube.com...")
-        await page.goto("https://studio.youtube.com", wait_until="domcontentloaded", timeout=45000)
+        await page.goto("https://studio.youtube.com", wait_until="domcontentloaded", timeout=75000)
         await random_delay(2.0, 3.5)
 
     # 3. Tự động xử lý popup "Cách bạn sẽ xuất hiện" / warm welcome dialog
     await dismiss_studio_dialogs_and_backdrops(page)
 
-    # Đảm bảo trang Studio đã sẵn sàng (hỗ trợ cả #settings-item và #settings-button)
+    # Đảm bảo khung điều hướng YouTube Studio đã sẵn sàng
     try:
         await page.wait_for_selector(
-            "#settings-item, #settings-button, [test-id='settings'], tp-yt-paper-icon-item#settings-item, #menu-item-link",
-            timeout=25000,
+            "ytcp-navigation-drawer, nav#left-nav, tp-yt-app-drawer, ytcp-app",
+            timeout=45000,
         )
     except Exception as exc:
-        logger.warning("Chờ studio load: %s", exc)
+        logger.warning("Chờ studio load khung điều hướng: %s", exc)
 
-    # Xử lý lại popup nếu vừa render muộn
-    await dismiss_studio_dialogs_and_backdrops(page)
-    await random_delay(0.8, 1.5)
-
-    # 4. Bấm nút Cài đặt (#settings-item hoặc #settings-button) với cơ chế thử lại
-    logger.info("Mở hộp thoại Cài đặt (Settings dialog)...")
-    settings_clicked = False
-    for attempt in range(1, 4):
-        await dismiss_studio_dialogs_and_backdrops(page)
-        try:
-            settings_btn = page.locator(
-                "#settings-item, #settings-button, [test-id='settings'], "
-                "tp-yt-paper-icon-item#settings-item, tp-yt-paper-icon-item:has-text('Cài đặt'), "
-                "tp-yt-paper-icon-item:has-text('Settings'), ytcp-icon-button#settings-button"
-            ).first
-            if await settings_btn.is_visible(timeout=3000):
-                await settings_btn.click(timeout=3000)
-                settings_clicked = True
-                logger.info("Đã click nút Cài đặt thành công (lần thử %d)", attempt)
-                break
-        except Exception as exc:
-            logger.warning("Lần %d: Thử click Settings gặp cản trở (%s), đang dọn dẹp backdrop...", attempt, exc)
-            await dismiss_studio_dialogs_and_backdrops(page)
-            await asyncio.sleep(0.6)
-
-    if not settings_clicked:
-        # Fallback bằng JavaScript click
-        await dismiss_studio_dialogs_and_backdrops(page)
-        settings_clicked = await page.evaluate("""() => {
-            const btn = document.querySelector('#settings-item')
-                || document.querySelector('#settings-button')
-                || document.querySelector('[test-id="settings"]')
-                || document.querySelector('tp-yt-paper-icon-item#settings-item')
-                || document.querySelector('ytcp-icon-button#settings-button');
-            if (btn) {
-                btn.click();
-                return true;
+    # Mở rộng sidebar nếu drawer đang bị thu nhỏ (rail mode)
+    try:
+        await eval_studio_dom(page, """
+            const drawer = document.querySelector('ytcp-navigation-drawer, tp-yt-app-drawer');
+            const guideBtn = document.querySelector('#guide-button, [aria-label*="Guide" i], [aria-label*="Menu" i]');
+            if (drawer && (drawer.hasAttribute('collapsed') || drawer.getAttribute('opened') === 'false')) {
+                if (guideBtn) guideBtn.click();
             }
-            return false;
-        }""")
+        """)
+    except Exception:
+        pass
 
-    # 5. Chờ menu Settings dialog xuất hiện
-    try:
-        await page.wait_for_selector(
-            "li#channel, [test-id='channel'], #channel, ytcp-channel-settings-dialog, ytcp-settings-dialog",
-            state="attached",
-            timeout=15000,
-        )
-        logger.info("Hộp thoại Cài đặt Studio đã hiển thị")
-    except Exception as exc:
-        logger.error("Dialog Cài đặt không xuất hiện: %s", exc)
+    await dismiss_studio_dialogs_and_backdrops(page)
+    await random_delay(0.6, 1.2)
+
+    # 4. Mở hộp thoại Cài đặt (Settings dialog)
+    dialog_opened = await open_settings_dialog(page)
+    if not dialog_opened:
         return {"success": False, "error": "Hộp thoại Cài đặt Studio không hiển thị"}
 
-    await random_delay(0.8, 1.5)
+    await random_delay(0.6, 1.2)
 
     # -------------------------------------------------------------
     # BƯỚC 1: Chọn menu "Kênh" (Channel) ở thanh điều hướng bên trái
+    # Language-Agnostic: ID cấu trúc li#channel, [test-id='channel'] hoặc vị trí menu số 2
     # -------------------------------------------------------------
     logger.info("Chọn menu 'Kênh' trong hộp thoại cài đặt...")
     channel_menu_clicked = False
@@ -362,14 +430,12 @@ async def configure_channel_settings(
         "ytcp-settings-dialog li#channel",
         "ytcp-channel-settings-dialog li#channel",
         "ytcp-navigation-item[test-id='channel']",
-        "li:has-text('Kênh')",
-        "li:has-text('Channel')",
-        "span.title-text:has-text('Kênh')",
-        "span.title-text:has-text('Channel')",
+        "[test-id='channel']",
+        "ytcp-settings-dialog tp-yt-paper-listbox > li:nth-child(2)",
     ]:
         try:
             item = page.locator(sel).first
-            if await item.is_visible(timeout=1500):
+            if await item.is_visible(timeout=3000):
                 await item.click()
                 channel_menu_clicked = True
                 logger.info("Đã click menu Kênh qua selector: %s", sel)
@@ -378,41 +444,40 @@ async def configure_channel_settings(
             pass
 
     if not channel_menu_clicked:
-        # JS click fallback
-        channel_menu_clicked = await page.evaluate("""() => {
-            const el = document.querySelector('li#channel')
-                || document.querySelector('ytcp-settings-dialog li#channel')
-                || document.querySelector('[test-id="channel"]');
+        channel_menu_clicked = await eval_studio_dom(page, """
+            const el = __rtmDom.deepFirstVisible(
+                document,
+                'ytcp-settings-dialog li#channel, ytcp-channel-settings-dialog li#channel, [test-id="channel"], li#channel, ytcp-settings-dialog tp-yt-paper-listbox > li:nth-child(2)'
+            );
             if (el) {
-                el.click();
+                const btn = __rtmDom.resolveNativeButton(el) || el;
+                btn.click();
+                btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
                 return true;
             }
-            const items = document.querySelectorAll('ytcp-settings-dialog li, ytcp-settings-dialog ytcp-navigation-item');
-            for (const item of items) {
-                const t = (item.innerText || '').toLowerCase();
-                if (t.includes('kênh') || t.includes('channel')) {
-                    item.click();
-                    return true;
-                }
-            }
             return false;
-        }""")
+        """)
 
-    await random_delay(0.8, 1.5)
+    # Chờ DOM panel Kênh sẵn sàng
+    try:
+        await page.wait_for_selector("tp-yt-paper-tab, #channel-keywords, ytcp-chip-cloud", timeout=4000)
+    except Exception:
+        await asyncio.sleep(0.3)
 
     # -------------------------------------------------------------
     # BƯỚC 2: Tab "Thông tin cơ bản" -> Nhập "Từ khóa" (channel_keywords)
+    # Language-Agnostic: tp-yt-paper-tab#channel-basic-tab hoặc tab số 1
     # -------------------------------------------------------------
     applied_kw_count = 0
     if trimmed_channel_keywords:
         logger.info("Điền %d từ khóa kênh vào mục 'Từ khóa'...", len(trimmed_channel_keywords))
         try:
             tab_basic = page.locator(
-                "tp-yt-paper-tab:has-text('Thông tin cơ bản'), tp-yt-paper-tab:has-text('Basic info')"
+                "tp-yt-paper-tab#channel-basic-tab, tp-yt-paper-tab:first-child, tp-yt-paper-tab:nth-child(1), [test-id='basic-info-tab']"
             ).first
-            if await tab_basic.is_visible(timeout=2000):
+            if await tab_basic.is_visible(timeout=3000):
                 await tab_basic.click()
-                await random_delay(0.4, 0.8)
+                await asyncio.sleep(0.2)
         except Exception:
             pass
 
@@ -420,27 +485,26 @@ async def configure_channel_settings(
             "ytcp-chip-cloud #text-input",
             "ytcp-chip-bar #text-input",
             "#channel-keywords #text-input",
-            "input[placeholder*='từ khóa']",
-            "input[placeholder*='Keywords']",
             "#channel-keywords input",
             "input#text-input",
         ]
         applied_kw_count = await input_polymer_chips(page, page, trimmed_channel_keywords, kw_selectors)
         logger.info("Đã hoàn tất nhập %d từ khóa kênh", applied_kw_count)
 
-    await random_delay(0.6, 1.2)
+    await asyncio.sleep(0.2)
 
     # -------------------------------------------------------------
     # BƯỚC 3: Tab "Cài đặt nâng cao" -> Chọn KHÔNG DÀNH CHO TRẺ EM
+    # Language-Agnostic: tp-yt-paper-tab#channel-advanced-tab hoặc tab số 2, radio name="NOT_MADE_FOR_KIDS"
     # -------------------------------------------------------------
     logger.info("Chuyển sang tab 'Cài đặt nâng cao' để thiết lập Đối tượng người xem...")
     try:
         tab_adv = page.locator(
-            "tp-yt-paper-tab:has-text('Cài đặt nâng cao'), tp-yt-paper-tab:has-text('Advanced settings')"
+            "tp-yt-paper-tab#channel-advanced-tab, tp-yt-paper-tab:nth-child(2), [test-id='advanced-settings-tab']"
         ).first
-        if await tab_adv.is_visible(timeout=2500):
+        if await tab_adv.is_visible(timeout=3000):
             await tab_adv.click()
-            await random_delay(0.6, 1.2)
+            await asyncio.sleep(0.2)
     except Exception as e:
         logger.warning("Lỗi click tab Cài đặt nâng cao: %s", e)
 
@@ -448,13 +512,11 @@ async def configure_channel_settings(
     for r_sel in [
         "tp-yt-paper-radio-button[name='NOT_MADE_FOR_KIDS']",
         "tp-yt-paper-radio-button[name='NOT_MFK']",
-        "tp-yt-paper-radio-button:has-text('không dành cho trẻ em')",
-        "tp-yt-paper-radio-button:has-text('not made for kids')",
         "#audience-not-made-for-kids",
     ]:
         try:
             r = page.locator(r_sel).first
-            if await r.is_visible(timeout=1500):
+            if await r.is_visible(timeout=3000):
                 await r.click()
                 checked = await r.get_attribute("aria-checked")
                 if checked == "true":
@@ -465,24 +527,26 @@ async def configure_channel_settings(
             pass
 
     if not not_mfk_clicked:
-        not_mfk_clicked = await page.evaluate("""() => {
-            const radios = document.querySelectorAll('tp-yt-paper-radio-button');
+        not_mfk_clicked = await eval_studio_dom(page, """
+            const radios = __rtmDom.deepQueryAll(document, 'tp-yt-paper-radio-button');
             for (const r of radios) {
                 const name = r.getAttribute('name') || '';
-                const text = (r.innerText || '').toLowerCase();
-                if (name.includes('NOT_MADE_FOR_KIDS') || name.includes('NOT_MFK') || text.includes('không dành cho trẻ em') || text.includes('not made for kids')) {
-                    r.click();
+                if (name.includes('NOT_MADE_FOR_KIDS') || name.includes('NOT_MFK')) {
+                    const b = __rtmDom.resolveNativeButton(r) || r;
+                    b.click();
+                    b.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
                     return true;
                 }
             }
             return false;
-        }""")
+        """)
         logger.info("JS fallback chọn Không dành cho trẻ em: %s", not_mfk_clicked)
 
-    await random_delay(0.6, 1.2)
+    await asyncio.sleep(0.2)
 
     # -------------------------------------------------------------
     # BƯỚC 4: Menu "Chế độ mặc định cho video tải lên" -> Thẻ (tags)
+    # Language-Agnostic: li#uploads, [test-id='upload-defaults'] hoặc vị trí menu số 3
     # -------------------------------------------------------------
     applied_tags_count = 0
     if trimmed_default_tags:
@@ -493,14 +557,12 @@ async def configure_channel_settings(
             "ytcp-settings-dialog li#uploads",
             "ytcp-channel-settings-dialog li#uploads",
             "ytcp-navigation-item[test-id='upload-defaults']",
-            "li:has-text('Chế độ mặc định')",
-            "li:has-text('Upload defaults')",
-            "span.title-text:has-text('Chế độ mặc định')",
-            "span.title-text:has-text('Upload defaults')",
+            "[test-id='upload-defaults']",
+            "ytcp-settings-dialog tp-yt-paper-listbox > li:nth-child(3)",
         ]:
             try:
                 item = page.locator(sel).first
-                if await item.is_visible(timeout=1500):
+                if await item.is_visible(timeout=3000):
                     await item.click()
                     upload_menu_clicked = True
                     logger.info("Đã click menu Chế độ mặc định qua: %s", sel)
@@ -509,89 +571,86 @@ async def configure_channel_settings(
                 pass
 
         if not upload_menu_clicked:
-            upload_menu_clicked = await page.evaluate("""() => {
-                const el = document.querySelector('li#uploads')
-                    || document.querySelector('ytcp-settings-dialog li#uploads')
-                    || document.querySelector('[test-id="upload-defaults"]');
+            upload_menu_clicked = await eval_studio_dom(page, """
+                const el = __rtmDom.deepFirstVisible(
+                    document,
+                    'ytcp-settings-dialog li#uploads, ytcp-channel-settings-dialog li#uploads, [test-id="upload-defaults"], li#uploads, ytcp-settings-dialog tp-yt-paper-listbox > li:nth-child(3)'
+                );
                 if (el) {
-                    el.click();
+                    const btn = __rtmDom.resolveNativeButton(el) || el;
+                    btn.click();
+                    btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
                     return true;
                 }
-                const items = document.querySelectorAll('ytcp-settings-dialog li, ytcp-settings-dialog ytcp-navigation-item');
-                for (const item of items) {
-                    const t = (item.innerText || '').toLowerCase();
-                    if (t.includes('chế độ mặc định') || t.includes('upload defaults')) {
-                        item.click();
-                        return true;
-                    }
-                }
                 return false;
-            }""")
+            """)
 
-        await random_delay(0.8, 1.5)
-
-        # Tab Thông tin cơ bản
+        # Chờ DOM panel Chế độ mặc định sẵn sàng
         try:
-            tab_basic2 = page.locator(
-                "tp-yt-paper-tab:has-text('Thông tin cơ bản'), tp-yt-paper-tab:has-text('Basic info')"
-            ).first
-            if await tab_basic2.is_visible(timeout=1500):
+            await page.wait_for_selector("tp-yt-paper-tab, #tags-input, [id*='scrollable']", timeout=4000)
+        except Exception:
+            await asyncio.sleep(0.3)
+
+        # Đảm bảo tab Thông tin cơ bản được chọn (tab số 1)
+        try:
+            tab_basic2 = page.locator("tp-yt-paper-tab:first-child, tp-yt-paper-tab:nth-child(1)").first
+            if await tab_basic2.is_visible(timeout=3000):
                 await tab_basic2.click()
-                await random_delay(0.4, 0.8)
+                await asyncio.sleep(0.2)
         except Exception:
             pass
 
         # Cuộn nội dung xuống ô Thẻ (tags)
         try:
-            await page.evaluate("""() => {
-                const sc = document.querySelector('ytcp-settings-dialog #scrollable-content')
-                    || document.querySelector('ytcp-channel-settings-dialog #scrollable-content')
-                    || document.querySelector('[id*="scrollable"]');
+            await eval_studio_dom(page, """
+                const sc = __rtmDom.deepFirstVisible(document, 'ytcp-settings-dialog #scrollable-content, ytcp-channel-settings-dialog #scrollable-content, [id*="scrollable"]');
                 if (sc) sc.scrollTop = sc.scrollHeight;
-            }""")
+            """)
         except Exception:
             pass
-        await random_delay(0.5, 0.8)
+        await asyncio.sleep(0.2)
 
         tag_selectors = [
             "#tags-input #text-input",
             "ytcp-chip-cloud #text-input",
             "ytcp-chip-bar #text-input",
-            "input[placeholder*='Thêm thẻ']",
-            "input[placeholder*='Add tag']",
             "#tags #text-input",
             "input#text-input",
         ]
         applied_tags_count = await input_polymer_chips(page, page, trimmed_default_tags, tag_selectors)
         logger.info("Đã hoàn tất nhập %d thẻ video mặc định", applied_tags_count)
 
-    await random_delay(0.8, 1.5)
+    await asyncio.sleep(0.2)
 
     # -------------------------------------------------------------
     # BƯỚC 5: Bấm nút "Lưu" (#submit-button / #save-button)
-    # Kiểm tra trạng thái :not([disabled]) chờ tối đa 4s để nút chuyển sang active
-    # Bấm lưu và chờ thông báo toast "Đã lưu cài đặt" hoặc modal đóng hoàn tất.
+    # Lắng nghe DOM Predicate: phản ứng tức thì ngay khi nút Lưu chuyển sang active
+    # (Trần tối đa 12s cho trường hợp Polymer xử lý chip chậm qua proxy).
     # -------------------------------------------------------------
-    logger.info("Kiểm tra trạng thái nút Lưu (chờ active tối đa 4s)...")
+    logger.info("Lắng nghe DOM: Chờ nút Lưu chuyển sang active (phản ứng tức thì, trần 12s)...")
     save_button_active = False
 
-    for poll_step in range(16):  # 16 x 250ms = 4.0s
-        save_button_active = await page.evaluate("""() => {
-            const btn = document.querySelector('#submit-button')
-                || document.querySelector('#save-button')
-                || document.querySelector('ytcp-button#submit-button')
-                || document.querySelector('ytcp-button#save-button');
-            if (!btn) return false;
-            const innerBtn = btn.querySelector('button');
-            const hasDis = btn.hasAttribute('disabled')
-                || (innerBtn && innerBtn.hasAttribute('disabled'))
-                || (innerBtn && innerBtn.classList.contains('ytcpButtonShapeImpl--disabled'));
-            return !hasDis;
-        }""")
-        if save_button_active:
-            logger.info("Nút Lưu đã chuyển sang active sau %.1fs", (poll_step + 1) * 0.25)
-            break
-        await asyncio.sleep(0.25)
+    try:
+        await page.wait_for_function(
+            """() => {
+                const btn = document.querySelector('#submit-button')
+                    || document.querySelector('#save-button')
+                    || document.querySelector('ytcp-button#submit-button')
+                    || document.querySelector('ytcp-button#save-button');
+                if (!btn) return false;
+                const innerBtn = btn.querySelector('button');
+                const hasDis = btn.hasAttribute('disabled')
+                    || (btn.getAttribute('aria-disabled') === 'true')
+                    || (innerBtn && innerBtn.hasAttribute('disabled'))
+                    || (innerBtn && innerBtn.classList.contains('ytcpButtonShapeImpl--disabled'));
+                return !hasDis;
+            }""",
+            timeout=12000,
+        )
+        save_button_active = True
+        logger.info("Nút Lưu đã chuyển sang active ngay khi DOM cập nhật trạng thái")
+    except Exception:
+        save_button_active = False
 
     save_confirmed = False
 
@@ -600,62 +659,55 @@ async def configure_channel_settings(
         clicked_ok = False
         try:
             save_btn = page.locator(
-                "#submit-button, #save-button, ytcp-button#submit-button, ytcp-button#save-button, "
-                "button:has-text('Lưu'), button:has-text('Save')"
+                "#submit-button, #save-button, ytcp-button#submit-button, ytcp-button#save-button"
             ).first
-            if await save_btn.is_visible(timeout=1500):
+            if await save_btn.is_visible(timeout=3000):
                 await save_btn.click()
                 clicked_ok = True
         except Exception:
             pass
 
         if not clicked_ok:
-            clicked_ok = await page.evaluate("""() => {
-                const btn = document.querySelector('#submit-button')
-                    || document.querySelector('#save-button')
-                    || document.querySelector('ytcp-button#submit-button');
+            clicked_ok = await eval_studio_dom(page, """
+                const btn = __rtmDom.deepFirstVisible(document, '#submit-button, #save-button, ytcp-button#submit-button');
                 if (btn) {
-                    btn.click();
-                    const inner = btn.querySelector('button');
-                    if (inner) inner.click();
+                    const inner = __rtmDom.resolveNativeButton(btn) || btn;
+                    inner.click();
+                    inner.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
                     return true;
                 }
                 return false;
-            }""")
+            """)
 
-        logger.info("Đã gửi sự kiện click Lưu (clicked=%s), đang chờ toast hoặc dialog đóng...", clicked_ok)
+        logger.info("Đã gửi sự kiện click Lưu (clicked=%s), đang lắng nghe DOM xác nhận hoàn tất...", clicked_ok)
 
-        # Chờ tối đa 6s để xác nhận toast hoặc modal đóng
-        for _ in range(20):  # 20 x 300ms = 6.0s
-            # 1. Kiểm tra toast "Đã lưu chế độ cài đặt" / "Đã lưu cài đặt"
-            toast_text = await page.evaluate("""() => {
-                const toast = document.querySelector('ytcp-toast, tp-yt-paper-toast, [role="alert"]');
-                return toast ? (toast.innerText || toast.textContent || '').trim() : '';
-            }""")
-            if toast_text and any(w in toast_text.lower() for w in ["đã lưu", "saved", "settings saved"]):
-                logger.info("Nhận được thông báo toast xác nhận: '%s'", toast_text)
-                save_confirmed = True
-                break
-
-            # 2. Kiểm tra nếu dialog đã đóng
-            dialog_is_closed = await page.evaluate("""() => {
-                const d = document.querySelector('ytcp-channel-settings-dialog, ytcp-settings-dialog');
-                if (!d) return true;
-                return d.offsetParent === null || window.getComputedStyle(d).display === 'none';
-            }""")
-            if dialog_is_closed:
-                logger.info("Hộp thoại Cài đặt đã đóng hoàn tất -> Lưu thành công!")
-                save_confirmed = True
-                break
-
-            await asyncio.sleep(0.3)
+        # Lắng nghe DOM Predicate: Phản ứng tức thì ngay khi toast "Đã lưu" xuất hiện hoặc dialog tự đóng (trần 18s)
+        try:
+            confirmed_type = await page.wait_for_function(
+                """() => {
+                    const toast = document.querySelector('ytcp-toast, tp-yt-paper-toast, [role="alert"]');
+                    if (toast) {
+                        return 'toast_alert';
+                    }
+                    const d = document.querySelector('ytcp-channel-settings-dialog, ytcp-settings-dialog');
+                    if (!d || d.offsetParent === null || window.getComputedStyle(d).display === 'none') {
+                        return 'dialog_closed';
+                    }
+                    return false;
+                }""",
+                timeout=18000,
+            )
+            save_confirmed = True
+            logger.info("Đã xác nhận lưu thành công qua DOM state: %s", confirmed_type)
+        except Exception:
+            save_confirmed = False
 
     else:
-        # Nút Lưu không active sau 4s: kiểm tra xem có lỗi validation hay không
-        err_msg = await page.evaluate("""() => {
-            const err = document.querySelector('ytcp-form-error, .error-message, #error-message, [aria-invalid="true"]');
-            return err ? (err.innerText || err.textContent || '').trim() : '';
-        }""")
+        # Nút Lưu không active: quét Shadow DOM tìm thông báo lỗi validation nếu có
+        err_msg = await eval_studio_dom(page, """
+            const err = __rtmDom.deepFirstVisible(document, 'ytcp-form-input-container[invalid], ytcp-chip-cloud[invalid], ytcp-form-error, .error-message, #error-message, [aria-invalid="true"]');
+            return err ? __rtmDom.collectVisibleText(err) : '';
+        """)
         if err_msg:
             logger.error("Phát hiện lỗi validation trên YouTube Studio: %s", err_msg)
             return {

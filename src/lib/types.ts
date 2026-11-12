@@ -1683,7 +1683,7 @@ export interface BktDispatchResult {
 
 export interface DailyTimelineEvent {
   id: string;
-  eventType: 'auto_publish' | 'bkt_test' | 'download' | 'discovered' | string;
+  eventType: 'auto_publish' | 'bkt_test' | 'reup' | 'download' | 'discovered' | string;
   time: string;
   timestamp: string;
   title: string;
@@ -1701,6 +1701,7 @@ export interface DailyReportStats {
   bktCleanCount: number;
   bktClaimedCount: number;
   bktPendingCount: number;
+  totalReupToday?: number;
   totalPublishedMainToday: number;
   testQuotaTotal: number;
   testQuotaUsed: number;

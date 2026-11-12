@@ -74,13 +74,15 @@ pub fn get_daily_report_stats_db(date_filter: Option<String>) -> Result<DailyRep
         bkt_clean_count,
         bkt_claimed_count,
         bkt_pending_count,
+        total_reup_today,
         total_published_main_today,
-    ): (i64, i64, i64, i64, i64) = conn
+    ): (i64, i64, i64, i64, i64, i64) = conn
         .query_row(
             "SELECT count(*),
                     coalesce(sum(case when status = 'green_clean' then 1 else 0 end), 0),
                     coalesce(sum(case when status = 'red_matched' then 1 else 0 end), 0),
-                    coalesce(sum(case when status in ('pending', 'checking', 'reuping', 'uploading', 'queued') then 1 else 0 end), 0),
+                    coalesce(sum(case when status in ('pending', 'checking', 'uploading', 'queued') then 1 else 0 end), 0),
+                    coalesce(sum(case when status = 'reuping' OR status = 'reup_done' OR reup_path IS NOT NULL OR restriction LIKE '%Reup%' OR restriction LIKE '%reup%' then 1 else 0 end), 0),
                     coalesce(sum(case when (auto_publish_main = 1 AND (restriction LIKE '%Đã tự động xuất bản%' OR restriction LIKE '%Đã xuất bản%'))
                                            OR restriction LIKE '%Đã tự động xuất bản%'
                                            OR restriction LIKE '%Đã xuất bản Công khai%'
@@ -89,9 +91,9 @@ pub fn get_daily_report_stats_db(date_filter: Option<String>) -> Result<DailyRep
              WHERE (tested_date >= ?1 AND tested_date <= ?2)
                 OR (substr(created_at, 1, 10) >= ?1 AND substr(created_at, 1, 10) <= ?2)",
             params![&start_date_str, &end_date_str],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?)),
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?, row.get(5)?)),
         )
-        .unwrap_or((0, 0, 0, 0, 0));
+        .unwrap_or((0, 0, 0, 0, 0, 0));
 
     // 6. Thống kê Quota test BKT (Hạn ngạch ngày của các kênh đang hoạt động)
     let (test_quota_total, test_quota_used): (i64, i64) = conn
@@ -136,6 +138,10 @@ pub fn get_daily_report_stats_db(date_filter: Option<String>) -> Result<DailyRep
                 .map(|r| r.contains("Đã tự động xuất bản") || r.contains("Đã xuất bản Công khai") || r.contains("Đã đăng lên Kênh Đích"))
                 .unwrap_or(false);
 
+            let is_reup = status == "reuping"
+                || status == "reup_done"
+                || (!is_published && restriction.as_deref().map(|r| r.contains("Reup") || r.contains("reup") || r.contains("làm sạch") || r.contains("Edit")).unwrap_or(false));
+
             let time = if updated_at.len() >= 16 {
                 updated_at[11..16].to_string()
             } else if created_at.len() >= 16 {
@@ -146,6 +152,8 @@ pub fn get_daily_report_stats_db(date_filter: Option<String>) -> Result<DailyRep
 
             let ev_type = if is_published {
                 "auto_publish".to_string()
+            } else if is_reup {
+                "reup".to_string()
             } else {
                 "bkt_test".to_string()
             };
@@ -293,6 +301,7 @@ pub fn get_daily_report_stats_db(date_filter: Option<String>) -> Result<DailyRep
         bkt_clean_count,
         bkt_claimed_count,
         bkt_pending_count,
+        total_reup_today,
         total_published_main_today,
         test_quota_total,
         test_quota_used,

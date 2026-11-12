@@ -7,6 +7,28 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-11-13
+
+### Thêm mới
+
+- **Tự Động Đưa Kênh Vào Danh Sách Đen Khi Dính 2 Video Vi Phạm Bản Quyền** - Bổ sung cơ chế tự động đánh giá rủi ro kênh đối thủ: khi phát hiện 2 video liên tiếp dính vi phạm Content ID hoặc lỗi (`redCount >= 2`), hệ thống lập tức gắn nhãn `risk_status = "red"` (Kênh Rủi Ro), ngắt toàn bộ tiến trình Auto Reup và cảnh báo người dùng để tránh lãng phí hạn ngạch kiểm tra.
+- **Nút Dừng Khẩn Cấp Auto Reup Trên Giao Diện** - Nối nút "Dừng Auto Reup" tại thẻ kênh và thanh công cụ trực tiếp tới lệnh `cancelAllBktJobs()`, hủy bỏ ngay lập tức toàn bộ tác vụ nền đang chạy, giải phóng giao diện và xóa biểu ngữ tiến trình bị treo.
+- **Tự Phục Hồi Khi Trình Duyệt Bị Tắt Đột Ngột Trong Quá Trình Quét BKT** - Bổ sung bộ nhận diện ngắt kết nối Chromium (`is_browser_disconnected`, `is_target_closed_exception`) cùng cơ chế tự phục hồi (self-healing) trong `runner.py`, tự động mở lại hồ sơ trình duyệt và tiếp tục kiểm tra Content ID trong YouTube Studio mà không phải tải lại từ đầu.
+
+### Thay đổi
+
+- **Tối Ưu Hóa Tốc Độ Quét Săn Đề Xuất (Outlier Hunter)** - Thay thế cơ chế quét sâu từng trang bằng truy vấn `--flat-playlist`, rút ngắn thời gian quét từ hơn 150 giây xuống chỉ còn 2 đến 5 giây. Cập nhật khung thời gian mặc định sang `all` và hỗ trợ lọc dữ liệu ngay tại client trên thanh công cụ.
+- **Tính Toán Chuẩn Xác Giới Hạn Ký Tự Thẻ Kênh YouTube Studio** - Bổ sung cơ chế tính phí dấu ngoặc kép đối với từ khóa ghép có khoảng trắng (trần an toàn 450 ký tự), ngăn ngừa hiện tượng nút Lưu cấu hình kênh bị vô hiệu hóa trong YouTube Studio.
+
+### Sửa lỗi
+
+- **Khắc Phục Triệt Để Lỗi 0 Video & Loại Trừ Nhầm Tương Tác Săn Đề Xuất** - Sửa lỗi kiểm tra tương tác organic loại bỏ 100% video hợp lệ do danh sách tìm kiếm YouTube không trả về số lượt like/comment. Chỉ kích hoạt kiểm tra tương tác khi có dữ liệu like/comment thực tế.
+- **Loại Bỏ Nuốt Lỗi Tại Tầng Rust IPC** - Truyền lỗi chi tiết và mã thoát của tiến trình Python runner về tầng Rust và giao diện người dùng thay vì âm thầm trả về mảng rỗng kèm thông báo sai lệch.
+- **Sửa Lỗi Serde Deserialization Trường `view_history`** - Bổ sung hàm giải tuần tự `deserialize_string_or_seq` trong `src-tauri/src/database/outliers.rs`, tương thích hoàn toàn với cả chuỗi và mảng JSON từ Python.
+- **Chuẩn Hóa Phân Tích Chuỗi Subscriber Đa Định Dạng** - Sửa logic nhận diện dấu phẩy/chấm thập phân và phân cách hàng nghìn (`3,4M` vs `340.000`), chấm dứt lỗi nhận diện nhầm kênh lớn thành kênh nhỏ.
+- **Chấm Dứt Xung Đột Tải Đồng Thời Trong Auto Reup** - Ngăn chặn lắng nghe sự kiện tự động tải tải về cùng lúc cả 5 video khi bật Auto Reup, đảm bảo tuân thủ nghiêm ngặt quy trình tuần tự 1-by-1.
+- **Khắc Phục Treo Polling Vô Hạn Khi Tác Vụ BKT Bị Hủy** - Thêm cơ chế giám sát timeout đọc dòng stdout 45 giây trong `bkt_channels.rs`, đảm bảo các tác vụ bị crash hoặc abort chuyển ngay sang trạng thái thất bại.
+
 ## [1.0.4] - 2026-11-12
 
 ### Thay đổi

@@ -47,7 +47,11 @@ import {
 import { useChannels } from '@/contexts/channels-context';
 import type { BktBatchItemRequest, BktTestJob, ChannelVideo, FollowedChannel } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { formatDuration, formatUploadDateTime } from '@/pages/channels/channelUtils';
+import {
+  formatDuration,
+  formatUploadDateTime,
+  parseVideoUploadEpoch,
+} from '@/pages/channels/channelUtils';
 import {
   adaptCompetitorDescription,
   getBestAutoPilotTitle,
@@ -235,9 +239,7 @@ export function ChannelVideoAccordion({
     });
 
     const sortedNewest = [...validVideos].sort((a, b) => {
-      const timeA = a.upload_timestamp ?? (a.upload_date ? parseInt(a.upload_date, 10) : 0) ?? 0;
-      const timeB = b.upload_timestamp ?? (b.upload_date ? parseInt(b.upload_date, 10) : 0) ?? 0;
-      return timeB - timeA;
+      return parseVideoUploadEpoch(b) - parseVideoUploadEpoch(a);
     });
 
     const top5 = sortedNewest.slice(0, 5);
@@ -810,14 +812,10 @@ export function ChannelVideoAccordion({
     // 3. Sorting
     return [...list].sort((a, b) => {
       if (sortBy === 'newest') {
-        const timeA = a.upload_timestamp ?? (a.upload_date ? parseInt(a.upload_date, 10) : 0) ?? 0;
-        const timeB = b.upload_timestamp ?? (b.upload_date ? parseInt(b.upload_date, 10) : 0) ?? 0;
-        return timeB - timeA;
+        return parseVideoUploadEpoch(b) - parseVideoUploadEpoch(a);
       }
       if (sortBy === 'oldest') {
-        const timeA = a.upload_timestamp ?? (a.upload_date ? parseInt(a.upload_date, 10) : 0) ?? 0;
-        const timeB = b.upload_timestamp ?? (b.upload_date ? parseInt(b.upload_date, 10) : 0) ?? 0;
-        return timeA - timeB;
+        return parseVideoUploadEpoch(a) - parseVideoUploadEpoch(b);
       }
       if (sortBy === 'views_desc') {
         return (b.view_count ?? 0) - (a.view_count ?? 0);

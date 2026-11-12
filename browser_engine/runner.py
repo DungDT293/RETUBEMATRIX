@@ -789,20 +789,33 @@ async def _async_open_profile(profile_id: str, target_url: str | None = None):
                 pass
 
             # Duy trì phiên mở liên tục không giới hạn thời gian (không timeout).
-            # Trình duyệt chỉ đóng lại khi người dùng tự bấm nút X đóng toàn bộ cửa sổ Chromium.
+            # Trình duyệt chỉ đóng lại khi người dùng thực sự đóng toàn bộ cửa sổ Chromium.
+            from core.window_icon_badge import chrome_pids_for_user_data_dir
+            consecutive_no_pages = 0
             while not closed_event.is_set():
                 try:
                     pages = context.pages
                     if not pages:
-                        # Chờ thêm 3s phòng trường hợp tab cũ vừa đóng và tab mới đang mở
-                        await asyncio.sleep(3)
-                        if not context.pages:
-                            logger.info(f"Tất cả các tab của hồ sơ {name} đã đóng.")
-                            break
+                        consecutive_no_pages += 1
+                        if consecutive_no_pages >= 4:
+                            # Đã kiểm tra 4 lần liên tiếp (~8s) không còn tab nào
+                            # và kiểm tra tiến trình Chromium thực tế
+                            live_p = chrome_pids_for_user_data_dir(str(pdir))
+                            if not live_p:
+                                logger.info(f"Tất cả các cửa sổ của hồ sơ {name} đã đóng.")
+                                break
+                    else:
+                        consecutive_no_pages = 0
                     await asyncio.sleep(2)
-                except Exception:
-                    # Context hoặc kết nối tới Chromium đã đóng
-                    break
+                except Exception as loop_err:
+                    # Kiểm tra xem tiến trình Chromium có thực sự còn sống không
+                    # Nếu proxy lag hoặc CDP tạm ngắt, không tự tiện ngắt phiên trình duyệt
+                    live_p = chrome_pids_for_user_data_dir(str(pdir))
+                    if not live_p:
+                        logger.info(f"Tiến trình Chromium của hồ sơ {name} đã thoát: {loop_err}")
+                        break
+                    logger.debug("Tạm thời mất kết nối CDP nhưng tiến trình Chromium vẫn đang chạy: %s", loop_err)
+                    await asyncio.sleep(2)
 
         logger.info(f"Trình duyệt cho hồ sơ {name} đã đóng.")
     except Exception as exc:
@@ -1074,15 +1087,58 @@ async def _async_bkt_unified_pipeline(args):
 
         # Tự động SPA chuyển sang trang Nội dung (/videos) và giám sát liên tục trong cùng phiên
         from actions.bkt_check import check_copyright_and_restrictions
-        res = await check_copyright_and_restrictions(
-            page,
-            video_ids=[yt_id] if yt_id else [],
-            video_title=title,
-            poll_in_session=True,
-            max_poll_seconds=max_poll_seconds,
-            emit_upload_events=True,
-            video_url=video_url,
-        )
+        try:
+            res = await check_copyright_and_restrictions(
+                page,
+                video_ids=[yt_id] if yt_id else [],
+                video_title=title,
+                poll_in_session=True,
+                max_poll_seconds=max_poll_seconds,
+                emit_upload_events=True,
+                video_url=video_url,
+            )
+        except Exception as check_exc:
+            exc_str = str(check_exc).lower()
+            is_closed = any(k in exc_str for k in ["closed", "target", "crash", "mất kết nối", "đã bị đóng", "connection"])
+            if yt_id and is_closed:
+                logger.warning(
+                    "Phát hiện trình duyệt bị đóng đột ngột khi đang kiểm tra Content ID cho video %s. Đang tự động mở lại hồ sơ để khôi phục quét tiếp...",
+                    yt_id,
+                )
+                print(json.dumps({
+                    "event": "auto_recovery",
+                    "attempt": 1,
+                    "youtube_video_id": yt_id,
+                    "message": "Trình duyệt bị đóng đột ngột. Đang tự động mở lại hồ sơ để tiếp tục theo dõi Content ID...",
+                }, ensure_ascii=False))
+                sys.stdout.flush()
+
+                try:
+                    await session.close()
+                except Exception:
+                    pass
+                _clean_profile_locks(profile_dir)
+                await asyncio.sleep(2.5)
+
+                session = CloakSession()
+                page = await session.start(
+                    profile_name=name,
+                    proxy=proxy,
+                    fingerprint_seed=fingerprint_seed,
+                    profile_dir_name=profile_dir,
+                    profile_data=profile,
+                )
+                res = await check_copyright_and_restrictions(
+                    page,
+                    video_ids=[yt_id],
+                    video_title=title,
+                    poll_in_session=True,
+                    max_poll_seconds=max_poll_seconds,
+                    emit_upload_events=False,
+                    video_url=video_url,
+                )
+            else:
+                raise
 
         if not yt_id and res.get("youtube_video_id"):
             yt_id = res["youtube_video_id"]

@@ -26,6 +26,8 @@ export interface AiTitleThumbnailTabProps {
   activeTags?: string[];
   onApplyTitle?: (title: string) => void;
   onApplyThumbnail?: (thumbPath: string) => void;
+  onApplyTags?: (tags: string[]) => void;
+  onApplyDescription?: (description: string) => void;
   onNavigateToBkt?: () => void;
 }
 
@@ -36,6 +38,8 @@ export function AiTitleThumbnailTab({
   activeTags,
   onApplyTitle,
   onApplyThumbnail,
+  onApplyTags,
+  onApplyDescription,
   onNavigateToBkt,
 }: AiTitleThumbnailTabProps = {}) {
   const toast = useToast();
@@ -69,6 +73,7 @@ export function AiTitleThumbnailTab({
         ],
   );
   const [isExtractingTags, setIsExtractingTags] = useState(false);
+  const [extractedDescription, setExtractedDescription] = useState<string>('');
 
   // ================= STATE THUMBNAIL =================
   const [thumbnailUrl, setThumbnailUrl] = useState(
@@ -106,40 +111,105 @@ export function AiTitleThumbnailTab({
   }, [activeTags]);
 
   const handleExtractTags = async () => {
-    if (!videoUrlInput.trim()) {
+    let cleanUrl = videoUrlInput.trim();
+    if (!cleanUrl) {
       toast.warning({
         title: 'Chưa có link video',
         description: 'Vui lòng dán link video YouTube đối thủ để trích xuất Spy Tags.',
       });
       return;
     }
+
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = `https://${cleanUrl}`;
+      setVideoUrlInput(cleanUrl);
+    }
+
     setIsExtractingTags(true);
     try {
-      const res = await extractVideoSeoTags(videoUrlInput.trim());
+      const res = await extractVideoSeoTags(cleanUrl);
+      const foundItems: string[] = [];
+
+      if (res.title) {
+        setOriginalTitle(res.title);
+        foundItems.push('Tiêu đề');
+      }
+
+      const thumb = res.thumbnail || res.thumbnail_url;
+      if (thumb) {
+        setThumbnailUrl(thumb);
+        foundItems.push('Ảnh bìa');
+      }
+
+      if (res.description) {
+        setExtractedDescription(res.description);
+      }
+
       if (res.tags && res.tags.length > 0) {
         setTags(res.tags);
-        if (res.title && !activeVideoTitle) {
-          setOriginalTitle(res.title);
-        }
+        foundItems.push(`${res.tags.length} thẻ tags`);
+      }
+
+      if (foundItems.length > 0) {
         toast.success({
-          title: 'Trích xuất Spy Tags thành công!',
-          description: `Đã tìm thấy ${res.tags.length} thẻ tags từ video đối thủ (chuẩn VidIQ).`,
+          title: 'Trích xuất SEO đối thủ thành công',
+          description: `Đã nạp: ${foundItems.join(', ')}. Sẵn sàng tối ưu và áp dụng.`,
         });
       } else {
         toast.info({
-          title: 'Video không có thẻ tags công khai',
-          description: 'Đã giữ nguyên danh sách thẻ tags ngách hiện tại.',
+          title: 'Không tìm thấy thẻ tags công khai',
+          description:
+            'Video đối thủ đã ẩn thẻ tags. Bạn có thể tự nạp thẻ ngách hoặc sinh qua AI Studio.',
         });
       }
     } catch (err) {
       console.error('Lỗi extractVideoSeoTags:', err);
       toast.error({
-        title: 'Lỗi trích xuất tags',
+        title: 'Lỗi trích xuất SEO',
         description: String(err),
       });
     } finally {
       setIsExtractingTags(false);
     }
+  };
+
+  const handleApplyAllSeo = () => {
+    if (originalTitle) {
+      onApplyTitle?.(originalTitle);
+    }
+    if (tags.length > 0) {
+      onApplyTags?.(tags);
+    }
+    if (thumbnailUrl) {
+      onApplyThumbnail?.(thumbnailUrl);
+    }
+    if (extractedDescription) {
+      onApplyDescription?.(extractedDescription);
+    }
+
+    toast.success({
+      title: 'Đã áp dụng toàn bộ SEO đối thủ',
+      description: `Đã đồng bộ Tiêu đề, ${tags.length} Thẻ Tags và Thumbnail vào form đăng.`,
+    });
+
+    if (onNavigateToBkt) {
+      onNavigateToBkt();
+    }
+  };
+
+  const handleApplyTagsToChannel = () => {
+    if (tags.length === 0) {
+      toast.warning({
+        title: 'Chưa có thẻ tags',
+        description: 'Vui lòng trích xuất thẻ tags trước khi áp dụng.',
+      });
+      return;
+    }
+    onApplyTags?.(tags);
+    toast.success({
+      title: 'Đã áp dụng thẻ Tags',
+      description: `Đã đồng bộ ${tags.length} thẻ tags vào cấu hình đăng kênh.`,
+    });
   };
 
   const handleCopyAllTags = () => {
@@ -332,12 +402,12 @@ export function AiTitleThumbnailTab({
                 className="text-[10px] font-semibold capitalize px-1.5 py-0.5 bg-purple-500/10 text-purple-400 border-purple-500/30"
               >
                 {detectedGenre === 'music'
-                  ? 'Phonk/Music 🎵'
+                  ? 'Phonk/Music'
                   : detectedGenre === 'gaming'
-                    ? 'Gaming 🎮'
+                    ? 'Gaming'
                     : detectedGenre === 'howto'
-                      ? 'How-to 🛠️'
-                      : 'General 🎬'}
+                      ? 'How-to'
+                      : 'General'}
               </Badge>
             </div>
           </div>
@@ -687,6 +757,17 @@ export function AiTitleThumbnailTab({
             </Button>
 
             <Button
+              variant="outline"
+              size="sm"
+              onClick={handleApplyTagsToChannel}
+              disabled={tags.length === 0}
+              className="h-8 px-3 text-xs gap-1.5 border-teal-500/40 text-teal-300 hover:bg-teal-500/10 font-medium"
+            >
+              <Tag className="w-3.5 h-3.5" />
+              <span>Áp dụng Tags vào Kênh</span>
+            </Button>
+
+            <Button
               variant="default"
               size="sm"
               onClick={handleLoadTagsToAiStudio}
@@ -694,6 +775,16 @@ export function AiTitleThumbnailTab({
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Nạp Tags vào AI Studio</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleApplyAllSeo}
+              className="h-8 px-3 text-xs gap-1.5 border-primary/50 text-primary hover:bg-primary/10 font-medium"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <span>Áp Dụng Toàn Bộ SEO Vào Form Đăng</span>
             </Button>
           </div>
         </div>
@@ -750,6 +841,42 @@ export function AiTitleThumbnailTab({
         onApplyTitle={(t) => {
           setOriginalTitle(t);
           onApplyTitle?.(t);
+          toast.success({
+            title: 'Đã cập nhật tiêu đề',
+            description: t,
+          });
+          setAiStudioOpen(false);
+        }}
+        onApplyDescription={(d) => {
+          setExtractedDescription(d);
+          onApplyDescription?.(d);
+          toast.success({
+            title: 'Đã cập nhật mô tả',
+            description: 'Đã lưu mô tả tối ưu vào cấu hình đăng video.',
+          });
+          setAiStudioOpen(false);
+        }}
+        onSendToBkt={(t, d) => {
+          setOriginalTitle(t);
+          onApplyTitle?.(t);
+          if (d) {
+            setExtractedDescription(d);
+            onApplyDescription?.(d);
+          }
+          if (tags.length > 0) {
+            onApplyTags?.(tags);
+          }
+          if (thumbnailUrl) {
+            onApplyThumbnail?.(thumbnailUrl);
+          }
+          toast.success({
+            title: 'Đã chuyển toàn bộ dữ liệu sang BKT Upload',
+            description: 'Tiêu đề, Mô tả và Thẻ Tags đã sẵn sàng.',
+          });
+          setAiStudioOpen(false);
+          if (onNavigateToBkt) {
+            onNavigateToBkt();
+          }
         }}
       />
     </div>

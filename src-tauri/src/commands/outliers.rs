@@ -151,10 +151,19 @@ pub async fn trigger_outlier_scan_cmd(
 
     // Parse JSON array of discovered outlier videos from stdout
     let mut discovered: Vec<OutlierVideo> = Vec::new();
+    let mut runner_error: Option<String> = None;
+
     for line in stdout.lines() {
         let trimmed = line.trim();
         if trimmed.starts_with('{') && trimmed.ends_with('}') {
             if let Ok(val) = serde_json::from_str::<Value>(trimmed) {
+                if let Some(false) = val.get("success").and_then(|v| v.as_bool()) {
+                    let err = val
+                        .get("error")
+                        .and_then(|e| e.as_str())
+                        .unwrap_or("Không rõ lỗi từ Python runner");
+                    runner_error = Some(err.to_string());
+                }
                 if let Some(arr) = val.get("discovered_videos").and_then(|v| v.as_array()) {
                     for item in arr {
                         match serde_json::from_value::<OutlierVideo>(item.clone()) {
@@ -172,8 +181,18 @@ pub async fn trigger_outlier_scan_cmd(
         }
     }
 
-    if discovered.is_empty() && !output.status.success() {
-        log::warn!("hunt_outliers stderr: {}", stderr);
+    if discovered.is_empty() {
+        if let Some(err) = runner_error {
+            return Err(format!("Lỗi engine quét đề xuất: {err}"));
+        }
+        if !output.status.success() {
+            log::warn!("hunt_outliers stderr: {}", stderr);
+            return Err(format!(
+                "Tiến trình săn đề xuất kết thúc với mã lỗi {:?}: {}",
+                output.status.code(),
+                stderr.trim()
+            ));
+        }
     }
 
     // Return fresh list from database

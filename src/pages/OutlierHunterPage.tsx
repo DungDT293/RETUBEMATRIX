@@ -322,7 +322,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
   const [selectedFilterNiche, setSelectedFilterNiche] = useState<string>('all');
 
   // Bộ lọc nhanh (Toolbar)
-  const [timeFilter, setTimeFilter] = useState<'24h' | '48h' | '7d' | 'all'>('24h');
+  const [timeFilter, setTimeFilter] = useState<'24h' | '48h' | '7d' | 'all'>('all');
   const [formatFilter, setFormatFilter] = useState<'all' | 'shorts' | 'long'>('all');
   const [sortBy, setSortBy] = useState<'vph' | 'sub_ratio' | 'views'>('vph');
 
@@ -569,7 +569,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     setCurrentNiche(labelToUse);
     setAlphabetSeed(queryToUse);
     setTrendsKeyword(queryToUse);
-    handleScanNiche(queryToUse);
+    handleScanNiche(niche.id);
   };
 
   // Bấm vào chủ đề Live Trends (Google Trends RSS)
@@ -757,14 +757,23 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
       );
     }
 
-    // 2. Lọc theo Định dạng (Format)
+    // 2. Lọc theo Khung Giờ (Time Range)
+    if (timeFilter === '24h') {
+      result = result.filter((v) => (v.hours_published || 0) <= 28);
+    } else if (timeFilter === '48h') {
+      result = result.filter((v) => (v.hours_published || 0) <= 52);
+    } else if (timeFilter === '7d') {
+      result = result.filter((v) => (v.hours_published || 0) <= 172);
+    }
+
+    // 3. Lọc theo Định dạng (Format)
     if (formatFilter === 'shorts') {
       result = result.filter((v) => v.duration > 0 && v.duration <= 60);
     } else if (formatFilter === 'long') {
       result = result.filter((v) => v.duration > 60 || v.duration === 0);
     }
 
-    // 3. Sắp xếp (Sort)
+    // 4. Sắp xếp (Sort)
     if (sortBy === 'vph') {
       result.sort((a, b) => {
         const vphA = a.avg_vph || (a.hours_published > 0 ? a.views / a.hours_published : 0);
@@ -782,7 +791,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     }
 
     return result;
-  }, [videos, selectedFilterNiche, formatFilter, sortBy]);
+  }, [videos, selectedFilterNiche, timeFilter, formatFilter, sortBy]);
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
@@ -1067,7 +1076,9 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                   type="button"
                   onClick={() => {
                     setTimeFilter('24h');
-                    handleScanNiche(nicheInput, '24h');
+                    if (videos.length === 0) {
+                      handleScanNiche(nicheInput, '24h');
+                    }
                   }}
                   className={cn(
                     'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all',
@@ -1082,7 +1093,9 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                   type="button"
                   onClick={() => {
                     setTimeFilter('48h');
-                    handleScanNiche(nicheInput, '48h');
+                    if (videos.length === 0) {
+                      handleScanNiche(nicheInput, '48h');
+                    }
                   }}
                   className={cn(
                     'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all',
@@ -1097,7 +1110,9 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                   type="button"
                   onClick={() => {
                     setTimeFilter('7d');
-                    handleScanNiche(nicheInput, '7d');
+                    if (videos.length === 0) {
+                      handleScanNiche(nicheInput, '7d');
+                    }
                   }}
                   className={cn(
                     'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all',
@@ -1112,7 +1127,9 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                   type="button"
                   onClick={() => {
                     setTimeFilter('all');
-                    handleScanNiche(nicheInput, 'all');
+                    if (videos.length === 0) {
+                      handleScanNiche(nicheInput, 'all');
+                    }
                   }}
                   className={cn(
                     'px-2.5 py-1 rounded-md text-[11px] font-medium transition-all',

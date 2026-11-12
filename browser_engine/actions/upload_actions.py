@@ -35,7 +35,8 @@ PENDING_COMMENTS_FILE = user_data_path("pending_comments.jsonl")
 
 
 def _truncate_utf16(text: str, max_units: int = 92) -> str:
-    """Truncate text so its JS UTF-16 `.length` never exceeds YouTube's 100-unit limit."""
+    """Truncate text so its JS UTF-16 `.length` never exceeds YouTube's 100-unit limit.
+    Preserves word boundaries so words are not cut in half."""
     out: list[str] = []
     units = 0
     for ch in text:
@@ -44,7 +45,12 @@ def _truncate_utf16(text: str, max_units: int = 92) -> str:
             break
         out.append(ch)
         units += ch_units
-    return "".join(out).strip()
+    joined = "".join(out).strip()
+    if len(joined) < len(text):
+        last_space = joined.rfind(" ")
+        if last_space >= int(max_units * 0.4):
+            joined = joined[:last_space].strip()
+    return joined.rstrip(",;:.!?|-—–~• \t")
 
 
 def _resolve_path(raw: str) -> str:
@@ -240,8 +246,8 @@ async def _ensure_not_for_kids_audience(page) -> bool:
         ],
         action_name="upload_audience_not_for_kids",
         root_selector="ytcp-uploads-dialog",
-        allow_js_fallback=False,
-        timeout_ms=4500,
+        allow_js_fallback=True,
+        timeout_ms=8000,
         pre_delay=0.25,
         post_click_settle=0.45,
     )
@@ -429,7 +435,7 @@ class YouTubeUpload:
         logger.info("Chờ file picker dialog (ytcp-uploads-file-picker)")
         picker_ready = False
         try:
-            await page.wait_for_selector("ytcp-uploads-dialog ytcp-uploads-file-picker, ytcp-uploads-file-picker", timeout=15000)
+            await page.wait_for_selector("ytcp-uploads-dialog ytcp-uploads-file-picker, ytcp-uploads-file-picker", timeout=35000)
             picker_ready = True
         except Exception:
             await random_delay(1.5, 2.5)
@@ -878,7 +884,7 @@ class YouTubeUpload:
         await random_delay(0.7, 1.2)
 
         reached_visibility = False
-        for attempt in range(8):
+        for attempt in range(25):
             step_state = await inspect_studio_modal_state(page)
             cur_step = (step_state.get("uploadsStep") or "").upper()
             on_visibility = (
@@ -908,7 +914,7 @@ class YouTubeUpload:
                 )
                 await asyncio.sleep(0.6)
 
-            logger.info("Đang ở bước '%s', chờ nút Next ổn định (lần %d)...", cur_step or "DETAILS", attempt + 1)
+            logger.info("Đang ở bước '%s', chờ nút Next ổn định (lần %d/25)...", cur_step or "DETAILS", attempt + 1)
             next_clicked = await click_stable_element(
                 page,
                 selectors=["ytcp-button#next-button", "#next-button"],
@@ -933,6 +939,21 @@ class YouTubeUpload:
                     except Exception:
                         pass
                     await _ensure_not_for_kids_audience(page)
+                # Fallback kích hoạt click JS nếu nút Next bị chậm phản hồi qua proxy
+                if attempt >= 3:
+                    try:
+                        await eval_studio_dom(
+                            page,
+                            """
+                            const dlg = __rtmDom.findMountedContainer(document, 'ytcp-uploads-dialog') || document;
+                            const btn = __rtmDom.deepFirstVisible(dlg, 'ytcp-button#next-button, #next-button');
+                            if (btn && !__rtmDom.isDisabledControl(btn)) {
+                                btn.click();
+                            }
+                            """
+                        )
+                    except Exception:
+                        pass
                 await asyncio.sleep(1.5)
                 continue
 
@@ -1053,13 +1074,13 @@ class YouTubeUpload:
                 "#done-button",
             ],
             root_selector="ytcp-uploads-dialog",
-            timeout_ms=12000,
+            timeout_ms=30000,
             require_unobscured=True,
             require_enabled=True,
         )
         if not done_probe:
             cur_done_state = await inspect_studio_modal_state(page)
-            logger.warning("Nút Lưu (#done-button) chưa actionable sau 12s: %s", cur_done_state)
+            logger.warning("Nút Lưu (#done-button) chưa actionable sau 30s: %s", cur_done_state)
             if not cur_done_state.get("doneBtnPresent") and cur_done_state.get("uploadsDialogVisible"):
                 raise RuntimeError("Không tìm thấy nút Publish/Lưu (#done-button) trong hộp thoại YouTube Studio.")
 
@@ -1069,7 +1090,7 @@ class YouTubeUpload:
                 "ytcp-button#done-button",
                 "#done-button",
             ],
-            timeout_ms=5000,
+            timeout_ms=10000,
             pre_delay=0.35,
             root_selector="ytcp-uploads-dialog",
             allow_js_fallback=True,
@@ -1078,14 +1099,14 @@ class YouTubeUpload:
             raise RuntimeError("Không thể bấm nút Publish/Lưu (#done-button) vì nút vẫn đang bị khóa hoặc bị che khuất.")
         logger.info("Đã bấm nút Publish/Lưu (#done-button) lần 1 (%s) — chờ xác nhận từ YouTube Studio...", done_click_mode)
 
-        # Chờ xác nhận Save RPC lên tới 15s (KHÔNG bấm trùng khi #done-button đã disabled / popup đang mở)
+        # Chờ xác nhận Save RPC lên tới 45s cho proxy có độ trễ cao (KHÔNG bấm trùng khi #done-button đã disabled / popup đang mở)
         saved_successfully = False
         share_dialog_visible = False
         popup_card_visible = False
         retried_done = False
         save_wait_start = time.time()
 
-        while time.time() - save_wait_start < 15.0:
+        while time.time() - save_wait_start < 45.0:
             await asyncio.sleep(0.5)
             st = await inspect_studio_modal_state(page)
             if not video_url:
@@ -1205,7 +1226,7 @@ class YouTubeUpload:
                         const pt = __rtmDom.collectVisibleText(pn);
                         if (pt) res.progressText += ' ' + pt;
                     }
-                    const pb = __rtmDom.deepFirstVisible(document, 'ytcp-video-upload-progress tp-yt-paper-progress, ytcp-uploads-still-processing-dialog tp-yt-paper-progress, ytcp-video-upload-progress [role="progressbar"]');
+                    const pb = __rtmDom.deepFirstVisible(document, 'ytcp-video-upload-progress tp-yt-paper-progress, ytcp-uploads-still-processing-dialog tp-yt-paper-progress, ytcp-video-upload-progress [role="progressbar"], ytcp-badge [role="progressbar"], tp-yt-paper-progress');
                     if (pb) {
                         const rawVal = pb.getAttribute('value') ?? pb.getAttribute('aria-valuenow');
                         const rawMax = parseFloat(pb.getAttribute('max') || pb.getAttribute('aria-valuemax') || '100');
@@ -1274,8 +1295,11 @@ class YouTubeUpload:
                 (is_share_dlg and not is_popup and percent is None and (time.time() - upload_poll_start >= 3))
             )
 
-            if not is_popup and not is_share_dlg and percent is None and (time.time() - upload_poll_start > 45):
-                upload_finished = True
+            # Tuyệt đối KHÔNG tự ý ngắt sớm sau 45s khi đang dùng proxy chậm
+            # Chỉ dừng khi có dấu hiệu hoàn tất rõ ràng, hoặc sau ít nhất 180s hoàn toàn không còn bất kỳ dialog/tiến trình nào trong DOM và video_url đã có
+            if not is_popup and not is_share_dlg and percent is None:
+                if (time.time() - upload_poll_start > 180) and video_url:
+                    upload_finished = True
 
             if upload_finished:
                 logger.info("Quá trình truyền tải video (Upload Stream) đã hoàn tất 100%!")

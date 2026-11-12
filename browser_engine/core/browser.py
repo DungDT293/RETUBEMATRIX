@@ -1103,26 +1103,49 @@ class CloakSession:
                 proxy_config = playwright_proxy_config(proxy, proxy_scheme)
             spec = BrowserLaunchSpec(**{**spec.__dict__, "proxy": proxy_config})
         launch_args = list(engine.build_launch_args(spec))
-        # Low-end hardware optimization flags (only for VPS/PC with <4GB RAM)
+        # Dam bao cac co toi uu hoa phan cung, Card do hoa, RAM, CPU va chong crash duoc ap dung
         is_low_mem = bool(host_capabilities().get("low_memory_host"))
-        low_end_flags = [
+        max_heap = "256" if is_low_mem else "512"
+        proc_limit = "2" if is_low_mem else "4"
+        hardware_flags = [
             "--disable-component-update",
             "--disable-quic",
+            "--disable-sync",
+            "--disable-breakpad",
+            "--disable-default-apps",
+            "--no-pings",
+            # Card do hoa & GPU Hardware Acceleration
+            "--use-angle=d3d11",
+            "--enable-gpu-rasterization",
+            "--ignore-gpu-blocklist",
+            "--enable-zero-copy",
+            "--disable-gpu-watchdog",
+            # RAM & Gioi han tien trinh
+            f"--renderer-process-limit={proc_limit}",
+            f"--js-flags=--max-old-space-size={max_heap} --expose-gc",
+            "--disable-dev-shm-usage",
+            "--disk-cache-size=33554432",
+            "--media-cache-size=33554432",
+            # Chong crash & Memory Saver
+            "--disable-features=RendererCodeIntegrity,IsolateOrigins,site-per-process",
+            "--enable-features=RunMemorySaver,DiscardRendererOnLowMemory",
+            # Chong throttle mang proxy / chay ngam
+            "--disable-background-networking",
+            "--disable-renderer-backgrounding",
+            "--disable-backgrounding-occluded-windows",
+            "--disable-background-timer-throttling",
+            "--disable-ipc-flooding-protection",
         ]
-        if is_low_mem:
-            low_end_flags.extend([
-                "--renderer-process-limit=2",
-                "--disable-background-networking",
-                "--disable-dev-shm-usage",
-                "--js-flags=--max-old-space-size=256 --expose-gc",
-            ])
         if proxy_config:
             server_str = (proxy_config.get("server") or "") if isinstance(proxy_config, dict) else str(proxy_config)
             is_bridge_or_socks = server_str.startswith("socks") or ("127.0.0.1" in server_str and getattr(self, "_proxy_bridge", None) is not None)
-            if not is_bridge_or_socks:
-                low_end_flags.append("--disable-http2")
-            low_end_flags.append("--dns-over-https-mode=off")
-        for flag in low_end_flags:
+            # HTTP/2 is essential for YouTube Studio upload streaming (Scotty upload protocol).
+            # Do not disable HTTP/2. Add stability and anti-throttling flags for high-latency proxies:
+            hardware_flags.extend([
+                "--dns-over-https-mode=off",
+                "--proxy-bypass-list=<-loopback>",
+            ])
+        for flag in hardware_flags:
             flag_key = flag.split("=")[0]
             if not any(arg == flag or arg.startswith(flag_key + "=") for arg in launch_args):
                 launch_args.append(flag)
@@ -1218,6 +1241,12 @@ class CloakSession:
             logger.info("BrowserMulti uses Chromium Preferences for window placement")
         if self.page is None:
             raise RuntimeError("Trình duyệt không tạo được tab")
+        if proxy_config and self.page:
+            try:
+                self.page.set_default_timeout(90000)
+                self.page.set_default_navigation_timeout(120000)
+            except Exception:
+                pass
         startup_url = str(getattr(self.page, "url", "") or "").strip().lower()
         startup_goto = getattr(self.page, "goto", None)
         if startup_url not in {GOOGLE_HOME_URL.rstrip("/"), GOOGLE_HOME_URL} and callable(startup_goto):

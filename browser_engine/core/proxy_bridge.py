@@ -86,7 +86,7 @@ class AuthenticatedProxyBridge:
                     username=self._username or None,
                     password=self._password or None,
                 )
-                sock.settimeout(10)
+                sock.settimeout(35)
                 sock.connect((target_host, target_port))
                 sock.setblocking(False)
                 elapsed_ms = (time.monotonic() - started) * 1000
@@ -100,7 +100,7 @@ class AuthenticatedProxyBridge:
 
             # HTTP / HTTPS upstream proxy with pre-injected Proxy-Authorization
             sock = socket.socket(socket.AF_INET6 if ":" in self._host else socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(10)
+            sock.settimeout(35)
             sock.connect((self._host, self._port))
 
             if self._is_ssl:
@@ -220,7 +220,7 @@ class AuthenticatedProxyBridge:
         self._writers.add(writer)
         upstream: socket.socket | None = None
         try:
-            header = await asyncio.wait_for(reader.readuntil(b"\r\n\r\n"), timeout=15)
+            header = await asyncio.wait_for(reader.readuntil(b"\r\n\r\n"), timeout=45)
             request_line = header.split(b"\r\n", 1)[0].decode("latin-1", "replace")
             target_host, target_port, target_path, is_connect = self._target(request_line)
             upstream, trailing = await asyncio.to_thread(self._connect_upstream, target_host, target_port, is_connect)

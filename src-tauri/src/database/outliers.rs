@@ -29,20 +29,33 @@ impl Default for OutlierHunterSettings {
             id: "default".to_string(),
             enabled: true,
             niches: "[\"review phim\",\"tin tức\",\"công nghệ\",\"giải trí\"]".to_string(),
-            min_views: 25000,
-            max_subscribers: 25000,
-            min_sub_outlier: 5.0,
-            min_baseline_outlier: 5.0,
-            min_duration: 180,
-            min_vph: 300.0,
-            min_engagement_rate: 0.012,
-            min_comments: 15,
+            min_views: 3000,
+            max_subscribers: 150000,
+            min_sub_outlier: 1.8,
+            min_baseline_outlier: 1.8,
+            min_duration: 60,
+            min_vph: 0.5,
+            min_engagement_rate: 0.002,
+            min_comments: 2,
             auto_download: false,
             auto_reup_level: "v1".to_string(),
             auto_bkt_test: false,
             scan_interval_minutes: 60,
             updated_at: String::new(),
         }
+    }
+}
+
+fn deserialize_string_or_seq<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let value = serde_json::Value::deserialize(deserializer)?;
+    match value {
+        serde_json::Value::Null => Ok("[]".to_string()),
+        serde_json::Value::String(s) => Ok(s),
+        serde_json::Value::Array(arr) => Ok(serde_json::to_string(&arr).unwrap_or_else(|_| "[]".to_string())),
+        _ => Ok(value.to_string()),
     }
 }
 
@@ -82,6 +95,7 @@ pub struct OutlierVideo {
     pub baseline_median_views: i64,
     pub baseline_outlier_ratio: f64,
     pub engagement_rate: f64,
+    #[serde(default, deserialize_with = "deserialize_string_or_seq")]
     pub view_history: String,
     pub status: String,
     pub local_filepath: Option<String>,
