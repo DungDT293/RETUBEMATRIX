@@ -7,6 +7,25 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-12
+
+### Thêm mới
+
+- **Cô Lập Triệt Để Pool Kênh Test BKT Khỏi Hồ Sơ Kênh Đích** - Tách rời hoàn toàn chức năng Kênh Test Bản Quyền (Chức năng 5) và Hồ Sơ Kênh Đích (Chức năng 2). Khi thêm hoặc sửa kênh test, hệ thống tự động khởi tạo và quản lý phiên Chromium riêng biệt thuộc nhóm "Kênh Test BKT", tuyệt đối không liên kết hay mở nhầm hồ sơ kênh chính.
+- **Quy Trình Auto Reup Tuần Tự Top 5 Video Dài (1-by-1 FIFO)** - Chuẩn hóa luồng chạy tự động tuần tự từng video một cho kênh đối thủ: Tải 1 -> Reup Lv.1 -> Mượn slot BKT Unlisted quét Content ID -> Đăng Kênh Đích sau khi xanh sạch -> Tự động xóa file video gốc/reup/thumbnail giải phóng ổ cứng -> Chuyển sang video tiếp theo.
+- **Quét Tiền Kiểm FFmpeg (`preflight.rs`) & Lõi Studio DOM Đa Ngôn Ngữ (`studio_dom.py`)** - Bổ sung phân tích logo/phụ đề trước khi render thích ứng và bộ truy vấn/nhấp chuột xuyên Shadow DOM độc lập ngôn ngữ cho YouTube Studio.
+- **Nâng Cấp Unified Loopback Proxy Bridge & Full HTTP/2 Multiplexing** - Hỗ trợ định tuyến cả HTTP & SOCKS5 authenticated proxies qua cầu nối cục bộ, mở khóa HTTP/2 multiplexing cho dịch vụ Google và YouTube mà không bị kẹt xác thực CDP.
+
+### Thay đổi
+
+- **Chuẩn Hóa Thuật Ngữ Kênh Đích & Giải Phóng Tài Nguyên Phần Cứng** - Làm rõ nhãn "Kênh Đích (Chức năng 2)" trên toàn bộ giao diện kênh, loại bỏ dropdown gây nhầm lẫn khỏi luồng Test BKT và gỡ giới hạn RAM/heap 256MB trên máy có trên 4GB RAM (giữ bảo vệ riêng cho VPS yếu).
+
+### Sửa lỗi
+
+- **Sửa Dừng Tải Lên Trên Studio Sau Bước Điền Tiêu Đề/Mô Tả (`0x0` Shadow DOM)** - Xử lý chuẩn các custom-element bọc ngoài có kích thước `0x0` (`ytcp-uploads-dialog`, `ytcp-video-share-dialog`), nút lồng `<slot>` và cuộn `#scrollable-content` xuyên Shadow DOM để chọn đối tượng khán giả, chuyển bước wizard, bấm Lưu, lấy URL và tự đóng modal hậu xử lý.
+- **Ngăn Cào Tràn Shorts & Gán Nhầm Profile Tạo Kênh Test** - Giữ đúng `youtube_content_type`, bổ sung lọc thời lượng `> 60s` / URL `/shorts/` và đảm bảo kênh test mới luôn dùng profile độc lập.
+- **Khắc Phục Nghẽn Proxy Google & Đóng Gói Linux CI/CD** - Sửa lỗi kết nối proxy bị treo qua bridge nội bộ và chuẩn hóa script đóng gói AppImage/Flatpak trên GitHub Actions.
+
 ## [1.0.1] - 2026-11-11
 
 ### Thêm mới

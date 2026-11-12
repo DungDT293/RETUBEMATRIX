@@ -9,7 +9,7 @@
 ## 1. TỔNG QUAN DỰ ÁN & MỤC ĐÍCH
 
 - **Tên ứng dụng**: **RETubeMatrix** (Tên mã kỹ thuật: `reupytb`, Tên gói: `retubematrix`)
-- **Phiên bản hiện tại**: `v1.0.1` (Phát hành: 2026-11-11)
+- **Phiên bản hiện tại**: `v1.0.3` (Phát hành: 2026-11-12)
 - **Mục đích**: Nền tảng Desktop All-in-One chuyên nghiệp dành cho việc săn đón video đề xuất ngách (Outlier Hunter theo mô hình Ikigai), tải video sạch đa luồng, theo dõi tự động kênh đối thủ (đối chiếu 1-1 không nhầm lẫn kênh), xử lý lách bản quyền đa cấp độ (Reup Pipeline Lv.1 & Lv.2 đổi Checksum MD5/SHA256, Dynamic Audio Resampling, xóa sạch EXIF gốc), kiểm tra bản quyền trực tiếp với YouTube Studio qua Kênh Test BKT độc lập (Quota 15 video/24h, Traffic Light Xanh/Vàng/Đỏ), AI tối ưu Tiêu đề (Quy tắc 95%-5%) & Thumbnail (bảo toàn 95% nhân vật/chữ), quản lý hồ sơ trình duyệt Anti-Detect độc lập (MultiBrowser Cloak Chromium 155), chẩn đoán lỗi chuyên biệt 6 file log, Trung tâm Điều hành Doanh nghiệp SaaS Master Hub phân quyền 4 cấp với Cloudflare Edge Gateway & Khóa cứng máy HWID, và hệ sinh thái Plugin mở rộng (`.ywp`).
 
 - **Công nghệ cốt lõi (Tech Stack)**:

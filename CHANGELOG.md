@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-12
+
+### Added
+
+- **Strict Architecture Isolation for BKT Test Pool & Main Target Profiles** - Completely decoupled BKT Copyright Testing Channels (Feature 5) from Main Target Chromium Profiles (Feature 2). Adding or modifying BKT test channels automatically spawns and manages an independent Chromium session under the isolated "Kênh Test BKT" group without ever linking or opening money-making target profiles.
+- **Top 5 Long Video Sequential Auto-Reup Pipeline (FIFO Queue)** - Implemented a strict 1-by-1 sequential pipeline for monitored channels (Download 1 -> Reup Lv.1 -> Upload to BKT Unlisted -> Auto-verify YouTube Studio Content ID -> Publish to Main Target Profile once green-clean -> Auto-delete source/rendered/thumbnail files to reclaim disk space -> Advance to next video).
+- **FFmpeg Preflight Logo/Subtitle Scan & Language-Agnostic `studio_dom` Engine** - Added pre-flight frame scanning (`preflight.rs`) to adaptively guard overlays/subtitles and unified Shadow DOM inspection/click primitives (`studio_dom.py`) for YouTube Studio across all UI languages.
+- **Unified Loopback Proxy Bridge & Full HTTP/2 Multiplexing** - Upgraded local loopback proxy bridge to route authenticated HTTP and SOCKS5 proxies without CDP auth deadlocks, unlocking HTTP/2 multiplexing across proxy connections on Google and YouTube services.
+
+### Changed
+
+- **UI Terminology Clarification & Dynamic Hardware Allocation** - Clarified target profile labels across channel cards and settings dialogs, removed legacy dropdown bindings from BKT test flows, and removed 256MB JS heap / process limits on systems with >4GB RAM while preserving low-spec VPS safeguards.
+
+### Fixed
+
+- **YouTube Studio `0x0` Shadow DOM Upload Flow & Post-Save Dismissal** - Fixed upload flow stalling on `DETAILS` after filling title/description by piercing `0x0` custom-element hosts (`ytcp-uploads-dialog`, `ytcp-video-share-dialog`), slotted buttons, and Shadow DOM `#scrollable-content` to select audience, advance wizard steps, publish, extract video URLs, and dismiss post-save modals reliably.
+- **Shorts Auto-Download Spillover & BKT Profile Auto-Binding** - Prevented long-video channels from pulling YouTube Shorts (`> 60s` and `/shorts/` filtering) and ensured new BKT test channels always initialize with a standalone test profile.
+- **Proxy Stalling & Linux CI/CD Packaging** - Resolved network freezes on Google/YouTube over loopback proxy tunnels and aligned Linux AppImage/Flatpak packaging scripts.
+
 ## [1.0.1] - 2026-11-11
 
 ### Added
