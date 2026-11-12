@@ -37,6 +37,7 @@ except ImportError:
 try:
     from core.profile_store import (
         load_profiles,
+        save_profiles,
         add_profile,
         update_profile,
         delete_profile,
@@ -60,18 +61,28 @@ logger = logging.getLogger("browser_engine")
 
 def get_payload(args) -> dict:
     """Safely decode payload either from base64 (preferred) or raw JSON string."""
+    data = {}
     if getattr(args, "data_b64", None):
         try:
             raw = base64.b64decode(args.data_b64.encode("ascii")).decode("utf-8")
-            return json.loads(raw)
+            data = json.loads(raw)
         except Exception as e:
             logger.error("Lỗi giải mã data_b64: %s", e)
-    if getattr(args, "data", None):
+    elif getattr(args, "data", None):
         try:
-            return json.loads(args.data)
+            data = json.loads(args.data)
         except Exception as e:
             logger.error("Lỗi parse data json: %s", e)
-    return {}
+    if isinstance(data, dict):
+        normalized = {}
+        for k, v in data.items():
+            normalized[k] = v
+            # Auto-convert camelCase to snake_case
+            snake_k = re.sub(r'(?<!^)(?=[A-Z])', '_', k).lower()
+            if snake_k not in normalized:
+                normalized[snake_k] = v
+        return normalized
+    return data
 
 
 def _clean_profile_locks(profile_dir_name: str, force_kill_live: bool = False):
@@ -157,16 +168,24 @@ def action_list_profiles():
 def action_add_profile(args):
     try:
         payload = get_payload(args)
-        name = (payload.get("profile_name") or "").strip()
+        name = (
+            payload.get("profile_name")
+            or payload.get("profileName")
+            or payload.get("name")
+            or (isinstance(payload.get("profile"), dict) and (payload["profile"].get("profile_name") or payload["profile"].get("name")))
+            or (isinstance(payload.get("profileInput"), dict) and (payload["profileInput"].get("profile_name") or payload["profileInput"].get("name")))
+            or getattr(args, "profile_id", None)
+            or ""
+        ).strip()
         if not name:
-            print(json.dumps({"success": False, "error": "Profile name is required"}, ensure_ascii=False))
+            print(json.dumps({"success": False, "error": "Vui lòng nhập tên hồ sơ (Profile name is required)"}, ensure_ascii=False))
             sys.stdout.flush()
             sys.exit(1)
 
         proxy = (payload.get("proxy") or "").strip()
         group = (payload.get("group") or "Default").strip()
         locale = (payload.get("locale") or "vi-VN").strip()
-        preferred_channel = (payload.get("youtube_preferred_channel") or "").strip()
+        preferred_channel = (payload.get("youtube_preferred_channel") or payload.get("youtubePreferredChannel") or "").strip()
         note = (payload.get("note") or "").strip()
         color = (payload.get("color") or "#E15B64").strip()
 
@@ -200,15 +219,29 @@ def action_add_profile(args):
 
 def action_update_profile(args):
     try:
-        p_id = args.profile_id
         payload = get_payload(args)
+        p_id = args.profile_id or payload.get("id") or payload.get("profile_id") or payload.get("profileId")
         if not p_id:
             print(json.dumps({"success": False, "error": "Profile ID is required"}, ensure_ascii=False))
             sys.stdout.flush()
             sys.exit(1)
 
-        # Filter out None values
-        clean_payload = {k: v for k, v in payload.items() if v is not None}
+        # Normalize camelCase to snake_case for profile_store
+        clean_payload = {}
+        key_map = {
+            "profileName": "profile_name",
+            "youtubePreferredChannel": "youtube_preferred_channel",
+            "proxyScheme": "proxy_scheme",
+            "fingerprintSeed": "fingerprint_seed",
+            "lastRunStatus": "last_run_status",
+            "lastRunTime": "last_run_time",
+            "lastRunError": "last_run_error",
+        }
+        for k, v in payload.items():
+            if v is not None:
+                target_key = key_map.get(k, k)
+                if not (target_key in clean_payload and target_key != k):
+                    clean_payload[target_key] = v
         ok = update_profile(p_id, **clean_payload)
         print(json.dumps({"success": ok}, ensure_ascii=False))
         sys.stdout.flush()
@@ -747,7 +780,7 @@ async def _async_upload_video(args):
     payload = get_payload(args)
     profile_id = str(payload.get("profile_id") or "").strip()
     video_path = str(payload.get("video_path") or "").strip()
-    title = str(payload.get("title") or "").strip()
+    title = str(payload.get("title") or "").strip()[:100]
     description = str(payload.get("description") or "").strip()
     tags = str(payload.get("tags") or "").strip()
     thumbnail_path = str(payload.get("thumbnail_path") or "").strip()
@@ -768,7 +801,10 @@ async def _async_upload_video(args):
         return
 
     profiles = load_profiles()
-    profile = next((p for p in profiles if (p.get("id") == profile_id or p.get("profile_name") == profile_id)), None)
+    profile = next((p for p in profiles if (p.get("id") == profile_id or str(p.get("profile_name") or "").strip().lower() == profile_id.strip().lower())), None)
+    if not profile and payload.get("channel_name"):
+        ch_name = str(payload.get("channel_name")).strip().lower()
+        profile = next((p for p in profiles if str(p.get("profile_name") or "").strip().lower() == ch_name), None)
     if not profile:
         print(json.dumps({"success": False, "error": f"Không tìm thấy profile '{profile_id}'"}, ensure_ascii=False))
         sys.stdout.flush()
@@ -878,6 +914,186 @@ async def _async_upload_video(args):
         update_profile(profile_id, last_run_status="stopped")
 
 
+async def _async_bkt_unified_pipeline(args):
+    """
+    Quy trình kiểm tra bản quyền hợp nhất (Unified BKT Pipeline):
+    1. Mở một phiên CloakSession duy nhất.
+    2. Upload video (điền tiêu đề, mô tả, Unlisted mode).
+    3. Trích xuất video URL/ID ngay khi hoàn tất các bước metadata và bấm Save.
+    4. Bấm nút 'Đóng' trên popup card 'Tải video lên' để giải phóng màn hình mà luồng tải vẫn chạy ngầm.
+    5. SPA click chuyển qua tab 'Nội dung' (Content /videos) - Zero-reload.
+    6. Theo dõi realtime trên cùng 1 phiên Chromium:
+       - % upload stream và thời gian còn lại
+       - Quá trình mã hóa độ phân giải SD
+       - Quá trình kiểm tra Content ID
+       - Kết quả bản quyền (green_clean hoặc red_matched bóc tách vi phạm)
+    7. Chỉ đóng trình duyệt khi toàn bộ quy trình hoàn tất.
+    """
+    t0 = time.time()
+    payload = get_payload(args)
+    profile_id = str(payload.get("profile_id") or "").strip() or str(args.profile_id or "").strip()
+    video_path = str(payload.get("video_path") or "").strip()
+    title = str(payload.get("title") or "").strip()[:100]
+    description = str(payload.get("description") or "Test copyright Content ID verification (Unlisted mode).").strip()
+    tags = str(payload.get("tags") or "").strip()
+    visibility = "unlisted"
+    preferred_channel = str(payload.get("preferred_channel") or "").strip()
+    max_poll_seconds = int(payload.get("max_poll_seconds", 1800))
+
+    if not profile_id or not video_path:
+        print(json.dumps({"success": False, "error": "profile_id và video_path là bắt buộc"}, ensure_ascii=False))
+        sys.stdout.flush()
+        return
+
+    if not os.path.exists(video_path):
+        print(json.dumps({"success": False, "error": f"Không tìm thấy file video: {video_path}"}, ensure_ascii=False))
+        sys.stdout.flush()
+        return
+
+    profiles = load_profiles()
+    profile = next((p for p in profiles if (p.get("id") == profile_id or str(p.get("profile_name") or "").strip().lower() == profile_id.strip().lower())), None)
+    if not profile and payload.get("channel_name"):
+        ch_name = str(payload.get("channel_name")).strip().lower()
+        profile = next((p for p in profiles if str(p.get("profile_name") or "").strip().lower() == ch_name), None)
+    if not profile:
+        print(json.dumps({"success": False, "error": f"Không tìm thấy profile '{profile_id}'"}, ensure_ascii=False))
+        sys.stdout.flush()
+        return
+
+    name = profile.get("profile_name") or profile_id
+    profile_dir = profile.get("profile_dir") or name
+    proxy = profile.get("proxy") or ""
+    fingerprint_seed = profile.get("fingerprint_seed")
+    if not preferred_channel:
+        preferred_channel = profile.get("youtube_preferred_channel", "")
+
+    _clean_profile_locks(profile_dir, force_kill_live=True)
+    update_profile(profile_id, last_run_status="running")
+
+    session = CloakSession()
+    try:
+        logger.info(f"Bắt đầu quy trình kiểm tra bản quyền hợp nhất (Unified BKT Pipeline) cho: {name}")
+        page = await session.start(
+            profile_name=name,
+            proxy=proxy,
+            fingerprint_seed=fingerprint_seed,
+            profile_dir_name=profile_dir,
+            profile_data=profile,
+        )
+
+        uploader = YouTubeUpload()
+        video_url = await uploader.upload_video(
+            page=page,
+            video_path=video_path,
+            title=title,
+            description=description,
+            tags=tags,
+            thumbnail_path=None,
+            visibility=visibility,
+            schedule_date="",
+            schedule_time="",
+            pinned_comment="",
+            preferred_channel=preferred_channel,
+            handover_after_save=True,
+        )
+
+        from actions.studio_dom import get_studio_context
+
+        handover_ctx = await get_studio_context(page)
+        handover_url = str(handover_ctx.get("url") or getattr(page, "url", "") or "")
+        if not video_url and handover_ctx.get("scope") == "video":
+            raise RuntimeError(
+                f"Upload không trả về video_url và trình duyệt bị kẹt ở {handover_ctx.get('pageType')} ({handover_url}). "
+                "Dừng trước khi bàn giao sang theo dõi Content ID."
+            )
+
+        yt_id = ""
+        if video_url:
+            if "youtu.be/" in video_url:
+                yt_id = video_url.split("youtu.be/")[1].split("?")[0].split("/")[0]
+            elif "v=" in video_url:
+                yt_id = video_url.split("v=")[1].split("&")[0]
+            elif "/shorts/" in video_url:
+                yt_id = video_url.split("/shorts/")[1].split("?")[0]
+            elif "/video/" in video_url:
+                yt_id = video_url.split("/video/")[1].split("/")[0].split("?")[0]
+
+        logger.info(
+            "Video URL đã ghi nhận: %s (ID: %s). Handover URL=%s (pageType=%s). Chuyển SPA sang Nội dung để theo dõi %% upload & Content ID...",
+            video_url,
+            yt_id,
+            handover_url,
+            handover_ctx.get("pageType"),
+        )
+
+        # Phát upload_progress bàn giao (CHƯA emit upload_success ở đây vì video dung lượng lớn có thể vẫn đang tải XX%)
+        print(json.dumps({
+            "event": "upload_progress",
+            "percent": None,
+            "youtube_video_id": yt_id,
+            "video_url": video_url,
+            "message": "Đã bấm Lưu & đóng popup — chuyển sang tab Nội dung theo dõi tiến trình..."
+        }, ensure_ascii=False))
+        sys.stdout.flush()
+
+        # Tự động SPA chuyển sang trang Nội dung (/videos) và giám sát liên tục trong cùng phiên
+        from actions.bkt_check import check_copyright_and_restrictions
+        res = await check_copyright_and_restrictions(
+            page,
+            video_ids=[yt_id] if yt_id else [],
+            video_title=title,
+            poll_in_session=True,
+            max_poll_seconds=max_poll_seconds,
+            emit_upload_events=True,
+            video_url=video_url,
+        )
+
+        if not yt_id and res.get("youtube_video_id"):
+            yt_id = res["youtube_video_id"]
+        res["youtube_video_id"] = yt_id
+        if yt_id and not video_url:
+            video_url = f"https://youtu.be/{yt_id}"
+        res["video_url"] = video_url
+        duration = time.time() - t0
+        print(json.dumps(res, ensure_ascii=False))
+        sys.stdout.flush()
+
+        update_profile(profile_id, last_run_status="success", last_run_error="")
+        record_run(
+            profile_id=profile_id,
+            profile_name=name,
+            action="bkt_unified",
+            status="success" if res.get("success") else "error",
+            duration_seconds=duration,
+        )
+    except Exception as exc:
+        duration = time.time() - t0
+        logger.error(f"Lỗi Unified BKT Pipeline: {exc}", exc_info=True)
+        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False))
+        sys.stdout.flush()
+        update_profile(profile_id, last_run_status="error", last_run_error=str(exc))
+        record_run(
+            profile_id=profile_id,
+            profile_name=name,
+            action="bkt_unified",
+            status="error",
+            duration_seconds=duration,
+            error=str(exc),
+        )
+    finally:
+        try:
+            await session.close()
+        except Exception:
+            pass
+        _clean_profile_locks(profile_dir)
+        try:
+            pdir_path = profile_data_dir(profile_dir)
+            _clean_profile_cache_dir(pdir_path)
+        except Exception as cache_clean_err:
+            logger.debug("Tự động dọn cache sau BKT unified gặp lỗi nhẹ: %s", cache_clean_err)
+        update_profile(profile_id, last_run_status="stopped")
+
+
 async def _async_check_copyright_status(args):
     """
     Check copyright / restrictions / monetization for videos in YouTube Studio.
@@ -908,8 +1124,11 @@ async def _async_check_copyright_status(args):
     profile_dir = profile.get("profile_dir") or name
     proxy = profile.get("proxy") or ""
     fingerprint_seed = profile.get("fingerprint_seed")
+    if not preferred_channel:
+        preferred_channel = str(profile.get("youtube_preferred_channel") or "").strip()
 
     _clean_profile_locks(profile_dir, force_kill_live=True)
+    update_profile(profile_id, last_run_status="running")
 
     session = CloakSession()
     try:
@@ -920,6 +1139,18 @@ async def _async_check_copyright_status(args):
             profile_dir_name=profile_dir,
             profile_data=profile,
         )
+
+        if preferred_channel:
+            from actions.youtube_channel import ensure_preferred_youtube_channel
+            if "studio.youtube.com" not in (page.url or ""):
+                try:
+                    await page.goto("https://studio.youtube.com/", wait_until="domcontentloaded", timeout=60000)
+                except Exception:
+                    pass
+                await asyncio.sleep(1.5)
+            switched = await ensure_preferred_youtube_channel(page, preferred_channel)
+            if not switched:
+                raise RuntimeError(f"Không tìm thấy hoặc không chuyển được sang kênh YouTube ưu tiên: {preferred_channel}")
 
         from actions.bkt_check import check_copyright_and_restrictions
         res = await check_copyright_and_restrictions(
@@ -934,6 +1165,7 @@ async def _async_check_copyright_status(args):
         print(json.dumps(res, ensure_ascii=False))
         sys.stdout.flush()
 
+        update_profile(profile_id, last_run_status="success", last_run_error="")
         record_run(
             profile_id=profile_id,
             profile_name=profile.get("name", profile_id),
@@ -946,6 +1178,7 @@ async def _async_check_copyright_status(args):
         logger.error(f"Lỗi kiểm tra bản quyền: {exc}", exc_info=True)
         print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False))
         sys.stdout.flush()
+        update_profile(profile_id, last_run_status="error", last_run_error=str(exc))
         record_run(
             profile_id=profile_id,
             profile_name=profile.get("name", profile_id),
@@ -955,7 +1188,17 @@ async def _async_check_copyright_status(args):
             error=str(exc),
         )
     finally:
-        await session.close()
+        try:
+            await session.close()
+        except Exception:
+            pass
+        _clean_profile_locks(profile_dir)
+        try:
+            pdir_path = profile_data_dir(profile_dir)
+            _clean_profile_cache_dir(pdir_path)
+        except Exception as cache_clean_err:
+            logger.debug("Tự động dọn cache sau check_copyright gặp lỗi nhẹ: %s", cache_clean_err)
+        update_profile(profile_id, last_run_status="stopped")
 
 
 def action_extract_channel_seo(args):
@@ -1287,45 +1530,77 @@ async def _async_sync_channel_analytics(args):
         sys.stdout.flush()
         return
 
-    p_dir = profile_data_dir(profile_id)
+    profiles = load_profiles()
+    profile = next(
+        (
+            p
+            for p in profiles
+            if (
+                p.get("id") == profile_id
+                or str(p.get("profile_name") or "").strip().lower() == profile_id.strip().lower()
+            )
+        ),
+        None,
+    )
+    if not profile:
+        print(json.dumps({"success": False, "error": f"Không tìm thấy profile: {profile_id}"}, ensure_ascii=True))
+        sys.stdout.flush()
+        return
+
+    name = profile.get("profile_name") or profile_id
+    profile_dir = profile.get("profile_dir") or name
+    proxy = profile.get("proxy") or ""
+    fingerprint_seed = profile.get("fingerprint_seed")
+
+    p_dir = profile_data_dir(profile_dir)
     if not p_dir.exists():
         print(json.dumps({"success": False, "error": f"Không tìm thấy thư mục profile: {p_dir}"}, ensure_ascii=True))
         sys.stdout.flush()
         return
 
+    session = CloakSession()
     try:
-        session = CloakSession(str(p_dir))
-        async with session:
-            page = await session.new_page()
-            # Bật route interception giảm RAM < 180MB
-            await setup_low_end_route_interception(page)
+        page = await session.start(
+            profile_name=name,
+            proxy=proxy,
+            fingerprint_seed=fingerprint_seed,
+            profile_dir_name=profile_dir,
+            profile_data=profile,
+        )
+        # Bật route interception giảm RAM < 180MB
+        await setup_low_end_route_interception(page)
 
-            analytics_data = await extract_studio_analytics_async(page, channel_url=channel_url)
+        analytics_data = await extract_studio_analytics_async(page, channel_url=channel_url)
 
-            # Đóng gói telemetry và gửi lên Cloudflare Gateway nếu có company_id
-            if analytics_data.get("success") and company_id:
-                telemetry_payload = {
-                    "company_id": company_id,
-                    "channel_id": channel_id,
-                    "channel_name": channel_name,
-                    "report_date": analytics_data.get("report_date"),
-                    "views": analytics_data.get("views", 0),
-                    "watch_time_hours": analytics_data.get("watch_time_hours", 0.0),
-                    "subscribers_gained": analytics_data.get("subscribers_gained", 0),
-                    "estimated_revenue": analytics_data.get("estimated_revenue_usd", 0.0),
-                    "estimated_revenue_vnd": analytics_data.get("estimated_revenue_vnd", 0.0),
-                    "rpm": analytics_data.get("rpm", 0.0),
-                    "cpm": analytics_data.get("cpm", 0.0),
-                    "monetization_status": analytics_data.get("monetization_status", "active"),
-                }
-                send_telemetry_to_gateway(telemetry_payload)
+        # Đóng gói telemetry và gửi lên Cloudflare Gateway nếu có company_id
+        if analytics_data.get("success") and company_id:
+            telemetry_payload = {
+                "company_id": company_id,
+                "channel_id": channel_id,
+                "channel_name": channel_name,
+                "report_date": analytics_data.get("report_date"),
+                "views": analytics_data.get("views", 0),
+                "watch_time_hours": analytics_data.get("watch_time_hours", 0.0),
+                "subscribers_gained": analytics_data.get("subscribers_gained", 0),
+                "estimated_revenue": analytics_data.get("estimated_revenue_usd", 0.0),
+                "estimated_revenue_vnd": analytics_data.get("estimated_revenue_vnd", 0.0),
+                "rpm": analytics_data.get("rpm", 0.0),
+                "cpm": analytics_data.get("cpm", 0.0),
+                "monetization_status": analytics_data.get("monetization_status", "active"),
+            }
+            send_telemetry_to_gateway(telemetry_payload)
 
-            print(json.dumps({"success": True, "analytics": analytics_data}, ensure_ascii=True))
-            sys.stdout.flush()
+        print(json.dumps({"success": True, "analytics": analytics_data}, ensure_ascii=True))
+        sys.stdout.flush()
     except Exception as e:
         logger.error(f"Lỗi _async_sync_channel_analytics: {e}")
         print(json.dumps({"success": False, "error": str(e)}, ensure_ascii=True))
         sys.stdout.flush()
+    finally:
+        try:
+            await session.close()
+        except Exception:
+            pass
 
 
 def main():
@@ -1338,6 +1613,7 @@ def main():
         "test_proxy",
         "open_profile",
         "upload_video",
+        "bkt_unified_pipeline",
         "check_copyright_status",
         "get_stats",
         "stop_profile",
@@ -1378,6 +1654,8 @@ def main():
         asyncio.run(_async_open_profile(args.profile_id, target_url=target_url))
     elif args.action == "upload_video":
         asyncio.run(_async_upload_video(args))
+    elif args.action == "bkt_unified_pipeline":
+        asyncio.run(_async_bkt_unified_pipeline(args))
     elif args.action == "check_copyright_status":
         asyncio.run(_async_check_copyright_status(args))
     elif args.action == "configure_channel_settings":

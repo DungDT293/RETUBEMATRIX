@@ -7,6 +7,8 @@ import subprocess
 import platform
 import statistics
 import logging
+import re
+import urllib.request
 from typing import Dict, List, Tuple, Optional
 
 logger = logging.getLogger("outlier_hunter")
@@ -562,6 +564,173 @@ def find_goldmines(seed: str) -> List[Dict]:
     return results[:40]
 
 
+def parse_views_str(view_str: str) -> int:
+    if not view_str:
+        return 0
+    clean = view_str.lower().replace("\xa0", " ").strip()
+    for word in ["views", "lượt xem", "lượt", "view"]:
+        clean = clean.replace(word, "")
+    clean = clean.strip()
+    multiplier = 1.0
+    if "b" in clean or "tỷ" in clean or "ty" in clean:
+        multiplier = 1_000_000_000.0
+        clean = re.sub(r"[btytỷ\s]", "", clean)
+    elif "m" in clean or "tr" in clean or "triệu" in clean or "trieu" in clean:
+        multiplier = 1_000_000.0
+        clean = re.sub(r"[mtrtrieu\s\u00e0-\u00ff]", "", clean)
+    elif "k" in clean or "n" in clean or "nghìn" in clean or "nghin" in clean:
+        multiplier = 1_000.0
+        clean = re.sub(r"[kntnghin\s\u00e0-\u00ff]", "", clean)
+    else:
+        clean = re.sub(r"[\.,\s]", "", clean)
+    try:
+        clean = clean.replace(",", ".")
+        return int(float(clean) * multiplier)
+    except Exception:
+        m = re.search(r"(\d+(?:[\.,]\d+)?)", view_str)
+        if m:
+            try:
+                num = float(m.group(1).replace(",", "."))
+                return int(num * multiplier)
+            except Exception:
+                return 0
+        return 0
+
+def parse_time_str_to_hours(time_str: str) -> float:
+    if not time_str:
+        return 720.0
+    s = time_str.lower().replace("\xa0", " ").strip()
+    m = re.search(r"(\d+)", s)
+    val = float(m.group(1)) if m else 1.0
+    if "năm" in s or "year" in s:
+        return max(val * 365.0 * 24.0, 24.0)
+    elif "tháng" in s or "month" in s:
+        return max(val * 30.0 * 24.0, 24.0)
+    elif "tuần" in s or "week" in s:
+        return max(val * 7.0 * 24.0, 24.0)
+    elif "ngày" in s or "day" in s:
+        return max(val * 24.0, 1.0)
+    elif "giờ" in s or "hour" in s:
+        return max(val, 0.5)
+    elif "phút" in s or "minute" in s:
+        return max(val / 60.0, 0.1)
+    elif "giây" in s or "second" in s:
+        return 0.1
+    return 720.0
+
+def fetch_popular_innertube(channel_url: str, limit: int = 20) -> List[Dict]:
+    url = channel_url.rstrip("/")
+    if not url.endswith("/videos"):
+        url += "/videos"
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9,vi;q=0.8"
+    }
+    try:
+        req = urllib.request.Request(url, headers=headers)
+        html = urllib.request.urlopen(req, timeout=12).read().decode("utf-8")
+    except Exception as e:
+        logger.warning(f"Không thể mở trang /videos của {channel_url}: {e}")
+        return []
+
+    token = None
+    m = re.search(r'\"chipViewModel\":\{\"text\":\"(Popular|Phổ biến|Phổ biến nhất)\".+?\"continuationCommand\":\{\"token\":\"([^\"]+)\"', html)
+    if m:
+        token = m.group(2)
+    
+    if not token:
+        tokens = re.findall(r'\"continuationCommand\":\{\"token\":\"([^\"]+)\"', html)
+        if len(tokens) >= 2:
+            token = tokens[1]
+    
+    if not token:
+        return []
+
+    browse_url = "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false"
+    payload = {
+        "context": {
+            "client": {
+                "clientName": "WEB",
+                "clientVersion": "2.20241108.00.00",
+                "hl": "vi",
+                "gl": "VN"
+            }
+        },
+        "continuation": token
+    }
+    try:
+        req_post = urllib.request.Request(
+            browse_url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json", "User-Agent": headers["User-Agent"]}
+        )
+        resp = urllib.request.urlopen(req_post, timeout=12).read().decode("utf-8")
+        data = json.loads(resp)
+    except Exception as e:
+        logger.warning(f"Lỗi gọi InnerTube browse cho {channel_url}: {e}")
+        return []
+
+    videos = []
+    def find_lockups(obj):
+        if isinstance(obj, dict):
+            if "lockupViewModel" in obj:
+                vm = obj["lockupViewModel"]
+                vid_id = vm.get("contentId")
+                title = vm.get("metadata", {}).get("lockupMetadataViewModel", {}).get("title", {}).get("content")
+                rows = vm.get("metadata", {}).get("lockupMetadataViewModel", {}).get("metadata", {}).get("contentMetadataViewModel", {}).get("metadataRows", [])
+                view_str = ""
+                time_str = ""
+                for r in rows:
+                    parts = r.get("metadataParts", r.get("parts", []))
+                    for p in parts:
+                        txt = p.get("text", {}).get("content", "")
+                        if not txt:
+                            txt = p.get("accessibilityLabel", "")
+                        if any(w in txt.lower() for w in ["view", "lượt xem", "lượt", "trượt"]):
+                            view_str = txt
+                        elif any(w in txt.lower() for w in ["ago", "trước", "năm", "tháng", "tuần", "ngày", "giờ", "phút"]):
+                            time_str = txt
+                
+                thumb_url = f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg" if vid_id else ""
+                if vid_id and title:
+                    views = parse_views_str(view_str)
+                    hours_published = parse_time_str_to_hours(time_str)
+                    vph = round(views / hours_published, 1)
+                    
+                    # Tính điểm SEO thông minh
+                    words = title.split()
+                    base_score = 45
+                    len_bonus = 20 if 30 <= len(title) <= 80 else (10 if len(title) > 80 else 5)
+                    word_bonus = 15 if 5 <= len(words) <= 14 else 8
+                    num_bonus = 10 if any(char.isdigit() for char in title) else 0
+                    vph_bonus = 10 if vph > 100 else (5 if vph > 20 else 0)
+                    keyword_score = min(base_score + len_bonus + word_bonus + num_bonus + vph_bonus, 98)
+
+                    videos.append({
+                        "id": vid_id,
+                        "title": title,
+                        "thumbnail_url": thumb_url,
+                        "url": f"https://www.youtube.com/watch?v={vid_id}",
+                        "views": views,
+                        "duration": 0,
+                        "hours_published": round(hours_published, 1),
+                        "vph": vph,
+                        "keyword_score": keyword_score,
+                        "uploader": "Đối thủ",
+                        "tags": [],
+                        "categories": [],
+                    })
+            for v in obj.values():
+                find_lockups(v)
+        elif isinstance(obj, list):
+            for item in obj:
+                find_lockups(item)
+
+    find_lockups(data)
+    return videos[:limit]
+
+
 def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> List[Dict]:
     """
     Phân tích kênh đối thủ theo phương pháp thực chiến:
@@ -683,6 +852,16 @@ def analyze_competitor_channel(channel_url: str, sort_by: str = "popular") -> Li
         if clean_url.endswith(sub):
             clean_url = clean_url[:-len(sub)]
             break
+
+    # Nếu yêu cầu video phổ biến (popular), ưu tiên gọi InnerTube API trực tiếp (chính xác 100% all-time top views)
+    if sort_by == "popular":
+        try:
+            innertube_vids = fetch_popular_innertube(clean_url, limit=20)
+            if innertube_vids:
+                innertube_vids.sort(key=lambda x: x["views"], reverse=True)
+                return innertube_vids[:15]
+        except Exception as pop_err:
+            logger.warning(f"InnerTube Popular quét gặp lỗi, chuyển sang yt-dlp fallback: {pop_err}")
 
     if not clean_url.endswith("/videos"):
         target_url = clean_url + "/videos"

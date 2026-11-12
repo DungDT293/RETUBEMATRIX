@@ -20,7 +20,11 @@ from actions.youtube_channel import (
     PreferredYouTubeChannelError,
     ensure_preferred_youtube_channel,
 )
-from core.youtube_watch_history import record_youtube_watch
+try:
+    from core.youtube_watch_history import record_youtube_watch
+except ImportError:  # pragma: no cover - optional telemetry helper
+    def record_youtube_watch(*_args, **_kwargs):
+        return None
 
 logger = logging.getLogger(__name__)
 

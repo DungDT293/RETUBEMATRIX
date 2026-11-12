@@ -22,18 +22,22 @@ class CloakBrowserEngine(BaseBrowserEngine):
             *spec.window_args(),
             f"--force-device-scale-factor={float(options.get('scale_factor', 1.0)):.4f}",
             f"--homepage={options.get('homepage', 'https://www.google.com/')}",
-            "--renderer-process-limit=2",
-            "--disable-background-networking",
-            "--disable-dev-shm-usage",
-            '--js-flags="--max-old-space-size=256 --expose-gc"',
             "--disable-component-update",
             "--disable-quic",
         ]
-        if spec.proxy:
+        from core.host_capabilities import host_capabilities
+        if host_capabilities().get("low_memory_host"):
             args.extend([
-                "--disable-http2",
-                "--dns-over-https-mode=off",
+                "--renderer-process-limit=2",
+                "--disable-background-networking",
+                "--disable-dev-shm-usage",
+                "--js-flags=--max-old-space-size=256 --expose-gc",
             ])
+        if spec.proxy:
+            server_str = (spec.proxy.get("server") or "") if isinstance(spec.proxy, dict) else str(spec.proxy)
+            if not server_str.startswith("socks") and "127.0.0.1" not in server_str:
+                args.append("--disable-http2")
+            args.append("--dns-over-https-mode=off")
         if spec.mute_audio:
             args.append("--mute-audio")
         seed = options.get("fingerprint_seed")
@@ -49,10 +53,7 @@ class CloakBrowserEngine(BaseBrowserEngine):
                 self._allow_extensions()
                 args.extend([f"--disable-extensions-except={path}", f"--load-extension={path}"])
         if spec.proxy:
-            server = str(spec.proxy.get("server") or "")
             args.append("--fingerprint-webrtc-ip=auto")
-            if server.lower().startswith(("http://", "https://")):
-                args.append("--disable-http2")
         return args
 
     @staticmethod

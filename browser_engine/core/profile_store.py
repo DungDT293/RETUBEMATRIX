@@ -265,44 +265,36 @@ def _protect_empty_profile_write(profiles: list[dict]) -> None:
 
 
 def _migrate_legacy_metadata_once() -> None:
-    """Copy valid legacy metadata when canonical metadata is absent or corrupt."""
-    if not getattr(sys, "frozen", False):
-        return
-    for filename, destination in (
-        ("profiles.json", PROFILES_JSON),
-        ("deleted_profiles.json", DELETED_PROFILES_JSON),
-    ):
-        try:
-            canonical_valid = destination.exists() and bool(_read_profile_rows(destination) or destination.read_text(encoding="utf-8-sig").strip() in {"[]", '{"profiles": []}'})
-        except ProfilePersistenceError:
-            canonical_valid = False
-        if canonical_valid:
+    """Tự động đồng bộ và nạp hồ sơ từ các vị trí legacy (reupytb, BrowserMulti) nếu chưa có."""
+    from core.paths import legacy_profile_data_roots
+    for root in legacy_profile_data_roots():
+        source = root / "profiles.json"
+        if not source.is_file():
             continue
-        for root in profile_data_roots()[1:]:
-            source = root / filename
-            if not source.is_file():
+        try:
+            legacy_rows = _read_profile_rows(source)
+            if not legacy_rows:
                 continue
-            try:
-                _read_profile_rows(source)
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                fd, temp_name = tempfile.mkstemp(
-                    prefix=f".{destination.stem}.migrate.",
-                    suffix=".tmp",
-                    dir=destination.parent,
-                )
-                os.close(fd)
-                temp = Path(temp_name)
-                try:
-                    shutil.copyfile(source, temp)
-                    temp.replace(destination)
-                finally:
-                    temp.unlink(missing_ok=True)
-                logger.warning("Đã sao chép metadata profile từ %s sang %s", source, destination)
-                break
-            except ProfilePersistenceError:
-                logger.warning("Bỏ qua metadata profile cũ không hợp lệ: %s", source)
-            except OSError as exc:
-                logger.warning("Không sao chép được metadata profile cũ %s: %s", source, exc)
+            canonical_rows = _read_profile_rows(PROFILES_JSON) if PROFILES_JSON.exists() else []
+            existing_ids = {r.get("id") for r in canonical_rows if isinstance(r, dict)}
+            deleted_rows = _read_profile_rows(DELETED_PROFILES_JSON) if DELETED_PROFILES_JSON.exists() else []
+            deleted_ids = {r.get("id") for r in deleted_rows if isinstance(r, dict)}
+
+            added = False
+            for r in legacy_rows:
+                if not isinstance(r, dict):
+                    continue
+                pid = r.get("id")
+                if pid and pid not in existing_ids and pid not in deleted_ids:
+                    canonical_rows.append(r)
+                    existing_ids.add(pid)
+                    added = True
+            if added:
+                PROFILES_JSON.parent.mkdir(parents=True, exist_ok=True)
+                PROFILES_JSON.write_text(json.dumps(canonical_rows, ensure_ascii=False, indent=2), encoding="utf-8")
+                logger.info("Đã tự động đồng bộ hồ sơ từ %s sang %s", source, PROFILES_JSON)
+        except Exception as exc:
+            logger.warning("Lỗi đồng bộ hồ sơ cũ từ %s: %s", source, exc)
 
 
 def _is_chromium_profile_dir(path: Path) -> bool:

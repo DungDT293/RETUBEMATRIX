@@ -1,6 +1,7 @@
 """Opt-in BrowserMulti v155 SDK backend."""
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 import sys
@@ -9,6 +10,8 @@ from typing import Any
 from playwright.async_api import async_playwright
 
 from .base import BaseBrowserEngine, BrowserEngineUnavailableError, BrowserLaunchSpec, EngineCapabilities
+
+logger = logging.getLogger(__name__)
 
 BASELINE_VERSION = "152.0.7977.65"
 CANARY_VERSION = "155.0.8059.12"
@@ -205,17 +208,21 @@ class BrowserMultiEngine(BaseBrowserEngine):
             "--disable-quic",
             "--lang=vi-VN",
             "--homepage=https://www.google.com",
-            "--renderer-process-limit=2",
-            "--disable-background-networking",
-            "--disable-dev-shm-usage",
-            '--js-flags="--max-old-space-size=256 --expose-gc"',
             "--disable-component-update",
         ]
-        if spec.proxy:
+        from core.host_capabilities import host_capabilities
+        if host_capabilities().get("low_memory_host"):
             args.extend([
-                "--disable-http2",
-                "--dns-over-https-mode=off",
+                "--renderer-process-limit=2",
+                "--disable-background-networking",
+                "--disable-dev-shm-usage",
+                "--js-flags=--max-old-space-size=256 --expose-gc",
             ])
+        if spec.proxy:
+            server_str = (spec.proxy.get("server") or "") if isinstance(spec.proxy, dict) else str(spec.proxy)
+            if not server_str.startswith("socks") and "127.0.0.1" not in server_str:
+                args.append("--disable-http2")
+            args.append("--dns-over-https-mode=off")
         if not options.get("restore_profile_window_placement"):
             args.extend(spec.window_args())
         elif options.get("start_maximized"):

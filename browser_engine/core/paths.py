@@ -42,8 +42,17 @@ def profile_data_path(*parts: str) -> Path:
 
 
 def legacy_profile_data_roots() -> tuple[Path, ...]:
-    """No legacy root fallback - RETubeMatrix profile storage is 100% isolated."""
-    return ()
+    """Fallback legacy roots: reupytb and BrowserMulti when profiles exist there."""
+    base = os.environ.get("LOCALAPPDATA")
+    roots: list[Path] = []
+    if base:
+        reup = Path(base) / "reupytb" / "browser_engine"
+        if reup.exists():
+            roots.append(reup)
+        bm = Path(base) / "BrowserMulti"
+        if bm.exists():
+            roots.append(bm)
+    return tuple(roots)
 
 
 def profile_data_dir(profile_dir: str, root: str | Path | None = None) -> Path:

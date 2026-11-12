@@ -18,8 +18,14 @@ from cloakbrowser.human.actionability import ElementNotStableError  # type: igno
 from core.paths import profile_data_dir, profile_data_path
 from core.profile_store import validate_display_profile_name, validate_profile_name
 from core.host_capabilities import host_capabilities
-from core.proxy_format import playwright_proxy_config, proxy_launch_compatibility, proxy_requires_bridge
-from core.proxy_bridge import Socks5HttpBridge
+from core.proxy_format import (
+    canonical_proxy,
+    canonical_proxy_with_scheme,
+    playwright_proxy_config,
+    proxy_launch_compatibility,
+    proxy_requires_bridge,
+)
+from core.proxy_bridge import AuthenticatedProxyBridge, Socks5HttpBridge
 from core.browser_policy import (
     CLOAKBROWSER_BROWSER_VERSION,
     configure_bundled_cache,
@@ -700,7 +706,7 @@ class CloakSession:
         self._title_overlay: WindowTitleOverlay | None = None
         self._profile_audio_sync_task: asyncio.Task[None] | None = None
         self._cosmetic_task: asyncio.Task[None] | None = None
-        self._proxy_bridge: Socks5HttpBridge | None = None
+        self._proxy_bridge: AuthenticatedProxyBridge | Socks5HttpBridge | None = None
         self._session_pid: int | None = None
         self._launch_args: list[str] = []
         self.page_crashed = False
@@ -708,16 +714,7 @@ class CloakSession:
         self.crash_event: asyncio.Event = asyncio.Event()
         self.crash_url = ""
         self.last_crash_snapshot: dict[str, Any] | None = None
-        self._launch_args: list[str] = []
         self._close_task: asyncio.Task[None] | None = None
-
-    def _process_executable_path(self) -> str:
-        if self._session_pid is None:
-            return "unknown"
-        try:
-            return str(psutil.Process(int(self._session_pid)).exe())
-        except Exception:
-            return "unknown"
 
     def _process_executable_path(self) -> str:
         if self._session_pid is None:
@@ -1041,8 +1038,11 @@ class CloakSession:
         proxy_config = None
         if proxy:
             proxy_scheme = (profile_data or {}).get("proxy_scheme") or "auto"
-            if engine.engine_id == "browsermulti" and proxy_requires_bridge(proxy, proxy_scheme):
-                self._proxy_bridge = Socks5HttpBridge(proxy)
+            if proxy_requires_bridge(proxy, proxy_scheme):
+                canonical = canonical_proxy_with_scheme(proxy, proxy_scheme)
+                if canonical and "://" not in canonical:
+                    canonical = canonical_proxy(canonical, proxy_scheme)
+                self._proxy_bridge = AuthenticatedProxyBridge(canonical or proxy)
                 proxy_config = {"server": await self._proxy_bridge.start()}
             else:
                 proxy_ok, proxy_error = proxy_launch_compatibility(proxy, proxy_scheme)
@@ -1051,20 +1051,25 @@ class CloakSession:
                 proxy_config = playwright_proxy_config(proxy, proxy_scheme)
             spec = BrowserLaunchSpec(**{**spec.__dict__, "proxy": proxy_config})
         launch_args = list(engine.build_launch_args(spec))
-        # Low-end hardware optimization flags (4GB - 8GB RAM, CPU 2-4 cores)
+        # Low-end hardware optimization flags (only for VPS/PC with <4GB RAM)
+        is_low_mem = bool(host_capabilities().get("low_memory_host"))
         low_end_flags = [
-            "--renderer-process-limit=2",
-            "--disable-background-networking",
-            "--disable-dev-shm-usage",
-            '--js-flags="--max-old-space-size=256 --expose-gc"',
             "--disable-component-update",
             "--disable-quic",
         ]
-        if proxy_config:
+        if is_low_mem:
             low_end_flags.extend([
-                "--disable-http2",
-                "--dns-over-https-mode=off",
+                "--renderer-process-limit=2",
+                "--disable-background-networking",
+                "--disable-dev-shm-usage",
+                "--js-flags=--max-old-space-size=256 --expose-gc",
             ])
+        if proxy_config:
+            server_str = (proxy_config.get("server") or "") if isinstance(proxy_config, dict) else str(proxy_config)
+            is_bridge_or_socks = server_str.startswith("socks") or ("127.0.0.1" in server_str and getattr(self, "_proxy_bridge", None) is not None)
+            if not is_bridge_or_socks:
+                low_end_flags.append("--disable-http2")
+            low_end_flags.append("--dns-over-https-mode=off")
         for flag in low_end_flags:
             flag_key = flag.split("=")[0]
             if not any(arg == flag or arg.startswith(flag_key + "=") for arg in launch_args):
@@ -1118,7 +1123,7 @@ class CloakSession:
             {
                 "init_scripts": [_STEALTH_SCRIPT, _CURSOR_SCRIPT, _TAB_CLOSE_GUARD_SCRIPT]
                 if engine.engine_id == "cloakbrowser"
-                else [],
+                else [_TAB_CLOSE_GUARD_SCRIPT],
                 "human_fallback": _install_native_viewport_human_fallback
                 if engine.engine_id == "cloakbrowser"
                 else None,

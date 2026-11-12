@@ -241,7 +241,10 @@ def proxy_requires_bridge(value: str | None, proxy_type: str | None = "auto") ->
         parts = urlsplit(proxy)
     except ValueError:
         return False
-    return parts.scheme.lower() == "socks5" and bool(parts.username or parts.password)
+    scheme = parts.scheme.lower()
+    has_auth = bool(parts.username or parts.password)
+    # Bridge any authenticated proxy (SOCKS5 or HTTP) to bypass CDP 407 interception deadlock and enable HTTP/2
+    return has_auth and scheme in {"socks5", "socks5h", "http", "https"}
 
 
 def proxy_launch_compatibility(value: str | None, proxy_type: str | None = "auto") -> tuple[bool, str]:
@@ -258,8 +261,9 @@ def proxy_launch_compatibility(value: str | None, proxy_type: str | None = "auto
         return False, "Proxy không có định dạng URL hợp lệ."
     if not has_host_port:
         return False, "Proxy không có host/port hợp lệ."
-    if parts.scheme.lower() == "socks5" and (parts.username or parts.password):
-        return False, "Chromium không hỗ trợ xác thực SOCKS5 khi mở profile. Dùng HTTP/HTTPS có user/password hoặc SOCKS5 không xác thực."
+    scheme = parts.scheme.lower()
+    if scheme not in _SUPPORTED_SCHEMES:
+        return False, f"Giao thức proxy '{scheme}' không được hỗ trợ."
     return True, ""
 
 
