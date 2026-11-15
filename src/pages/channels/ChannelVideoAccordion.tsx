@@ -36,10 +36,17 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import {
+  canContinueBktPublish,
+  canRetryBktTest,
+  nextSequentialRedCount,
+} from '@/contexts/channels/channel-flow-safety';
+import {
   cancelAllBktJobs,
-  checkBktCopyrightStatus,
   dispatchBatchBktTest,
+  getBktTestJobs,
   getChannelVideoFilepath,
+  publishBktJobToMain,
+  recheckBktJob,
   toggleChannelAutoDownload,
   updateChannelBktConfig,
   waitBktJobCompletion,
@@ -108,7 +115,8 @@ export function ChannelVideoAccordion({
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [testingVideoId, setTestingVideoId] = useState<string | null>(null);
-  const [checkingVideoId, setCheckingVideoId] = useState<string | null>(null);
+  const [bktJobs, setBktJobs] = useState<BktTestJob[]>([]);
+  const [jobActionId, setJobActionId] = useState<string | null>(null);
   const [isBatchTestingBkt, setIsBatchTestingBkt] = useState<boolean>(false);
   const [isSequentialTop5Running, setIsSequentialTop5Running] = useState<boolean>(false);
   const [sequentialProgressText, setSequentialProgressText] = useState<string>('');
@@ -117,6 +125,42 @@ export function ChannelVideoAccordion({
   const sequentialStopRequestedRef = useRef<boolean>(false);
   const videosRef = useRef<ChannelVideo[]>(videos);
   videosRef.current = videos;
+
+  useEffect(() => {
+    let cancelled = false;
+    getBktTestJobs(300)
+      .then((jobs) => {
+        if (!cancelled) setBktJobs(jobs);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleBktJobAction = async (job: BktTestJob, action: 'retry' | 'publish') => {
+    setJobActionId(job.id);
+    try {
+      if (action === 'retry') {
+        await recheckBktJob(job.id);
+        toast.info({
+          title: 'Đã xếp hàng kiểm tra lại',
+          message: `Đang kiểm tra lại trên ${job.testChannelName || 'kênh test'}.`,
+        });
+      } else {
+        const result = await publishBktJobToMain(job.id);
+        toast.success({ title: 'Đã gửi đăng Kênh Đích', message: result });
+      }
+      setBktJobs(await getBktTestJobs(300));
+    } catch (error) {
+      toast.error({
+        title: action === 'retry' ? 'Lỗi kiểm tra lại' : 'Lỗi đăng video',
+        message: String(error),
+      });
+    } finally {
+      setJobActionId(null);
+    }
+  };
 
   const handleStopSequentialTop5 = async () => {
     sequentialStopRequestedRef.current = true;
@@ -141,6 +185,13 @@ export function ChannelVideoAccordion({
       if (cancelled) return;
       const job = event.payload;
       if (!job) return;
+      setBktJobs((prev) => {
+        const index = prev.findIndex((item) => item.id === job.id);
+        if (index < 0) return [job, ...prev].slice(0, 300);
+        const next = [...prev];
+        next[index] = job;
+        return next;
+      });
       const targetRef = job.sourceRefId;
       if (!targetRef) return;
 
@@ -151,7 +202,11 @@ export function ChannelVideoAccordion({
       setActiveJobPhases((prev) => {
         const next = { ...prev };
         const isTerminal =
-          job.status === 'green_clean' || job.status === 'red_matched' || job.status === 'failed';
+          job.status === 'green_clean' ||
+          job.status === 'red_matched' ||
+          job.status === 'published' ||
+          job.status === 'publish_failed' ||
+          job.status === 'failed';
         if (isTerminal) {
           delete next[targetRef];
           if (matchedVideo?.id) delete next[matchedVideo.id];
@@ -166,10 +221,17 @@ export function ChannelVideoAccordion({
 
       setVideoOverrides((prev) => {
         const current = prev[targetRef] || {};
-        let resolvedStatus: 'pending' | 'green_clean' | 'red_matched' | 'failed' | undefined =
-          current.bkt_check_status;
-        if (job.status === 'green_clean') resolvedStatus = 'green_clean';
+        let resolvedStatus:
+          | 'pending'
+          | 'green_clean'
+          | 'red_matched'
+          | 'failed'
+          | 'publish_failed'
+          | undefined = current.bkt_check_status;
+        if (job.status === 'green_clean' || job.status === 'published')
+          resolvedStatus = 'green_clean';
         else if (job.status === 'red_matched') resolvedStatus = 'red_matched';
+        else if (job.status === 'publish_failed') resolvedStatus = 'publish_failed';
         else if (job.status === 'failed') resolvedStatus = 'failed';
         else if (
           job.status === 'queued' ||
@@ -352,6 +414,7 @@ export function ChannelVideoAccordion({
         const thumbPath = getCompanionThumbnailPath(filePath);
 
         // BƯỚC 3: Gửi BKT Job tuần tự
+        if (sequentialStopRequestedRef.current) break;
         const dispatchRes = await dispatchBatchBktTest({
           items: [
             {
@@ -395,23 +458,24 @@ export function ChannelVideoAccordion({
           const finishedJob = await waitBktJobCompletion(jobId, 3600);
           if (finishedJob.status === 'green_clean') {
             successCount++;
+            redCount = nextSequentialRedCount(redCount, finishedJob.status);
             setVideoOverrides((prev) => ({
               ...prev,
               [targetId]: {
                 bkt_check_status: 'green_clean',
-                bkt_restriction: `[${stepIndex}/${total}] Sạch Bản Quyền và đã đăng Kênh Đích! (Đã dọn sạch ổ đĩa)`,
+                bkt_restriction: `[${stepIndex}/${total}] Sạch Bản Quyền; chờ thao tác đăng Kênh Đích.`,
               },
               [v.video_id]: {
                 bkt_check_status: 'green_clean',
-                bkt_restriction: `[${stepIndex}/${total}] Sạch Bản Quyền và đã đăng Kênh Đích! (Đã dọn sạch ổ đĩa)`,
+                bkt_restriction: `[${stepIndex}/${total}] Sạch Bản Quyền; chờ thao tác đăng Kênh Đích.`,
               },
             }));
             toast.success({
               title: `Video ${stepIndex}/${total} Hoàn tất!`,
-              message: `"${aiTitle}" đã sạch bản quyền và xuất bản lên Kênh Đích! File gốc, reup và thumbnail đã được xóa an toàn để tối ưu bộ nhớ.`,
+              message: `"${aiTitle}" đã sạch bản quyền; sẵn sàng cho thao tác đăng Kênh Đích.`,
             });
           } else if (finishedJob.status === 'red_matched') {
-            redCount++;
+            redCount = nextSequentialRedCount(redCount, finishedJob.status);
             setVideoOverrides((prev) => ({
               ...prev,
               [targetId]: {
@@ -427,18 +491,34 @@ export function ChannelVideoAccordion({
               title: `Video ${stepIndex}/${total} Dính Bản Quyền`,
               message: `"${v.title}" bị hạn chế bởi Content ID. Đã dừng xuất bản và dọn dẹp file tạm.`,
             });
-          } else if (finishedJob.status === 'failed') {
-            failedCount++;
-            const errMsg =
-              finishedJob.errorMessage || finishedJob.restriction || 'Kiểm tra BKT thất bại';
+          } else if (finishedJob.status === 'published') {
+            successCount++;
+            redCount = nextSequentialRedCount(redCount, 'green_clean');
             setVideoOverrides((prev) => ({
               ...prev,
               [targetId]: {
-                bkt_check_status: 'failed',
+                bkt_check_status: 'green_clean',
+                bkt_restriction: finishedJob.restriction,
+              },
+              [v.video_id]: {
+                bkt_check_status: 'green_clean',
+                bkt_restriction: finishedJob.restriction,
+              },
+            }));
+          } else if (finishedJob.status === 'failed' || finishedJob.status === 'publish_failed') {
+            failedCount++;
+            const errMsg =
+              finishedJob.errorMessage || finishedJob.restriction || 'Kiểm tra BKT thất bại';
+            const failedStatus =
+              finishedJob.status === 'publish_failed' ? 'publish_failed' : 'failed';
+            setVideoOverrides((prev) => ({
+              ...prev,
+              [targetId]: {
+                bkt_check_status: failedStatus,
                 bkt_restriction: `[${stepIndex}/${total}] Lỗi BKT: ${errMsg}`,
               },
               [v.video_id]: {
-                bkt_check_status: 'failed',
+                bkt_check_status: failedStatus,
                 bkt_restriction: `[${stepIndex}/${total}] Lỗi BKT: ${errMsg}`,
               },
             }));
@@ -530,7 +610,7 @@ export function ChannelVideoAccordion({
             channelId: channel?.id,
             mainTargetProfileId: targetProfileId,
             targetProfileId: targetProfileId,
-            autoPublishMain: Boolean(targetProfileId),
+            autoPublishMain: false,
             targetTitle: aiTitle,
             targetDescription: adaptedDesc,
             thumbnailPath: thumbPath,
@@ -653,7 +733,7 @@ export function ChannelVideoAccordion({
             channelId: resolvedChannel?.id,
             mainTargetProfileId: targetProfileId,
             targetProfileId: targetProfileId,
-            autoPublishMain: Boolean(targetProfileId),
+            autoPublishMain: true,
             targetTitle: aiTitle,
             targetDescription: adaptedDesc,
             thumbnailPath: thumbPath,
@@ -690,70 +770,6 @@ export function ChannelVideoAccordion({
       });
     } finally {
       setTestingVideoId(null);
-    }
-  };
-
-  const handleCheckBktStatus = async (videoId: string, dbId?: string) => {
-    const targetId = dbId || videoId;
-    setCheckingVideoId(targetId);
-    try {
-      const res = await checkBktCopyrightStatus({ channelVideoId: targetId });
-      const itemResult = res?.results?.[videoId] || res?.results?.[targetId];
-      if (itemResult) {
-        const resolvedStatus =
-          itemResult.bkt_check_status === 'green_clean' ||
-          itemResult.bkt_check_status === 'red_matched' ||
-          itemResult.bkt_check_status === 'failed' ||
-          itemResult.bkt_check_status === 'pending'
-            ? itemResult.bkt_check_status
-            : 'pending';
-
-        setVideoOverrides((prev) => ({
-          ...prev,
-          [targetId]: {
-            bkt_check_status: resolvedStatus,
-            bkt_restriction: itemResult.bkt_restriction,
-          },
-          [videoId]: {
-            bkt_check_status: resolvedStatus,
-            bkt_restriction: itemResult.bkt_restriction,
-          },
-        }));
-        if (resolvedStatus === 'green_clean') {
-          toast.success({
-            title: 'Sạch Bản Quyền (Clean)',
-            message: 'YouTube Studio không phát hiện bất kỳ hạn chế nào.',
-          });
-        } else if (resolvedStatus === 'red_matched') {
-          toast.error({
-            title: 'Dính Bản Quyền (Content ID)',
-            message: itemResult.bkt_restriction || 'Đã tự động kích hoạt Reup Lv.2.',
-          });
-        } else {
-          toast.info({
-            title: 'Đang kiểm tra...',
-            message: 'YouTube Studio vẫn đang xử lý kiểm tra video.',
-          });
-        }
-      } else if (res?.error) {
-        toast.warning({
-          title: 'Thông báo quét BKT',
-          message: res.error,
-        });
-      } else {
-        toast.info({
-          title: 'Quét hoàn tất',
-          message: 'Đã hoàn thành kiểm tra trạng thái trên YouTube Studio.',
-        });
-      }
-    } catch (e) {
-      console.error('Check BKT status failed:', e);
-      toast.error({
-        title: 'Lỗi quét trạng thái BKT',
-        message: String(e),
-      });
-    } finally {
-      setCheckingVideoId(null);
     }
   };
 
@@ -832,6 +848,36 @@ export function ChannelVideoAccordion({
       return 0;
     });
   }, [videos, filterType, searchQuery, sortBy, videoOverrides, timeFilter]);
+
+  const [visibleCount, setVisibleCount] = useState<number>(30);
+  const filterKey = `${searchQuery}:${filterType}:${timeFilter}:${sortBy}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (prevFilterKey !== filterKey) {
+    setPrevFilterKey(filterKey);
+    setVisibleCount(30);
+  }
+
+  const visibleVideos = useMemo(() => {
+    return filteredAndSortedVideos.slice(0, visibleCount);
+  }, [filteredAndSortedVideos, visibleCount]);
+
+  const latestBktJobMap = useMemo(() => {
+    const map = new Map<string, BktTestJob>();
+    for (const job of bktJobs) {
+      if (!job.sourceRefId) continue;
+      const existing = map.get(job.sourceRefId);
+      if (!existing) {
+        map.set(job.sourceRefId, job);
+      } else {
+        const left = Date.parse(existing.updatedAt || existing.createdAt || '') || 0;
+        const right = Date.parse(job.updatedAt || job.createdAt || '') || 0;
+        if (right > left) {
+          map.set(job.sourceRefId, job);
+        }
+      }
+    }
+    return map;
+  }, [bktJobs]);
 
   const allFilteredSelected = useMemo(() => {
     if (filteredAndSortedVideos.length === 0) return false;
@@ -1131,7 +1177,7 @@ export function ChannelVideoAccordion({
         </div>
       ) : (
         <div className="grid grid-cols-1 divide-y divide-border/40 rounded-lg border border-border/40 bg-card overflow-hidden max-h-[460px] overflow-y-auto">
-          {filteredAndSortedVideos.map((video) => {
+          {visibleVideos.map((video) => {
             const isSelected = selectedVideoIds.has(video.video_id);
             const isDownloaded = video.status === 'downloaded';
             const viewsStr = formatCompactViews(video.view_count);
@@ -1279,13 +1325,23 @@ export function ChannelVideoAccordion({
                             </span>
                           </Badge>
                         )}
+                        {video.bkt_check_status === 'publish_failed' && (
+                          <Badge
+                            variant="outline"
+                            className="bg-orange-500/15 text-orange-400 border border-orange-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1 cursor-help"
+                            title={
+                              video.bkt_restriction || 'BKT sạch; bước đăng Kênh Đích thất bại'
+                            }
+                          >
+                            <AlertCircle className="w-3 h-3 text-orange-400" />
+                            <span>BKT: Sạch, đăng lỗi</span>
+                          </Badge>
+                        )}
                         {(!video.bkt_check_status || video.bkt_check_status === 'pending') &&
                           (() => {
                             const activePhase =
                               activeJobPhases[video.id] || activeJobPhases[video.video_id] || '';
-                            const isBusy =
-                              Boolean(activePhase) ||
-                              checkingVideoId === (video.id || video.video_id);
+                            const isBusy = Boolean(activePhase);
                             const liveLabel =
                               video.bkt_restriction ||
                               video.risk_reason ||
@@ -1310,29 +1366,6 @@ export function ChannelVideoAccordion({
                                     {liveLabel.startsWith('BKT:') ? liveLabel : `BKT: ${liveLabel}`}
                                   </span>
                                 </Badge>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleCheckBktStatus(video.video_id, video.id)}
-                                  disabled={isBusy}
-                                  className="h-5 px-1.5 text-[10px] gap-1 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 disabled:opacity-40"
-                                  title={
-                                    activePhase
-                                      ? 'Tác vụ đang chạy trong phiên Studio hiện tại — không cần quét thủ công'
-                                      : 'Quét trạng thái hạn chế trên YouTube Studio ngay'
-                                  }
-                                >
-                                  <RefreshCw
-                                    className={cn(
-                                      'w-2.5 h-2.5',
-                                      checkingVideoId === (video.id || video.video_id) &&
-                                        'animate-spin',
-                                    )}
-                                  />
-                                  <span>
-                                    {activePhase === 'uploading' ? 'Đang tải' : 'Quét kết quả'}
-                                  </span>
-                                </Button>
                               </div>
                             );
                           })()}
@@ -1375,29 +1408,128 @@ export function ChannelVideoAccordion({
 
                 {/* Status Badge & Action */}
                 <div className="flex-shrink-0 flex items-center gap-1.5 flex-wrap justify-end">
+                  {(() => {
+                    const linkedJob =
+                      (video.id && latestBktJobMap.get(video.id)) ||
+                      (video.video_id && latestBktJobMap.get(video.video_id));
+                    if (!linkedJob) return null;
+                    const actionBusy = jobActionId === linkedJob.id;
+                    const jobStatus = linkedJob.status;
+                    return (
+                      <div className="flex items-center gap-1 flex-wrap justify-end">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] px-1.5 py-0 border-sky-500/30 text-sky-400"
+                          title={`Job test: ${linkedJob.id}`}
+                        >
+                          Test: {linkedJob.testChannelName || linkedJob.testChannelId}
+                        </Badge>
+                        {jobStatus === 'publishing' && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-1.5 py-0 border-blue-500/40 text-blue-400 animate-pulse"
+                            title={linkedJob.restriction || 'Đang đăng lên Kênh Đích'}
+                          >
+                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                            Đang đăng Kênh Đích
+                          </Badge>
+                        )}
+                        {jobStatus === 'published' && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-1.5 py-0 border-emerald-500/40 text-emerald-400"
+                            title={linkedJob.restriction || 'Đã đăng thành công lên Kênh Đích'}
+                          >
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Đã đăng Kênh Đích
+                          </Badge>
+                        )}
+                        {jobStatus === 'green_clean' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleBktJobAction(linkedJob, 'publish')}
+                            disabled={actionBusy}
+                            className="h-7 px-2 text-[11px] gap-1 border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 font-medium"
+                            title="Video đã sạch bản quyền; đăng ngay lên Kênh Đích"
+                          >
+                            {actionBusy ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <Radio className="w-3 h-3" />
+                            )}
+                            <span>Đăng ngay</span>
+                          </Button>
+                        )}
+                        {canContinueBktPublish(jobStatus) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleBktJobAction(linkedJob, 'publish')}
+                            disabled={actionBusy}
+                            className="h-7 px-2 text-[11px] gap-1 border-orange-500/40 text-orange-500 hover:bg-orange-500/10 font-medium"
+                            title="Giữ video đã tải về; chỉ chạy lại bước đăng bị lỗi"
+                          >
+                            {actionBusy ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <RefreshCw className="w-3 h-3" />
+                            )}
+                            <span>Tiếp tục đăng</span>
+                          </Button>
+                        )}
+                        {jobStatus === 'failed' && canRetryBktTest(jobStatus) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleBktJobAction(linkedJob, 'retry')}
+                            disabled={actionBusy}
+                            className="h-7 px-2 text-[11px] gap-1 border-amber-500/40 text-amber-500 hover:bg-amber-500/10 font-medium"
+                            title="Mở đúng kênh test và kiểm tra lại upload/Content ID"
+                          >
+                            {actionBusy ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <RefreshCw className="w-3 h-3" />
+                            )}
+                            <span>Kiểm tra lại</span>
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })()}
+
                   {/* Nút bấm Test trên kênh BKT */}
-                  {(video.risk_status === 'red' || isDownloaded) &&
-                    video.bkt_check_status !== 'green_clean' &&
-                    video.bkt_check_status !== 'pending' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          handleTriggerBktTest(video.video_id, video.id, video.channel_id)
-                        }
-                        disabled={testingVideoId === (video.id || video.video_id)}
-                        className="h-7 px-2 text-[11px] gap-1 border-amber-500/30 text-amber-500 hover:bg-amber-500/10 font-medium"
-                        title="Tải về (nếu chưa có), chạy Reup Pipeline Lv.1 và tải lên kênh BKT để test nhận diện"
-                      >
-                        <FlaskConical
-                          className={cn(
-                            'w-3 h-3 text-amber-500',
-                            testingVideoId === (video.id || video.video_id) && 'animate-spin',
-                          )}
-                        />
-                        <span>Test BKT</span>
-                      </Button>
-                    )}
+                  {(() => {
+                    const flowStatus = video.bkt_check_status as string | undefined;
+                    return (
+                      (video.risk_status === 'red' || isDownloaded) &&
+                      flowStatus !== 'green_clean' &&
+                      flowStatus !== 'pending' &&
+                      flowStatus !== 'publish_failed' &&
+                      flowStatus !== 'publishing' &&
+                      flowStatus !== 'published' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            handleTriggerBktTest(video.video_id, video.id, video.channel_id)
+                          }
+                          disabled={testingVideoId === (video.id || video.video_id)}
+                          className="h-7 px-2 text-[11px] gap-1 border-amber-500/30 text-amber-500 hover:bg-amber-500/10 font-medium"
+                          title="Tải về (nếu chưa có), chạy Reup Pipeline Lv.1 và tải lên kênh BKT để test nhận diện"
+                        >
+                          <FlaskConical
+                            className={cn(
+                              'w-3 h-3 text-amber-500',
+                              testingVideoId === (video.id || video.video_id) && 'animate-spin',
+                            )}
+                          />
+                          <span>Test BKT</span>
+                        </Button>
+                      )
+                    );
+                  })()}
 
                   {isDownloaded ? (
                     <Badge
@@ -1422,6 +1554,33 @@ export function ChannelVideoAccordion({
               </div>
             );
           })}
+          {filteredAndSortedVideos.length > visibleCount && (
+            <div className="flex items-center justify-between p-3 bg-muted/20 border-t border-border/40 text-xs text-muted-foreground">
+              <span>
+                Đang hiển thị {visibleCount} / {filteredAndSortedVideos.length} video
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setVisibleCount((prev) => Math.min(prev + 30, filteredAndSortedVideos.length))
+                  }
+                  className="h-7 px-2.5 text-xs font-medium"
+                >
+                  Tải thêm (+30)
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setVisibleCount(filteredAndSortedVideos.length)}
+                  className="h-7 px-2.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                >
+                  Hiển thị tất cả
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

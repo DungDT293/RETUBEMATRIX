@@ -7,6 +7,69 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.0.11] - 2026-11-15
+
+### Thêm mới
+
+- **Kiến Trúc Module Hóa Backend Cho Trình Tải & Kênh Test BKT** - Tái cấu trúc phân rã các bộ điều khiển nguyên khối thành các module chuyên biệt, đơn trách nhiệm: `commands/download/` (`args.rs`, `templates.rs`, `parser.rs`, `process.rs`, `workflows.rs`, `executor.rs`) và `commands/bkt/` (`crud.rs`, `cancel.rs`, `dispatch.rs`, `pipeline.rs`, `publish.rs`). Bảo toàn tương thích ngược 100% qua re-export facade trong `commands/mod.rs`.
+- **Tách Biệt Trình Điều Khiển Khay Hệ Thống (System Tray)** - Tách toàn bộ logic quản lý khay hệ thống khỏi `lib.rs` thành module `src-tauri/src/tray/`, giảm tải hơn 520 dòng code và đơn giản hóa entrypoint chính.
+- **Tái Cấu Trúc Động Cơ Trình Duyệt Python (Browser Actions)** - Phân rã `studio_dom.py` (2,100 dòng) thành thư mục `browser_engine/actions/dom/` (`js_lib.py`, `eval.py`, `modals.py`, `interaction.py`) và `bkt_check.py` (1,467 dòng) thành `browser_engine/actions/bkt/` (`evaluator.py`, `network.py`, `claim_extractor.py`, `monitor.py`). Đồng bộ vật lý 100% byte-for-byte sang `roots/browsermulti/actions/`, đảm bảo zero symlink khi đóng gói NSIS.
+
+### Thay đổi
+
+- **Module Hóa Giao Diện Reup & BKT Phía Frontend** - Tái cấu trúc trang `ReupBktPage.tsx` (2,508 dòng) thành thư mục `src/pages/reup/` gồm 11 components và custom hooks chuyên trách (`useReupBktController`, `useBktChannelsManager`, `BktChannelsTab`, `BktJobsTable`, `BktDailyReportModal`, `ReupPipelineSection`), rút gọn file gốc xuống còn 174 dòng (giảm >93%).
+- **Phân Mảnh DOM Render Danh Sách Video Kênh (Chunked DOM Rendering)** - Triển khai cơ chế render phân mảnh theo đợt (30 video khởi tạo, cuộn tải tiếp 30) và bảng chỉ mục BKT job tối ưu O(1) trong `ChannelVideoAccordion.tsx`, cắt giảm số lượng node DOM hoạt động từ 35,000 xuống còn ~900 (giảm 97%), xóa bỏ hoàn toàn hiện tượng đơ giật UI khi mở các kênh lớn.
+- **Tiết Lưu Sự Kiện Tiến Độ Tải IPC (Progress Throttling)** - Bổ sung bộ đệm tiết lưu animation frame 120ms trong `DownloadContext.tsx`, ngăn chặn bão sự kiện tiến độ IPC và triệt tiêu các lượt re-render thừa của React khi tải song song tốc độ cao.
+
+### Sửa lỗi
+
+- **Triệt Tiêu Hoàn Toàn Hiện Tượng Lệch Thời Lượng Âm Thanh (Dynamic Audio Resampling)** - Bắt buộc đo kiểm tần số mẫu thực tế bằng FFprobe trên tất cả các bộ lọc biến đổi âm thanh FFmpeg (`asetrate={sr}*pitch,aresample={sr},atempo={speed/pitch}`), loại trừ triệt để lỗi trôi lệch âm thanh 2.5 giây do hardcode 44,100 Hz trên video YouTube 48 kHz.
+- **Bảo Vệ Kiểm Thử Chống Thoái Lui Cấu Trúc BKT** - Cập nhật các khẳng định kiểm thử trong `pipeline.rs` kiểm tra ranh giới pipeline trực tiếp, đảm bảo bản chụp cấu hình profile được bảo toàn không bị auto-heal làm biến dạng và pipeline lỗi không bao giờ sao chép video gốc vào sản phẩm xuất bản.
+
+## [1.0.10] - 2026-11-15
+
+### Sửa lỗi
+
+- **Điều Hướng Trực Tiếp Sang Trang Nội Dung Kênh (`/videos/upload`) Sau Khi Đăng Video Xong** - Thay thế thao tác click ảo không tin cậy trên thanh menu (`#menu-item-1`) bằng cơ chế điều hướng URL trực tiếp (`https://studio.youtube.com/channel/{channel_id}/videos/upload`) ngay sau khi luồng tải video lên máy chủ hoàn tất 100%, giải quyết triệt để tình trạng trình duyệt bị kẹt ở Trang tổng quan (Dashboard) thay vì chuyển sang tab Nội dung để theo dõi Content ID.
+- **Tối Ưu Sự Kiện Chuột Polymer Cho Menu Điều Hướng Studio** - Bổ sung chuỗi sự kiện Synthetic Polymer đầy đủ (`mousedown`, `mouseup`, `click` kèm cờ `bubbles: true, composed: true`) cho các thẻ menu Studio kết hợp xác thực URL tức thời và cưỡng chế chuyển trang nếu click không đổi URL.
+- **Trích Xuất Mã Kênh (Channel ID) Đa Tầng Để Định Tuyến Chuẩn Xác** - Tích hợp thuật toán dò tìm ID kênh qua URL regex, cấu hình ngầm `window.ytcfg.get('CHANNEL_ID')` và thuộc tính thẻ DOM, đảm bảo URL đích luôn trỏ chính xác về danh sách video của kênh đang hoạt động.
+
+## [1.0.9] - 2026-11-14
+
+### Sửa lỗi
+
+- **Bỏ Qua Lỗi Chứng Chỉ SSL Qua Giao Thức CDP Cho Proxy Dân Cư (`ERR_CERT_AUTHORITY_INVALID`)** - Tích hợp lệnh CDP `Security.setIgnoreCertificateErrors` kết hợp cờ Chromium `--test-type` trong Playwright, triệt tiêu hoàn toàn sự cố lỗi chứng chỉ SSL khi truy cập YouTube Studio qua proxy xoay IP/proxy dân cư.
+- **Tự Động Hóa Các Bước Kiếm Tiền (Monetization) & Mức Độ Phù Hợp (Ad Suitability) Cho Kênh BKT** - Bổ sung xử lý tự động quy trình upload cho kênh đã bật kiếm tiền: tự động chọn "Bật Kiếm Tiền" và xác nhận bảng "Mức độ phù hợp của quảng cáo" ("None of the above" -> Gửi bài đánh giá), ngăn chặn việc kẹt nút Tiếp / Next.
+- **Tự Động Nhận Diện Và Bấm Nút "Vẫn xuất bản" / "Publish anyway" Trong Polymer Shadow DOM** - Tối ưu thuật toán quét cây Polymer Shadow DOM để tìm và kích hoạt trực tiếp `#confirm-button` cho các nút xác nhận "Vẫn xuất bản", "Publish anyway", "Publicar de todos modos", giải quyết triệt để vấn đề đứng chờ ở bước cuối cùng.
+- **Tự Động Thêm Màn Hình Kết Thúc (End Screen)** - Bổ sung tự động kích hoạt tính năng nhập màn hình kết thúc từ video gần nhất (`#import-endscreen-from-video-button`) tại bước thành phần video trong YouTube Studio.
+- **Loại Trừ Lỗi Đóng Trình Duyệt Quá Sớm Khi Kiểm Tra Đếm Ngược Chưa Xong** - Mở rộng biểu thức chính quy nhận dạng đếm ngược quốc tế (Tây Ban Nha, Anh, Việt: `quedan`, `restan`, `faltan`), gỡ bỏ logic ép kết thúc sớm 45 giây của `is_clean_dash` và mở rộng thời gian theo dõi upload động lên tới 7200 giây cho file nặng.
+- **Giải Phóng Khóa Chờ Hàng Đợi FIFO Auto Reup Cho Video Đã Xuất Bản** - Bỏ trạng thái `publish_failed` khỏi điều kiện chờ rào cản FIFO của kênh và lọc bỏ các video đã đăng thành công khỏi danh sách ứng viên Auto Reup Top 5, tránh hiện tượng treo thanh tiến trình ở 28%.
+
+## [1.0.8] - 2026-11-14
+
+### Sửa lỗi
+
+- **Triệt Tiêu Bẫy Báo Sạch Ảo & Thoát Sớm Trên Kênh Test BKT** - Sửa triệt để lỗi Chromium tự động đóng ngay khi vừa upload 100% do cột Hạn chế ban đầu hiển thị dấu gạch ngang `—`. Bổ sung cơ chế Streak Confirmation yêu cầu duy trì 3 chu kỳ liên tiếp không còn xử lý và đã qua giai đoạn kiểm tra Content ID thực tế mới được phép kết luận `green_clean`.
+- **Tự Động Bấm Popup "Vẫn xuất bản" / "Publish anyway"** - Bổ sung thuật toán tự động nhận diện và click nút `#confirm-button` khi YouTube Studio hiển thị hộp thoại cảnh báo kiểm tra chưa xong, chấm dứt hoàn toàn tình trạng kẹt đứng chờ ở bước xuất bản cuối cùng.
+- **Khắc Phục Lỗi SSL Khi Sử Dụng Proxy (`ERR_CERT_AUTHORITY_INVALID`)** - Bổ sung cờ `--ignore-certificate-errors`, `--ignore-ssl-errors` và tham số `ignore_https_errors: true` cho Playwright và Chromium, ngăn ngừa triệt để lỗi chặn kết nối HTTPS khi dùng proxy dân cư/xoay IP.
+- **Tăng Thời Gian Chờ Cho Video Dài Lên 2 Giờ** - Nâng hạn mức timeout kiểm tra bản quyền BKT từ 1800 giây (30 phút) lên 7200 giây (2 giờ), đảm bảo các video dài 30-40 phút có đủ thời gian để YouTube Studio mã hóa SD và hoàn tất quét Content ID.
+
+## [1.0.7] - 2026-11-14
+
+### Sửa lỗi
+
+- **Ngăn Chặn Tắt Profile Đột Ngột Khi Đang Tải Video Lên YouTube Studio** - Khắc phục triệt để lỗi profile trình duyệt bị đóng ngang giữa lúc video đang truyền tải. Sửa logic nhận diện hoàn tất giả trong `upload_actions.py`: loại bỏ hoàn toàn các chuỗi dự báo tương lai ("quá trình xử lý sẽ sớm bắt đầu", "processing will begin") và áp dụng bất biến bắt buộc `upload_finished = False` khi `percent < 100`.
+- **Bổ Sung Nhịp Tim Định Kỳ 10 Giây Khi Upload** - Phát sự kiện nhịp tim `upload_progress` định kỳ mỗi 10 giây từ Python runner, loại trừ hoàn toàn nguy cơ Watchdog 180 giây của Rust bắn lệnh kill nhầm khi đang tải các video dung lượng lớn.
+- **Tối Ưu React Hooks Và Đạt Chuẩn Linter Tuyệt Đối** - Loại bỏ các biến thừa trong mảng phụ thuộc `useCallback` tại `ReupBktPage.tsx` và tinh chỉnh `useEffect` tại `ChannelVideoAccordion.tsx`, đạt 0 lỗi Biome linter.
+
+## [1.0.6] - 2026-11-14
+
+### Sửa lỗi
+
+- **Khắc Phục Xung Đột Khóa Ngoại Và Tự Deadlock SQLite** - Bổ sung hàm migration an toàn `migrate_bkt_test_jobs_foreign_key` trong `connection.rs`, bảo vệ toàn vẹn dữ liệu và loại trừ xung đột khóa ngoại khi xóa kênh test BKT.
+- **Tính Năng Đăng Bù Cho Video Sạch Bản Quyền (Catch-up Auto-Publish)** - Bổ sung lệnh và giao diện xử lý đăng bù video sạch sang Kênh Đích cho các video đã có kết quả Xanh nhưng chưa kịp xuất bản.
+- **Chuẩn Hóa Ngôn Ngữ Mô Tả Theo Tiêu Đề Đa Quốc Gia** - Cải tiến thuật toán phát hiện ngôn ngữ tiêu đề (tiếng Tây Ban Nha, tiếng Anh, tiếng Việt), chấm dứt hiện tượng dùng nhầm template mô tả tiếng Việt cho video ngoại.
+
 ## [1.0.5] - 2026-11-13
 
 ### Thêm mới

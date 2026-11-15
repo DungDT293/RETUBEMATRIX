@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import json
 import os
@@ -66,14 +67,39 @@ class SessionPersistenceAndGracefulShutdownTests(unittest.TestCase):
         self.assertFalse(self.wib_mod._is_chromium_process_name("notepad.exe"))
         self.assertFalse(self.wib_mod._is_chromium_process_name("python.exe"))
 
+    def test_automation_actions_never_force_kill_live_profile(self) -> None:
+        import inspect
+
+        for action_name in (
+            "_async_upload_video",
+            "_async_bkt_unified_pipeline",
+            "_async_check_copyright_status",
+            "_async_configure_channel_settings",
+        ):
+            action_source = inspect.getsource(getattr(self.runner_mod, action_name))
+            self.assertNotIn("force_kill_live=True", action_source, action_name)
+
+    def test_session_start_never_kills_live_profile_without_visible_window(self) -> None:
+        session = self.browser_mod.CloakSession()
+        profile_dir = self.data_root / "profiles" / "live_hidden"
+        profile_dir.mkdir(parents=True, exist_ok=True)
+
+        with mock.patch.object(self.browser_mod, "chrome_pids_for_user_data_dir", return_value=[9999]):
+            with mock.patch.object(self.browser_mod.psutil, "Process") as process:
+                with self.assertRaisesRegex(RuntimeError, "không tự động dừng"):
+                    asyncio.run(session.start("live_hidden"))
+                process.assert_not_called()
+
     def test_clean_profile_locks_does_not_unlink_if_process_alive(self) -> None:
         pdir = self.data_root / "profiles" / "test_prof"
         pdir.mkdir(parents=True, exist_ok=True)
         lock_file = pdir / "SingletonLock"
         lock_file.write_text("1234", encoding="utf-8")
 
-        with mock.patch("core.window_icon_badge.chrome_pids_for_user_data_dir", return_value=[9999]):
+        with mock.patch("core.window_icon_badge.chrome_pids_for_user_data_dir", return_value=[9999]), \
+             mock.patch("core.engines.browsermulti_native.graceful_terminate_pids") as terminate:
             self.runner_mod._clean_profile_locks("test_prof", force_kill_live=False)
+            terminate.assert_not_called()
             self.assertTrue(lock_file.exists())
 
         with mock.patch("core.window_icon_badge.chrome_pids_for_user_data_dir", return_value=[]):
@@ -119,6 +145,14 @@ class SessionPersistenceAndGracefulShutdownTests(unittest.TestCase):
         self.assertEqual(data["account_id"], "google_123")
         self.assertEqual(data["session"]["tokens"], "abc")
         self.assertIn("default_search_provider", data)
+
+    def test_browsermulti_engine_missing_binary_fails_closed(self) -> None:
+        engine = self.bme_mod.BrowserMultiEngine(
+            binary_path=self.base / "missing-browsermulti.exe",
+            runtime_version="1.0.0",
+        )
+        with self.assertRaises(self.bme_mod.BrowserEngineUnavailableError):
+            engine._load_launcher()
 
     def test_browsermulti_engine_preserves_spec_locale(self) -> None:
         engine = self.bme_mod.BrowserMultiEngine(runtime_version="1.0.0")

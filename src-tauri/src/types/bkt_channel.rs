@@ -72,7 +72,7 @@ pub struct BktTestJob {
     pub reup_path: Option<String>,
     #[serde(default)]
     pub youtube_video_id: Option<String>,
-    pub status: String, // 'queued' | 'reuping' | 'uploading' | 'checking' | 'green_clean' | 'red_matched' | 'failed'
+    pub status: String, // 'queued' | 'reuping' | 'uploading' | 'checking' | 'green_clean' | 'red_matched' | 'publishing' | 'published' | 'publish_failed' | 'failed'
     #[serde(default)]
     pub restriction: Option<String>,
     #[serde(default)]
@@ -96,6 +96,9 @@ pub struct BktTestJob {
     pub target_tags: Option<String>,
     #[serde(default)]
     pub thumbnail_path: Option<String>,
+    /// Immutable profile used for the original BKT test.
+    #[serde(default)]
+    pub test_profile_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -155,6 +158,16 @@ pub struct BktDispatchResult {
     pub total_requested: usize,
     pub total_dispatched: usize,
     pub results: Vec<BktDispatchItemResult>,
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BktCatchupResult {
+    pub total_candidates: usize,
+    pub published: usize,
+    pub skipped: usize,
+    pub stopped_job_id: Option<String>,
     pub error: Option<String>,
 }
 

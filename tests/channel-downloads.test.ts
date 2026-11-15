@@ -64,6 +64,24 @@ describe('persistManualChannelDownloadCompletion', () => {
     expect(calls).toEqual(['download', 'persist:start', 'persist:end']);
   });
 
+  test('does not persist a late completion after the download run is stopped', async () => {
+    let active = true;
+    let persisted = false;
+
+    await persistManualChannelDownloadCompletion({
+      downloadVideo: async () => {
+        active = false;
+      },
+      isActive: () => active,
+      markDownloaded: async () => {
+        persisted = true;
+      },
+      onPersistError: () => {},
+    });
+
+    expect(persisted).toBe(false);
+  });
+
   test('does not fail the completed download when persisting the channel status fails', async () => {
     const errors: unknown[] = [];
 

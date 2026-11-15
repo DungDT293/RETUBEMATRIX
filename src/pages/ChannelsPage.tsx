@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
 import {
+  isSequentialSuccessStatus,
+  nextSequentialRedCount,
+} from '@/contexts/channels/channel-flow-safety';
+import {
   cancelAllBktJobs,
   dispatchBatchBktTest,
   getAllChannelStats,
@@ -280,9 +284,11 @@ export function ChannelsPage() {
         }
       }
 
-      // Lọc bỏ livestream, premiere chưa phát và loại bỏ Shorts nếu kênh cấu hình video dài
+      // Lọc bỏ livestream, premiere chưa phát, loại bỏ Shorts nếu kênh cấu hình video dài, và loại bỏ video đã xuất bản thành công
       const validVideos = videos.filter((v) => {
         const vt = (v.video_type || '').toLowerCase();
+        const bktStatus = (v.bkt_check_status || '').toLowerCase();
+        if (bktStatus === 'published') return false;
         const isLive = vt === 'live' || vt === 'stream' || v.url.includes('/live/');
         const isShort =
           vt === 'short' ||
@@ -368,6 +374,7 @@ export function ChannelsPage() {
             ],
             channel.url,
             channel.name,
+            { kind: 'auto-pilot', bktOwner: 'caller' },
           );
 
           let attempts = 0;
@@ -409,6 +416,7 @@ export function ChannelsPage() {
         const thumbPath = getCompanionThumbnailPath(filePath);
 
         // BƯỚC 3: Gửi BKT Job tuần tự với autoPublishMain = true
+        if (abortController.signal.aborted) break;
         setReupProgressMap((prev) => ({
           ...prev,
           [channelId]: {
@@ -451,8 +459,9 @@ export function ChannelsPage() {
         const jobId = dispatchedJob.jobId;
         try {
           const finishedJob = await waitBktJobCompletion(jobId, 1850);
-          if (finishedJob.status === 'green_clean') {
+          if (isSequentialSuccessStatus(finishedJob.status)) {
             successCount++;
+            redCount = nextSequentialRedCount(redCount, finishedJob.status);
             setReupProgressMap((prev) => ({
               ...prev,
               [channelId]: {
@@ -479,7 +488,7 @@ export function ChannelsPage() {
               message: `"${aiTitle}" đã sạch bản quyền và xuất bản lên Kênh Đích! File gốc, reup & thumbnail đã được dọn sạch để tối ưu bộ nhớ.`,
             });
           } else if (finishedJob.status === 'red_matched') {
-            redCount++;
+            redCount = nextSequentialRedCount(redCount, finishedJob.status);
             setReupProgressMap((prev) => ({
               ...prev,
               [channelId]: {

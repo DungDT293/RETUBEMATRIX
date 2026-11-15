@@ -92,6 +92,7 @@ import { DownloadContext } from './download-context';
 const STORAGE_KEY = 'retubematrix-settings';
 const LEGACY_STORAGE_KEY = 'youwee-settings';
 const DOWNLOAD_QUEUE_IDLE_GRACE_MS = 1000;
+const PROGRESS_THROTTLE_MS = 120;
 
 // Check if path is absolute (cross-platform)
 const isAbsolutePath = (path: string): boolean => {
@@ -417,16 +418,119 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
     getDefaultPath();
   }, [settings.outputPath]);
 
+  // Throttle buffer for progress updates to prevent React 19 render storms
+  const progressBufferRef = useRef<Map<string, DownloadProgress>>(new Map());
+  const progressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const progressRafRef = useRef<number | null>(null);
+  const lastProgressFlushRef = useRef(0);
+
+  const applyProgressBatch = useCallback((updates: Map<string, DownloadProgress>) => {
+    if (updates.size === 0) return;
+    setItems((currentItems) => {
+      let changed = false;
+      const nextItems = currentItems.map((item) => {
+        const progress = updates.get(item.id);
+        if (!progress) return item;
+        changed = true;
+
+        if (progress.status === 'error' && progress.error_code === 'DOWNLOAD_CANCELLED') {
+          return {
+            ...item,
+            status: 'pending' as const,
+            speed: '',
+            eta: '',
+            error: undefined,
+            errorCode: undefined,
+            retryState: undefined,
+          };
+        }
+
+        const status: DownloadItem['status'] =
+          progress.status === 'finished'
+            ? 'completed'
+            : progress.status === 'error'
+              ? 'error'
+              : 'downloading';
+
+        return {
+          ...item,
+          progress: progress.percent,
+          speed: progress.speed,
+          eta: progress.eta,
+          title: progress.title || item.title,
+          status,
+          error: localizeProgressError(
+            progress.error_code,
+            progress.error_message,
+            progress.error_params,
+          ),
+          errorCode: progress.status === 'error' ? progress.error_code : undefined,
+          retryState: undefined,
+          playlistIndex: progress.playlist_index,
+          playlistTotal: progress.playlist_count,
+          downloadedSize: progress.downloaded_size,
+          elapsedTime: progress.elapsed_time,
+          isLive: progress.downloaded_size ? true : item.isLive,
+          ...(progress.status === 'finished'
+            ? {
+                completedFilesize: progress.filesize,
+                completedResolution: progress.resolution,
+                completedFormat: progress.format_ext,
+                completedFilepath: progress.filepath,
+                completedHistoryId: progress.history_id,
+              }
+            : {}),
+        };
+      });
+
+      if (!changed) return currentItems;
+      itemsRef.current = nextItems;
+      return nextItems;
+    });
+  }, []);
+
   // Listen for progress updates from Rust backend - runs once at app start
   useEffect(() => {
+    const cancelScheduledFlush = () => {
+      if (progressTimerRef.current) {
+        clearTimeout(progressTimerRef.current);
+        progressTimerRef.current = null;
+      }
+      if (progressRafRef.current !== null) {
+        cancelAnimationFrame(progressRafRef.current);
+        progressRafRef.current = null;
+      }
+    };
+
+    const flushBuffer = () => {
+      cancelScheduledFlush();
+      if (progressBufferRef.current.size > 0) {
+        const batch = new Map(progressBufferRef.current);
+        progressBufferRef.current.clear();
+        applyProgressBatch(batch);
+        lastProgressFlushRef.current = Date.now();
+      }
+    };
+
     const unlisten = listen<DownloadProgress>('download-progress', (event) => {
       const progress = event.payload;
 
       if (progress.playlist_index && progress.playlist_count) {
-        setCurrentPlaylistInfo({
+        const nextInfo = {
           index: progress.playlist_index,
           total: progress.playlist_count,
           title: progress.title || '',
+        };
+        setCurrentPlaylistInfo((prev) => {
+          if (
+            prev &&
+            prev.index === nextInfo.index &&
+            prev.total === nextInfo.total &&
+            prev.title === nextInfo.title
+          ) {
+            return prev;
+          }
+          return nextInfo;
         });
       }
 
@@ -443,73 +547,36 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
         setCookieError({ show: true, itemId: progress.id, kind: 'db_locked' });
       }
 
-      setItems((currentItems) => {
-        if (progress.status === 'error' && progress.error_code === 'DOWNLOAD_CANCELLED') {
-          return currentItems.map((item) =>
-            item.id === progress.id
-              ? {
-                  ...item,
-                  status: 'pending',
-                  speed: '',
-                  eta: '',
-                  error: undefined,
-                  errorCode: undefined,
-                  retryState: undefined,
-                }
-              : item,
-          );
-        }
+      progressBufferRef.current.set(progress.id, progress);
 
-        const status: DownloadItem['status'] =
-          progress.status === 'finished'
-            ? 'completed'
-            : progress.status === 'error'
-              ? 'error'
-              : 'downloading';
-        const nextItems = currentItems.map((item) =>
-          item.id === progress.id
-            ? {
-                ...item,
-                progress: progress.percent,
-                speed: progress.speed,
-                eta: progress.eta,
-                title: progress.title || item.title,
-                status,
-                error: localizeProgressError(
-                  progress.error_code,
-                  progress.error_message,
-                  progress.error_params,
-                ),
-                errorCode: progress.status === 'error' ? progress.error_code : undefined,
-                retryState: undefined,
-                playlistIndex: progress.playlist_index,
-                playlistTotal: progress.playlist_count,
-                downloadedSize: progress.downloaded_size,
-                elapsedTime: progress.elapsed_time,
-                // Auto-detect live stream if we receive downloaded_size (live stream format)
-                isLive: progress.downloaded_size ? true : item.isLive,
-                // Store completed info when finished
-                ...(progress.status === 'finished'
-                  ? {
-                      completedFilesize: progress.filesize,
-                      completedResolution: progress.resolution,
-                      completedFormat: progress.format_ext,
-                      completedFilepath: progress.filepath,
-                      completedHistoryId: progress.history_id,
-                    }
-                  : {}),
-              }
-            : item,
-        );
-        itemsRef.current = nextItems;
-        return nextItems;
-      });
+      // Terminal events (finished/error) flush immediately so user sees instant completion
+      if (progress.status === 'finished' || progress.status === 'error') {
+        flushBuffer();
+        return;
+      }
+
+      // Intermediate progress updates are throttled to 100-150ms aligned with requestAnimationFrame
+      if (!progressTimerRef.current && progressRafRef.current === null) {
+        const now = Date.now();
+        const elapsed = now - lastProgressFlushRef.current;
+        const delay = Math.max(0, PROGRESS_THROTTLE_MS - elapsed);
+
+        progressTimerRef.current = setTimeout(() => {
+          progressTimerRef.current = null;
+          progressRafRef.current = requestAnimationFrame(() => {
+            progressRafRef.current = null;
+            flushBuffer();
+          });
+        }, delay);
+      }
     });
 
     return () => {
       unlisten.then((fn) => fn());
+      cancelScheduledFlush();
+      flushBuffer();
     };
-  }, []);
+  }, [applyProgressBatch]);
 
   const parseUrls = useCallback((text: string): string[] => {
     return extractUrls(text).filter(
@@ -1176,6 +1243,7 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
   }, [pendingOutputPathUpdate]);
 
   const removeItem = useCallback((id: string) => {
+    progressBufferRef.current.delete(id);
     setItems((items) => {
       const nextItems = items.filter((item) => item.id !== id);
       itemsRef.current = nextItems;
@@ -1285,6 +1353,7 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clearAll = useCallback(() => {
+    progressBufferRef.current.clear();
     itemsRef.current = [];
     setItems([]);
     setCurrentPlaylistInfo(null);
@@ -1939,8 +2008,11 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
   // Retry a failed download (reset item and restart)
   const retryFailedDownload = useCallback(
     (itemId: string) => {
+      if (isDownloadingRef.current) return;
+
       void (async () => {
         const pluginWorkflowSnapshots = await refreshPluginWorkflowSnapshots();
+        if (isDownloadingRef.current) return;
 
         // Reset item status to pending and treat retry as a fresh workflow run.
         setItems((currentItems) =>
@@ -1964,7 +2036,9 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
         setCookieError(null);
         // Use a short delay to ensure state update before starting download
         setTimeout(() => {
-          startDownload();
+          if (!isDownloadingRef.current) {
+            void startDownload();
+          }
         }, 100);
       })();
     },

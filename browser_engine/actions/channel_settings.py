@@ -31,6 +31,19 @@ from actions.studio_dom import (
 logger = logging.getLogger(__name__)
 
 
+def _audience_matches(name: str, text: str, made_for_kids: bool) -> bool:
+    value = f"{name} {text}".strip().lower()
+    if made_for_kids:
+        return ("made_for_kids" in value and "not_made_for_kids" not in value) or ("made for kids" in value and "not made for kids" not in value) or ("dành cho trẻ em" in value and "không dành cho trẻ em" not in value)
+    return "not_made_for_kids" in value or "not_mfk" in value or "not made for kids" in value or "không dành cho trẻ em" in value
+
+
+def _audience_state_matches(state: dict, made_for_kids: bool) -> bool:
+    return str(state.get("aria_checked") or "").lower() == "true" and _audience_matches(
+        str(state.get("name") or ""), str(state.get("text") or ""), made_for_kids
+    )
+
+
 def trim_keywords_to_limit(keywords: List[str], max_chars: int = 450) -> List[str]:
     """
     Giới hạn ký tự YouTube Studio:
@@ -362,6 +375,12 @@ async def configure_channel_settings(
     channel_keywords = channel_keywords or []
     default_tags = default_tags or []
 
+    # Tự động đồng bộ: Nếu kênh đối thủ không công khai từ khóa kênh riêng biệt,
+    # sử dụng chính các thẻ video đối thủ (default_tags) làm từ khóa nhận diện kênh
+    if not channel_keywords and default_tags:
+        logger.info("channel_keywords trống, tự động sử dụng default_tags làm từ khóa nhận diện kênh")
+        channel_keywords = list(default_tags)
+
     # Cắt gọn danh sách từ khóa <= 450 ký tự kèm tính quote penalty cho từ ghép
     trimmed_channel_keywords = trim_keywords_to_limit(channel_keywords, max_chars=450)
     trimmed_default_tags = trim_keywords_to_limit(default_tags, max_chars=450)
@@ -421,21 +440,24 @@ async def configure_channel_settings(
 
     # -------------------------------------------------------------
     # BƯỚC 1: Chọn menu "Kênh" (Channel) ở thanh điều hướng bên trái
-    # Language-Agnostic: ID cấu trúc li#channel, [test-id='channel'] hoặc vị trí menu số 2
+    # Hỗ trợ đa tầng: li#channel .title-text, ID channel, text đa ngôn ngữ, JS click dispatch
     # -------------------------------------------------------------
     logger.info("Chọn menu 'Kênh' trong hộp thoại cài đặt...")
     channel_menu_clicked = False
     for sel in [
+        "li#channel .title-text",
         "li#channel",
-        "ytcp-settings-dialog li#channel",
-        "ytcp-channel-settings-dialog li#channel",
-        "ytcp-navigation-item[test-id='channel']",
-        "[test-id='channel']",
-        "ytcp-settings-dialog tp-yt-paper-listbox > li:nth-child(2)",
+        "#channel .title-text",
+        "#channel",
+        "ytcp-navigation li#channel",
+        "ytcp-navigation li#channel .title-text",
+        "li:has-text('Kênh')",
+        "li:has-text('Channel')",
+        "li:has-text('Canal')",
     ]:
         try:
             item = page.locator(sel).first
-            if await item.is_visible(timeout=3000):
+            if await item.is_visible(timeout=2500):
                 await item.click()
                 channel_menu_clicked = True
                 logger.info("Đã click menu Kênh qua selector: %s", sel)
@@ -445,14 +467,11 @@ async def configure_channel_settings(
 
     if not channel_menu_clicked:
         channel_menu_clicked = await eval_studio_dom(page, """
-            const el = __rtmDom.deepFirstVisible(
-                document,
-                'ytcp-settings-dialog li#channel, ytcp-channel-settings-dialog li#channel, [test-id="channel"], li#channel, ytcp-settings-dialog tp-yt-paper-listbox > li:nth-child(2)'
-            );
-            if (el) {
-                const btn = __rtmDom.resolveNativeButton(el) || el;
-                btn.click();
-                btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+            const item = document.querySelector('ytcp-navigation li#channel, li#channel, #channel');
+            if (item) {
+                const target = item.querySelector('.title-text') || item;
+                target.click();
+                target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
                 return true;
             }
             return false;
@@ -460,32 +479,54 @@ async def configure_channel_settings(
 
     # Chờ DOM panel Kênh sẵn sàng
     try:
-        await page.wait_for_selector("tp-yt-paper-tab, #channel-keywords, ytcp-chip-cloud", timeout=4000)
+        await page.wait_for_selector("tp-yt-paper-tab, #keywords-container, #channel-keywords, ytcp-chip-cloud", timeout=5000)
     except Exception:
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.5)
 
     # -------------------------------------------------------------
     # BƯỚC 2: Tab "Thông tin cơ bản" -> Nhập "Từ khóa" (channel_keywords)
-    # Language-Agnostic: tp-yt-paper-tab#channel-basic-tab hoặc tab số 1
     # -------------------------------------------------------------
     applied_kw_count = 0
     if trimmed_channel_keywords:
         logger.info("Điền %d từ khóa kênh vào mục 'Từ khóa'...", len(trimmed_channel_keywords))
         try:
             tab_basic = page.locator(
-                "tp-yt-paper-tab#channel-basic-tab, tp-yt-paper-tab:first-child, tp-yt-paper-tab:nth-child(1), [test-id='basic-info-tab']"
+                "tp-yt-paper-tab:has-text('Thông tin cơ bản'), tp-yt-paper-tab:has-text('Basic info'), "
+                "tp-yt-paper-tab:first-child, tp-yt-paper-tab:nth-child(1)"
             ).first
-            if await tab_basic.is_visible(timeout=3000):
+            if await tab_basic.is_visible(timeout=2000):
                 await tab_basic.click()
                 await asyncio.sleep(0.2)
+            else:
+                await eval_studio_dom(page, """
+                    const tabs = document.querySelectorAll('tp-yt-paper-tab');
+                    if (tabs.length > 0) {
+                        tabs[0].click();
+                        tabs[0].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+                    }
+                """)
         except Exception:
             pass
 
+        # Cuộn nội dung để làm lộ ô Từ khóa kênh (#keywords-container)
+        try:
+            await eval_studio_dom(page, """
+                const kw = document.querySelector('#keywords-container, #channel-keywords, ytcp-chip-cloud');
+                if (kw) {
+                    kw.scrollIntoView({ behavior: 'instant', block: 'center' });
+                }
+            """)
+        except Exception:
+            pass
+        await asyncio.sleep(0.3)
+
         kw_selectors = [
+            "#keywords-container input#text-input",
+            "#keywords-container input",
+            "#keywords-container #text-input",
+            "#channel-keywords #text-input",
             "ytcp-chip-cloud #text-input",
             "ytcp-chip-bar #text-input",
-            "#channel-keywords #text-input",
-            "#channel-keywords input",
             "input#text-input",
         ]
         applied_kw_count = await input_polymer_chips(page, page, trimmed_channel_keywords, kw_selectors)
@@ -495,74 +536,108 @@ async def configure_channel_settings(
 
     # -------------------------------------------------------------
     # BƯỚC 3: Tab "Cài đặt nâng cao" -> Chọn KHÔNG DÀNH CHO TRẺ EM
-    # Language-Agnostic: tp-yt-paper-tab#channel-advanced-tab hoặc tab số 2, radio name="NOT_MADE_FOR_KIDS"
     # -------------------------------------------------------------
     logger.info("Chuyển sang tab 'Cài đặt nâng cao' để thiết lập Đối tượng người xem...")
     try:
         tab_adv = page.locator(
-            "tp-yt-paper-tab#channel-advanced-tab, tp-yt-paper-tab:nth-child(2), [test-id='advanced-settings-tab']"
+            "tp-yt-paper-tab:has-text('Cài đặt nâng cao'), tp-yt-paper-tab:has-text('Advanced settings'), "
+            "tp-yt-paper-tab:nth-child(2)"
         ).first
-        if await tab_adv.is_visible(timeout=3000):
+        if await tab_adv.is_visible(timeout=2500):
             await tab_adv.click()
-            await asyncio.sleep(0.2)
+            await asyncio.sleep(0.3)
+        else:
+            await eval_studio_dom(page, """
+                const tabs = document.querySelectorAll('tp-yt-paper-tab');
+                for (const tab of tabs) {
+                    const txt = (tab.textContent || '').trim().toLowerCase();
+                    if (txt.includes('nâng cao') || txt.includes('advanced')) {
+                        tab.click();
+                        tab.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+                        return true;
+                    }
+                }
+                if (tabs.length >= 2) {
+                    tabs[1].click();
+                    tabs[1].dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+                    return true;
+                }
+                return false;
+            """)
     except Exception as e:
         logger.warning("Lỗi click tab Cài đặt nâng cao: %s", e)
 
-    not_mfk_clicked = False
-    for r_sel in [
-        "tp-yt-paper-radio-button[name='NOT_MADE_FOR_KIDS']",
-        "tp-yt-paper-radio-button[name='NOT_MFK']",
-        "#audience-not-made-for-kids",
-    ]:
-        try:
-            r = page.locator(r_sel).first
-            if await r.is_visible(timeout=3000):
-                await r.click()
-                checked = await r.get_attribute("aria-checked")
-                if checked == "true":
-                    not_mfk_clicked = True
-                    logger.info("Đã chọn Không dành cho trẻ em thành công (%s)", r_sel)
-                    break
-        except Exception:
-            pass
-
-    if not not_mfk_clicked:
-        not_mfk_clicked = await eval_studio_dom(page, """
-            const radios = __rtmDom.deepQueryAll(document, 'tp-yt-paper-radio-button');
-            for (const r of radios) {
-                const name = r.getAttribute('name') || '';
-                if (name.includes('NOT_MADE_FOR_KIDS') || name.includes('NOT_MFK')) {
-                    const b = __rtmDom.resolveNativeButton(r) || r;
-                    b.click();
-                    b.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
-                    return true;
-                }
+    # Cuộn tới khu vực radio buttons Đối tượng người xem
+    try:
+        await eval_studio_dom(page, """
+            const audience = document.querySelector('tp-yt-paper-radio-group, [name*="audience" i], tp-yt-paper-radio-button');
+            if (audience) {
+                audience.scrollIntoView({ behavior: 'instant', block: 'center' });
             }
-            return false;
         """)
-        logger.info("JS fallback chọn Không dành cho trẻ em: %s", not_mfk_clicked)
+    except Exception:
+        pass
+    await asyncio.sleep(0.3)
+
+    audience_target = "MADE_FOR_KIDS" if made_for_kids else "NOT_MADE_FOR_KIDS"
+    audience_clicked = await eval_studio_dom(page, f"""
+        const target = {audience_target!r};
+        const radios = document.querySelectorAll('tp-yt-paper-radio-button, [role="radio"]');
+        for (const r of radios) {{
+            const name = (r.getAttribute('name') || '').toUpperCase();
+            const txt = (r.textContent || '').trim().toLowerCase();
+            const wanted = target === 'MADE_FOR_KIDS'
+                ? (name === target || (txt.includes('made for kids') && !txt.includes('not made for kids')) || (txt.includes('dành cho trẻ em') && !txt.includes('không dành cho trẻ em')))
+                : (name === target || name.includes('NOT_MFK') || txt.includes('not made for kids') || txt.includes('không dành cho trẻ em'));
+            if (wanted) {{
+                r.click();
+                r.dispatchEvent(new MouseEvent('click', {{ bubbles: true, cancelable: true, composed: true }}));
+                return true;
+            }}
+        }}
+        return false;
+    """)
+    await asyncio.sleep(0.2)
+    audience_verified = await eval_studio_dom(page, f"""
+        const target = {audience_target!r};
+        return Array.from(document.querySelectorAll('tp-yt-paper-radio-button, [role="radio"]')).some((r) => {{
+            const name = (r.getAttribute('name') || '').toUpperCase();
+            const txt = (r.textContent || '').trim().toLowerCase();
+            const selected = r.getAttribute('aria-checked') === 'true' || r.hasAttribute('checked');
+            const wanted = target === 'MADE_FOR_KIDS'
+                ? (name === target || (txt.includes('made for kids') && !txt.includes('not made for kids')) || (txt.includes('dành cho trẻ em') && !txt.includes('không dành cho trẻ em')))
+                : (name === target || name.includes('NOT_MFK') || txt.includes('not made for kids') || txt.includes('không dành cho trẻ em'));
+            return selected && wanted;
+        }});
+    """)
+    audience_selected = bool(audience_clicked and audience_verified)
+    if not audience_selected:
+        raise RuntimeError(f"Không xác minh được lựa chọn đối tượng {'dành cho trẻ em' if made_for_kids else 'không dành cho trẻ em'}")
+    not_mfk_clicked = not made_for_kids
 
     await asyncio.sleep(0.2)
 
     # -------------------------------------------------------------
     # BƯỚC 4: Menu "Chế độ mặc định cho video tải lên" -> Thẻ (tags)
-    # Language-Agnostic: li#uploads, [test-id='upload-defaults'] hoặc vị trí menu số 3
+    # Hỗ trợ đa tầng: li#uploads .title-text, ID uploads, text đa ngôn ngữ, JS click dispatch
     # -------------------------------------------------------------
     applied_tags_count = 0
     if trimmed_default_tags:
         logger.info("Chọn menu 'Chế độ mặc định cho video tải lên' để điền Thẻ đối thủ...")
         upload_menu_clicked = False
         for sel in [
+            "li#uploads .title-text",
             "li#uploads",
-            "ytcp-settings-dialog li#uploads",
-            "ytcp-channel-settings-dialog li#uploads",
-            "ytcp-navigation-item[test-id='upload-defaults']",
-            "[test-id='upload-defaults']",
-            "ytcp-settings-dialog tp-yt-paper-listbox > li:nth-child(3)",
+            "#uploads .title-text",
+            "#uploads",
+            "ytcp-navigation li#uploads",
+            "li:has-text('Chế độ mặc định')",
+            "li:has-text('Upload defaults')",
+            "li:has-text('Configuración predeterminada')",
         ]:
             try:
                 item = page.locator(sel).first
-                if await item.is_visible(timeout=3000):
+                if await item.is_visible(timeout=2500):
                     await item.click()
                     upload_menu_clicked = True
                     logger.info("Đã click menu Chế độ mặc định qua: %s", sel)
@@ -572,14 +647,11 @@ async def configure_channel_settings(
 
         if not upload_menu_clicked:
             upload_menu_clicked = await eval_studio_dom(page, """
-                const el = __rtmDom.deepFirstVisible(
-                    document,
-                    'ytcp-settings-dialog li#uploads, ytcp-channel-settings-dialog li#uploads, [test-id="upload-defaults"], li#uploads, ytcp-settings-dialog tp-yt-paper-listbox > li:nth-child(3)'
-                );
-                if (el) {
-                    const btn = __rtmDom.resolveNativeButton(el) || el;
-                    btn.click();
-                    btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+                const item = document.querySelector('ytcp-navigation li#uploads, li#uploads, #uploads');
+                if (item) {
+                    const target = item.querySelector('.title-text') || item;
+                    target.click();
+                    target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
                     return true;
                 }
                 return false;

@@ -404,6 +404,10 @@ export async function publishBktJobToMain(jobId: string): Promise<string> {
   return await invoke<string>('publish_bkt_job_to_main_cmd', { jobId });
 }
 
+export async function publishBktCatchup(): Promise<import('@/lib/types').BktCatchupResult> {
+  return await invoke('publish_bkt_catchup_cmd');
+}
+
 export async function recheckBktJob(jobId: string): Promise<void> {
   return await invoke<void>('recheck_bkt_job_cmd', { jobId });
 }

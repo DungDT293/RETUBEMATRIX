@@ -25,7 +25,6 @@ export interface GradientColors {
 export interface Theme {
   name: ThemeName;
   label: string;
-  emoji: string;
   gradient: {
     light: GradientColors;
     dark: GradientColors;
@@ -40,7 +39,6 @@ export const themes: Theme[] = [
   {
     name: 'rose',
     label: 'Soft Rose (Đỏ Dịu)',
-    emoji: '🌹',
     gradient: {
       light: { from: '350 85% 65%', via: '358 80% 68%', to: '15 85% 65%' },
       dark: { from: '350 70% 35%', via: '358 75% 38%', to: '15 70% 35%' },
@@ -63,7 +61,6 @@ export const themes: Theme[] = [
   {
     name: 'crimson',
     label: 'Crimson Wine',
-    emoji: '🍷',
     gradient: {
       light: { from: '345 75% 52%', via: '355 70% 55%', to: '10 75% 50%' },
       dark: { from: '345 65% 30%', via: '355 70% 32%', to: '10 65% 28%' },
@@ -86,7 +83,6 @@ export const themes: Theme[] = [
   {
     name: 'midnight',
     label: 'Midnight',
-    emoji: '🌙',
     gradient: {
       light: { from: '240 60% 50%', via: '280 70% 55%', to: '320 65% 50%' },
       dark: { from: '240 70% 35%', via: '280 80% 40%', to: '320 75% 35%' },
@@ -109,7 +105,6 @@ export const themes: Theme[] = [
   {
     name: 'aurora',
     label: 'Aurora',
-    emoji: '🌌',
     gradient: {
       light: { from: '160 80% 45%', via: '190 85% 50%', to: '220 80% 55%' },
       dark: { from: '160 90% 30%', via: '190 95% 35%', to: '220 90% 40%' },
@@ -132,7 +127,6 @@ export const themes: Theme[] = [
   {
     name: 'sunset',
     label: 'Sunset',
-    emoji: '🌅',
     gradient: {
       light: { from: '15 90% 55%', via: '35 95% 55%', to: '45 90% 50%' },
       dark: { from: '15 85% 40%', via: '35 90% 42%', to: '45 85% 38%' },
@@ -155,7 +149,6 @@ export const themes: Theme[] = [
   {
     name: 'ocean',
     label: 'Ocean',
-    emoji: '🌊',
     gradient: {
       light: { from: '200 90% 50%', via: '215 85% 55%', to: '230 80% 60%' },
       dark: { from: '200 95% 35%', via: '215 90% 40%', to: '230 85% 45%' },
@@ -178,7 +171,6 @@ export const themes: Theme[] = [
   {
     name: 'forest',
     label: 'Forest',
-    emoji: '🌲',
     gradient: {
       light: { from: '140 70% 40%', via: '160 65% 45%', to: '175 60% 42%' },
       dark: { from: '140 75% 28%', via: '160 70% 32%', to: '175 65% 30%' },
@@ -201,7 +193,6 @@ export const themes: Theme[] = [
   {
     name: 'candy',
     label: 'Candy',
-    emoji: '🍬',
     gradient: {
       light: { from: '330 85% 60%', via: '350 80% 65%', to: '10 85% 60%' },
       dark: { from: '330 90% 42%', via: '350 85% 48%', to: '10 90% 45%' },

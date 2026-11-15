@@ -196,6 +196,13 @@ export function LogEntry({ log }: LogEntryProps) {
     const textToCopy = [
       `[${log.log_type.toUpperCase()}] ${log.timestamp}`,
       log.message,
+      log.feature ? `Feature: ${log.feature}` : null,
+      log.operation ? `Operation: ${log.operation}` : null,
+      log.stage ? `Stage: ${log.stage}` : null,
+      log.status ? `Status: ${log.status}` : null,
+      log.error_code ? `Error code: ${log.error_code}` : null,
+      log.retryable !== undefined ? `Retryable: ${log.retryable}` : null,
+      log.trace_id ? `Trace ID: ${log.trace_id}` : null,
       log.details ? `Details: ${log.details}` : null,
       log.url ? `URL: ${log.url}` : null,
     ]
@@ -252,6 +259,28 @@ export function LogEntry({ log }: LogEntryProps) {
           )}
         </button>
       </div>
+
+      {/* Structured diagnostic context */}
+      {(log.feature || log.operation || log.stage || log.error_code || log.trace_id) && (
+        <div className="mb-2 flex flex-wrap gap-1.5 text-[11px] text-muted-foreground">
+          {log.feature && <span className="rounded bg-muted px-1.5 py-0.5">{log.feature}</span>}
+          {log.operation && <span className="rounded bg-muted px-1.5 py-0.5">{log.operation}</span>}
+          {log.stage && <span className="rounded bg-muted px-1.5 py-0.5">{log.stage}</span>}
+          {log.error_code && (
+            <span className="rounded bg-red-500/10 px-1.5 py-0.5 text-red-400">
+              {log.error_code}
+            </span>
+          )}
+          {log.retryable !== undefined && (
+            <span className="rounded bg-muted px-1.5 py-0.5">
+              retryable={String(log.retryable)}
+            </span>
+          )}
+          {log.trace_id && (
+            <span className="rounded bg-muted px-1.5 py-0.5">trace={log.trace_id.slice(0, 8)}</span>
+          )}
+        </div>
+      )}
 
       {/* Message */}
       <div className="space-y-1.5 min-w-0">

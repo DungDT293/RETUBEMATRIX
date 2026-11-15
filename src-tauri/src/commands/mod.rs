@@ -1,6 +1,9 @@
 mod ai;
 mod assets;
-mod bkt_channels;
+pub mod bkt;
+pub mod bkt_channels {
+    pub use super::bkt::*;
+}
 mod channels;
 mod cli;
 mod cli_shortcut;
@@ -24,7 +27,7 @@ mod whisper;
 
 pub use ai::*;
 pub use assets::*;
-pub use bkt_channels::*;
+pub use bkt::*;
 pub use channels::*;
 pub use cli::*;
 pub use cli_shortcut::*;

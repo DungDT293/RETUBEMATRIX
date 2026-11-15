@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -18,6 +19,71 @@ logger = logging.getLogger(__name__)
 
 RUN_HISTORY_FILE = user_data_path("logs", "run_history.jsonl")
 _MAX_RECORDS = 500
+_SENSITIVE_RE = re.compile(
+    r"(?i)(\b(?:token|access_token|refresh_token|api_key|cookie|password|passwd|secret)\b(?:\s*[:=]\s*|\s+))([^\s,;,&}\]]+)"
+)
+_AUTHORIZATION_RE = re.compile(
+    r"(?i)(\bauthorization\b(?:\s*[:=]\s*|\s+)(?:Bearer\s+)?)[^\s,;,&}\]]+"
+)
+_JSON_SENSITIVE_RE = re.compile(
+    r"(?i)([\"'](?:token|access_token|refresh_token|api_key|cookie|password|passwd|secret|authorization)[\"']\s*:\s*)([\"'][^\"']*[\"']|[^,}\s]+)"
+)
+_BEARER_RE = re.compile(r"(?i)(\bBearer\s+)[^\s,;]+")
+
+
+def _redact_log_text(value: str) -> str:
+    text = str(value or "")
+    text = _BEARER_RE.sub(r"\1[REDACTED]", text)
+    text = _AUTHORIZATION_RE.sub(r"\1[REDACTED]", text)
+    text = _JSON_SENSITIVE_RE.sub(r"\1[REDACTED]", text)
+    return _SENSITIVE_RE.sub(r"\1[REDACTED]", text)
+
+
+def _diagnostic_fields(action: str, status: str, error: str) -> dict:
+    action_text = str(action or "").lower()
+    error_text = str(error or "")
+    error_lower = error_text.lower()
+    if "bkt" in action_text or "copyright" in action_text:
+        feature, operation = "bkt_test", "copyright_check" if "copyright" in action_text else "bkt_check"
+    elif "channel" in action_text:
+        feature, operation = "channels", "channel_sync"
+    elif "upload" in action_text:
+        feature, operation = "upload", "upload"
+    elif "download" in action_text:
+        feature, operation = "download", "download"
+    elif "reup" in action_text:
+        feature, operation = "reup", "reup"
+    else:
+        feature, operation = action_text or "unknown", action_text or "unknown"
+
+    if error_text:
+        stage = "error"
+        if "timeout" in error_lower or "timed out" in error_lower:
+            error_code, retryable = "NETWORK_TIMEOUT", True
+        elif any(term in error_lower for term in ("connection", "network", "reset")):
+            error_code, retryable = "NETWORK_ERROR", True
+        elif any(term in error_lower for term in ("unauthorized", "forbidden", "authentication", "cookie")):
+            error_code, retryable = "AUTHENTICATION_FAILED", False
+        elif "quota" in error_lower:
+            error_code, retryable = "QUOTA_EXCEEDED", False
+        elif "not found" in error_lower:
+            error_code, retryable = "RESOURCE_NOT_FOUND", False
+        elif "invalid" in error_lower:
+            error_code, retryable = "INVALID_INPUT", False
+        else:
+            error_code, retryable = f"{feature.upper()}_{operation.upper()}_FAILED", False
+    elif str(status or "").lower() == "success":
+        stage, error_code, retryable = "complete", None, False
+    else:
+        stage, error_code, retryable = "progress", None, False
+    return {
+        "component": "browser_engine",
+        "feature": feature,
+        "operation": operation,
+        "stage": stage,
+        "error_code": error_code,
+        "retryable": retryable,
+    }
 
 
 def record_run(
@@ -32,15 +98,22 @@ def record_run(
     """Append a finished-run record. Best effort: never raise to caller."""
     try:
         RUN_HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
+        safe_error = _redact_log_text(str(error or "").splitlines()[0][:200]) if error else ""
+        diagnostics = _diagnostic_fields(action, status, safe_error)
+        trace_id = str(session_id or uuid.uuid4())
+        duration = round(max(0.0, float(duration_seconds or 0.0)), 2)
         record = {
             "id": str(profile_id or ""),
             "profile_name": str(profile_name or profile_id or ""),
             "action": str(action or ""),
             "status": str(status or ""),
-            "duration_seconds": round(max(0.0, float(duration_seconds or 0.0)), 2),
+            "duration_seconds": duration,
+            "duration_ms": round(duration * 1000),
             "finished_at": datetime.now(timezone.utc).isoformat(),
-            "error": str(error or "").splitlines()[0][:200] if error else "",
-            "session_id": str(session_id or ""),
+            "error": safe_error,
+            "session_id": trace_id,
+            "trace_id": trace_id,
+            **diagnostics,
         }
         with open(RUN_HISTORY_FILE, "a", encoding="utf-8") as fh:
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")

@@ -988,40 +988,10 @@ class CloakSession:
             ) from exc
         if saved_pid_live or live_pids:
             active_pids = sorted(set(live_pids) | ({saved_pid} if saved_pid_live and saved_pid is not None else set()))
-            has_win = False
-            try:
-                from core.window_arranger import has_profile_windows
-                has_win = has_profile_windows(user_data_dir, active_pids)
-            except Exception:
-                has_win = False
-
-            if has_win:
-                raise RuntimeError(
-                    "Hồ sơ đang mở trong Chromium; hãy đóng trước khi chạy automation "
-                    f"(PID: {', '.join(str(pid) for pid in active_pids)})."
-                )
-            else:
-                logger.info(
-                    "Phát hiện tiến trình Chromium treo ngầm không có cửa sổ (PIDs: %s). Đang tự động dọn dẹp để khởi động lại sạch sẽ.",
-                    active_pids,
-                )
-                try:
-                    import psutil
-                    for pid in active_pids:
-                        try:
-                            if psutil.pid_exists(pid):
-                                p = psutil.Process(pid)
-                                for child in p.children(recursive=True):
-                                    try:
-                                        child.kill()
-                                    except Exception:
-                                        pass
-                                p.kill()
-                        except Exception:
-                            pass
-                    time.sleep(0.5)
-                except Exception:
-                    pass
+            raise RuntimeError(
+                "Hồ sơ đang mở trong Chromium; không tự động dừng tiến trình đang sống "
+                f"(PID: {', '.join(str(pid) for pid in active_pids)})."
+            )
 
         # Chỉ xóa marker/locks stale khi process scan xác nhận không có owner.
         _remove_profile_runtime_markers(user_data_dir)
@@ -1135,6 +1105,12 @@ class CloakSession:
             "--disable-backgrounding-occluded-windows",
             "--disable-background-timer-throttling",
             "--disable-ipc-flooding-protection",
+            # Bo qua loi SSL chung chi khi su dung Proxy dan cu / MITM / VPN / Antivirus
+            "--test-type",
+            "--ignore-certificate-errors",
+            "--ignore-ssl-errors",
+            "--allow-insecure-localhost",
+            "--ignore-urlfetcher-cert-requests",
         ]
         if proxy_config:
             server_str = (proxy_config.get("server") or "") if isinstance(proxy_config, dict) else str(proxy_config)
@@ -1241,6 +1217,15 @@ class CloakSession:
             logger.info("BrowserMulti uses Chromium Preferences for window placement")
         if self.page is None:
             raise RuntimeError("Trình duyệt không tạo được tab")
+
+        # Vo hieu hoa loi SSL chung chi qua Chrome DevTools Protocol cho moi ket noi proxy / MITM / AV
+        try:
+            cdp_client = await self.page.context.new_cdp_session(self.page)
+            await cdp_client.send("Security.setIgnoreCertificateErrors", {"ignore": True})
+            logger.info("Đã kích hoạt CDP Security.setIgnoreCertificateErrors (Bỏ qua lỗi SSL thành công)")
+        except Exception as cdp_err:
+            logger.debug("Không thể cấu hình CDP Security.setIgnoreCertificateErrors: %s", cdp_err)
+
         if proxy_config and self.page:
             try:
                 self.page.set_default_timeout(90000)

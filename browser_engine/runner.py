@@ -15,6 +15,7 @@ import base64
 import platform
 import shutil
 import subprocess
+from urllib.parse import urlparse, parse_qs
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -45,7 +46,7 @@ try:
     )
     from core.paths import profile_data_dir, profile_data_root, user_data_root
     from core.browser import CloakSession
-    from actions.upload_actions import YouTubeUpload
+    from actions.upload_actions import YouTubeUpload, _unique_verified_video_url, _verified_video_url_from_row
     from core.run_history import session_summary, recent_runs, record_run
     from core.window_arranger import arrange_windows
 except ImportError as e:
@@ -58,6 +59,29 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 logger = logging.getLogger("browser_engine")
+YOUTUBE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{11}$")
+
+
+def _extract_verified_youtube_id(raw_url: str) -> str | None:
+    raw = str(raw_url or "").strip()
+    parsed = urlparse(raw)
+    host = (parsed.hostname or "").lower().rstrip(".")
+    if host == "youtu.be":
+        candidate = parsed.path.strip("/").split("/", 1)[0]
+    elif host == "youtube.com" or host.endswith(".youtube.com"):
+        if parsed.path == "/watch":
+            candidate = parse_qs(parsed.query).get("v", [""])[0]
+        elif parsed.path.startswith(("/shorts/", "/video/")):
+            candidate = parsed.path.split("/", 2)[2]
+        else:
+            candidate = ""
+    else:
+        candidate = ""
+    return candidate if YOUTUBE_ID_RE.fullmatch(candidate) else None
+
+
+def _terminal_status_from_result(result: dict) -> str:
+    return "success" if result.get("success") is True and not result.get("timed_out") else "error"
 
 
 def get_payload(args) -> dict:
@@ -831,6 +855,7 @@ async def _async_open_profile(profile_id: str, target_url: str | None = None):
         update_profile(profile_id, last_run_status="stopped")
 
 
+
 async def _async_upload_video(args):
     payload = get_payload(args)
     profile_id = str(payload.get("profile_id") or "").strip()
@@ -872,7 +897,7 @@ async def _async_upload_video(args):
     if not preferred_channel:
         preferred_channel = profile.get("youtube_preferred_channel", "")
 
-    _clean_profile_locks(profile_dir, force_kill_live=True)
+    _clean_profile_locks(profile_dir)
     update_profile(profile_id, last_run_status="running")
     t0 = time.time()
 
@@ -904,15 +929,9 @@ async def _async_upload_video(args):
 
         duration = time.time() - t0
         if video_url:
-            yt_id = ""
-            if "youtu.be/" in video_url:
-                yt_id = video_url.split("youtu.be/")[1].split("?")[0].split("/")[0]
-            elif "v=" in video_url:
-                yt_id = video_url.split("v=")[1].split("&")[0]
-            elif "/shorts/" in video_url:
-                yt_id = video_url.split("/shorts/")[1].split("?")[0]
-            elif "/video/" in video_url:
-                yt_id = video_url.split("/video/")[1].split("/")[0].split("?")[0]
+            yt_id = _extract_verified_youtube_id(video_url)
+            if not yt_id:
+                raise RuntimeError("Không thể xác minh URL/ID video YouTube 11 ký tự; không báo thành công.")
 
             print(json.dumps({
                 "success": True,
@@ -960,7 +979,7 @@ async def _async_upload_video(args):
         except Exception:
             pass
         _clean_profile_locks(profile_dir)
-        update_profile(profile_id, last_run_status="stopped")
+
 
 
 async def _async_bkt_unified_pipeline(args):
@@ -1016,7 +1035,7 @@ async def _async_bkt_unified_pipeline(args):
     if not preferred_channel:
         preferred_channel = profile.get("youtube_preferred_channel", "")
 
-    _clean_profile_locks(profile_dir, force_kill_live=True)
+    _clean_profile_locks(profile_dir)
     update_profile(profile_id, last_run_status="running")
 
     session = CloakSession()
@@ -1031,13 +1050,16 @@ async def _async_bkt_unified_pipeline(args):
         )
 
         uploader = YouTubeUpload()
+        # Không rescue bằng cách rời upload dialog: URL/row có thể xuất hiện trước khi
+        # upload stream + processing hoàn tất. Giữ nguyên session để worker tiếp tục
+        # theo dõi cùng profile; lỗi chỉ retry khi checkpoint đã ghi.
         video_url = await uploader.upload_video(
             page=page,
             video_path=video_path,
             title=title,
             description=description,
             tags=tags,
-            thumbnail_path=None,
+            thumbnail_path="",
             visibility=visibility,
             schedule_date="",
             schedule_time="",
@@ -1048,6 +1070,9 @@ async def _async_bkt_unified_pipeline(args):
 
         from actions.studio_dom import get_studio_context
 
+        # Chỉ cho phép recovery/đóng-mở session sau khi uploader đã xác nhận
+        # upload stream hoàn tất. Không dùng URL đơn độc làm checkpoint.
+        upload_handover_confirmed = False
         handover_ctx = await get_studio_context(page)
         handover_url = str(handover_ctx.get("url") or getattr(page, "url", "") or "")
         if not video_url and handover_ctx.get("scope") == "video":
@@ -1056,16 +1081,10 @@ async def _async_bkt_unified_pipeline(args):
                 "Dừng trước khi bàn giao sang theo dõi Content ID."
             )
 
-        yt_id = ""
-        if video_url:
-            if "youtu.be/" in video_url:
-                yt_id = video_url.split("youtu.be/")[1].split("?")[0].split("/")[0]
-            elif "v=" in video_url:
-                yt_id = video_url.split("v=")[1].split("&")[0]
-            elif "/shorts/" in video_url:
-                yt_id = video_url.split("/shorts/")[1].split("?")[0]
-            elif "/video/" in video_url:
-                yt_id = video_url.split("/video/")[1].split("/")[0].split("?")[0]
+        yt_id = _extract_verified_youtube_id(video_url)
+        if not yt_id:
+            raise RuntimeError("Không thể xác minh URL/ID video YouTube 11 ký tự; dừng trước khi bàn giao BKT.")
+        upload_handover_confirmed = True
 
         logger.info(
             "Video URL đã ghi nhận: %s (ID: %s). Handover URL=%s (pageType=%s). Chuyển SPA sang Nội dung để theo dõi %% upload & Content ID...",
@@ -1086,6 +1105,45 @@ async def _async_bkt_unified_pipeline(args):
         sys.stdout.flush()
 
         # Tự động SPA chuyển sang trang Nội dung (/videos) và giám sát liên tục trong cùng phiên
+        try:
+            cur_url_runner = getattr(page, "url", "") or ""
+            if "/videos" not in cur_url_runner:
+                logger.info("Runner: Chủ động điều hướng trang sang /videos/upload trước khi kiểm tra BKT...")
+                ch_m_run = re.search(r"/channel/([^/?#]+)", cur_url_runner)
+                cid_run = ch_m_run.group(1) if ch_m_run else (handover_ctx.get("channelId") or "")
+                if not cid_run:
+                    try:
+                        cid_run = await page.evaluate("""() => {
+                            return (window.ytcfg && window.ytcfg.get && window.ytcfg.get('CHANNEL_ID'))
+                                || (document.querySelector('a[href*="/channel/UC"]')?.href?.match(/\\/channel\\/(UC[A-Za-z0-9_-]+)/)?.[1])
+                                || '';
+                        }""")
+                    except Exception:
+                        pass
+                target_nav_url = f"https://studio.youtube.com/channel/{cid_run}/videos/upload" if cid_run else "https://studio.youtube.com/videos/upload"
+                # Thử Polymer synthetic click trước
+                try:
+                    await page.evaluate("""() => {
+                        const item = document.querySelector('ytcp-navigation-item[test-id="videos"]')
+                            || document.querySelector('ytcp-navigation-drawer a[href*="/videos"]')
+                            || document.querySelector('#menu-item-1');
+                        if (item) {
+                            item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, composed: true, cancelable: true }));
+                            item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true, cancelable: true }));
+                            item.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true, cancelable: true }));
+                        }
+                    }""")
+                except Exception:
+                    pass
+                await asyncio.sleep(0.8)
+                cur_after_spa = getattr(page, "url", "") or ""
+                if "/videos" not in cur_after_spa:
+                    logger.info("Runner: SPA click chưa đổi trang, thực hiện page.goto tới %s", target_nav_url)
+                    await page.goto(target_nav_url, wait_until="domcontentloaded", timeout=30000)
+                    await asyncio.sleep(1.2)
+        except Exception as r_nav_err:
+            logger.debug("Runner: Lỗi nhẹ khi điều hướng sang tab Nội dung: %s", r_nav_err)
+
         from actions.bkt_check import check_copyright_and_restrictions
         try:
             res = await check_copyright_and_restrictions(
@@ -1100,7 +1158,7 @@ async def _async_bkt_unified_pipeline(args):
         except Exception as check_exc:
             exc_str = str(check_exc).lower()
             is_closed = any(k in exc_str for k in ["closed", "target", "crash", "mất kết nối", "đã bị đóng", "connection"])
-            if yt_id and is_closed:
+            if yt_id and upload_handover_confirmed and is_closed:
                 logger.warning(
                     "Phát hiện trình duyệt bị đóng đột ngột khi đang kiểm tra Content ID cho video %s. Đang tự động mở lại hồ sơ để khôi phục quét tiếp...",
                     yt_id,
@@ -1150,12 +1208,13 @@ async def _async_bkt_unified_pipeline(args):
         print(json.dumps(res, ensure_ascii=False))
         sys.stdout.flush()
 
-        update_profile(profile_id, last_run_status="success", last_run_error="")
+        terminal_status = _terminal_status_from_result(res)
+        update_profile(profile_id, last_run_status=terminal_status, last_run_error="" if terminal_status == "success" else res.get("error", ""))
         record_run(
             profile_id=profile_id,
             profile_name=name,
             action="bkt_unified",
-            status="success" if res.get("success") else "error",
+            status=_terminal_status_from_result(res),
             duration_seconds=duration,
         )
     except Exception as exc:
@@ -1183,7 +1242,7 @@ async def _async_bkt_unified_pipeline(args):
             _clean_profile_cache_dir(pdir_path)
         except Exception as cache_clean_err:
             logger.debug("Tự động dọn cache sau BKT unified gặp lỗi nhẹ: %s", cache_clean_err)
-        update_profile(profile_id, last_run_status="stopped")
+
 
 
 async def _async_check_copyright_status(args):
@@ -1219,7 +1278,7 @@ async def _async_check_copyright_status(args):
     if not preferred_channel:
         preferred_channel = str(profile.get("youtube_preferred_channel") or "").strip()
 
-    _clean_profile_locks(profile_dir, force_kill_live=True)
+    _clean_profile_locks(profile_dir)
     update_profile(profile_id, last_run_status="running")
 
     session = CloakSession()
@@ -1257,12 +1316,13 @@ async def _async_check_copyright_status(args):
         print(json.dumps(res, ensure_ascii=False))
         sys.stdout.flush()
 
-        update_profile(profile_id, last_run_status="success", last_run_error="")
+        terminal_status = _terminal_status_from_result(res)
+        update_profile(profile_id, last_run_status=terminal_status, last_run_error="" if terminal_status == "success" else res.get("error", ""))
         record_run(
             profile_id=profile_id,
             profile_name=profile.get("name", profile_id),
             action="check_copyright",
-            status="success" if res.get("success") else "error",
+            status=terminal_status,
             duration_seconds=duration,
         )
     except Exception as exc:
@@ -1290,7 +1350,6 @@ async def _async_check_copyright_status(args):
             _clean_profile_cache_dir(pdir_path)
         except Exception as cache_clean_err:
             logger.debug("Tự động dọn cache sau check_copyright gặp lỗi nhẹ: %s", cache_clean_err)
-        update_profile(profile_id, last_run_status="stopped")
 
 
 def action_extract_channel_seo(args):
@@ -1400,6 +1459,8 @@ async def _async_configure_channel_settings(args):
     profile_id = str(payload.get("profile_id") or "").strip() or str(args.profile_id or "").strip()
     channel_keywords = payload.get("channel_keywords") or []
     default_tags = payload.get("default_tags") or []
+    if not channel_keywords and default_tags:
+        channel_keywords = list(default_tags)
     made_for_kids = bool(payload.get("made_for_kids", False))
 
     if not profile_id:
@@ -1419,7 +1480,7 @@ async def _async_configure_channel_settings(args):
     proxy = profile.get("proxy") or ""
     fingerprint_seed = profile.get("fingerprint_seed")
 
-    _clean_profile_locks(profile_dir, force_kill_live=True)
+    _clean_profile_locks(profile_dir)
 
     session = CloakSession()
     try:

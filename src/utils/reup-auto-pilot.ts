@@ -18,6 +18,31 @@ const THAI_CHAR_REGEX = /[\u0E00-\u0E7F]/;
 const LAO_CHAR_REGEX = /[\u0E80-\u0EFF]/;
 const KHMER_CHAR_REGEX = /[\u1780-\u17FF]/;
 const CJK_CHAR_REGEX = /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF]/;
+const SPANISH_DISTINCT_CHAR_REGEX = /[ñ¿¡]/i;
+const SPANISH_WORDS = new Set([
+  'al',
+  'años',
+  'con',
+  'cuando',
+  'de',
+  'del',
+  'el',
+  'encontrada',
+  'familia',
+  'historia',
+  'la',
+  'los',
+  'más',
+  'nieve',
+  'niña',
+  'nuevo',
+  'para',
+  'papá',
+  'salvó',
+  'su',
+  'una',
+  'y',
+]);
 
 // Danh sách từ tiếng Việt không dấu thông dụng đặc trưng
 const VIETNAMESE_UNACCENTED_WORDS = new Set([
@@ -83,7 +108,7 @@ const VIETNAMESE_UNACCENTED_WORDS = new Set([
   'cuc',
 ]);
 
-export type AutoPilotLanguage = 'vi' | 'en' | 'th' | 'lo' | 'km' | 'cjk';
+export type AutoPilotLanguage = 'vi' | 'en' | 'es' | 'th' | 'lo' | 'km' | 'cjk';
 
 /**
  * Nhận diện chính xác ngôn ngữ của tiêu đề (Hỗ trợ: Tiếng Thái, Lào, Campuchia, CJK, Việt Nam, Quốc tế)
@@ -111,17 +136,23 @@ export function detectTitleLanguage(title: string): AutoPilotLanguage {
     return 'cjk';
   }
 
+  const words = title
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
+
+  // Spanish accents overlap with Vietnamese accents; identify Spanish first.
+  const spanishMatchCount = words.filter((word) => SPANISH_WORDS.has(word)).length;
+  if (SPANISH_DISTINCT_CHAR_REGEX.test(title) || spanishMatchCount >= 2) {
+    return 'es';
+  }
+
   // 5. Kiểm tra ký tự tiếng Việt có dấu -> 100% tiếng Việt
   if (VIETNAMESE_ACCENT_REGEX.test(title)) {
     return 'vi';
   }
 
   // 6. Tách từ không dấu và đối chiếu từ điển tiếng Việt không dấu
-  const words = title
-    .toLowerCase()
-    .split(/[^\p{L}\p{N}]+/u)
-    .filter(Boolean);
-
   if (words.length === 0) return 'en';
 
   let vnMatchCount = 0;
@@ -970,7 +1001,7 @@ export interface DescriptionBuilderOptions {
   socialLinks?: string;
   includeDisclaimer?: boolean;
   hashtags?: string[];
-  lang?: 'vi' | 'en';
+  lang?: AutoPilotLanguage;
 }
 
 export interface AdaptCompetitorDescriptionOptions {
@@ -984,7 +1015,7 @@ export interface AdaptCompetitorDescriptionOptions {
   includeFairUseDisclaimer?: boolean;
   removeCompetitorLinks?: boolean;
   extraHashtags?: string[];
-  lang?: 'vi' | 'en';
+  lang?: AutoPilotLanguage;
 }
 
 function escapeRegExp(string: string): string {
@@ -999,20 +1030,28 @@ function escapeRegExp(string: string): string {
  * 4. Tự động gắn Tuyên bố Bản quyền Fair Use Section 107 chuẩn quốc tế.
  */
 export function adaptCompetitorDescription(options: AdaptCompetitorDescriptionOptions): string {
-  const raw = options.originalDescription?.trim() || '';
+  let raw = options.originalDescription?.trim() || '';
+  const lang =
+    options.lang ||
+    (options.videoTitle ? detectTitleLanguage(options.videoTitle) : detectTitleLanguage(raw));
+
+  // Không tái sử dụng mô tả sinh sai ngôn ngữ từ phiên bản trước.
+  if (
+    lang === 'es' &&
+    /Khám phá nội dung hấp dẫn|Đăng ký kênh để không bỏ lỡ|Bản quyền nội dung thuộc/i.test(raw)
+  ) {
+    raw = '';
+  }
+
   if (!raw) {
     return buildAutoPilotDescription({
       videoTitle: options.videoTitle || 'Trending Video',
       channelName: options.targetChannelName,
       includeDisclaimer: options.includeFairUseDisclaimer ?? true,
       hashtags: options.extraHashtags,
-      lang: options.lang,
+      lang,
     });
   }
-
-  const lang =
-    options.lang ||
-    (options.videoTitle ? detectTitleLanguage(options.videoTitle) : detectTitleLanguage(raw));
   const targetName = options.targetChannelName?.trim() || '';
   const targetHandle =
     options.targetChannelHandle?.trim() || (targetName ? `@${targetName.replace(/\s+/g, '')}` : '');
@@ -1111,6 +1150,8 @@ export function adaptCompetitorDescription(options: AdaptCompetitorDescriptionOp
       let ctaText = `🔔 Subscribe to ${targetName} for daily updates! If you enjoyed this video, please Like and Share!`;
       if (lang === 'vi') {
         ctaText = `🔔 Đăng ký kênh ${targetName} để theo dõi các video mới nhất mỗi ngày! Hãy Like và Chia sẻ nếu bạn thấy hay nhé!`;
+      } else if (lang === 'es') {
+        ctaText = `🔔 Suscríbete a ${targetName} para no perderte nuevos videos cada día. ¡Dale Me gusta y comparte si disfrutaste este video!`;
       } else if (lang === 'th') {
         ctaText = `🔔 กดติดตามช่อง ${targetName} เพื่อไม่พลาดคลิปใหม่ทุกวัน! ช่วยกด Like และ Share เป็นกำลังใจให้ด้วยนะครับ/ค่ะ!`;
       } else if (lang === 'lo') {
@@ -1127,6 +1168,8 @@ export function adaptCompetitorDescription(options: AdaptCompetitorDescriptionOp
       let disclaimerText = `--- \n© Copyright Disclaimer under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for purposes such as criticism, comment, news reporting, teaching, scholarship, and research. All rights belong to their respective owners. For any copyright inquiries or removal requests, please contact us directly.`;
       if (lang === 'vi') {
         disclaimerText = `--- \n© Tuyên bố miễn trừ trách nhiệm Bản quyền theo Mục 107 Đạo luật Bản quyền 1976: Video sử dụng nội dung theo nguyên tắc Sử dụng hợp lý (Fair Use). Mọi quyền thuộc về chủ sở hữu hợp pháp. Vui lòng liên hệ trực tiếp với chúng tôi để được giải quyết nhanh nhất.`;
+      } else if (lang === 'es') {
+        disclaimerText = `--- \n© Aviso de derechos de autor conforme a la Sección 107 de la Ley de Derechos de Autor de 1976: este video utiliza contenido bajo el principio de uso legítimo (Fair Use). Todos los derechos pertenecen a sus respectivos propietarios. Para consultas sobre derechos de autor, contáctanos directamente.`;
       } else if (lang === 'th') {
         disclaimerText = `--- \n© ข้อจำกัดความรับผิดชอบด้านลิขสิทธิ์: วิดีโอนี้จัดทำขึ้นภายใต้หลักเกณฑ์ Fair Use (การใช้อย่างเป็นธรรมตามมาตรา 107 ของกฎหมายลิขสิทธิ์) เพื่อความบันเทิงและการศึกษา หากมีข้อสงสัยหรือต้องการให้ลบเนื้อหา กรุณาติดต่อเราโดยตรง`;
       } else if (lang === 'lo') {
@@ -1184,6 +1227,12 @@ export function buildAutoPilotDescription(options: DescriptionBuilderOptions): s
         ? `Experience the best vibe with "${options.videoTitle}". Turn up the volume and enjoy!`
         : `Discover the ultimate content for "${options.videoTitle}". Enjoy the experience and stay tuned for more!`,
     );
+  } else if (lang === 'es') {
+    parts.push(
+      genre === 'music'
+        ? `Disfruta de la mejor música con "${options.videoTitle}". ¡Sube el volumen y disfruta!`
+        : `Descubre esta historia: ${options.videoTitle}. ¡Acompáñanos y disfruta del video!`,
+    );
   } else {
     parts.push(
       genre === 'music'
@@ -1195,16 +1244,18 @@ export function buildAutoPilotDescription(options: DescriptionBuilderOptions): s
   // TẦNG 2: Khung Kênh Chính / Lời kêu gọi đăng ký (CTA)
   if (options.customChannelTemplate?.trim()) {
     parts.push(options.customChannelTemplate.trim());
+  } else if (lang === 'en') {
+    parts.push(
+      `Subscribe to the channel so you never miss out on our latest daily releases! ❤️\nIf you enjoyed this, don't forget to Like, Share, and leave your thoughts in the comments below!`,
+    );
+  } else if (lang === 'es') {
+    parts.push(
+      `Suscríbete al canal para no perderte nuestros nuevos videos. ❤️\nSi te gustó, no olvides darle Me gusta, compartir y dejar tu opinión en los comentarios.`,
+    );
   } else {
-    if (lang === 'en') {
-      parts.push(
-        `Subscribe to the channel so you never miss out on our latest daily releases! ❤️\nIf you enjoyed this, don't forget to Like, Share, and leave your thoughts in the comments below!`,
-      );
-    } else {
-      parts.push(
-        `Đăng ký kênh để không bỏ lỡ các video mới nhất mỗi ngày! ❤️\nNếu thấy hay đừng quên Like, Share và để lại bình luận phía dưới nhé.`,
-      );
-    }
+    parts.push(
+      `Đăng ký kênh để không bỏ lỡ các video mới nhất mỗi ngày! ❤️\nNếu thấy hay đừng quên Like, Share và để lại bình luận phía dưới nhé.`,
+    );
   }
 
   // TẦNG 3: Disclaimer bản quyền (Fair Use)
@@ -1212,6 +1263,10 @@ export function buildAutoPilotDescription(options: DescriptionBuilderOptions): s
     if (lang === 'en') {
       parts.push(
         `--- \n© Copyright Disclaimer under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for purposes such as criticism, comment, news reporting, teaching, scholarship, and research. All rights belong to their respective owners. For any copyright inquiries or removal requests, please contact us directly for immediate resolution.`,
+      );
+    } else if (lang === 'es') {
+      parts.push(
+        `--- \n© Aviso de derechos de autor conforme a la Sección 107 de la Ley de Derechos de Autor de 1976: este video utiliza contenido bajo el principio de uso legítimo (Fair Use). Todos los derechos pertenecen a sus respectivos propietarios. Para consultas sobre derechos de autor, contáctanos directamente.`,
       );
     } else {
       parts.push(
@@ -1235,6 +1290,14 @@ export function buildAutoPilotDescription(options: DescriptionBuilderOptions): s
         parts.push('#shorts #gaming #gameplay #highlights #trending #viral');
       } else {
         parts.push('#shorts #trending #viral #youtube #foryou');
+      }
+    } else if (lang === 'es') {
+      if (genre === 'music') {
+        parts.push('#shorts #musica #remix #tendencia #viral #youtube');
+      } else if (genre === 'gaming') {
+        parts.push('#shorts #gaming #jugabilidad #tendencia #viral');
+      } else {
+        parts.push('#shorts #historias #tendencia #viral #youtube');
       }
     } else {
       if (genre === 'music') {
@@ -1290,6 +1353,9 @@ export function buildAiTitleRewritePrompt(
     'English (100% in English. CRITICAL: NEVER output Vietnamese, Thai or mix languages)';
   if (lang === 'vi') {
     languageRule = 'Vietnamese (100% Tiếng Việt chuẩn. TUYỆT ĐỐI không pha tiếng Anh)';
+  } else if (lang === 'es') {
+    languageRule =
+      'Spanish (100% español natural. CRITICAL: Do NOT output Vietnamese or mix languages)';
   } else if (lang === 'th') {
     languageRule =
       'Thai (100% ภาษาไทย. CRITICAL: Output strictly in natural Thai. Do NOT mix English)';

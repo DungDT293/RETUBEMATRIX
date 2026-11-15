@@ -7,6 +7,69 @@ RETubeMatrix 的所有重要更改都将记录在此文件中。
 
 ## [Unreleased]
 
+## [1.0.11] - 2026-11-15
+
+### 新增
+
+- **下载与 BKT 频道后端架构模块化** - 将单体后端控制器解耦为结构清晰、职责单一的子模块：`commands/download/`（`args.rs`、`templates.rs`、`parser.rs`、`process.rs`、`workflows.rs`、`executor.rs`）与 `commands/bkt/`（`crud.rs`、`cancel.rs`、`dispatch.rs`、`pipeline.rs`、`publish.rs`）。通过 `commands/mod.rs` 门面重导出机制保持 100% 向后兼容的 IPC 接口。
+- **系统托盘控制器解耦** - 将系统托盘逻辑从 `lib.rs` 剥离至独立的 `src-tauri/src/tray/` 模块，精简核心入口代码逾 520 行。
+- **Python 浏览器操作引擎模块化** - 将 `studio_dom.py`（2,100 行）重构至 `browser_engine/actions/dom/`（`js_lib.py`、`eval.py`、`modals.py`、`interaction.py`），将 `bkt_check.py`（1,467 行）重构至 `browser_engine/actions/bkt/`（`evaluator.py`、`network.py`、`claim_extractor.py`、`monitor.py`）。100% 物理镜像同步至 `roots/browsermulti/actions/`，确保 NSIS 打包无符号链接依赖。
+
+### 变更
+
+- **前端 Reup 与 BKT 页面组件模块化** - 将单体大文件 `ReupBktPage.tsx`（2,508 行）拆分至 `src/pages/reup/`，包含 11 个单一职责组件与自定义 Hooks（`useReupBktController`、`useBktChannelsManager`、`BktChannelsTab`、`BktJobsTable`、`BktDailyReportModal`、`ReupPipelineSection`），将根页面压缩至 174 行（精简率超 93%）。
+- **频道视频折叠面板 DOM 分块渲染 (Chunked DOM Rendering)** - 在 `ChannelVideoAccordion.tsx` 中引入分批加载机制（初始渲染 30 项，步进加载 30 项）并配合 O(1) 索引化 BKT 任务表，使活跃 DOM 节点由 35,000 个骤降至约 900 个（减少 97%），消除展开大型频道时的页面卡顿。
+- **IPC 下载进度事件节流 (Progress Throttling)** - 在 `DownloadContext.tsx` 中加入 120ms animation frame 节流缓冲池，彻底杜绝高速并发下载下的 IPC 进度消息风暴与 React 冗余重渲染。
+
+### 修复
+
+- **消除音频重采样时长漂移 (Dynamic Audio Resampling)** - 全面推行 FFprobe 动态检测原始采样率机制（`asetrate={sr}*pitch,aresample={sr},atempo={speed/pitch}`），彻底根除因硬编码 44,100 Hz 导致 48 kHz YouTube 视频音频滞后漂移 2.5 秒的顽疾。
+- **BKT 架构防回归测试断言更新** - 调整 `pipeline.rs` 中的结构化测试，确保直接校验流水线边界、配置文件快照不被运行时 auto-heal 篡改，且失败任务绝不会将原始素材视频拷贝至待发布产物。
+
+## [1.0.10] - 2026-11-15
+
+### 修复
+
+- **视频上传完毕后强制直达频道内容页 (`/videos/upload`)** - 移除不稳定的侧边栏菜单虚拟点击 (`#menu-item-1`)，在视频上传流 100% 完成后直接通过 URL 导航 (`https://studio.youtube.com/channel/{channel_id}/videos/upload`) 直达内容列表，彻底解决浏览器卡在控制台总览页 (Dashboard) 而未切入内容标签页扫描 Content ID 的缺陷。
+- **强化 Studio 导航抽屉 Polymer 合成事件派发** - 为 Studio 左侧导航栏节点补充完整的 Polymer 合成鼠标事件序列 (`mousedown`、`mouseup`、`click` 携带 `bubbles: true, composed: true`)，并在点击后即时校验 URL，若未跳转则强制执行页面导航。
+- **多层级提取频道 ID 确保精准路由** - 结合 URL 正则、`window.ytcfg.get('CHANNEL_ID')` 全局配置与 DOM 节点属性多重判定频道 ID，确保兜底直达路由始终精准命中当前活跃频道的上传列表。
+
+## [1.0.9] - 2026-11-14
+
+### 修复
+
+- **通过 CDP 协议彻底解决代理环境下的 SSL 证书异常 (`ERR_CERT_AUTHORITY_INVALID`)** - 在 Playwright 会话中注入 CDP 命令 `Security.setIgnoreCertificateErrors` 并配置 `--test-type` 启动参数，彻底消除动态住宅代理访问 YouTube Studio 时的证书阻断。
+- **自动化支持已获利 (BKT) 频道的获利与广告适合度审核流程** - 增加获利频道上传向导自动化支持：自动开启“获利 (Monetization)”状态，并在“广告适合度 (Ad Suitability)”步骤中勾选“以上均无”并提交评分，杜绝向导“下一步”按钮被卡住的情况。
+- **Polymer Shadow DOM “仍要发布 (Publish anyway)”确认弹窗一键穿透点击** - 优化 Polymer Shadow DOM 节点扫描算法，精准定位并触发各类语言的“仍要发布 / Vẫn xuất bản / Publish anyway”确认按钮 (`#confirm-button`)，解决最后一步挂起等待的问题。
+- **自动导入片尾画面 (End Screen)** - 在上传向导的视频元素步骤中，自动调用从最近视频导入片尾画面按钮 (`#import-endscreen-from-video-button`)。
+- **彻底杜绝倒计时未结束即异常关闭 Chromium 的缺陷** - 扩展多语言倒计时匹配正则（西班牙语/英语/越南语），移除 45 秒 `is_clean_dash` 虚假兜底判定，并将大文件上传与检测轮询上限动态调整至最长 7200 秒。
+- **解除 Auto Reup 已发布视频导致的 FIFO 队列锁死** - 从 `should_wait_for_auto_publish` 栅栏条件中移除 `publish_failed`，并在 Auto Reup 候选列表中过滤已发布视频，防止进度条永久停滞在 28%。
+
+## [1.0.8] - 2026-11-14
+
+### 修复
+
+- **彻底消除 BKT 测试通道虚假绿标与提前退出问题** - 修复因视频刚上传至 100% 时限制列显示破折号 `—` 导致系统过早判定绿标并强退 Chromium 的严重缺陷。增加 Streak Confirmation 机制，要求必须经历实际 Content ID 检测阶段并连续 3 个轮询周期无处理状态方可汇报 `green_clean`。
+- **自动处理“仍要发布 (Publish anyway)”确认弹窗** - 增加对 YouTube Studio 在检测未完成时弹出的“仍要发布 / Vẫn xuất bản”确认弹窗的自动探测与 `#confirm-button` 点击，彻底解决最终发布步骤卡死的问题。
+- **修复代理环境下的 SSL 证书异常 (`ERR_CERT_AUTHORITY_INVALID`)** - 在 Chromium 启动参数与 Playwright 持久上下文中全局注入 `--ignore-certificate-errors`、`--ignore-ssl-errors` 及 `ignore_https_errors: true`，消除住宅代理/中间人解包代理下的证书阻断。
+- **长视频版权检测超时延长至 2 小时** - 将 BKT 流水线最大轮询超时从 1800 秒（30分钟）放宽至 7200 秒（2小时），确保 30-40 分钟的长视频有充裕时间完成 YouTube 服务端 SD 转码与 Content ID 比对。
+
+## [1.0.7] - 2026-11-14
+
+### 修复
+
+- **防止上传视频至 YouTube Studio 时浏览器配置被异常关闭** - 彻底修复视频仍在流式传输上传时浏览器窗口被提前关闭导致的视频取消问题。修正 `upload_actions.py` 中的虚假完成判断逻辑：移除具有误导性的预测短语（如 "quá trình xử lý sẽ sớm bắt đầu", "processing will begin"），并在 `percent < 100` 时硬性约束 `upload_finished = False`。
+- **上传流 10 秒定时心跳机制** - 在 Python 上传轮询循环中加入每 10 秒定时发送的心跳事件，彻底杜绝 Rust 端 180 秒静默看门狗在大文件上传时误杀进程的问题。
+- **React Hooks 依赖项规范化与 Linter 零错误** - 剔除 `ReupBktPage.tsx` 和 `ChannelVideoAccordion.tsx` 中多余的依赖项，达到 Biome 检查零错误。
+
+## [1.0.6] - 2026-11-14
+
+### 修复
+
+- **SQLite 外键死锁消除与级联迁移** - 在 `connection.rs` 中新增 `migrate_bkt_test_jobs_foreign_key` 安全迁移，防止在删除 BKT 测试频道时出现外键约束冲突与死锁。
+- **绿标干净视频追赶发布机制 (Catch-up Auto-Publish)** - 新增追赶发布指令与界面响应，确保已通过 Content ID 绿标验证的视频可一键补发至目标主频道。
+- **多语言简介生成准确性优化** - 升级视频标题语言识别算法（西班牙语、英语、越南语），杜绝外国视频误用越南语模板的问题。
+
 ## [1.0.5] - 2026-11-13
 
 ### 新增

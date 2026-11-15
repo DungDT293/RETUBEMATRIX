@@ -98,12 +98,18 @@ jobs:
       - name: Install frontend dependencies
         run: bun install --frozen-lockfile
 
+      - name: Require bundled BrowserMulti runtime
+        shell: bash
+        run: |
+          test -f "roots/browsermulti/155.0.8059.12/chrome.exe"
+          test -f "roots/browsermulti/155.0.8059.12/155.0.8059.12.manifest"
+          echo "BrowserMulti v155 runtime present"
+
       - name: Download yt-dlp binary (Unix)
         if: matrix.os_name != 'windows'
         run: |
           mkdir -p src-tauri/bin
           mkdir -p src-tauri/python
-          mkdir -p roots/browsermulti
           curl -L -o "src-tauri/bin/${{ matrix.yt_dlp_name }}" "${{ matrix.yt_dlp_url }}"
           chmod +x "src-tauri/bin/${{ matrix.yt_dlp_name }}"
           ls -la src-tauri/bin/
@@ -114,7 +120,6 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path src-tauri/bin
           New-Item -ItemType Directory -Force -Path src-tauri/python
-          New-Item -ItemType Directory -Force -Path roots/browsermulti
           Invoke-WebRequest -Uri "${{ matrix.yt_dlp_url }}" -OutFile "src-tauri/bin/${{ matrix.yt_dlp_name }}"
           Get-ChildItem src-tauri/bin/
 

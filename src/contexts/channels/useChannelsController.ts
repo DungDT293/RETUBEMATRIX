@@ -34,6 +34,12 @@ import {
   persistManualChannelDownloadCompletion,
 } from './channel-downloads';
 import {
+  type ChannelDownloadFlowContext,
+  createDownloadRunGuard,
+  shouldDispatchAfterDownload,
+  shouldUpdateAutoDownloadStatus,
+} from './channel-flow-safety';
+import {
   type ChannelAutoDownloadEvent,
   checkChannelNow as checkChannelNowClient,
   dispatchBatchBktTest,
@@ -282,6 +288,7 @@ export interface ChannelsContextType {
     customVideos?: PlaylistVideoEntry[],
     customChannelUrl?: string,
     customChannelName?: string,
+    flowContext?: ChannelDownloadFlowContext,
   ) => Promise<void>;
   stopDownload: () => Promise<void>;
   isDownloading: boolean;
@@ -351,7 +358,10 @@ export function useChannelsController(): ChannelsContextType {
   // Per-video download progress: videoId -> state
   const [videoStates, setVideoStates] = useState<Map<string, VideoDownloadState>>(new Map());
   // Map downloadId -> { videoId, channelUrl } (to match progress events back to videos and update DB)
-  const downloadIdMapRef = useRef<Map<string, { videoId: string; channelUrl: string }>>(new Map());
+  const downloadIdMapRef = useRef<
+    Map<string, { videoId: string; channelUrl: string; runId: number }>
+  >(new Map());
+  const downloadRunGuardRef = useRef(createDownloadRunGuard());
 
   // Output folder
   const [outputPath, setOutputPath] = useState(() => {
@@ -865,6 +875,7 @@ export function useChannelsController(): ChannelsContextType {
       customVideos?: PlaylistVideoEntry[],
       customChannelUrl?: string,
       customChannelName?: string,
+      _flowContext?: ChannelDownloadFlowContext,
     ) => {
       const targetChannelUrl = customChannelUrl || browseUrl;
       const targetChannelName = customChannelName || browseChannelName;
@@ -890,6 +901,8 @@ export function useChannelsController(): ChannelsContextType {
         await filterDownloadedDuplicateCandidates(duplicateCandidates);
       const videosToDownload = filteredDuplicateCandidates.map((candidate) => candidate.video);
       if (videosToDownload.length === 0) return;
+      const runId = downloadRunGuardRef.current.tryStart();
+      if (runId === null) return;
 
       let currentOutputPath = outputPath;
       let quality = overrideQuality || 'best';
@@ -1038,9 +1051,11 @@ export function useChannelsController(): ChannelsContextType {
         downloadId: string;
       }) => {
         downloadingIdsRef.current.add(video.id);
+        downloadRunGuardRef.current.track(downloadId);
         downloadIdMapRef.current.set(downloadId, {
           videoId: video.id,
           channelUrl: targetChannelUrl,
+          runId,
         });
 
         setDownloadingIds((prev) => new Set([...prev, video.id]));
@@ -1054,6 +1069,7 @@ export function useChannelsController(): ChannelsContextType {
 
         try {
           await persistManualChannelDownloadCompletion({
+            isActive: () => downloadRunGuardRef.current.isActive(runId),
             downloadVideo: () =>
               downloadVideoCommand({
                 id: downloadId,
@@ -1112,16 +1128,31 @@ export function useChannelsController(): ChannelsContextType {
             },
           });
 
-          // KÍCH HOẠT AUTO-PILOT NẾU KÊNH CÓ CẤU HÌNH BKT
+          // Manual downloads never own BKT dispatch. Auto-Pilot passes bktOwner: caller.
           const channelInfo = followedChannelsRef.current.find(
             (c) => c.url === targetChannelUrl || c.name === targetChannelName,
           );
           const targetProfile =
             channelInfo?.target_profile_id || channelInfo?.bkt_profile_id || null;
           const vBktStatus = (video as { bkt_check_status?: string }).bkt_check_status;
-          const isAlreadyProcessed =
-            vBktStatus === 'green_clean' || vBktStatus === 'red_matched' || vBktStatus === 'failed';
-          if ((targetProfile || channelInfo?.bkt_test_mode) && !isAlreadyProcessed) {
+          const isAlreadyProcessed = [
+            'pending',
+            'green_clean',
+            'red_matched',
+            'failed',
+            'reuping',
+            'publishing',
+            'published',
+            'publish_failed',
+          ].includes(vBktStatus || '');
+          if (
+            shouldDispatchAfterDownload(
+              _flowContext || 'manual',
+              !downloadRunGuardRef.current.isActive(runId),
+            ) &&
+            (targetProfile || channelInfo?.bkt_test_mode) &&
+            !isAlreadyProcessed
+          ) {
             try {
               const filePath = await getChannelVideoFilepath(video.id);
               if (filePath) {
@@ -1144,7 +1175,7 @@ export function useChannelsController(): ChannelsContextType {
                       channelId: channelInfo?.id,
                       mainTargetProfileId: targetProfile,
                       targetProfileId: targetProfile,
-                      autoPublishMain: Boolean(targetProfile),
+                      autoPublishMain: false,
                       targetTitle: aiTitle,
                       targetDescription: adaptedDesc,
                       thumbnailPath: thumbPath,
@@ -1197,8 +1228,13 @@ export function useChannelsController(): ChannelsContextType {
           }
         }
       } finally {
-        setIsDownloading(false);
-        setDownloadingIds(new Set());
+        if (downloadRunGuardRef.current.isActive(runId)) {
+          downloadIdMapRef.current.clear();
+          downloadingIdsRef.current.clear();
+          downloadRunGuardRef.current.finish(runId);
+          setIsDownloading(false);
+          setDownloadingIds(new Set());
+        }
       }
     },
     [
@@ -1220,6 +1256,9 @@ export function useChannelsController(): ChannelsContextType {
 
   // Stop all downloads
   const stopDownload = useCallback(async () => {
+    downloadRunGuardRef.current.stop();
+    downloadIdMapRef.current.clear();
+    downloadingIdsRef.current.clear();
     try {
       await stopDownloadCommand();
     } catch (error) {
@@ -1235,7 +1274,7 @@ export function useChannelsController(): ChannelsContextType {
     const unlisten = onDownloadProgress((event) => {
       const progress = event.payload;
       const mapping = downloadIdMapRef.current.get(progress.id);
-      if (!mapping) return; // Not a channel download
+      if (!mapping || !downloadRunGuardRef.current.isActive(mapping.runId)) return;
 
       const { videoId, channelUrl } = mapping;
 
@@ -1441,6 +1480,7 @@ export function useChannelsController(): ChannelsContextType {
         download_threads,
       } = event.payload;
 
+      let autoRunId = 0;
       try {
         // Nếu kênh đang ở chế độ Auto Reup (đã gán kênh đích), luồng tuần tự 1-by-1
         // chịu trách nhiệm tải từng video và dọn sạch đĩa; bỏ qua tải hàng loạt để tránh tràn ổ cứng.
@@ -1448,6 +1488,9 @@ export function useChannelsController(): ChannelsContextType {
         if (targetCh && (targetCh.target_profile_id || targetCh.bkt_profile_id)) {
           return;
         }
+        const claimedRunId = downloadRunGuardRef.current.tryStart();
+        if (claimedRunId === null) return;
+        autoRunId = claimedRunId;
 
         const newVideos = await getSavedChannelVideos({
           channelId: channel_id,
@@ -1456,6 +1499,7 @@ export function useChannelsController(): ChannelsContextType {
         });
 
         if (newVideos.length === 0) return;
+        if (!downloadRunGuardRef.current.isActive(autoRunId)) return;
 
         let autoOutputPath = '';
         let logStderr = true;
@@ -1565,6 +1609,9 @@ export function useChannelsController(): ChannelsContextType {
           }
         }
 
+        if (!shouldUpdateAutoDownloadStatus(downloadRunGuardRef.current.isActive(autoRunId))) {
+          return;
+        }
         if (skippedFilterVideos.length > 0) {
           await Promise.all(
             skippedFilterVideos.map((video) =>
@@ -1600,7 +1647,10 @@ export function useChannelsController(): ChannelsContextType {
         const skippedDuplicateVideos = acceptedVideos.filter(
           (video) => !autoDownloadVideoIds.has(video.id),
         );
-        if (skippedDuplicateVideos.length > 0) {
+        if (
+          shouldUpdateAutoDownloadStatus(downloadRunGuardRef.current.isActive(autoRunId)) &&
+          skippedDuplicateVideos.length > 0
+        ) {
           await Promise.all(
             skippedDuplicateVideos.map((video) =>
               updateChannelVideoStatus({ id: video.id, status: 'downloaded' }).catch((error) => {
@@ -1671,10 +1721,13 @@ export function useChannelsController(): ChannelsContextType {
             titleLower.includes('premiere')
           ) {
             console.log(`[Auto-Download] Bỏ qua livestream/premiere chưa phát: ${video.title}`);
-            await updateChannelVideoStatus({ id: video.id, status: 'skipped' });
+            if (shouldUpdateAutoDownloadStatus(downloadRunGuardRef.current.isActive(autoRunId))) {
+              await updateChannelVideoStatus({ id: video.id, status: 'skipped' });
+            }
             return;
           }
 
+          if (!downloadRunGuardRef.current.isActive(autoRunId)) return;
           await updateChannelVideoStatus({ id: video.id, status: 'downloading' });
 
           try {
@@ -1717,15 +1770,22 @@ export function useChannelsController(): ChannelsContextType {
               reupModCrop: targetChannel?.reup_mod_crop || undefined,
             });
 
+            if (!downloadRunGuardRef.current.isActive(autoRunId)) return;
             await updateChannelVideoStatus({ id: video.id, status: 'downloaded' });
 
             // KÍCH HOẠT QUY TRÌNH AUTO-PILOT (REUP LV.1 -> BKT TEST -> AUTO PUBLISH MAIN CHANNEL)
             const targetProfile =
               targetChannel?.target_profile_id || targetChannel?.bkt_profile_id || null;
-            const isAlreadyProcessed =
-              video.bkt_check_status === 'green_clean' ||
-              video.bkt_check_status === 'red_matched' ||
-              video.bkt_check_status === 'failed';
+            const isAlreadyProcessed = [
+              'pending',
+              'green_clean',
+              'red_matched',
+              'failed',
+              'reuping',
+              'publishing',
+              'published',
+              'publish_failed',
+            ].includes(video.bkt_check_status || '');
             if (
               targetChannel &&
               (targetProfile || targetChannel.bkt_test_mode) &&
@@ -1733,7 +1793,7 @@ export function useChannelsController(): ChannelsContextType {
             ) {
               try {
                 const filePath = await getChannelVideoFilepath(video.video_id);
-                if (filePath) {
+                if (filePath && downloadRunGuardRef.current.isActive(autoRunId)) {
                   const aiTitle = getBestAutoPilotTitle(video.title);
                   const adaptedDesc = adaptCompetitorDescription({
                     originalDescription: '',
@@ -1753,7 +1813,7 @@ export function useChannelsController(): ChannelsContextType {
                         channelId: targetChannel.id,
                         mainTargetProfileId: targetProfile,
                         targetProfileId: targetProfile,
-                        autoPublishMain: Boolean(targetProfile),
+                        autoPublishMain: true,
                         targetTitle: aiTitle,
                         targetDescription: adaptedDesc,
                         thumbnailPath: thumbPath,
@@ -1777,6 +1837,9 @@ export function useChannelsController(): ChannelsContextType {
           } catch (error) {
             console.error(`Auto-download failed for ${video.title}:`, error);
             const errMsg = String(error).toLowerCase();
+            if (!shouldUpdateAutoDownloadStatus(downloadRunGuardRef.current.isActive(autoRunId))) {
+              return;
+            }
             if (
               errMsg.includes('live event will begin') ||
               errMsg.includes('premieres that have not started') ||
@@ -1813,6 +1876,10 @@ export function useChannelsController(): ChannelsContextType {
         rebuildTrayMenu().catch(() => {});
       } catch (error) {
         console.error('Auto-download error:', error);
+      } finally {
+        if (downloadRunGuardRef.current.isActive(autoRunId)) {
+          downloadRunGuardRef.current.finish(autoRunId);
+        }
       }
     });
 

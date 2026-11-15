@@ -259,6 +259,7 @@ pub fn create_runner_cmd(app: &AppHandle) -> (Command, PathBuf) {
     if let Some(data_dir) = get_browser_data_dir(Some(app)) {
         cmd.env("RETUBEMATRIX_BROWSER_DATA_DIR", &data_dir);
     }
+    cmd.arg("-B");
     cmd.arg("-X").arg("utf8");
 
     // Inject YTDLP_BIN to ensure Outlier Hunter and Background Engines always find yt-dlp

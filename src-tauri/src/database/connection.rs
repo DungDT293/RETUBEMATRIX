@@ -38,6 +38,136 @@ fn migrating_database_path(db_path: &Path) -> PathBuf {
     db_path.with_file_name(MIGRATING_DATABASE_FILE_NAME)
 }
 
+fn configure_connection(conn: &Connection) -> Result<(), String> {
+    conn.execute_batch("PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;")
+        .map_err(|e| format!("Failed to configure database connection: {e}"))
+}
+
+fn migrate_bkt_test_jobs_foreign_key(conn: &Connection) -> Result<(), String> {
+    let channel_foreign_key_count: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM pragma_foreign_key_list('bkt_test_jobs')
+             WHERE \"from\" = 'test_channel_id'
+               AND \"table\" = 'bkt_test_channels'
+               AND \"to\" = 'id'
+               AND on_delete = 'CASCADE'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| format!("Failed to inspect bkt_test_jobs channel foreign key: {e}"))?;
+    let orphan_jobs: i64 = conn
+        .query_row(
+            "SELECT COUNT(*)
+             FROM bkt_test_jobs AS jobs
+             LEFT JOIN bkt_test_channels AS channels
+               ON channels.id = jobs.test_channel_id
+             WHERE channels.id IS NULL",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| format!("Failed to inspect orphan bkt_test_jobs: {e}"))?;
+    if orphan_jobs > 0 {
+        return Err(format!(
+            "Cannot migrate bkt_test_jobs: {orphan_jobs} job(s) reference missing bkt_test_channels"
+        ));
+    }
+    if channel_foreign_key_count > 0 {
+        return Ok(());
+    }
+
+    let table_sql: String = conn
+        .query_row(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'bkt_test_jobs'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| format!("Failed to inspect bkt_test_jobs table definition: {e}"))?;
+    let has_test_profile_id: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM pragma_table_info('bkt_test_jobs') WHERE name = 'test_profile_id'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| format!("Failed to inspect bkt_test_jobs test profile column: {e}"))?;
+    let test_profile_select = if has_test_profile_id > 0 {
+        "test_profile_id"
+    } else {
+        "NULL"
+    };
+    let mut table_definition_sql = table_sql.trim().trim_end_matches(';').to_string();
+    if has_test_profile_id == 0 {
+        let closing = table_definition_sql
+            .rfind(')')
+            .ok_or_else(|| "Failed to locate bkt_test_jobs table definition end".to_string())?;
+        table_definition_sql.insert_str(closing, ", test_profile_id TEXT");
+    }
+    let closing = table_definition_sql
+        .rfind(')')
+        .ok_or_else(|| "Failed to locate bkt_test_jobs table definition end".to_string())?;
+    table_definition_sql.insert_str(
+        closing,
+        ", FOREIGN KEY (test_channel_id) REFERENCES bkt_test_channels(id) ON DELETE CASCADE",
+    );
+
+    let mut schema_object_stmt = conn
+        .prepare(
+            "SELECT sql FROM sqlite_master
+             WHERE tbl_name = 'bkt_test_jobs'
+               AND type IN ('index', 'trigger')
+               AND sql IS NOT NULL
+               AND name NOT LIKE 'sqlite_autoindex_%'
+               AND name NOT IN (
+                    'idx_bkt_test_jobs_channel',
+                    'idx_bkt_test_jobs_status',
+                    'idx_bkt_test_jobs_date'
+               )
+             ORDER BY type, name",
+        )
+        .map_err(|e| format!("Failed to inspect bkt_test_jobs indexes and triggers: {e}"))?;
+    let schema_objects: Vec<String> = schema_object_stmt
+        .query_map([], |row| row.get::<_, String>(0))
+        .map_err(|e| format!("Failed to read bkt_test_jobs indexes and triggers: {e}"))?
+        .collect::<Result<_, _>>()
+        .map_err(|e| format!("Failed to parse bkt_test_jobs indexes and triggers: {e}"))?;
+    drop(schema_object_stmt);
+
+    let schema_objects_sql = schema_objects
+        .into_iter()
+        .map(|sql| format!("{sql};"))
+        .collect::<String>();
+
+    let tx = conn
+        .unchecked_transaction()
+        .map_err(|e| format!("Failed to begin bkt_test_jobs foreign-key migration: {e}"))?;
+    tx.execute_batch(&format!(
+        "ALTER TABLE bkt_test_jobs RENAME TO bkt_test_jobs_legacy;
+         {table_definition_sql};
+         INSERT INTO bkt_test_jobs (
+            id, test_channel_id, video_source_type, source_ref_id,
+            video_title, video_path, reup_path, youtube_video_id,
+            status, restriction, error_message, tested_date, created_at, updated_at,
+            main_target_profile_id, auto_publish_main, target_title, target_description,
+            target_tags, thumbnail_path, channel_id, target_profile_id, test_profile_id
+         )
+         SELECT id, test_channel_id, video_source_type, source_ref_id,
+            video_title, video_path, reup_path, youtube_video_id,
+            status, restriction, error_message, tested_date, created_at, updated_at,
+            main_target_profile_id, auto_publish_main, target_title, target_description,
+            target_tags, thumbnail_path, channel_id, target_profile_id, {test_profile_select}
+         FROM bkt_test_jobs_legacy;
+         DROP TABLE bkt_test_jobs_legacy;
+         CREATE INDEX IF NOT EXISTS idx_bkt_test_jobs_channel ON bkt_test_jobs(test_channel_id);
+         CREATE INDEX IF NOT EXISTS idx_bkt_test_jobs_status ON bkt_test_jobs(status);
+         CREATE INDEX IF NOT EXISTS idx_bkt_test_jobs_date ON bkt_test_jobs(tested_date);
+         {schema_objects_sql}",
+        schema_objects_sql = schema_objects_sql,
+        test_profile_select = test_profile_select
+    ))
+    .map_err(|e| format!("Failed to migrate bkt_test_jobs foreign key: {e}"))?;
+    tx.commit()
+        .map_err(|e| format!("Failed to commit bkt_test_jobs foreign-key migration: {e}"))
+}
+
 fn verify_database_file(path: &Path) -> Result<(), String> {
     let conn = Connection::open(path)
         .map_err(|e| format!("Failed to open migrated database for verification: {e}"))?;
@@ -198,8 +328,8 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
 
     let conn = Connection::open(&db_path).map_err(|e| format!("Failed to open database: {}", e))?;
 
-    // Enable WAL mode & busy timeout for concurrent read/write without UI freeze
-    conn.execute_batch("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;").ok();
+    // Enable foreign keys, WAL mode, busy timeout for safe concurrent access.
+    configure_connection(&conn)?;
 
     // Create logs table
     conn.execute(
@@ -210,11 +340,47 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
             message TEXT NOT NULL,
             details TEXT,
             url TEXT,
+            trace_id TEXT,
+            feature TEXT,
+            operation TEXT,
+            stage TEXT,
+            status TEXT,
+            error_code TEXT,
+            retryable INTEGER,
+            duration_ms INTEGER,
+            context_json TEXT,
             created_at INTEGER NOT NULL
         )",
         [],
     )
     .map_err(|e| format!("Failed to create logs table: {}", e))?;
+
+    for column in [
+        ("trace_id", "TEXT"),
+        ("feature", "TEXT"),
+        ("operation", "TEXT"),
+        ("stage", "TEXT"),
+        ("status", "TEXT"),
+        ("error_code", "TEXT"),
+        ("retryable", "INTEGER"),
+        ("duration_ms", "INTEGER"),
+        ("context_json", "TEXT"),
+    ] {
+        let exists: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM pragma_table_info('logs') WHERE name = ?1",
+                [column.0],
+                |row| row.get(0),
+            )
+            .map_err(|e| format!("Failed to inspect logs column {}: {e}", column.0))?;
+        if exists == 0 {
+            conn.execute(
+                &format!("ALTER TABLE logs ADD COLUMN {} {}", column.0, column.1),
+                [],
+            )
+            .map_err(|e| format!("Failed to add logs column {}: {e}", column.0))?;
+        }
+    }
 
     // Create indexes
     conn.execute(
@@ -814,6 +980,17 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
         [],
     )
     .map_err(|e| format!("Failed to create bkt_test_channels table: {}", e))?;
+    // Legacy databases may predate updated_at; add the non-null column safely.
+    conn.execute(
+        "ALTER TABLE bkt_test_channels ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "UPDATE bkt_test_channels SET updated_at = CURRENT_TIMESTAMP WHERE updated_at = ''",
+        [],
+    )
+    .ok();
 
     conn.execute("CREATE INDEX IF NOT EXISTS idx_bkt_test_channels_active ON bkt_test_channels(is_active)", []).ok();
 
@@ -834,6 +1011,7 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
             tested_date TEXT NOT NULL,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL,
+            test_profile_id TEXT,
             FOREIGN KEY (test_channel_id) REFERENCES bkt_test_channels(id) ON DELETE CASCADE
         )",
         [],
@@ -853,11 +1031,13 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN thumbnail_path TEXT", []).ok();
     conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN channel_id TEXT", []).ok();
     conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN target_profile_id TEXT", []).ok();
+    conn.execute("ALTER TABLE bkt_test_jobs ADD COLUMN test_profile_id TEXT", []).ok();
     // Seamless sync: Migrate main_target_profile_id to target_profile_id
     conn.execute(
         "UPDATE bkt_test_jobs SET target_profile_id = main_target_profile_id WHERE (target_profile_id IS NULL OR target_profile_id = '') AND (main_target_profile_id IS NOT NULL AND main_target_profile_id != '')",
         [],
     ).ok();
+    migrate_bkt_test_jobs_foreign_key(&conn)?;
 
     // Seamless migration: If legacy youwee.db exists, import existing data ONCE (preserve backup)
     if let Some(parent) = app_data_dir.parent() {
@@ -957,6 +1137,252 @@ mod tests {
             [],
         )
         .expect("insert sample history");
+    }
+
+    #[test]
+    fn enables_foreign_keys_for_each_connection() {
+        let conn = Connection::open_in_memory().expect("open test connection");
+        configure_connection(&conn).expect("configure test connection");
+        let enabled: i64 = conn
+            .query_row("PRAGMA foreign_keys", [], |row| row.get(0))
+            .expect("read foreign key pragma");
+        assert_eq!(enabled, 1);
+    }
+
+    #[test]
+    fn migrates_when_an_unrelated_foreign_key_already_exists() {
+        let conn = Connection::open_in_memory().expect("open test connection");
+        configure_connection(&conn).expect("configure test connection");
+        conn.execute_batch(
+            "CREATE TABLE source_types (id TEXT PRIMARY KEY);
+             CREATE TABLE bkt_test_channels (id TEXT PRIMARY KEY);
+             CREATE TABLE bkt_test_jobs (
+                id TEXT PRIMARY KEY,
+                test_channel_id TEXT NOT NULL,
+                video_source_type TEXT NOT NULL,
+                source_ref_id TEXT,
+                video_title TEXT NOT NULL,
+                video_path TEXT NOT NULL,
+                reup_path TEXT,
+                youtube_video_id TEXT,
+                status TEXT NOT NULL,
+                restriction TEXT,
+                error_message TEXT,
+                tested_date TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                main_target_profile_id TEXT,
+                auto_publish_main INTEGER DEFAULT 0,
+                target_title TEXT,
+                target_description TEXT,
+                target_tags TEXT,
+                thumbnail_path TEXT,
+                channel_id TEXT,
+                target_profile_id TEXT,
+                test_profile_id TEXT,
+                FOREIGN KEY (video_source_type) REFERENCES source_types(id)
+                    MATCH FULL ON UPDATE CASCADE ON DELETE SET NULL
+                    DEFERRABLE INITIALLY DEFERRED
+             );
+             INSERT INTO source_types (id) VALUES ('local_file');
+             INSERT INTO bkt_test_channels (id) VALUES ('channel-1');
+             INSERT INTO bkt_test_jobs (
+                id, test_channel_id, video_source_type, video_title, video_path,
+                status, tested_date, created_at, updated_at, test_profile_id
+             ) VALUES ('job-1', 'channel-1', 'local_file', 'title', 'video.mp4',
+                       'queued', '2026-11-13', '2026-11-13', '2026-11-13', 'snapshot-profile');",
+        )
+        .expect("create legacy schema with unrelated foreign key");
+        conn.execute_batch(
+            "CREATE INDEX idx_bkt_test_jobs_channel ON bkt_test_jobs(test_channel_id);
+             CREATE INDEX idx_bkt_test_jobs_status ON bkt_test_jobs(status);
+             CREATE INDEX idx_bkt_test_jobs_date ON bkt_test_jobs(tested_date);
+             CREATE INDEX idx_bkt_test_jobs_custom_title ON bkt_test_jobs(video_title);
+             CREATE TABLE bkt_job_audit (job_id TEXT NOT NULL, status TEXT NOT NULL);
+             CREATE TRIGGER bkt_test_jobs_audit_update
+             AFTER UPDATE OF status ON bkt_test_jobs
+             BEGIN
+                 INSERT INTO bkt_job_audit(job_id, status) VALUES (NEW.id, NEW.status);
+             END;",
+        )
+        .expect("create legacy BKT indexes and trigger");
+
+        migrate_bkt_test_jobs_foreign_key(&conn).expect("migrate missing BKT channel foreign key");
+
+        let preserved_profile: String = conn
+            .query_row(
+                "SELECT test_profile_id FROM bkt_test_jobs WHERE id = 'job-1'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("read preserved test profile snapshot");
+        assert_eq!(preserved_profile, "snapshot-profile");
+
+        let custom_index_count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = 'idx_bkt_test_jobs_custom_title'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("read preserved custom BKT index");
+        assert_eq!(custom_index_count, 1);
+        for index_name in [
+            "idx_bkt_test_jobs_channel",
+            "idx_bkt_test_jobs_status",
+            "idx_bkt_test_jobs_date",
+        ] {
+            let count: i64 = conn
+                .query_row(
+                    "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = ?1",
+                    [index_name],
+                    |row| row.get(0),
+                )
+                .expect("read standard BKT index count");
+            assert_eq!(count, 1, "standard index must exist exactly once: {index_name}");
+        }
+        let custom_trigger_count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type = 'trigger' AND name = 'bkt_test_jobs_audit_update'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("read preserved BKT trigger");
+        assert_eq!(custom_trigger_count, 1);
+        conn.execute("UPDATE bkt_test_jobs SET status = 'checking' WHERE id = 'job-1'", [])
+            .expect("run preserved BKT trigger");
+        let audit_status: String = conn
+            .query_row("SELECT status FROM bkt_job_audit WHERE job_id = 'job-1'", [], |row| row.get(0))
+            .expect("read preserved BKT trigger output");
+        assert_eq!(audit_status, "checking");
+
+        let channel_fk_count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM pragma_foreign_key_list('bkt_test_jobs')
+                 WHERE \"from\" = 'test_channel_id' AND \"table\" = 'bkt_test_channels' AND \"to\" = 'id'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("read migrated channel foreign key");
+        assert_eq!(channel_fk_count, 1);
+        let source_fk_count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM pragma_foreign_key_list('bkt_test_jobs')
+                 WHERE \"from\" = 'video_source_type' AND \"table\" = 'source_types' AND \"to\" = 'id'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("read preserved source type foreign key");
+        assert_eq!(source_fk_count, 1);
+        let source_fk = conn
+            .query_row(
+                "SELECT on_update, on_delete, match FROM pragma_foreign_key_list('bkt_test_jobs')
+                 WHERE \"from\" = 'video_source_type'",
+                [],
+                |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?)),
+            )
+            .expect("read preserved source foreign-key actions");
+        assert_eq!(source_fk.0, "CASCADE");
+        assert_eq!(source_fk.1, "SET NULL");
+        let source_table_sql: String = conn
+            .query_row(
+                "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'bkt_test_jobs'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("read migrated table SQL");
+        assert!(source_table_sql.contains("MATCH FULL"));
+        assert!(source_table_sql.contains("DEFERRABLE INITIALLY DEFERRED"));
+    }
+
+    #[test]
+    fn rejects_orphans_even_when_required_channel_foreign_key_already_exists() {
+        let conn = Connection::open_in_memory().expect("open test connection");
+        configure_connection(&conn).expect("configure test connection");
+        conn.execute_batch(
+            "CREATE TABLE bkt_test_channels (id TEXT PRIMARY KEY);
+             CREATE TABLE bkt_test_jobs (
+                id TEXT PRIMARY KEY,
+                test_channel_id TEXT NOT NULL REFERENCES bkt_test_channels(id) ON DELETE CASCADE,
+                video_source_type TEXT NOT NULL,
+                video_title TEXT NOT NULL,
+                video_path TEXT NOT NULL,
+                status TEXT NOT NULL,
+                tested_date TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+             );
+             PRAGMA foreign_keys = OFF;
+             INSERT INTO bkt_test_jobs (
+                id, test_channel_id, video_source_type, video_title, video_path,
+                status, tested_date, created_at, updated_at
+             ) VALUES ('orphan-job', 'missing-channel', 'local_file', 'title', 'video.mp4',
+                       'queued', '2026-11-13', '2026-11-13', '2026-11-13');
+             PRAGMA foreign_keys = ON;",
+        )
+        .expect("create orphan schema");
+
+        let result = migrate_bkt_test_jobs_foreign_key(&conn);
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+        assert!(error.contains("missing bkt_test_channels"), "unexpected migration error: {error}");
+    }
+
+    #[test]
+    fn migrates_legacy_bkt_jobs_foreign_key_and_preserves_cascade() {
+        let conn = Connection::open_in_memory().expect("open test connection");
+        configure_connection(&conn).expect("configure test connection");
+        conn.execute_batch(
+            "CREATE TABLE bkt_test_channels (id TEXT PRIMARY KEY);
+             CREATE TABLE bkt_test_jobs (
+                id TEXT PRIMARY KEY,
+                test_channel_id TEXT NOT NULL,
+                video_source_type TEXT NOT NULL,
+                source_ref_id TEXT,
+                video_title TEXT NOT NULL,
+                video_path TEXT NOT NULL,
+                reup_path TEXT,
+                youtube_video_id TEXT,
+                status TEXT NOT NULL,
+                restriction TEXT,
+                error_message TEXT,
+                tested_date TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                main_target_profile_id TEXT,
+                auto_publish_main INTEGER DEFAULT 0,
+                target_title TEXT,
+                target_description TEXT,
+                target_tags TEXT,
+                thumbnail_path TEXT,
+                channel_id TEXT,
+                target_profile_id TEXT
+             );
+             INSERT INTO bkt_test_channels (id) VALUES ('channel-1');
+             INSERT INTO bkt_test_jobs (
+                id, test_channel_id, video_source_type, video_title, video_path,
+                status, tested_date, created_at, updated_at
+             ) VALUES ('job-1', 'channel-1', 'local_file', 'title', 'video.mp4',
+                       'queued', '2026-11-13', '2026-11-13', '2026-11-13');",
+        )
+        .expect("create legacy BKT schema");
+
+        migrate_bkt_test_jobs_foreign_key(&conn).expect("migrate legacy BKT foreign key");
+
+        let foreign_key_count: i64 = conn
+            .query_row("SELECT COUNT(*) FROM pragma_foreign_key_list('bkt_test_jobs')", [], |row| row.get(0))
+            .expect("read migrated BKT foreign keys");
+        assert_eq!(foreign_key_count, 1);
+        let preserved_jobs: i64 = conn
+            .query_row("SELECT COUNT(*) FROM bkt_test_jobs", [], |row| row.get(0))
+            .expect("read migrated BKT jobs");
+        assert_eq!(preserved_jobs, 1);
+
+        conn.execute("DELETE FROM bkt_test_channels WHERE id = 'channel-1'", [])
+            .expect("delete parent channel");
+        let remaining_jobs: i64 = conn
+            .query_row("SELECT COUNT(*) FROM bkt_test_jobs", [], |row| row.get(0))
+            .expect("read cascaded BKT jobs");
+        assert_eq!(remaining_jobs, 0);
     }
 
     #[test]

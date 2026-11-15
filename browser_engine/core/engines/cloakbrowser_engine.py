@@ -49,6 +49,12 @@ class CloakBrowserEngine(BaseBrowserEngine):
             # Chong loi crash renderer va bat Memory Saver thu hoi RAM
             "--disable-features=RendererCodeIntegrity,IsolateOrigins,site-per-process",
             "--enable-features=RunMemorySaver,DiscardRendererOnLowMemory",
+            # Bo qua loi SSL chung chi khi su dung Proxy
+            "--test-type",
+            "--ignore-certificate-errors",
+            "--ignore-ssl-errors",
+            "--allow-insecure-localhost",
+            "--ignore-urlfetcher-cert-requests",
             # Chong throttle va chong drop ket noi khi proxy lag / chay ngam
             "--disable-background-networking",
             "--disable-renderer-backgrounding",
@@ -110,6 +116,7 @@ class CloakBrowserEngine(BaseBrowserEngine):
             "headless": headless,
             "chromium_sandbox": True,
             "proxy": proxy,
+            "ignore_https_errors": True,
             "viewport": viewport,
             "args": args,
         }

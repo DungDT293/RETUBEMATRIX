@@ -934,6 +934,15 @@ export interface LogEntry {
   message: string;
   details?: string;
   url?: string;
+  trace_id?: string;
+  feature?: string;
+  operation?: string;
+  stage?: string;
+  status?: string;
+  error_code?: string;
+  retryable?: boolean;
+  duration_ms?: number;
+  context_json?: string;
 }
 
 export interface PluginLogsPage {
@@ -1243,62 +1252,67 @@ export interface QuickAction {
 }
 
 export const QUICK_ACTIONS: QuickAction[] = [
-  { id: 'cut', icon: '✂️', label: 'Cut/Trim', description: 'Cut video using timeline selection' },
+  {
+    id: 'cut',
+    icon: 'Scissors',
+    label: 'Cut/Trim',
+    description: 'Cut video using timeline selection',
+  },
   {
     id: 'extract_audio',
-    icon: '🎵',
+    icon: 'Music',
     label: 'Extract Audio',
     description: 'Extract audio track',
     needsInput: 'format',
   },
   {
     id: 'resize',
-    icon: '📐',
+    icon: 'Maximize',
     label: 'Resize',
     description: 'Change video resolution',
     needsInput: 'resolution',
   },
   {
     id: 'convert',
-    icon: '🔄',
+    icon: 'RefreshCw',
     label: 'Convert',
     description: 'Convert to different format',
     needsInput: 'format',
   },
   {
     id: 'burn_subtitles',
-    icon: '📝',
+    icon: 'FileText',
     label: 'Burn Subtitles',
     description: 'Burn subtitles into video',
     needsInput: 'file',
   },
   {
     id: 'thumbnail',
-    icon: '🖼️',
+    icon: 'Image',
     label: 'Thumbnail',
     description: 'Extract frame as image',
     needsInput: 'timestamp',
   },
   {
     id: 'gif',
-    icon: '🎞️',
+    icon: 'Film',
     label: 'Create GIF',
     description: 'Create GIF from selection',
     needsInput: 'range',
   },
   {
     id: 'speed',
-    icon: '⚡',
+    icon: 'Zap',
     label: 'Speed',
     description: 'Change playback speed',
     needsInput: 'speed',
   },
-  { id: 'compress', icon: '📦', label: 'Compress', description: 'Reduce file size' },
-  { id: 'remove_audio', icon: '🔇', label: 'Remove Audio', description: 'Remove audio track' },
-  { id: 'rotate', icon: '🔃', label: 'Rotate', description: 'Rotate video 90°/180°/270°' },
+  { id: 'compress', icon: 'Package', label: 'Compress', description: 'Reduce file size' },
+  { id: 'remove_audio', icon: 'VolumeX', label: 'Remove Audio', description: 'Remove audio track' },
+  { id: 'rotate', icon: 'RotateCw', label: 'Rotate', description: 'Rotate video 90°/180°/270°' },
   {
     id: 'merge',
-    icon: '🔀',
+    icon: 'Shuffle',
     label: 'Merge',
     description: 'Merge multiple videos',
     needsInput: 'file',
@@ -1401,7 +1415,7 @@ export interface ChannelVideo {
   risk_reason?: string;
   is_bkt_test?: boolean;
   bkt_youtube_id?: string;
-  bkt_check_status?: 'pending' | 'green_clean' | 'red_matched' | 'failed';
+  bkt_check_status?: 'pending' | 'green_clean' | 'red_matched' | 'failed' | 'publish_failed';
   bkt_restriction?: string;
   reup_pipeline_level?: number;
   is_downloaded?: number | boolean;
@@ -1626,6 +1640,9 @@ export interface BktTestJob {
     | 'checking'
     | 'green_clean'
     | 'red_matched'
+    | 'publishing'
+    | 'published'
+    | 'publish_failed'
     | 'failed'
     | string;
   restriction?: string;
@@ -1635,6 +1652,7 @@ export interface BktTestJob {
   updatedAt: string;
   mainTargetProfileId?: string | null;
   targetProfileId?: string | null;
+  testProfileId?: string | null;
   autoPublishMain?: boolean | null;
   uploadPercent?: number | null;
   targetTitle?: string | null;
@@ -1679,6 +1697,14 @@ export interface BktDispatchResult {
   totalDispatched: number;
   results: BktDispatchItemResult[];
   error?: string;
+}
+
+export interface BktCatchupResult {
+  totalCandidates: number;
+  published: number;
+  skipped: number;
+  stoppedJobId?: string | null;
+  error?: string | null;
 }
 
 export interface DailyTimelineEvent {

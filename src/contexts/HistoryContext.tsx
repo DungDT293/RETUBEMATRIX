@@ -252,6 +252,16 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
 
       // Check if this is a redownload task
       setRedownloadTasks((prev) => {
+        if (prev.size === 0) return prev;
+        let matched = false;
+        for (const task of prev.values()) {
+          if (task.downloadId === progress.id) {
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) return prev;
+
         const newMap = new Map(prev);
         // Find task by downloadId
         for (const [entryId, task] of newMap.entries()) {

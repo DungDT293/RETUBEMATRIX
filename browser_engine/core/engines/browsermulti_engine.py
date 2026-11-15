@@ -237,6 +237,12 @@ class BrowserMultiEngine(BaseBrowserEngine):
             "--disable-backgrounding-occluded-windows",
             "--disable-background-timer-throttling",
             "--disable-ipc-flooding-protection",
+            # Bo qua loi SSL chung chi khi su dung Proxy dan cu / MITM / VPN / AV
+            "--test-type",
+            "--ignore-certificate-errors",
+            "--ignore-ssl-errors",
+            "--allow-insecure-localhost",
+            "--ignore-urlfetcher-cert-requests",
         ]
         if spec.proxy:
             args.extend([
@@ -276,28 +282,19 @@ class BrowserMultiEngine(BaseBrowserEngine):
         except BrowserEngineUnavailableError:
             raise
         except Exception as exc:
-            logger.warning(
-                f"Không tải được SDK browsermulti v{self.runtime_version} ({exc}). "
-                "Tự động fallback sang Playwright Chromium engine."
-            )
-            self._launcher = self._launch_with_playwright
-            return self._launcher
+            raise BrowserEngineUnavailableError(
+                f"Không tải được SDK browsermulti v{self.runtime_version}."
+            ) from exc
         if getattr(sys, "frozen", False):
             missing = _bundled_runtime_missing(self.runtime_version)
             if missing:
-                logger.warning(
-                    f"Bản cài đặt thiếu runtime BrowserMulti v{self.runtime_version}: {', '.join(missing)}. "
-                    "Tự động fallback sang Playwright Chromium engine."
+                raise BrowserEngineUnavailableError(
+                    f"Bản cài đặt thiếu runtime BrowserMulti v{self.runtime_version}: {', '.join(missing)}."
                 )
-                self._launcher = self._launch_with_playwright
-                return self._launcher
         if self.binary_path is None or not self.binary_path.is_file():
-            logger.warning(
-                f"BrowserMulti custom binary không tìm thấy tại '{self.binary_path}'. "
-                "Tự động fallback sang Playwright Chromium engine."
+            raise BrowserEngineUnavailableError(
+                f"BrowserMulti custom binary không tìm thấy tại '{self.binary_path}'."
             )
-            self._launcher = self._launch_with_playwright
-            return self._launcher
         self._launcher = launch_persistent_context
         return self._launcher
 
@@ -366,6 +363,7 @@ class BrowserMultiEngine(BaseBrowserEngine):
             "proxy": proxy,
             "args": list(args),
             "ignore_default_args": ["--enable-automation", "--no-sandbox"],
+            "ignore_https_errors": True,
             "viewport": None,
             "no_viewport": True,
             "locale": locale or "en-US",

@@ -2,6 +2,7 @@ import type { DownloadSettings } from '@/lib/types';
 
 type PersistManualChannelDownloadCompletionInput = {
   downloadVideo: () => Promise<void>;
+  isActive?: () => boolean;
   markDownloaded: () => Promise<void>;
   onPersistError: (error: unknown) => void;
 };
@@ -21,10 +22,12 @@ export function buildChannelCollectionOptions(
 
 export async function persistManualChannelDownloadCompletion({
   downloadVideo,
+  isActive = () => true,
   markDownloaded,
   onPersistError,
 }: PersistManualChannelDownloadCompletionInput): Promise<void> {
   await downloadVideo();
+  if (!isActive()) return;
 
   try {
     await markDownloaded();

@@ -5,6 +5,7 @@ import re
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse, parse_qs
 
 try:
     import msvcrt
@@ -27,11 +28,73 @@ from actions.youtube_channel import (
     PreferredYouTubeChannelError,
     ensure_preferred_youtube_channel,
 )
+from actions.bkt_check import is_browser_disconnected
 from core.paths import user_data_path
 
 logger = logging.getLogger(__name__)
 
 PENDING_COMMENTS_FILE = user_data_path("pending_comments.jsonl")
+YOUTUBE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{11}$")
+
+
+def _verified_video_url_from_row(row: dict) -> str | None:
+    """Return a URL only when the row carries a valid 11-character video ID."""
+    video_id = str(row.get("vid") or "").strip()
+    if not YOUTUBE_ID_RE.fullmatch(video_id):
+        raw_url = str(row.get("videoUrl") or "").strip()
+        parsed = urlparse(raw_url)
+        host = (parsed.hostname or "").lower().rstrip(".")
+        if host == "youtu.be":
+            candidate = parsed.path.strip("/").split("/", 1)[0]
+        elif host == "youtube.com" or host.endswith(".youtube.com"):
+            if parsed.path == "/watch":
+                candidate = parse_qs(parsed.query).get("v", [""])[0]
+            elif parsed.path.startswith(("/shorts/", "/video/")):
+                candidate = parsed.path.split("/", 2)[2]
+            else:
+                candidate = ""
+        else:
+            candidate = ""
+        video_id = candidate
+    return f"https://youtu.be/{video_id}" if YOUTUBE_ID_RE.fullmatch(video_id) else None
+
+
+def _unique_verified_video_url(rows: list[dict], keyword: str) -> str | None:
+    """Return a verified URL only when title matching yields one unique row."""
+    needle = str(keyword or "").strip().lower()
+    if not needle:
+        return None
+    matches: dict[str, str] = {}
+    for row in rows:
+        title = str(row.get("title") or "").strip().lower()
+        if not title or not (needle in title or title in needle):
+            continue
+        url = _verified_video_url_from_row(row)
+        if url:
+            matches[url] = url
+    return next(iter(matches.values())) if len(matches) == 1 else None
+
+
+def is_upload_stream_complete(percent: int | None, raw_text: str) -> bool:
+    """Xác định dứt khoát xem luồng tải video lên YouTube Studio đã hoàn tất chưa.
+    Tuyệt đối không dùng các chuỗi dự báo tương lai (như 'sẽ sớm bắt đầu' / 'will begin').
+    Nếu percent < 100 thì bắt buộc là False."""
+    if percent is not None and percent < 100:
+        return False
+    if percent is not None and percent >= 100:
+        return True
+    low_text = (raw_text or "").lower()
+    definitive_processing_signatures = [
+        "đã hoàn tất quá trình tải lên",
+        "upload complete",
+        "đang xử lý sd",
+        "processing sd",
+        "đang xử lý đến độ phân giải tối đa",
+        "quá trình xử lý video ở độ nét chuẩn (sd)",
+        "processing complete",
+        "checks complete",
+    ]
+    return any(sig in low_text for sig in definitive_processing_signatures)
 
 
 def _truncate_utf16(text: str, max_units: int = 92) -> str:
@@ -481,36 +544,109 @@ class YouTubeUpload:
             )
 
         await file_input.set_input_files(video_path)
+        try:
+            await file_input.dispatch_event("change")
+        except Exception:
+            pass
         logger.info("Đã chọn file, chờ dialog metadata xuất hiện")
 
-        # Chờ dialog chuyển sang bước Details / BASIC_INFO (metadata)
+        # Chờ dialog chuyển sang bước Details / BASIC_INFO (metadata) xuyên Shadow DOM
         logger.info("Chờ dialog chi tiết video (Details) xuất hiện...")
-        try:
-            await page.wait_for_function(
-                """() => {
-                    const d = document.querySelector('ytcp-uploads-dialog');
-                    if (!d) return false;
-                    const titleBox = d.querySelector('#title-textarea #textbox')
-                        || d.querySelector('ytcp-video-metadata-editor-basic')
-                        || d.querySelector('#textbox');
-                    return titleBox !== null;
-                }""",
-                timeout=60000,
-            )
-        except Exception:
-            # Fallback: chờ title box xuất hiện theo cấu trúc DOM đa ngôn ngữ
-            logger.warning("Không detect được titlebox nhanh, chờ bằng selector cấu trúc")
+        title_box_ready = False
+        t_wait_start = time.time()
+
+        while time.time() - t_wait_start < 45.0:
+            if is_browser_disconnected(page):
+                raise RuntimeError("Cửa sổ/thẻ YouTube Studio đã bị đóng trong lúc chờ dialog metadata.")
+
             try:
-                await page.wait_for_selector(
-                    'ytcp-uploads-dialog #title-textarea #textbox, ytcp-uploads-dialog ytcp-video-title #textbox, ytcp-uploads-dialog #textbox',
-                    timeout=30000,
+                state = await eval_studio_dom(
+                    page,
+                    r"""
+                    const res = { hasTitleBox: false, isDocked: false, errorMessage: '' };
+
+                    // 1. Kiểm tra cảnh báo lỗi/hạn ngạch từ YouTube Studio (Daily upload limit, verification, etc.)
+                    const alertModal = __rtmDom.deepFirstVisible(
+                        document,
+                        'ytcp-confirmation-dialog #dialog, tp-yt-paper-dialog:not([id*="upload"]), ytcp-dialog[type="error"], ytcp-alert-dialog'
+                    );
+                    if (alertModal && __rtmDom.isReallyVisible(alertModal)) {
+                        const txt = __rtmDom.collectVisibleText(alertModal).trim();
+                        if (txt && (txt.includes('giới hạn') || txt.includes('limit') || txt.includes('xác minh') || txt.includes('verify') || txt.includes('error'))) {
+                            res.errorMessage = txt.replace(/\s+/g, ' ');
+                            return res;
+                        }
+                    }
+
+                    // 2. Tìm title box trong ytcp-uploads-dialog hoặc toàn bộ document
+                    const dlg = __rtmDom.findMountedContainer(document, 'ytcp-uploads-dialog') || document;
+                    const tb = __rtmDom.deepFirstVisible(
+                        dlg,
+                        '#title-textarea #textbox, ytcp-video-title #textbox, ytcp-social-suggestions-textbox[id="title-textarea"] #textbox, ytcp-video-metadata-editor-basic #textbox, ytcp-video-metadata-editor #textbox, [aria-label*="tiêu đề" i] #textbox, [aria-label*="title" i] #textbox, #textbox'
+                    );
+                    if (tb && __rtmDom.isReallyVisible(tb)) {
+                        res.hasTitleBox = true;
+                        return res;
+                    }
+
+                    // 3. Kiểm tra xem dialog có bị Studio tự động thu nhỏ xuống dock dưới cùng không
+                    const docked = __rtmDom.deepFirstVisible(
+                        document,
+                        'ytcp-video-upload-progress, .progress-bar-container, [id*="upload-progress"]'
+                    );
+                    if (docked && __rtmDom.isReallyVisible(docked)) {
+                        res.isDocked = true;
+                    }
+                    return res;
+                    """,
                 )
-            except Exception as exc:
-                cur_ctx_meta = await get_studio_context(page)
-                raise RuntimeError(
-                    f"Hộp thoại metadata tải video không xuất hiện sau 90s "
-                    f"(pageType={cur_ctx_meta.get('pageType')}, url={cur_ctx_meta.get('url')}): {exc}"
-                ) from exc
+                if state and state.get("errorMessage"):
+                    err_msg = state.get("errorMessage")
+                    logger.error("Phát hiện hộp thoại thông báo lỗi từ YouTube Studio: %s", err_msg)
+                    raise RuntimeError(f"YouTube Studio từ chối tải video: {err_msg}")
+
+                if state and state.get("hasTitleBox"):
+                    title_box_ready = True
+                    break
+
+                if state and state.get("isDocked"):
+                    # Thử click vào thanh dock để mở lại hộp thoại nếu bị YouTube tự thu nhỏ
+                    await eval_studio_dom(
+                        page,
+                        r"""
+                        const docked = __rtmDom.deepFirstVisible(document, 'ytcp-video-upload-progress, .progress-bar-container');
+                        if (docked) {
+                            const clk = __rtmDom.deepFirstVisible(
+                                docked,
+                                '#dialog-title, .title-text, #title, .progress-label, .card-contents, [role="button"]:not(#cancel-button):not([aria-label*="cancel" i]):not([aria-label*="hủy" i])'
+                            ) || docked;
+                            if (typeof clk.click === 'function') clk.click();
+                        }
+                        """,
+                    )
+            except Exception as wait_err:
+                if "YouTube Studio từ chối tải video" in str(wait_err):
+                    raise
+                logger.debug("Lỗi nhẹ khi kiểm tra dialog metadata: %s", wait_err)
+
+            await asyncio.sleep(1.5)
+
+        if not title_box_ready:
+            logger.warning("Hộp thoại metadata (#title-textarea) không xuất hiện sau 45s. Bắt đầu cơ chế kiểm tra cứu hộ video...")
+            rescued_url = ""
+            # Chẩn đoán tại chỗ: không điều hướng sang Content, không quét row,
+            # không dùng URL cứu hộ để bỏ qua upload-stream barrier.
+            try:
+                rescued_url = await _extract_video_url(page)
+            except Exception:
+                rescued_url = ""
+            cur_ctx_meta = await get_studio_context(page)
+            raise RuntimeError(
+                f"Hộp thoại metadata tải video không xác nhận được; không bàn giao URL cứu hộ "
+                f"trước khi upload stream hoàn tất (pageType={cur_ctx_meta.get('pageType')}, "
+                f"url={cur_ctx_meta.get('url')}, rescued_url={'present' if rescued_url else 'absent'})."
+            )
+
         await random_delay(1.5, 2.5)
 
         # Kiểm tra nhẹ tiến trình upload hiện tại (không chặn quá trình điền metadata)
@@ -545,66 +681,59 @@ class YouTubeUpload:
                 continue
 
         if title_box:
+            clean_title = (title or "").strip()[:92]
             try:
-                await title_box.click()
-                await random_delay(0.25, 0.45)
-            except Exception as click_err:
-                logger.debug("Lỗi click title_box (thử focus JS): %s", click_err)
-
-            # Xóa triệt để text mặc định (tên file) bằng DOM trước khi gõ
-            await page.evaluate("""() => {
-                const tb = document.querySelector('#title-textarea #textbox')
-                    || document.querySelector('ytcp-video-metadata-editor-basic #title-textarea #textbox')
-                    || document.querySelector('ytcp-social-suggestions-textbox[id="title-textarea"] #textbox')
-                    || document.querySelector('ytcp-video-title #textbox')
-                    || document.querySelector('ytcp-uploads-dialog #textbox');
-                if (tb) {
-                    tb.focus();
-                    tb.textContent = '';
-                    tb.innerText = '';
-                    tb.dispatchEvent(new Event('input', { bubbles: true }));
-                    tb.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            }""")
-            await random_delay(0.15, 0.25)
-
-            try:
-                await page.keyboard.press("Control+a")
-                await page.keyboard.press("Backspace")
+                # Đọc tiêu đề hiện tại mà YouTube Studio đã tự động điền sẵn từ tên file video
+                current_box_title = await page.evaluate("""() => {
+                    const tb = document.querySelector('#title-textarea #textbox')
+                        || document.querySelector('ytcp-video-metadata-editor-basic #title-textarea #textbox')
+                        || document.querySelector('ytcp-social-suggestions-textbox[id="title-textarea"] #textbox')
+                        || document.querySelector('ytcp-video-title #textbox')
+                        || document.querySelector('ytcp-uploads-dialog #textbox');
+                    return tb ? (tb.innerText || tb.textContent || '').trim() : '';
+                }""")
             except Exception:
-                pass
-            await random_delay(0.15, 0.25)
+                current_box_title = ""
 
-            try:
-                await human_type(page, title_box, title, typo_rate=0.005)
-            except Exception as type_err:
-                logger.debug("Fallback keyboard.type cho tiêu đề: %s", type_err)
+            norm_current = " ".join((current_box_title or "").split())
+            norm_target = " ".join((clean_title or "").split())
+            # Chỉ bỏ qua khi tiêu đề hiện tại khớp tiêu đề người dùng yêu cầu.
+            # Khớp tên file không đủ: người dùng có thể đã đặt title khác tên file.
+            if norm_current and norm_current == norm_target:
+                logger.info("Tiêu đề YouTube tự điền đã khớp ('%s') — giữ nguyên, bỏ qua thao tác gõ lại", norm_current[:60])
+            else:
+                logger.info("Cập nhật tiêu đề mới bằng phương thức dán nhanh (instant paste): '%s'", clean_title[:60])
                 try:
-                    await page.keyboard.type(title)
-                except Exception:
-                    pass
+                    await title_box.click()
+                    await random_delay(0.1, 0.2)
+                    await page.keyboard.press("Control+a")
+                    await random_delay(0.05, 0.1)
+                    await page.keyboard.insert_text(clean_title)
+                except Exception as paste_err:
+                    logger.debug("Lỗi keyboard.insert_text cho tiêu đề: %s", paste_err)
 
-            # Đảm bảo 100% tiêu đề không vượt quá 92 UTF-16 units trong DOM của YouTube Studio
-            await page.evaluate("""(t) => {
-                const tb = document.querySelector('#title-textarea #textbox')
-                    || document.querySelector('ytcp-video-metadata-editor-basic #title-textarea #textbox')
-                    || document.querySelector('ytcp-social-suggestions-textbox[id="title-textarea"] #textbox')
-                    || document.querySelector('ytcp-video-title #textbox')
-                    || document.querySelector('ytcp-uploads-dialog #textbox');
-                if (tb) {
-                    const clean = t.slice(0, 92);
-                    const current = (tb.innerText || tb.textContent || '').trim();
-                    if (!current || current.length > 92 || current !== clean) {
-                        tb.textContent = clean;
-                        tb.innerText = clean;
-                        tb.dispatchEvent(new Event('input', { bubbles: true }));
-                        tb.dispatchEvent(new Event('change', { bubbles: true }));
+                # Đồng bộ và xác thực DOM chuẩn Polymer/YouTube Studio (giới hạn an toàn 92 ký tự)
+                await page.evaluate("""(t) => {
+                    const tb = document.querySelector('#title-textarea #textbox')
+                        || document.querySelector('ytcp-video-metadata-editor-basic #title-textarea #textbox')
+                        || document.querySelector('ytcp-social-suggestions-textbox[id="title-textarea"] #textbox')
+                        || document.querySelector('ytcp-video-title #textbox')
+                        || document.querySelector('ytcp-uploads-dialog #textbox');
+                    if (tb) {
+                        const clean = t.slice(0, 92);
+                        const cur = (tb.innerText || tb.textContent || '').trim();
+                        if (cur !== clean) {
+                            tb.focus();
+                            tb.textContent = clean;
+                            tb.innerText = clean;
+                            tb.dispatchEvent(new Event('input', { bubbles: true }));
+                            tb.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                     }
-                }
-            }""", title)
+                }""", clean_title)
         else:
             logger.warning("Không tìm thấy hộp nhập tiêu đề")
-        await random_delay(0.5, 1.2)
+        await random_delay(0.3, 0.6)
 
         # Điền mô tả
         logger.info("Điền mô tả")
@@ -899,20 +1028,115 @@ class YouTubeUpload:
                 logger.info("Đã đến bước Chế độ hiển thị (step=%s) thành công!", cur_step or "VISIBILITY")
                 break
 
-            # Xử lý bước Ad Suitability nếu bật (chọn None of the above trước khi bấm Next)
+            # 1. Bước Kiếm Tiền (Monetization) cho kênh BKT:
+            if "MONETIZATION" in cur_step or "MONETIZE" in cur_step:
+                logger.info("Phát hiện bước Kiếm Tiền (Monetization) cho kênh BKT — Đang tự động bật kiếm tiền...")
+                try:
+                    await eval_studio_dom(
+                        page,
+                        """
+                        const dlg = __rtmDom.findMountedContainer(document, 'ytcp-uploads-dialog') || document;
+                        const onRadio = __rtmDom.deepFirstVisible(dlg, 'tp-yt-paper-radio-button[name="ON"], tp-yt-paper-radio-button#on-radio, [name="MONETIZATION_ON"], [value="ON"]');
+                        if (onRadio) {
+                            const nativeRadio = __rtmDom.resolveNativeButton(onRadio) || onRadio;
+                            nativeRadio.click();
+                        } else {
+                            const trigger = __rtmDom.deepFirstVisible(dlg, 'ytcp-video-monetization ytcp-dropdown-trigger, ytcp-dropdown-trigger#trigger, #monetization-select');
+                            if (trigger) {
+                                trigger.click();
+                            }
+                        }
+                        """
+                    )
+                    await asyncio.sleep(0.5)
+                    await eval_studio_dom(
+                        page,
+                        """
+                        const menus = document.querySelectorAll('ytcp-text-menu, tp-yt-paper-dialog[opened], ytcp-dropdown-menu');
+                        for (const m of menus) {
+                            const onOption = __rtmDom.deepFirstVisible(m, 'tp-yt-paper-radio-button[name="ON"], tp-yt-paper-radio-button#on-radio, [test-id="monetization-on"]');
+                            if (onOption) {
+                                onOption.click();
+                                const saveBtn = __rtmDom.deepFirstVisible(m, 'ytcp-button#save-button, #save-button, #confirm-button');
+                                if (saveBtn) {
+                                    const nativeSave = __rtmDom.resolveNativeButton(saveBtn) || saveBtn;
+                                    nativeSave.click();
+                                }
+                                break;
+                            }
+                        }
+                        """
+                    )
+                    await asyncio.sleep(0.6)
+                except Exception as mon_err:
+                    logger.debug("Lỗi xử lý bật kiếm tiền: %s", mon_err)
+
+            # 2. Xử lý bước Ad Suitability cho kênh BKT (chọn None of the above và Gửi đánh giá)
             if "SUITABILITY" in cur_step or "AD_" in cur_step:
-                await click_stable_element(
-                    page,
-                    selectors=[
-                        "ytcp-video-metadata-ad-suitability tp-yt-paper-checkbox",
-                        "[name='NONE_OF_THE_ABOVE']",
-                        "#none-of-the-above",
-                    ],
-                    timeout_ms=2500,
-                    pre_delay=0.4,
-                    root_selector="ytcp-uploads-dialog",
-                )
-                await asyncio.sleep(0.6)
+                logger.info("Phát hiện bước Phù hợp nhà quảng cáo (Ad Suitability) — Đang chọn an toàn & gửi đánh giá...")
+                try:
+                    await eval_studio_dom(
+                        page,
+                        """
+                        const dlg = __rtmDom.findMountedContainer(document, 'ytcp-uploads-dialog') || document;
+                        const chk = __rtmDom.deepFirstVisible(dlg, 'ytcp-video-metadata-ad-suitability tp-yt-paper-checkbox, [name="NONE_OF_THE_ABOVE"], #none-of-the-above');
+                        if (chk && !chk.checked && !chk.hasAttribute('checked')) {
+                            const nativeChk = __rtmDom.resolveNativeButton(chk) || chk;
+                            nativeChk.click();
+                        }
+                        const container = __rtmDom.deepFirstVisible(dlg, 'ytcp-video-metadata-ad-suitability, #scrollable-content');
+                        if (container) {
+                            container.scrollTop = container.scrollHeight;
+                        }
+                        """
+                    )
+                    await asyncio.sleep(0.5)
+                    await eval_studio_dom(
+                        page,
+                        """
+                        const dlg = __rtmDom.findMountedContainer(document, 'ytcp-uploads-dialog') || document;
+                        const submitBtn = __rtmDom.deepFirstVisible(dlg, 'ytcp-button#submit-questionnaire-button, #submit-questionnaire-button, [aria-label*="đánh giá" i], [aria-label*="rating" i]');
+                        if (submitBtn && __rtmDom.isButtonActionable(submitBtn)) {
+                            const nativeSubmit = __rtmDom.resolveNativeButton(submitBtn) || submitBtn;
+                            nativeSubmit.click();
+                        }
+                        """
+                    )
+                    await asyncio.sleep(0.6)
+                except Exception as suit_err:
+                    logger.debug("Lỗi xử lý ad suitability: %s", suit_err)
+
+            # 3. Bước Thành phần video (Video Elements) — Tự động nhập Màn hình kết thúc từ video gần nhất
+            if "ELEMENT" in cur_step:
+                logger.info("Đang ở bước Thành phần video (Video Elements) — Thử nhập Màn hình kết thúc từ video gần nhất...")
+                try:
+                    await eval_studio_dom(
+                        page,
+                        """
+                        const dlg = __rtmDom.findMountedContainer(document, 'ytcp-uploads-dialog') || document;
+                        const importBtn = __rtmDom.deepFirstVisible(dlg, '#import-endscreen-from-video-button, ytcp-button#import-from-video-button, [aria-label*="nhập từ video" i], [aria-label*="import from" i]');
+                        if (importBtn && __rtmDom.isButtonActionable(importBtn)) {
+                            const nativeImport = __rtmDom.resolveNativeButton(importBtn) || importBtn;
+                            nativeImport.click();
+                        }
+                        """
+                    )
+                    await asyncio.sleep(0.8)
+                    await eval_studio_dom(
+                        page,
+                        """
+                        const importDlg = document.querySelector('ytcp-endscreen-video-picker-dialog, ytcp-dialog[opened]');
+                        if (importDlg) {
+                            const firstRow = __rtmDom.deepFirstVisible(importDlg, 'ytcp-video-row, .video-item, #selectable-item');
+                            if (firstRow) {
+                                firstRow.click();
+                            }
+                        }
+                        """
+                    )
+                    await asyncio.sleep(0.6)
+                except Exception as elem_err:
+                    logger.debug("Bỏ qua cấu hình thành phần video: %s", elem_err)
 
             logger.info("Đang ở bước '%s', chờ nút Next ổn định (lần %d/25)...", cur_step or "DETAILS", attempt + 1)
             next_clicked = await click_stable_element(
@@ -939,6 +1163,36 @@ class YouTubeUpload:
                     except Exception:
                         pass
                     await _ensure_not_for_kids_audience(page)
+                # BrowserMulti Polymer synthetic MouseEvents dispatching
+                try:
+                    dispatched_next = await page.evaluate("""() => {
+                        const dialog = document.querySelector('ytcp-uploads-dialog') || document;
+                        const buttons = Array.from(dialog.querySelectorAll('ytcp-button#next-button, #next-button, ytcp-button'));
+                        for (const btn of buttons) {
+                            const txt = (btn.innerText || btn.textContent || '').trim().toLowerCase();
+                            const bid = (btn.id || '').toLowerCase();
+                            if (bid === 'next-button' || txt === 'next' || txt === 'tiếp theo' || txt === 'tiếp tục' || txt === 'siguiente') {
+                                if (!btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true') {
+                                    ['mousedown', 'mouseup', 'click'].forEach(evtName => {
+                                        btn.dispatchEvent(new MouseEvent(evtName, { bubbles: true, cancelable: true, view: window }));
+                                    });
+                                    const inner = btn.shadowRoot ? btn.shadowRoot.querySelector('button') : null;
+                                    if (inner) {
+                                        ['mousedown', 'mouseup', 'click'].forEach(evtName => {
+                                            inner.dispatchEvent(new MouseEvent(evtName, { bubbles: true, cancelable: true, view: window }));
+                                        });
+                                    }
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    }""")
+                    if dispatched_next:
+                        logger.info("Đã kích hoạt click Next qua BrowserMulti Polymer dispatchEvent")
+                except Exception:
+                    pass
+
                 # Fallback kích hoạt click JS nếu nút Next bị chậm phản hồi qua proxy
                 if attempt >= 3:
                     try:
@@ -1096,6 +1350,37 @@ class YouTubeUpload:
             allow_js_fallback=True,
         )
         if not done_click_mode:
+            logger.warning("click_stable_element không bấm được #done-button, áp dụng BrowserMulti Force-Enable & dispatchEvent...")
+            try:
+                force_done = await page.evaluate("""() => {
+                    const btn = document.querySelector('#done-button') || document.querySelector('ytcp-button#done-button');
+                    if (!btn) return 'not-found';
+                    btn.removeAttribute('disabled');
+                    btn.removeAttribute('hidden');
+                    btn.removeAttribute('aria-disabled');
+                    btn.setAttribute('aria-disabled', 'false');
+                    const innerBtn = btn.shadowRoot ? btn.shadowRoot.querySelector('button') : null;
+                    if (innerBtn) {
+                        innerBtn.removeAttribute('disabled');
+                        innerBtn.removeAttribute('hidden');
+                    }
+                    ['mousedown', 'mouseup', 'click'].forEach(n =>
+                        btn.dispatchEvent(new MouseEvent(n, { bubbles: true, cancelable: true, view: window }))
+                    );
+                    if (innerBtn) {
+                        ['mousedown', 'mouseup', 'click'].forEach(n =>
+                            innerBtn.dispatchEvent(new MouseEvent(n, { bubbles: true, cancelable: true, view: window }))
+                        );
+                    }
+                    return 'force-clicked';
+                }""")
+                logger.info("Kết quả BrowserMulti Force-Enable #done-button: %s", force_done)
+                if force_done == 'force-clicked':
+                    done_click_mode = "force_dispatch_event"
+            except Exception as f_err:
+                logger.debug("Lỗi force-enable #done-button: %s", f_err)
+
+        if not done_click_mode:
             raise RuntimeError("Không thể bấm nút Publish/Lưu (#done-button) vì nút vẫn đang bị khóa hoặc bị che khuất.")
         logger.info("Đã bấm nút Publish/Lưu (#done-button) lần 1 (%s) — chờ xác nhận từ YouTube Studio...", done_click_mode)
 
@@ -1108,6 +1393,61 @@ class YouTubeUpload:
 
         while time.time() - save_wait_start < 45.0:
             await asyncio.sleep(0.5)
+
+            # Tự động dò tìm và click nút "Vẫn xuất bản" / "Publish anyway" / "Vẫn lưu" nếu YouTube Studio hiện popup cảnh báo kiểm tra
+            try:
+                conf_res = await eval_studio_dom(
+                    page,
+                    """
+                    const dlgs = __rtmDom.deepQueryMounted(document, 'ytcp-confirmation-dialog, tp-yt-paper-dialog, ytcp-dialog, [role="dialog"]');
+                    for (const dlg of dlgs) {
+                        if (!__rtmDom.isContainerVisiblyMounted(dlg)) continue;
+                        const tag = (dlg.tagName || '').toLowerCase();
+                        if (tag === 'ytcp-uploads-dialog') continue;
+
+                        const btns = __rtmDom.deepQueryVisible(dlg, '#confirm-button, [dialog-confirm], ytcp-button.ytcp-confirmation-dialog, ytcp-button#primary-action-button, ytcp-button#save-button, ytcp-button#publish-button, ytcp-button, button');
+                        for (const b of btns) {
+                            const btxt = (__rtmDom.collectVisibleText(b) || '').toLowerCase();
+                            const bid = (b.id || '').toLowerCase();
+                            const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+                            const isConfirmBtn = (
+                                bid.includes('confirm')
+                                || bid.includes('primary')
+                                || b.hasAttribute('dialog-confirm')
+                                || btxt.includes('vẫn xuất bản')
+                                || btxt.includes('publish anyway')
+                                || btxt.includes('xuất bản ngay')
+                                || btxt.includes('vẫn lưu')
+                                || btxt.includes('save anyway')
+                                || btxt.includes('publish now')
+                                || btxt.includes('xác nhận')
+                                || btxt.includes('tiếp tục')
+                                || btxt.includes('publicar de todos modos')
+                                || btxt.includes('publicar igualmente')
+                                || btxt.includes('trotzdem')
+                                || btxt.includes('publier')
+                                || btxt.includes('все равно')
+                                || btxt.includes('仍要发布')
+                                || btxt.includes('仍要發布')
+                                || aria.includes('vẫn xuất bản')
+                                || aria.includes('publish anyway')
+                            );
+                            if (isConfirmBtn && !btxt.includes('hủy') && !btxt.includes('cancel') && !btxt.includes('không')) {
+                                const nativeBtn = __rtmDom.resolveNativeButton(b) || b;
+                                nativeBtn.click();
+                                return { clicked: true, text: btxt || bid };
+                            }
+                        }
+                    }
+                    return { clicked: false };
+                    """,
+                )
+                if conf_res and conf_res.get("clicked"):
+                    logger.info("Đã bấm xác nhận 'Vẫn xuất bản' (Publish anyway): %s", conf_res.get("text"))
+                    await asyncio.sleep(1.0)
+            except Exception as conf_err:
+                logger.debug("Lỗi kiểm tra popup xác nhận xuất bản: %s", conf_err)
+
             st = await inspect_studio_modal_state(page)
             if not video_url:
                 video_url = await _extract_video_url(page)
@@ -1186,14 +1526,33 @@ class YouTubeUpload:
                 )
 
             await asyncio.sleep(0.4)
-            return video_url
+            verified_url = _verified_video_url_from_row({"videoUrl": video_url}) if video_url else None
+            if not verified_url:
+                raise RuntimeError("Không thể xác minh URL/ID video YouTube sau khi lưu; dừng trước khi bàn giao BKT.")
+            video_url = verified_url
+            logger.info("Đã xác minh URL sau khi lưu; tiếp tục giữ session theo dõi upload stream trước khi bàn giao.")
 
-        # LUỒNG UPLOAD ĐỘC LẬP (Kênh Chính - không handover sang bkt_check):
+        # LUỒNG UPLOAD (cả standalone và BKT handover):
+        # Không trả URL chỉ vì popup share đã xuất hiện; phải chờ upload stream hoàn tất.
+
         # Chờ xác nhận trạng thái lưu rồi theo dõi tiến trình upload tới 100% trước khi thoát trình duyệt.
         logger.info("Bắt đầu theo dõi tiến trình truyền tải file video (Upload Stream)...")
         upload_poll_start = time.time()
-        max_upload_seconds = 1800  # Tối đa 30 phút cho video lớn
+        # Tự động tính toán timeout dựa trên dung lượng file thực tế (tối thiểu 3600s, video lớn cho phép tới 7200s)
+        try:
+            v_size_mb = os.path.getsize(video_path) / (1024 * 1024)
+            if v_size_mb >= 2048:
+                max_upload_seconds = 7200  # 2 tiếng cho file >= 2GB
+            elif v_size_mb >= 1024:
+                max_upload_seconds = 5400  # 1.5 tiếng cho file >= 1GB
+            else:
+                max_upload_seconds = 3600  # 1 tiếng cho file thông thường
+        except Exception:
+            max_upload_seconds = 3600
+        logger.info("Thời gian chờ tối đa cho upload stream: %d giây (file: %s)", max_upload_seconds, video_path)
+        upload_stream_finished = False
         last_reported_pct = -1
+        last_heartbeat_time = 0.0
 
         while time.time() - upload_poll_start < max_upload_seconds:
             if page.is_closed():
@@ -1210,23 +1569,23 @@ class YouTubeUpload:
                     const stillProcDlgs = __rtmDom.deepQueryMounted(document, 'ytcp-uploads-still-processing-dialog');
                     if (stillProcDlgs.length > 0) res.isUploadingPopup = true;
 
-                    const dlgList = __rtmDom.deepQueryMounted(
+                    const uploadRoots = __rtmDom.deepQueryMounted(
                         document,
-                        'ytcp-dialog, tp-yt-paper-dialog, ytcp-uploads-dialog, ytcp-uploads-still-processing-dialog, ytcp-video-upload-progress'
+                        'ytcp-uploads-dialog, ytcp-uploads-still-processing-dialog, ytcp-video-upload-progress'
                     );
-                    for (const d of dlgList) {
+                    for (const d of uploadRoots) {
                         const t = __rtmDom.collectVisibleText(d);
                         if (t) res.text += ' ' + t;
                     }
                     const progNodes = __rtmDom.deepQueryMounted(
                         document,
-                        'ytcp-video-upload-progress, ytcp-uploads-still-processing-dialog, .progress-label, #progress-label'
+                        'ytcp-video-upload-progress, ytcp-uploads-still-processing-dialog'
                     );
                     for (const pn of progNodes) {
                         const pt = __rtmDom.collectVisibleText(pn);
                         if (pt) res.progressText += ' ' + pt;
                     }
-                    const pb = __rtmDom.deepFirstVisible(document, 'ytcp-video-upload-progress tp-yt-paper-progress, ytcp-uploads-still-processing-dialog tp-yt-paper-progress, ytcp-video-upload-progress [role="progressbar"], ytcp-badge [role="progressbar"], tp-yt-paper-progress');
+                    const pb = __rtmDom.deepFirstVisible(document, 'ytcp-video-upload-progress tp-yt-paper-progress, ytcp-uploads-still-processing-dialog tp-yt-paper-progress, ytcp-video-upload-progress [role="progressbar"], ytcp-uploads-still-processing-dialog [role="progressbar"]');
                     if (pb) {
                         const rawVal = pb.getAttribute('value') ?? pb.getAttribute('aria-valuenow');
                         const rawMax = parseFloat(pb.getAttribute('max') || pb.getAttribute('aria-valuemax') || '100');
@@ -1269,37 +1628,30 @@ class YouTubeUpload:
             time_match = re.search(r'(?:còn|left|remaining|restant|restante|verbleibend|残り|남은|осталось|เหลือ)\s*([^\.\n\r,]+)', prog_text, re.IGNORECASE)
             time_remaining = time_match.group(0).strip() if time_match else ""
 
-            if percent is not None and percent != last_reported_pct:
-                last_reported_pct = percent
-                prog_msg = f"Đang tải lên YouTube Studio: {percent}% ({time_remaining})".strip()
+            now = time.time()
+            pct_changed = (percent is not None and percent != last_reported_pct)
+            heartbeat_due = (now - last_heartbeat_time >= 10.0)
+
+            if pct_changed or heartbeat_due:
+                if pct_changed:
+                    last_reported_pct = percent
+                last_heartbeat_time = now
+                display_pct = percent if percent is not None else (last_reported_pct if last_reported_pct >= 0 else 0)
+                prog_msg = f"Đang tải lên YouTube Studio: {display_pct}% ({time_remaining})".strip()
                 logger.info(prog_msg)
                 print(json.dumps({
                     "event": "upload_progress",
-                    "percent": percent,
+                    "percent": display_pct,
                     "remaining": time_remaining,
-                    "message": prog_msg
+                    "message": prog_msg,
+                    "timestamp": int(now),
                 }, ensure_ascii=False))
                 sys.stdout.flush()
 
-            low_text = raw_text.lower()
-            upload_finished = (
-                (percent is not None and percent >= 100) or
-                any(sig in low_text for sig in [
-                    "quá trình xử lý sẽ sớm bắt đầu", "processing will begin",
-                    "đã hoàn tất quá trình tải lên", "upload complete",
-                    "đang xử lý đến độ phân giải tối đa", "đang xử lý sd",
-                    "processing sd", "đang kiểm tra", "quá trình kiểm tra sẽ sớm bắt đầu",
-                    "quá trình xử lý video ở độ nét chuẩn (sd)",
-                    "processing complete", "checks complete",
-                ]) or
-                (is_share_dlg and not is_popup and percent is None and (time.time() - upload_poll_start >= 3))
-            )
+            upload_finished = is_upload_stream_complete(percent, raw_text)
 
-            # Tuyệt đối KHÔNG tự ý ngắt sớm sau 45s khi đang dùng proxy chậm
-            # Chỉ dừng khi có dấu hiệu hoàn tất rõ ràng, hoặc sau ít nhất 180s hoàn toàn không còn bất kỳ dialog/tiến trình nào trong DOM và video_url đã có
-            if not is_popup and not is_share_dlg and percent is None:
-                if (time.time() - upload_poll_start > 180) and video_url:
-                    upload_finished = True
+            # Không suy diễn hoàn tất chỉ vì DOM tạm thời không có progress.
+            # Chỉ tín hiệu upload/processing tích cực mới được mở barrier.
 
             if upload_finished:
                 logger.info("Quá trình truyền tải video (Upload Stream) đã hoàn tất 100%!")
@@ -1313,9 +1665,15 @@ class YouTubeUpload:
                     }, ensure_ascii=False))
                     sys.stdout.flush()
                 await asyncio.sleep(2.0)
+                upload_stream_finished = True
                 break
 
             await asyncio.sleep(1.5)
+
+        if not upload_stream_finished:
+            raise RuntimeError(
+                "Upload YouTube chưa xác nhận hoàn tất trong thời gian cho phép; giữ profile/session để retry, không báo thành công."
+            )
 
         # Đóng sạch card hậu xử lý/chia sẻ (ngôn ngữ bất kỳ) và xác minh biến mất khỏi DOM
         standalone_dismiss = await dismiss_post_save_studio_modals(
@@ -1340,6 +1698,11 @@ class YouTubeUpload:
 
         if dialog_still_open and not saved_successfully and not share_dialog_visible:
             logger.error("Hộp thoại tải lên vẫn mở sau khi bấm Lưu/Xuất bản. Video chưa hoàn tất lưu!")
+            try:
+                from actions.upload.navigation import goto_channel_videos
+                await goto_channel_videos(page)
+            except Exception:
+                pass
             raise RuntimeError("YouTube Studio chưa hoàn tất lưu/xuất bản video: Hộp thoại tải lên vẫn đang mở (Có lỗi trong quá trình điền thông tin hoặc chưa bấm được nút Lưu).")
 
         if pinned_comment and video_url:
@@ -1349,7 +1712,17 @@ class YouTubeUpload:
             else:
                 _save_pending_comment(video_url, pinned_comment)
 
-        return video_url
+        # Điều hướng trực tiếp sang tab Nội dung (/videos/upload) để không bị kẹt ở Dashboard (Zero-Sticking)
+        try:
+            from actions.upload.navigation import goto_channel_videos
+            await goto_channel_videos(page)
+        except Exception as nav_exc:
+            logger.debug("Lỗi nhẹ khi chuyển sang tab Nội dung sau upload: %s", nav_exc)
+
+        verified_url = _verified_video_url_from_row({"videoUrl": video_url}) if video_url else None
+        if not verified_url:
+            raise RuntimeError("Upload stream đã hoàn tất nhưng chưa xác minh được URL/ID video; giữ checkpoint để retry.")
+        return verified_url
 
 
 async def _set_schedule(page, schedule_date: str, schedule_time: str):
@@ -1811,11 +2184,23 @@ def _save_pending_comment(video_url: str, comment_text: str):
 
 
 async def process_pending_comments(page):
-    """Xử lý các comment ghim còn tồn đọng."""
+    """Xử lý các comment ghim còn tồn đọng an toàn, tránh ghi đè đa tiến trình."""
     if not PENDING_COMMENTS_FILE.exists():
         return
 
-    lines = PENDING_COMMENTS_FILE.read_text(encoding="utf-8").splitlines()
+    import os
+    processing_file = PENDING_COMMENTS_FILE.with_suffix(f".processing_{os.getpid()}_{int(time.time()*1000)}.jsonl")
+    try:
+        PENDING_COMMENTS_FILE.rename(processing_file)
+    except Exception:
+        return
+
+    try:
+        lines = processing_file.read_text(encoding="utf-8").splitlines()
+    except Exception as exc:
+        logger.warning("Không thể đọc processing pending comments: %s", exc)
+        return
+
     remaining = []
     for line in lines:
         if not line.strip():
@@ -1827,7 +2212,14 @@ async def process_pending_comments(page):
             logger.warning("Chưa xử lý được pending comment: %s", exc)
             remaining.append(line)
 
+    try:
+        processing_file.unlink(missing_ok=True)
+    except Exception:
+        pass
+
     if remaining:
-        PENDING_COMMENTS_FILE.write_text("\n".join(remaining) + "\n", encoding="utf-8")
-    else:
-        PENDING_COMMENTS_FILE.unlink(missing_ok=True)
+        for r in remaining:
+            try:
+                _append_pending_comment_line(r)
+            except Exception:
+                pass

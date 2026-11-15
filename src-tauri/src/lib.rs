@@ -12,44 +12,15 @@
 pub mod commands;
 pub mod database;
 pub mod services;
+pub mod tray;
 pub mod types;
 pub mod utils;
 
-use serde::Deserialize;
+pub use tray::{rebuild_tray_menu, should_setup_system_tray, show_main_window};
+
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Mutex;
-use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
-use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{Emitter, Manager};
 use tauri_plugin_deep_link::DeepLinkExt;
-
-/// Whether to hide the dock icon when closing the window (macOS only)
-static HIDE_DOCK_ON_CLOSE: AtomicBool = AtomicBool::new(false);
-
-/// Current UI language for tray menu translations (default: "en")
-static TRAY_LANG: Mutex<String> = Mutex::new(String::new());
-
-/// Schedule status text for tray menu (empty = no schedule active)
-static TRAY_SCHEDULE_STATUS: Mutex<String> = Mutex::new(String::new());
-
-/// Download queue summary shown in the tray menu.
-static TRAY_DOWNLOAD_STATUS: Mutex<TrayDownloadStatus> = Mutex::new(TrayDownloadStatus {
-    pending: 0,
-    downloading: 0,
-    completed: 0,
-    error: 0,
-    active: false,
-});
-
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct TrayDownloadStatus {
-    pending: u32,
-    downloading: u32,
-    completed: u32,
-    error: u32,
-    active: bool,
-}
 
 #[cfg(target_os = "linux")]
 fn configure_linux_webkit_env() {
@@ -58,33 +29,6 @@ fn configure_linux_webkit_env() {
     if std::env::var_os("WEBKIT_DMABUF_RENDERER_DISABLE_GBM").is_none() {
         std::env::set_var("WEBKIT_DMABUF_RENDERER_DISABLE_GBM", "1");
     }
-}
-
-/// Flatpak's GNOME runtime does not ship an AppIndicator implementation. Avoid
-/// initializing Tauri's system tray there, as it would abort the application
-/// before the WebView can start.
-fn should_setup_system_tray() -> bool {
-    !cfg!(target_os = "linux") || std::env::var_os("FLATPAK_ID").is_none()
-}
-
-/// Show the main window and restore dock icon if needed
-fn show_main_window(app_handle: &tauri::AppHandle) {
-    for (_, window) in app_handle.webview_windows() {
-        #[cfg(target_os = "macos")]
-        {
-            let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Regular);
-        }
-        let _ = window.show();
-        let _ = window.unminimize();
-        let _ = window.set_always_on_top(true);
-        let _ = window.set_always_on_top(false);
-        let _ = window.set_focus();
-    }
-}
-
-#[tauri::command]
-fn bring_main_window_to_front(app: tauri::AppHandle) {
-    show_main_window(&app);
 }
 
 fn dispatch_external_links(app_handle: &tauri::AppHandle, links: Vec<String>) {
@@ -98,47 +42,6 @@ fn dispatch_external_links(app_handle: &tauri::AppHandle, links: Vec<String>) {
         commands::ExternalOpenUrlEventPayload { urls: links },
     );
     show_main_window(app_handle);
-}
-
-/// Tauri command: set the hide-dock-on-close preference
-#[tauri::command]
-fn set_hide_dock_on_close(hide: bool) {
-    HIDE_DOCK_ON_CLOSE.store(hide, Ordering::SeqCst);
-}
-
-/// Tauri command: rebuild the system tray menu with current channel info
-#[tauri::command]
-fn rebuild_tray_menu_cmd(app: tauri::AppHandle, lang: Option<String>) {
-    if let Some(l) = lang {
-        if let Ok(mut stored) = TRAY_LANG.lock() {
-            *stored = l;
-        }
-    }
-    rebuild_tray_menu(&app);
-}
-
-/// Tauri command: update the schedule status shown in the tray menu
-#[tauri::command]
-fn update_tray_schedule(app: tauri::AppHandle, status: String) {
-    if let Ok(mut stored) = TRAY_SCHEDULE_STATUS.lock() {
-        *stored = status;
-    }
-    rebuild_tray_menu(&app);
-}
-
-/// Tauri command: update the download queue summary shown in the tray menu
-#[tauri::command]
-fn update_tray_download_status(app: tauri::AppHandle, status: TrayDownloadStatus) {
-    let mut should_rebuild = false;
-    if let Ok(mut stored) = TRAY_DOWNLOAD_STATUS.lock() {
-        if *stored != status {
-            *stored = status;
-            should_rebuild = true;
-        }
-    }
-    if should_rebuild {
-        rebuild_tray_menu(&app);
-    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -312,8 +215,8 @@ pub fn run() {
             // Start background channel polling
             services::polling::start_polling(app.handle().clone());
 
-            if should_setup_system_tray() {
-                setup_tray(app)?;
+            if tray::should_setup_system_tray() {
+                tray::setup_tray(app)?;
             } else {
                 log::info!("System tray is disabled inside Flatpak");
             }
@@ -356,7 +259,7 @@ pub fn run() {
 
                     // macOS: optionally hide the dock icon too
                     #[cfg(target_os = "macos")]
-                    if HIDE_DOCK_ON_CLOSE.load(Ordering::SeqCst) {
+                    if tray::HIDE_DOCK_ON_CLOSE.load(Ordering::SeqCst) {
                         let _ = window
                             .app_handle()
                             .set_activation_policy(tauri::ActivationPolicy::Accessory);
@@ -531,11 +434,11 @@ pub fn run() {
             commands::get_cli_shortcut_status,
             commands::install_cli_shortcut,
             // System commands
-            set_hide_dock_on_close,
-            rebuild_tray_menu_cmd,
-            update_tray_schedule,
-            update_tray_download_status,
-            bring_main_window_to_front,
+            tray::set_hide_dock_on_close,
+            tray::rebuild_tray_menu_cmd,
+            tray::update_tray_schedule,
+            tray::update_tray_download_status,
+            tray::bring_main_window_to_front,
             // Browser Multi Profile & Upload commands
             commands::get_multibrowser_profiles,
             commands::save_multibrowser_profile,
@@ -559,6 +462,7 @@ pub fn run() {
             commands::get_bkt_test_jobs,
             commands::dispatch_batch_bkt_test,
             commands::publish_bkt_job_to_main_cmd,
+            commands::publish_bkt_catchup_cmd,
             commands::recheck_bkt_job_cmd,
             commands::cancel_bkt_job,
             commands::cancel_all_bkt_jobs,
@@ -588,431 +492,6 @@ pub fn run() {
                 _ => {}
             }
         });
-}
-
-/// Setup system tray icon and menu
-fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    // Build a minimal initial menu (will be replaced by rebuild_tray_menu)
-    let show = MenuItemBuilder::with_id("show", "Open RETubeMatrix").build(app)?;
-    let quit = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
-    let menu = MenuBuilder::new(app)
-        .item(&show)
-        .separator()
-        .item(&quit)
-        .build()?;
-
-    #[cfg(target_os = "macos")]
-    let icon = tauri::image::Image::from_bytes(include_bytes!("../icons/tray-template.png"))
-        .expect("Failed to load tray icon");
-    #[cfg(not(target_os = "macos"))]
-    let icon = tauri::image::Image::from_bytes(include_bytes!("../icons/32x32.png"))
-        .expect("Failed to load tray icon");
-
-    let app_handle = app.handle().clone();
-    let app_handle_menu = app.handle().clone();
-
-    let tray_builder = TrayIconBuilder::with_id("main-tray")
-        .icon(icon)
-        .tooltip("RETubeMatrix")
-        .menu(&menu)
-        .on_menu_event(move |_tray, event| {
-            let id = event.id().as_ref();
-            if let Some(channel_id) = id.strip_prefix("ch_") {
-                // Channel item clicked: open app and navigate to channel
-                show_main_window(&app_handle_menu);
-                let _ = app_handle_menu.emit("tray-open-channel", channel_id.to_string());
-            } else {
-                match id {
-                    "check_now" => {
-                        services::polling::stop_polling();
-                        services::polling::start_polling(app_handle_menu.clone());
-                    }
-                    "settings" => {
-                        show_main_window(&app_handle_menu);
-                        let _ = app_handle_menu.emit("tray-open-settings", ());
-                    }
-                    "check_update" => {
-                        show_main_window(&app_handle_menu);
-                        let _ = app_handle_menu.emit("tray-check-update", ());
-                    }
-                    "show" => {
-                        show_main_window(&app_handle_menu);
-                    }
-                    "browser_extension" => {
-                        show_main_window(&app_handle_menu);
-                        let _ = app_handle_menu.emit("tray-open-extension", ());
-                    }
-                    "quit" => {
-                        services::polling::stop_polling();
-                        app_handle_menu.exit(0);
-                    }
-                    _ => {}
-                }
-            }
-        })
-        .on_tray_icon_event(move |_tray, event| {
-            // Left-click tray icon -> show/focus window
-            if let TrayIconEvent::Click {
-                button: MouseButton::Left,
-                button_state: MouseButtonState::Up,
-                ..
-            } = event
-            {
-                show_main_window(&app_handle);
-            }
-        });
-
-    #[cfg(target_os = "macos")]
-    let tray_builder = tray_builder.icon_as_template(true);
-
-    tray_builder.build(app)?;
-
-    // Populate tray menu with channel info
-    rebuild_tray_menu(&app.handle());
-
-    Ok(())
-}
-
-/// Rebuild the system tray menu with current followed channels and new video counts.
-/// Called after follow/unfollow, polling finds new videos, or downloads complete.
-pub fn rebuild_tray_menu(app_handle: &tauri::AppHandle) {
-    if !should_setup_system_tray() {
-        return;
-    }
-
-    let handle = app_handle.clone();
-    tauri::async_runtime::spawn(async move {
-        let channels = database::get_followed_channels_db().unwrap_or_default();
-        let channel_count = channels.len();
-        let download_status = tray_download_status();
-        let remote_status_label = tray_remote_status_label();
-
-        let mut channel_items = Vec::new();
-        for ch in &channels {
-            let count = database::get_new_videos_count_db(Some(ch.id.clone())).unwrap_or(0);
-            let label = if count > 0 {
-                format!("{} ({} {})", ch.name, count, tray_text("new_suffix"))
-            } else {
-                ch.name.clone()
-            };
-            channel_items.push((format!("ch_{}", ch.id), label));
-        }
-
-        let data = TrayData {
-            channel_count,
-            channel_items,
-            download_status,
-            remote_status_label,
-        };
-
-        let handle_for_main = handle.clone();
-        let _ = handle.run_on_main_thread(move || {
-            if let Err(e) = rebuild_tray_menu_inner(&handle_for_main, data) {
-                log::error!("Failed to rebuild tray menu: {}", e);
-            }
-        });
-    });
-}
-
-/// Get the stored tray language code
-fn get_tray_lang() -> String {
-    TRAY_LANG.lock().map(|l| l.clone()).unwrap_or_default()
-}
-
-/// Translate a tray menu key based on the current language
-fn tray_text(key: &str) -> &'static str {
-    let lang = get_tray_lang();
-    let lang = if lang.is_empty() || lang.starts_with("en") {
-        "en"
-    } else if lang.starts_with("vi") {
-        "vi"
-    } else if lang.starts_with("zh") {
-        "zh-CN"
-    } else if lang.starts_with("fr") {
-        "fr"
-    } else if lang.starts_with("ja") {
-        "ja"
-    } else if lang.starts_with("es") {
-        "es"
-    } else {
-        "en"
-    };
-
-    match (lang, key) {
-        // Vietnamese
-        ("vi", "followed_channels") => "Kênh đang theo dõi",
-        ("vi", "no_channels") => "Chưa theo dõi kênh nào",
-        ("vi", "new_suffix") => "mới",
-        ("vi", "download_queue") => "Hàng đợi tải xuống",
-        ("vi", "downloading") => "Đang tải",
-        ("vi", "pending") => "Chờ tải",
-        ("vi", "completed") => "Hoàn tất",
-        ("vi", "errors") => "Lỗi",
-        ("vi", "idle") => "Rảnh",
-        ("vi", "remote_download") => "Tải từ xa",
-        ("vi", "running") => "Đang chạy",
-        ("vi", "disabled") => "Đã tắt",
-        ("vi", "check_all") => "Kiểm tra kênh theo dõi ngay",
-        ("vi", "settings") => "Cài đặt",
-        ("vi", "check_update") => "Kiểm tra cập nhật...",
-        ("vi", "open") => "Mở RETubeMatrix",
-        ("vi", "browser_extension") => "Browser Extension",
-        ("vi", "quit") => "Thoát",
-        // Chinese
-        ("zh-CN", "followed_channels") => "已关注的频道",
-        ("zh-CN", "no_channels") => "尚未关注任何频道",
-        ("zh-CN", "new_suffix") => "个新视频",
-        ("zh-CN", "download_queue") => "下载队列",
-        ("zh-CN", "downloading") => "下载中",
-        ("zh-CN", "pending") => "等待中",
-        ("zh-CN", "completed") => "已完成",
-        ("zh-CN", "errors") => "错误",
-        ("zh-CN", "idle") => "空闲",
-        ("zh-CN", "remote_download") => "远程下载",
-        ("zh-CN", "running") => "运行中",
-        ("zh-CN", "disabled") => "已禁用",
-        ("zh-CN", "check_all") => "立即检查已关注频道",
-        ("zh-CN", "settings") => "设置",
-        ("zh-CN", "check_update") => "检查更新...",
-        ("zh-CN", "open") => "打开 RETubeMatrix",
-        ("zh-CN", "browser_extension") => "浏览器扩展",
-        ("zh-CN", "quit") => "退出",
-        // French
-        ("fr", "followed_channels") => "Chaines suivies",
-        ("fr", "no_channels") => "Aucune chaine suivie",
-        ("fr", "new_suffix") => "nouvelles",
-        ("fr", "download_queue") => "File de telechargement",
-        ("fr", "downloading") => "Telechargement",
-        ("fr", "pending") => "En attente",
-        ("fr", "completed") => "Termines",
-        ("fr", "errors") => "Erreurs",
-        ("fr", "idle") => "Inactif",
-        ("fr", "remote_download") => "Telechargement distant",
-        ("fr", "running") => "En cours",
-        ("fr", "disabled") => "Desactive",
-        ("fr", "check_all") => "Verifier les chaines suivies maintenant",
-        ("fr", "settings") => "Parametres",
-        ("fr", "check_update") => "Verifier les mises a jour...",
-        ("fr", "open") => "Ouvrir RETubeMatrix",
-        ("fr", "browser_extension") => "Extension navigateur",
-        ("fr", "quit") => "Quitter",
-        // Japanese
-        ("ja", "followed_channels") => "フォロー中のチャンネル",
-        ("ja", "no_channels") => "フォロー中のチャンネルはありません",
-        ("ja", "new_suffix") => "件の新着",
-        ("ja", "download_queue") => "ダウンロードキュー",
-        ("ja", "downloading") => "ダウンロード中",
-        ("ja", "pending") => "待機中",
-        ("ja", "completed") => "完了",
-        ("ja", "errors") => "エラー",
-        ("ja", "idle") => "待機中",
-        ("ja", "remote_download") => "リモートダウンロード",
-        ("ja", "running") => "実行中",
-        ("ja", "disabled") => "無効",
-        ("ja", "check_all") => "フォロー中チャンネルを今すぐチェック",
-        ("ja", "settings") => "設定",
-        ("ja", "check_update") => "更新をチェック...",
-        ("ja", "open") => "RETubeMatrix を開く",
-        ("ja", "browser_extension") => "ブラウザ拡張機能",
-        ("ja", "quit") => "終了",
-        // Spanish
-        ("es", "followed_channels") => "Canales seguidos",
-        ("es", "no_channels") => "No sigues ningún canal",
-        ("es", "new_suffix") => "nuevos",
-        ("es", "download_queue") => "Cola de descargas",
-        ("es", "downloading") => "Descargando",
-        ("es", "pending") => "Pendiente",
-        ("es", "completed") => "Completado",
-        ("es", "errors") => "Errores",
-        ("es", "idle") => "Inactivo",
-        ("es", "remote_download") => "Descarga remota",
-        ("es", "running") => "Ejecutándose",
-        ("es", "disabled") => "Deshabilitado",
-        ("es", "check_all") => "Comprobar canales seguidos ahora",
-        ("es", "settings") => "Ajustes",
-        ("es", "check_update") => "Buscar actualizaciones...",
-        ("es", "open") => "Abrir RETubeMatrix",
-        ("es", "browser_extension") => "Extensión de navegador",
-        ("es", "quit") => "Salir",
-        // English (default)
-        (_, "followed_channels") => "Followed Channels",
-        (_, "no_channels") => "No channels followed",
-        (_, "new_suffix") => "new",
-        (_, "download_queue") => "Download Queue",
-        (_, "downloading") => "Downloading",
-        (_, "pending") => "Pending",
-        (_, "completed") => "Completed",
-        (_, "errors") => "Errors",
-        (_, "idle") => "Idle",
-        (_, "remote_download") => "Remote Download",
-        (_, "running") => "Running",
-        (_, "disabled") => "Disabled",
-        (_, "check_all") => "Check Followed Channels Now",
-        (_, "settings") => "Settings",
-        (_, "check_update") => "Check for Updates...",
-        (_, "open") => "Open RETubeMatrix",
-        (_, "browser_extension") => "Browser Extension",
-        (_, "quit") => "Quit",
-        _ => "???",
-    }
-}
-
-fn tray_download_status() -> TrayDownloadStatus {
-    TRAY_DOWNLOAD_STATUS
-        .lock()
-        .map(|status| status.clone())
-        .unwrap_or(TrayDownloadStatus {
-            pending: 0,
-            downloading: 0,
-            completed: 0,
-            error: 0,
-            active: false,
-        })
-}
-
-fn tray_download_summary(status: &TrayDownloadStatus) -> String {
-    let total = status.pending + status.downloading + status.completed + status.error;
-    let activity = if status.active || status.downloading > 0 {
-        tray_text("downloading")
-    } else {
-        tray_text("idle")
-    };
-    format!("{} ({})", activity, total)
-}
-
-fn tray_remote_status_label() -> String {
-    let status = services::telegram::get_status();
-    let state = match status.state {
-        services::telegram::TelegramStatusState::Running => tray_text("running"),
-        services::telegram::TelegramStatusState::Disabled => tray_text("disabled"),
-        services::telegram::TelegramStatusState::Error => tray_text("errors"),
-    };
-
-    if let Some(message) = status.message.filter(|message| !message.trim().is_empty()) {
-        format!("{}: {}", state, message)
-    } else {
-        state.to_string()
-    }
-}
-
-struct TrayData {
-    channel_count: usize,
-    channel_items: Vec<(String, String)>,
-    download_status: TrayDownloadStatus,
-    remote_status_label: String,
-}
-
-fn rebuild_tray_menu_inner(
-    app_handle: &tauri::AppHandle,
-    data: TrayData,
-) -> Result<(), Box<dyn std::error::Error>> {
-    // Build channel submenu
-    let submenu_label = format!("{} ({})", tray_text("followed_channels"), data.channel_count);
-    let mut submenu = SubmenuBuilder::new(app_handle, &submenu_label);
-
-    if data.channel_items.is_empty() {
-        let item = MenuItemBuilder::with_id("no_channels", tray_text("no_channels"))
-            .enabled(false)
-            .build(app_handle)?;
-        submenu = submenu.item(&item);
-    } else {
-        for (item_id, label) in data.channel_items {
-            let item = MenuItemBuilder::with_id(item_id, &label).build(app_handle)?;
-            submenu = submenu.item(&item);
-        }
-    }
-
-    let built_submenu = submenu.build()?;
-    let download_label = format!(
-        "{} - {}",
-        tray_text("download_queue"),
-        tray_download_summary(&data.download_status)
-    );
-    let download_status_item = MenuItemBuilder::with_id("download_status", &download_label)
-        .enabled(false)
-        .build(app_handle)?;
-    let download_pending_item = MenuItemBuilder::with_id(
-        "download_pending",
-        format!("{}: {}", tray_text("pending"), data.download_status.pending),
-    )
-    .enabled(false)
-    .build(app_handle)?;
-    let download_downloading_item = MenuItemBuilder::with_id(
-        "download_downloading",
-        format!(
-            "{}: {}",
-            tray_text("downloading"),
-            data.download_status.downloading
-        ),
-    )
-    .enabled(false)
-    .build(app_handle)?;
-    let download_completed_item = MenuItemBuilder::with_id(
-        "download_completed",
-        format!("{}: {}", tray_text("completed"), data.download_status.completed),
-    )
-    .enabled(false)
-    .build(app_handle)?;
-    let download_error_item = MenuItemBuilder::with_id(
-        "download_error",
-        format!("{}: {}", tray_text("errors"), data.download_status.error),
-    )
-    .enabled(false)
-    .build(app_handle)?;
-    let download_submenu = SubmenuBuilder::new(app_handle, tray_text("download_queue"))
-        .item(&download_status_item)
-        .separator()
-        .item(&download_downloading_item)
-        .item(&download_pending_item)
-        .item(&download_completed_item)
-        .item(&download_error_item)
-        .build()?;
-
-    let remote_status = MenuItemBuilder::with_id(
-        "remote_download_status",
-        format!(
-            "{} - {}",
-            tray_text("remote_download"),
-            data.remote_status_label
-        ),
-    )
-    .enabled(false)
-    .build(app_handle)?;
-
-    // Build full menu
-    let check_now =
-        MenuItemBuilder::with_id("check_now", tray_text("check_all")).build(app_handle)?;
-    let settings = MenuItemBuilder::with_id("settings", tray_text("settings")).build(app_handle)?;
-    let check_update =
-        MenuItemBuilder::with_id("check_update", tray_text("check_update")).build(app_handle)?;
-    let show = MenuItemBuilder::with_id("show", tray_text("open")).build(app_handle)?;
-    let browser_extension =
-        MenuItemBuilder::with_id("browser_extension", tray_text("browser_extension"))
-            .build(app_handle)?;
-    let quit = MenuItemBuilder::with_id("quit", tray_text("quit")).build(app_handle)?;
-
-    let menu = MenuBuilder::new(app_handle)
-        .item(&show)
-        .separator()
-        .item(&download_submenu)
-        .item(&remote_status)
-        .separator()
-        .item(&built_submenu)
-        .item(&check_now)
-        .separator()
-        .item(&settings)
-        .item(&browser_extension)
-        .separator()
-        .item(&check_update)
-        .separator()
-        .item(&quit)
-        .build()?;
-
-    if let Some(tray) = app_handle.tray_by_id("main-tray") {
-        tray.set_menu(Some(menu))?;
-    }
-
-    Ok(())
 }
 
 #[cfg(test)]

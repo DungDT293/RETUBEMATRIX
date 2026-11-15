@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.11] - 2026-11-15
+
+### Added
+
+- **Modular Backend Architecture for Download & BKT Channels** - Decomposed monolithic backend controllers into structured, single-responsibility submodules: `commands/download/` (`args.rs`, `templates.rs`, `parser.rs`, `process.rs`, `workflows.rs`, `executor.rs`) and `commands/bkt/` (`crud.rs`, `cancel.rs`, `dispatch.rs`, `pipeline.rs`, `publish.rs`). Preserved 100% backward-compatible IPC interface via re-export facades in `commands/mod.rs`.
+- **Decoupled System Tray Controller** - Extracted system tray logic from `lib.rs` into dedicated `src-tauri/src/tray/` module, reducing entrypoint complexity by over 520 lines.
+- **Modular Python Browser Actions Architecture** - Decomposed `studio_dom.py` (2,100 lines) into `browser_engine/actions/dom/` (`js_lib.py`, `eval.py`, `modals.py`, `interaction.py`) and `bkt_check.py` (1,467 lines) into `browser_engine/actions/bkt/` (`evaluator.py`, `network.py`, `claim_extractor.py`, `monitor.py`). Mirrored physical copies byte-for-byte to `roots/browsermulti/actions/` ensuring zero symlink dependencies for NSIS packaging.
+
+### Changed
+
+- **Frontend Reup & BKT Page Component Modularization** - Refactored monolithic `ReupBktPage.tsx` (2,508 lines) into `src/pages/reup/` containing 11 focused components and custom hooks (`useReupBktController`, `useBktChannelsManager`, `BktChannelsTab`, `BktJobsTable`, `BktDailyReportModal`, `ReupPipelineSection`), reducing the root page file to 174 lines (>93% reduction).
+- **Chunked DOM Rendering for Channel Video Accordion** - Implemented incremental chunk rendering (30 items initial, step 30) and pre-indexed BKT job lookup map ($O(1)$) in `ChannelVideoAccordion.tsx`, slashing active DOM nodes from 35,000 down to ~900 (97% reduction) and eliminating UI freeze when expanding heavy channels.
+- **IPC Download Progress Throttling** - Added 120ms animation frame throttling buffer in `DownloadContext.tsx`, eliminating IPC progress event storms and redundant React renders during high-speed parallel downloads.
+
+### Fixed
+
+- **Dynamic Audio Resampling Length Drift Elimination** - Enforced strict dynamic sample rate probing via FFprobe across all FFmpeg audio modification filters (`asetrate={sr}*pitch,aresample={sr},atempo={speed/pitch}`), eliminating the 2.5-second audio drift previously caused by hardcoded 44,100 Hz filters on 48 kHz YouTube audio.
+- **BKT Anti-Regression Structural Verification** - Updated test assertions in `pipeline.rs` to validate pipeline boundaries directly, ensuring profile snapshots are preserved without runtime auto-heal mutations and failed pipelines never copy raw source videos into publish artifacts.
+
+## [1.0.10] - 2026-11-15
+
+### Fixed
+
+- **Direct Route Fallback to Channel Content Page (`/videos/upload`) After Video Upload** - Replaced unreliable synthetic drawer anchor clicks (`#menu-item-1`) with direct URL navigation (`https://studio.youtube.com/channel/{channel_id}/videos/upload`) after video file upload stream completes, resolving the issue where the browser remained stuck on the Channel Dashboard instead of transitioning to the Content tab.
+- **Enhanced Polymer Event Dispatching for Studio Left Drawer** - Implemented full sequence Polymer synthetic events (`mousedown`, `mouseup`, `click` with `bubbles: true, composed: true`) for navigation drawer items with immediate verification and fallback redirection.
+- **Robust Channel ID Extraction for Content Routing** - Added multi-tier channel ID detection via URL parsing, `window.ytcfg.get('CHANNEL_ID')`, and DOM anchor attributes, ensuring fallback routing always reaches the active channel's upload list.
+
+## [1.0.9] - 2026-11-14
+
+### Fixed
+
+- **CDP Security Bypass for Residential Proxies (`ERR_CERT_AUTHORITY_INVALID`)** - Configured CDP `Security.setIgnoreCertificateErrors` and Chromium `--test-type` flags across Playwright sessions, completely eliminating proxy SSL certificate validation failures on YouTube Studio navigation.
+- **Monetization & Ad Suitability Wizard Automation for BKT Channels** - Added automated support for BKT channels with monetization enabled, handling the "Monetization" step (Turn On) and "Ad Suitability" step (Check "None of the above" -> Submit rating), preventing wizard forward progress blocks.
+- **Polymer Shadow DOM "Publish Anyway" / "Vẫn xuất bản" Confirmation Clicker** - Rewrote modal confirmation logic to search and trigger `#confirm-button` inside Polymer Shadow DOM matching "Vẫn xuất bản", "Publish anyway", and multilingual variants without relying on stale text content checks.
+- **Automated End Screen Import** - Added automated End Screen element importing from the channel's most recent video (`#import-endscreen-from-video-button`) in the YouTube Studio upload wizard.
+- **Eliminate Premature Video Check Timeouts & Countdown Early-Exit** - Expanded countdown regex to support Spanish and international formats (`quedan`, `restan`, `faltan`), removed premature 45-second `is_clean_dash` heuristic fallback, and dynamically scaled maximum upload polling duration up to 7200 seconds for large files.
+- **Auto Reup FIFO Barrier Unlock for Published Videos** - Excluded `publish_failed` from `should_wait_for_auto_publish` barrier checks and filtered out already published videos from Auto Reup candidates, preventing persistent progress stalls at 28%.
+
+## [1.0.8] - 2026-11-14
+
+### Fixed
+
+- **BKT False-Clean Trap & Early Exit Elimination** - Fixed a critical issue where the BKT verification session terminated immediately upon reaching 100% upload because Restrictions column initially displayed `—` (dash). Implemented strict streak confirmation requiring 3 consecutive clean cycles and confirmed check phase completion before reporting `green_clean`.
+- **Automatic Handling for "Publish Anyway" / "Vẫn xuất bản" Confirmation Modal** - Added automated detection and clicking of `#confirm-button` when YouTube Studio prompts with "Publish anyway" / "Vẫn xuất bản" during unconfirmed check states, preventing upload hangs at the final step.
+- **SSL Certificate Error Resolution for Proxies (`ERR_CERT_AUTHORITY_INVALID`)** - Added `--ignore-certificate-errors`, `--ignore-ssl-errors`, and `ignore_https_errors: true` across Chromium launch args and Playwright persistent context configurations, resolving connection blocks on residential/MITM proxies.
+- **Extended Long-Video Verification Timeout** - Increased BKT pipeline max poll timeout from 1800s (30 minutes) to 7200s (2 hours), ensuring videos up to 30-40 minutes have sufficient time for YouTube server-side SD processing and Content ID analysis.
+
+## [1.0.7] - 2026-11-14
+
+### Fixed
+
+- **Prevent Abrupt Profile Shutdown During Video Upload** - Fixed a critical issue where the browser profile abruptly closed while video files were still being uploaded. Corrected premature upload stream completion logic in `upload_actions.py` by removing predictive keywords ("processing will begin", "quá trình xử lý sẽ sớm bắt đầu") and strictly enforcing `upload_finished = False` whenever `percent < 100`.
+- **10-Second Upload Stream Heartbeat** - Added a periodic 10-second heartbeat to the YouTube Studio upload polling loop in Python, preventing the 180-second silence watchdog in `bkt_channels.rs` from falsely killing active uploads of large files.
+- **Hook Dependencies & Linter Hygiene** - Resolved React hook dependency warnings and extra dependency arrays in `ReupBktPage.tsx` and `ChannelVideoAccordion.tsx`, achieving 0 Biome linter errors.
+
+## [1.0.6] - 2026-11-14
+
+### Fixed
+
+- **SQLite Foreign Key Deadlock & Cascade Migration** - Added safe migration `migrate_bkt_test_jobs_foreign_key` in `src-tauri/src/database/connection.rs`, preventing deadlocks and constraint violations when deleting BKT test channels.
+- **Catch-up Auto-Publish for Green Videos** - Added catch-up publish command and UI handling in `ReupBktPage.tsx` to safely publish verified clean videos to target money-making channels.
+- **Multi-language Description Language Accuracy** - Refined description generation to accurately identify Spanish, English, and Vietnamese titles, preventing stale Vietnamese template reuse for foreign content.
+
 ## [1.0.5] - 2026-11-13
 
 ### Added

@@ -167,7 +167,11 @@ export function usePersistedDownloadQueue({
 
   useEffect(() => {
     return () => {
-      clearSaveTimers();
+      if (enabled && hydratedRef.current) {
+        flushLatestQueue();
+      } else {
+        clearSaveTimers();
+      }
     };
-  }, [clearSaveTimers]);
+  }, [clearSaveTimers, enabled, flushLatestQueue]);
 }
