@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-11-17
+
+### Added
+
+- **Active Polling Modal Dismissal in Metadata Wait Loop** - Added continuous 1.5-second polling modal dismissal during the Details box waiting phase, ensuring transient dialogs appearing after file selection are immediately cleared.
+- **YouTube Studio Session Auto-Recovery** - Implemented automatic page refresh and upload retry flow when YouTube Studio prompts creators with feature eligibility updates ("Bạn đã hoàn tất" / "Hãy thử làm mới trang") or navigates back to channel dashboard.
+- **Global Action Button Click Fallback** - Introduced full-document scan fallback for visible confirmation controls ("Đã hiểu", "Got it") with complete pointer event dispatching (`mousedown`, `mouseup`, `click`), bypassing Polymer shadow boundary restrictions.
+
+### Fixed
+
+- **Feature Eligibility Dialog Freeze** - Resolved issue where YouTube Studio's "Bạn đã hoàn tất / Bạn đã có quyền sử dụng tính năng này rồi" dialog blocked the upload wizard, causing 45-second metadata timeouts and abrupt browser termination.
+- **Upload Dialog Ancestor Filter Regression** - Removed overly broad ancestor suppression in `inspectAndDismissBlockingDialog`, allowing nested notification and confirmation popups inside upload containers to be dismissed properly.
+- **CI Release Packaging Directory Verification** - Updated release workflow to ensure runtime directories exist dynamically without failing on gitignored bundled binaries.
+
 ## [1.3.1] - 2026-11-17
 
 ### Added

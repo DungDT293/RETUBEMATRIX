@@ -544,13 +544,26 @@ const __rtmDom = (() => {
     function inspectAndDismissBlockingDialog(opts = {}) {
         const candidates = deepQueryMounted(
             document,
-            'ytcp-confirmation-dialog, ytcp-dialog, tp-yt-paper-dialog, [role="dialog"]'
+            'ytcp-confirmation-dialog, ytcp-dialog, tp-yt-paper-dialog, [role="dialog"], [role="alertdialog"], ytcp-alert-dialog, ytcp-feature-eligibility-dialog, dialog'
         );
+        // Bổ sung các overlay container hoặc modal nằm cạnh backdrop đang mở
+        const backdrops = deepQueryAll(document, 'iron-overlay-backdrop.opened, tp-yt-iron-overlay-backdrop.opened');
+        for (const b of backdrops) {
+            let next = b.nextElementSibling;
+            while (next) {
+                if (isContainerVisiblyMounted(next) && !candidates.includes(next)) {
+                    candidates.push(next);
+                }
+                next = next.nextElementSibling;
+            }
+        }
+
         for (const dlg of candidates) {
             if (!isContainerVisiblyMounted(dlg)) continue;
             const tag = (dlg.tagName || '').toLowerCase();
-            if (tag === 'ytcp-uploads-dialog') continue;
-            if (hasAncestorTag(dlg, new Set(['ytcp-uploads-dialog', 'ytcp-video-row']))) continue;
+            // Không nhầm lẫn giao diện chính của wizard upload hoặc row video với dialog chặn
+            if (tag === 'ytcp-uploads-dialog' || tag === 'ytcp-video-row') continue;
+            if (tag === 'ytcp-uploads-file-picker' || tag === 'ytcp-video-metadata-editor' || tag === 'ytcp-uploads-review') continue;
 
             const fullText = (collectVisibleText(dlg) || '').toLowerCase();
             if (!fullText) continue;
@@ -558,13 +571,16 @@ const __rtmDom = (() => {
             // Nhận diện thông báo Hoàn tất / Sẵn sàng / Quyền tính năng
             const isAllSet = (
                 fullText.includes("bạn đã hoàn tất")
+                || fullText.includes("bạn đã có quyền")
+                || fullText.includes("quyền sử dụng tính năng này")
+                || fullText.includes("tính năng này rồi")
                 || fullText.includes("tất cả đã sẵn sàng")
                 || fullText.includes("bạn đã sẵn sàng")
-                || fullText.includes("quyền sử dụng tính năng này")
                 || fullText.includes("you're all set")
                 || fullText.includes("you are all set")
                 || fullText.includes("all set")
                 || fullText.includes("use these features now")
+                || fullText.includes("access to this feature")
                 || fullText.includes("ready to upload")
                 || fullText.includes("feature eligibility")
                 || fullText.includes("features unlocked")
@@ -579,6 +595,7 @@ const __rtmDom = (() => {
             // Nhận diện thông điệp yêu cầu làm mới trang
             const needsReload = (
                 fullText.includes("hãy thử làm mới trang")
+                || fullText.includes("thử làm mới trang")
                 || fullText.includes("làm mới trang")
                 || fullText.includes("tải lại trang")
                 || fullText.includes("try refreshing the page")
@@ -597,7 +614,7 @@ const __rtmDom = (() => {
             // Tìm nút an toàn để dismiss
             const btns = deepQueryVisible(
                 dlg,
-                '#confirm-button, [dialog-confirm], #dismiss-button, [dialog-dismiss], ytcp-button.ytcp-confirmation-dialog, ytcp-button#primary-action-button, ytcp-button, button'
+                '#confirm-button, [dialog-confirm], #dismiss-button, [dialog-dismiss], ytcp-button.ytcp-confirmation-dialog, ytcp-button#primary-action-button, ytcp-button, button, [role="button"]'
             );
             for (const b of btns) {
                 const btxt = (collectVisibleText(b) || '').toLowerCase();
@@ -612,6 +629,7 @@ const __rtmDom = (() => {
                     bid.includes('confirm')
                     || bid.includes('dismiss')
                     || b.hasAttribute('dialog-confirm')
+                    || b.hasAttribute('dialog-dismiss')
                     || /\b(got it|đã hiểu|xong|done|ok|tiếp tục|continue|làm mới|refresh|đóng|close)\b/i.test(combined)
                     || combined.includes('đã hiểu')
                     || combined.includes('got it')
@@ -621,7 +639,12 @@ const __rtmDom = (() => {
 
                 if (isSafeConfirm) {
                     const nativeBtn = resolveNativeButton(b) || b;
-                    nativeBtn.click();
+                    try {
+                        if (typeof nativeBtn.click === 'function') nativeBtn.click();
+                        nativeBtn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, composed: true }));
+                        nativeBtn.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, composed: true }));
+                        nativeBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+                    } catch (_) {}
                     return {
                         found: true,
                         clicked: true,
@@ -633,6 +656,30 @@ const __rtmDom = (() => {
                 }
             }
         }
+
+        // Fallback toàn trang: Tìm kiếm bất kỳ nút hiển thị nào mang nhãn 'đã hiểu' / 'got it'
+        const globalButtons = deepQueryVisible(document, 'ytcp-button, button, [role="button"]');
+        for (const gb of globalButtons) {
+            const txt = (collectVisibleText(gb) || '').toLowerCase().trim();
+            if (txt === 'đã hiểu' || txt === 'got it' || txt === '知道了' || txt === '閉じる') {
+                const nativeBtn = resolveNativeButton(gb) || gb;
+                try {
+                    if (typeof nativeBtn.click === 'function') nativeBtn.click();
+                    nativeBtn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, composed: true }));
+                    nativeBtn.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, composed: true }));
+                    nativeBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, composed: true }));
+                } catch (_) {}
+                return {
+                    found: true,
+                    clicked: true,
+                    needsReload: true,
+                    isAllSet: true,
+                    buttonText: txt,
+                    sample: 'Global button fallback: ' + txt,
+                };
+            }
+        }
+
         return { found: false, clicked: false, needsReload: false };
     }
 

@@ -7,6 +7,20 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-11-17
+
+### Thêm mới
+
+- **Tự Động Đóng Hộp Thoại Trong Vòng Lặp Chờ Metadata** - Bổ sung chu kỳ kiểm tra và đóng popup cản trở mỗi 1.5 giây trong suốt thời gian chờ khung chi tiết tiêu đề (Details), dẹp sạch các thông báo xuất hiện sau khi chọn file.
+- **Tự Động Làm Mới Phiên Và Thử Lại Luồng Upload** - Tích hợp cơ chế tự động reload trang YouTube Studio và thử lại tiến trình tải lên khi phát hiện thông báo cập nhật quyền tính năng ("Bạn đã hoàn tất" / "Hãy thử làm mới trang") hoặc bị đẩy về Channel Dashboard.
+- **Cơ Chế Bấm Nút Xác Nhận Fallback Toàn Trang** - Bổ sung thuật toán quét nút toàn bộ DOM cho nhãn "Đã hiểu" / "Got it" với đầy đủ chuỗi sự kiện chuột (`mousedown`, `mouseup`, `click`), khắc phục tình trạng nuốt sự kiện trong Polymer Shadow DOM.
+
+### Sửa lỗi
+
+- **Treo Hộp Thoại Quyền Tính Năng Khi Tải Lên** - Khắc phục triệt để hiện tượng hộp thoại "Bạn đã hoàn tất / Bạn đã có quyền sử dụng tính năng này rồi" phong tỏa giao diện khiến tool hết thời gian chờ 45 giây và đột ngột đóng Chromium.
+- **Lỗi Bỏ Qua Modal Trong Bộ Lọc Ancestor** - Loại bỏ điều kiện loại trừ diện rộng `hasAncestorTag` trong `inspectAndDismissBlockingDialog`, cho phép xử lý mọi thông báo lồng bên trong container upload.
+- **Kiểm Tra Thư Mục Đóng Gói Release CI** - Cập nhật workflow CI tự động chuẩn bị các thư mục runtime mà không bị dừng bởi các tệp nhị phân nằm trong danh sách gitignore.
+
 ## [1.3.1] - 2026-11-17
 
 ### Thêm mới
