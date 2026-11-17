@@ -352,6 +352,7 @@ pub fn run() {
             commands::run_preflight_scan_cmd,
             commands::probe_hardware_encoder_cmd,
             commands::run_reup_pipeline_adaptive_cmd,
+            commands::scan_directory_videos_cmd,
             // Whisper commands
             commands::transcribe_url_with_whisper,
             // Plugin commands
@@ -378,6 +379,7 @@ pub fn run() {
             commands::set_plugin_runtime_locale,
             // Channel commands
             commands::get_channel_video_filepath,
+            commands::get_channel_video_edited_filepath,
             commands::get_channel_videos,
             commands::get_channel_info,
             commands::stop_channel_fetch,
@@ -399,6 +401,10 @@ pub fn run() {
             commands::check_channel_now,
             commands::toggle_channel_auto_download,
             commands::update_channel_bkt_config,
+            commands::set_channel_fast_track_cmd,
+            commands::update_channel_reup_config_cmd,
+            commands::open_channel_edited_folder_cmd,
+            commands::get_channel_edited_folder_stats_cmd,
             commands::trigger_bkt_test_video,
             commands::trigger_bkt_test_videos_batch,
             commands::check_bkt_copyright_status_cmd,

@@ -116,11 +116,9 @@ pub fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         .build()?;
 
     #[cfg(target_os = "macos")]
-    let icon = tauri::image::Image::from_bytes(include_bytes!("../../icons/tray-template.png"))
-        .expect("Failed to load tray icon");
+    let icon = tauri::image::Image::from_bytes(include_bytes!("../../icons/tray-template.png"))?;
     #[cfg(not(target_os = "macos"))]
-    let icon = tauri::image::Image::from_bytes(include_bytes!("../../icons/32x32.png"))
-        .expect("Failed to load tray icon");
+    let icon = tauri::image::Image::from_bytes(include_bytes!("../../icons/32x32.png"))?;
 
     let app_handle = app.handle().clone();
     let app_handle_menu = app.handle().clone();
@@ -377,4 +375,51 @@ fn rebuild_tray_menu_inner(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tray_download_summary_idle() {
+        i18n::set_tray_lang("en".to_string());
+        let status = TrayDownloadStatus {
+            pending: 0,
+            downloading: 0,
+            completed: 2,
+            error: 1,
+            active: false,
+        };
+        let summary = tray_download_summary(&status);
+        assert_eq!(summary, "Idle (3)");
+    }
+
+    #[test]
+    fn test_tray_download_summary_active() {
+        i18n::set_tray_lang("en".to_string());
+        let status = TrayDownloadStatus {
+            pending: 1,
+            downloading: 2,
+            completed: 0,
+            error: 0,
+            active: true,
+        };
+        let summary = tray_download_summary(&status);
+        assert_eq!(summary, "Downloading (3)");
+    }
+
+    #[test]
+    fn test_tray_download_summary_vietnamese() {
+        i18n::set_tray_lang("vi".to_string());
+        let status = TrayDownloadStatus {
+            pending: 3,
+            downloading: 0,
+            completed: 1,
+            error: 0,
+            active: false,
+        };
+        let summary = tray_download_summary(&status);
+        assert_eq!(summary, "Rảnh (4)");
+    }
 }

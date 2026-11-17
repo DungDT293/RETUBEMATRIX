@@ -325,7 +325,7 @@ pub async fn fast_check_channel_rss(
             id: uuid::Uuid::new_v4().to_string(),
             channel_id: channel.id.clone(),
             video_id: video_id.clone(),
-            title,
+            title: title.clone(),
             url: canonical_url,
             thumbnail,
             duration: None,
@@ -342,6 +342,9 @@ pub async fn fast_check_channel_rss(
             bkt_check_status,
             bkt_restriction: None,
             reup_pipeline_level: Some(1),
+            original_title: Some(title),
+            original_description: None,
+            description: None,
         };
 
         new_videos.push(video);
@@ -678,6 +681,7 @@ pub async fn check_channel_for_new_videos(
     }
 
     let mut new_videos: Vec<ChannelVideo> = Vec::new();
+    let mut truly_new_count: usize = 0;
     let now = chrono::Utc::now().to_rfc3339();
 
     // Map extracted channel_id for RSS timestamps fallback
@@ -913,11 +917,21 @@ pub async fn check_channel_for_new_videos(
                 .get("view_count")
                 .and_then(|v| v.as_i64().or_else(|| v.as_f64().map(|f| f as i64)));
 
+            let description = json
+                .get("description")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string());
+
+            let is_already_in_db = database::has_channel_video_db(&channel.id, &id).unwrap_or(false);
+            if !is_already_in_db {
+                truly_new_count += 1;
+            }
+
             new_videos.push(ChannelVideo {
                 id: uuid::Uuid::new_v4().to_string(),
                 channel_id: channel.id.clone(),
                 video_id: id,
-                title,
+                title: title.clone(),
                 url: video_url,
                 thumbnail,
                 duration,
@@ -934,6 +948,9 @@ pub async fn check_channel_for_new_videos(
                 bkt_check_status,
                 bkt_restriction: None,
                 reup_pipeline_level: Some(1),
+                original_title: Some(title),
+                original_description: description.clone(),
+                description,
             });
         }
     }
@@ -943,7 +960,7 @@ pub async fn check_channel_for_new_videos(
     }
 
     // Save new videos to DB
-    let new_count = new_videos.len();
+    let new_count = truly_new_count;
 
     // Update last_video_id to the first (newest) video
     let first_video_id = new_videos.first().map(|v| v.video_id.clone());

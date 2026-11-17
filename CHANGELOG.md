@@ -7,6 +7,117 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-11-17
+
+### Added
+
+- **Multi-Layer Studio Modal Dismissal System** - Integrated automated recognition and dismissal for blocking Polymer dialogs on YouTube Studio, including "You're all set" / "Bạn đã hoàn tất", "Publish anyway" / "Vẫn xuất bản", and background processing modals.
+- **Process Tree Cleanup for Automation Watchdogs** - Enhanced watchdog terminations (180s silence, 15m 0% upload, 40m stale upload) to recursively terminate entire process trees (`taskkill /F /T /PID`), preventing orphaned Chromium instances.
+- **Unbuffered Pipe I/O on Windows** - Injected `PYTHONUNBUFFERED=1` and `-u` flags across runner processes, ensuring line-buffered realtime event streaming without Windows anonymous pipe deadlocks.
+
+### Fixed
+
+- **Stream-Level Metadata Leak in Reup Pipelines** - Added `-map_metadata:s -1` across Level 1, Level 2, and Adaptive reup pipelines to completely strip audio/video stream-level metadata.
+- **SQL Wildcard History Match on Empty Media ID** - Fixed `is_video_in_history_db` evaluating `url LIKE '%%'` when media ID is blank, preventing false-positive duplicate flags.
+- **Channel Deep Polling False New Video Spikes** - Added database existence pre-checks during yt-dlp deep polling passes to avoid duplicate notifications and spurious auto-downloads.
+- **Visual Copyright Reup Race Condition** - Eliminated race condition where visual copyright hits spawned background Reup Lv.2 while cleanup routines concurrently deleted the reup source file.
+- **Pre-Upload Video Integrity Checks** - Enforced file existence and minimal size thresholds (> 100KB) before initiating YouTube Studio upload sessions.
+- **Shared Edit Directory Artifact Discovery** - Aligned pipeline artifact discovery to search both `[DA_EDIT]_{video_stem}` and shared `[DA_EDIT]` directories.
+- **Target Channel Large Video Upload Timeout** - Extended backend upload timeout threshold from 30 minutes to 120 minutes (7200s), fully accommodating large video uploads over proxies.
+
+## [1.3.0] - 2026-11-17
+
+### Added
+
+- **Non-Blocking IPC Timeouts for Frontend Profiles & Dashboard** - Added resilient non-blocking timeout handling for IPC calls in `ProfilesPage` and `DashboardPage`, preventing infinite loading spinners when querying profiles, system metrics, or video statistics.
+- **Automated Database Discovery & Unit Test Environment Isolation** - Completed dynamic SQLite database path resolution with isolated, mockable in-memory and temporary database fixtures for unit test environments.
+
+### Fixed
+
+- **SQLite Mutex Self-Deadlock on Target Channel Publication Status Updates** - Resolved critical self-deadlock condition in `commands/bkt/publish.rs` and `pipeline.rs` caused by re-locking the connection mutex within the same call stack while updating publish state.
+- **Optimized Pre-Rendered Disk Video Auto-Publish Workflow** - Streamlined auto-publish pipeline when an edited video artifact already exists on disk, skipping redundant re-encoding stages and ensuring seamless transitions to target profile publishing.
+
+## [1.2.9] - 2026-11-17
+
+### Added
+
+- **Channel Video Accordion Modularization & Architecture Decoupling** - Completely refactored `ChannelVideoAccordion.tsx` (previously a 2,019-line monolith) into clean, focused submodules in `src/pages/channels/accordion/`: `ChannelVideoToolbar`, `ChannelVideoFilterBar`, `ChannelVideoRow`, and `useChannelVideoWorkflows`. Slashed main coordinator size by 86% down to 276 lines while maintaining 100% flow safety guarantees and zero UI regressions.
+- **Pre-Rendered Video Artifact Auto-Detection (`[DA_EDIT]`)** - Pipeline and dispatcher now automatically check for existing rendered `_reup_ready.mp4` video files in `[DA_EDIT]_{video_stem}` before initiating FFmpeg re-rendering. Bypasses 100% of re-rendering time when the video is already prepared, jumping directly to target channel upload.
+- **Unified Clean Video Publish UI Action** - Refactored video list actions. When a video has already completed editing or is ready for publish continuation, the redundant edit button is hidden or replaced by a distinct "Đăng ngay (Đã Edit)" trigger, preventing duplicate jobs and accidental re-renders.
+
+### Fixed
+
+- **Redundant Re-render on Direct Publish Trigger** - Fixed `pipeline.rs` emitting `reuping` and re-encoding when an edited artifact already exists on disk.
+- **Fast-Track Checkpoint Artifact Loss** - Fixed `dispatch.rs` discarding existing disk artifacts on fast-track jobs, ensuring `reup_path` is preserved from inception.
+
+## [1.2.8] - 2026-11-17
+
+### Added
+
+- **Pre-Rendered Video Artifact Auto-Detection (`[DA_EDIT]`)** - Pipeline and dispatcher now automatically check for existing rendered `_reup_ready.mp4` video files in `[DA_EDIT]_{video_stem}` before initiating FFmpeg re-rendering. Bypasses 100% of re-rendering time when the video is already prepared, jumping directly to target channel upload.
+- **Unified Clean Video Publish UI Action** - Refactored video list actions in `ChannelVideoAccordion.tsx`. When a video has already completed editing or is ready for publish continuation, the redundant edit button is hidden or replaced by a distinct "Đăng ngay (Đã Edit)" trigger, preventing duplicate jobs and accidental re-renders.
+
+### Fixed
+
+- **Redundant Re-render on Direct Publish Trigger** - Fixed `pipeline.rs` emitting `reuping` and re-encoding when an edited artifact already exists on disk.
+- **Fast-Track Checkpoint Artifact Loss** - Fixed `dispatch.rs` discarding existing disk artifacts on fast-track jobs, ensuring `reup_path` is preserved from inception.
+
+### Added
+
+- **Direct Target Publish Bypass (`skip_bkt_test`)** - Single-item and batch "Edit & Publish Now" actions now bypass BKT test channel uploads and Playwright Studio copyright loops completely, directly rendering the adaptive reup video into `[DA_EDIT]` and publishing straight to the assigned Target Profile.
+
+### Fixed
+
+- **Publish Claim Historical Lockout Elimination** - Replaced persistent lock on historical `published` records in `claim_bkt_job_for_publish_with_conn` with an active concurrency timeout check (`status = 'publishing' AND updated_at > datetime('now', '-15 minutes')`). Completely eliminates `BKT: Sạch, đăng lỗi` (`Job BKT đã được đăng hoặc đang được xử lý bởi tác vụ khác`), allowing instant manual retries and multiple republishes without database deadlock.
+- **Quota-Free Direct Dispatch Fallback** - Guaranteed that direct edit & publish jobs execute successfully even if zero BKT test channels exist in the system.
+
+## [1.2.6] - 2026-11-16
+
+### Added
+
+- **One-Click & Batch "Edit & Publish Now" with Smart Jitter** - Added single-item and multi-item "Edit & Publish Now" action triggers in `ChannelVideoAccordion.tsx`. Features automatic title optimization (<=95 characters), thumbnail pairing, sequential Reup execution, and randomized Smart Jitter (30 to 60 minutes) to avoid YouTube spam flags.
+- **Real-Time Batch Progress & Emergency Stop** - Introduced live countdown timers and safe interruption controls (`Dừng lại`) for ongoing batch reup and publishing queues.
+
+### Fixed
+
+- **YouTube Studio White Screen Crash Elimination** - Permanently eliminated invalid bare `/videos/upload` route fallbacks in `browser_engine/` and `roots/browsermulti/` (`navigation.py`, `monitor.py`, `network.py`, `runner.py`). Replaced with resilient multi-tier Channel ID resolution and SPA navigation drawer clicks, resolving the "Rất tiếc, đã xảy ra lỗi." (Oops, something went wrong) crash.
+- **Channel Reup Configuration Parameter Duplication** - Resolved `duplicate field channel_id` IPC deserialization failures in `ChannelSettingsDialog.tsx` and `commands/channels.rs`.
+- **Database Target Profile Unlinking** - Enabled setting and clearing target profiles via `target_profile_id = ?1, bkt_profile_id = ?1` instead of COALESCE locking in `update_channel_reup_config_db`.
+
+## [1.2.5] - 2026-11-16
+
+### Added
+
+- **Modern Reup Configuration** - Overhauled channel settings dialog into a dedicated Reup Configuration modal with trusted channel toggles, download mode options (all videos vs. selected videos), target channel binding, and schedule intervals with smart jitter (30 to 60 minutes).
+- **Sequential Batch Reup Pipeline & Hardware Governor** - Introduced multi-file selection, drag-and-drop ingestion, folder scanning (`scan_directory_videos_cmd`), and a sequential queue runner in `ReupPipelineSection.tsx`. Enforces single-item active processing to protect hardware from CPU/GPU overload while supporting adaptive preflight AI inspection.
+- **Channel Card Edited Folder Quick Access** - Added quick-access button with `FolderCheck` icon on `ChannelCard.tsx` calling `open_channel_edited_folder_cmd` and displaying real-time count of processed videos via `get_channel_edited_folder_stats_cmd`.
+- **Checkpoint & Channel Affinity Engine** - Added test channel reuse in `dispatch.rs` and `bkt_channels.rs`, allowing subsequent runs on the same channel/video to resume existing uploads and Studio checks without quota exhaustion.
+- **Original Metadata Retention** - Preserved `original_title` and `original_description` across SQLite schemas (`channel_videos`), enabling authentic title and description extraction for direct uploads.
+
+### Fixed
+
+- **Upload Interrupted & TCP Reset Elimination** - Removed premature `goto_channel_videos` navigation during active TUS data streams in `upload_actions.py`. Kept navigation only after `upload_stream_finished == True` and dialogs dismissed.
+- **False Processing Signatures Removal** - Purged premature future processing prediction strings from `is_upload_stream_complete` to prevent premature job completion on multi-gigabyte videos.
+- **Edited Video Artifact Preservation** - Retained `reup_ready.mp4` on local disk upon job completion in `publish.rs`, enabling YouTube Studio upload resumption and file verification.
+- **Engine Parity & Anti-Regression** - Synchronized 100% binary equivalence between `browser_engine/` and `roots/browsermulti/`.
+
+## [1.2.1] - 2026-11-16
+
+### Fixed
+
+- **YouTube Studio Dialog Opening Multi-Tier Architecture** - Resolved `not_found_or_unstable` error when clicking Create/Upload on YouTube Studio content videos by deploying a 3-tier resilient opener: Playwright piercing locators, language-agnostic first-menu-item targeting, and recursive Shadow DOM JavaScript click fallback.
+- **YouTube Studio Upload Stream & BKT 0% Hang Eradication** - Fixed false `cancelUploadVisible` detection caused by over-broad selector matching on video rows. Enhanced `is_upload_stream_complete` with 14 modern Studio processing and checks signatures. Automated instant handover to Content ID verification if upload metrics freeze after 45s without progress, preventing 15-minute queue locks.
+- **Python Automation Engine Parity** - Maintained 100% binary equivalence between `browser_engine/` and bundled `roots/browsermulti/` across all DOM evaluators and BKT monitors.
+
+## [1.2.0] - 2026-11-16
+
+### Fixed
+
+- **YouTube Studio Video Upload 0% Hang & Modal Blockage Resolution** - Eliminated the 0% upload hang and upload dialog blockage by implementing a Dual File Chooser strategy (`expect_file_chooser()` combined with fallback synthetic events dispatching `bubbles: true, composed: true` for Web Components/Polymer data binding), automatic cleanup of stale `iron-overlay-backdrop` elements, and binary read lock checks before uploading.
+- **Tauri v2 IPC Contract Parameter Standardization** - Enforced dual parameter passing (`camelCase` and `snake_case`) across all 210 frontend `invoke()` calls, covering BKT channel management, profile launch/stop, AI Outlier Hunter, cookie/proxy settings, and Reup pipeline dispatch.
+- **Crash Prevention & Safe Deserialization** - Eliminated unsafe `.unwrap()` calls across backend controllers (`preview.rs`, `channels.rs`, `pipeline.rs`), preventing sudden process panics and protecting React components against invalid date formatting and empty array iterations.
+- **Browser Engine Parity & Anti-Regression Enforcements** - Achieved 100% binary hash parity (63/63 files) between `browser_engine/` and `roots/browsermulti/`, preserving dynamic audio sample rate probing via FFprobe and strict subscriber count parsing in Outlier Hunter.
+
 ## [1.0.11] - 2026-11-15
 
 ### Added

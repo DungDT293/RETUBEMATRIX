@@ -223,28 +223,103 @@ fn migrate_legacy_database(legacy_path: &Path, db_path: &Path) -> Result<(), Str
 fn resolve_database_path(app_data_dir: &Path) -> Result<PathBuf, String> {
     let db_path = app_data_dir.join(DATABASE_FILE_NAME);
     let temp_db_path = migrating_database_path(&db_path);
+
+    // Xử lý tệp rỗng/hỏng (0 bytes) do tiến trình hoặc script cũ để lại
     if db_path.exists() {
-        remove_incomplete_database(&temp_db_path);
-        return Ok(db_path);
+        if let Ok(meta) = std::fs::metadata(&db_path) {
+            if meta.len() == 0 {
+                let _ = std::fs::remove_file(&db_path);
+            }
+        }
     }
 
+    if db_path.exists() {
+        if let Ok(meta) = std::fs::metadata(&db_path) {
+            if meta.len() > 1024 {
+                remove_incomplete_database(&temp_db_path);
+                return Ok(db_path);
+            }
+        }
+    }
+
+    // 1. Tệp di sản ngay trong thư mục app_data_dir hiện tại
     let legacy_path = app_data_dir.join(LEGACY_DATABASE_FILE_NAME);
     let youwee_local = app_data_dir.join("youwee.db");
     if legacy_path.exists() {
         migrate_legacy_database(&legacy_path, &db_path)?;
+        return Ok(db_path);
     } else if youwee_local.exists() {
         migrate_legacy_database(&youwee_local, &db_path)?;
-    } else if let Some(parent) = app_data_dir.parent() {
-        let old_dir_youwee = parent.join("com.vanloctech.youwee").join("youwee.db");
-        let old_dir_legacy = parent.join("com.vanloctech.youwee").join(LEGACY_DATABASE_FILE_NAME);
-        if old_dir_youwee.exists() {
-            migrate_legacy_database(&old_dir_youwee, &db_path)?;
-        } else if old_dir_legacy.exists() {
-            migrate_legacy_database(&old_dir_legacy, &db_path)?;
-        } else {
-            remove_incomplete_database(&temp_db_path);
+        return Ok(db_path);
+    }
+
+    #[allow(unused_mut)]
+    let mut candidate_paths: Vec<PathBuf> = Vec::new();
+
+    // 2. Quét các thư mục anh em trong cùng parent (bỏ qua khi chạy unit test)
+    #[cfg(not(test))]
+    if let Some(parent) = app_data_dir.parent() {
+        candidate_paths.push(parent.join("com.retubematrix.app").join(DATABASE_FILE_NAME));
+        candidate_paths.push(parent.join("RETubeMatrix").join(DATABASE_FILE_NAME));
+        candidate_paths.push(parent.join("com.retubematrix.v2").join(DATABASE_FILE_NAME));
+        candidate_paths.push(parent.join("com.vanloctech.youwee").join(DATABASE_FILE_NAME));
+        candidate_paths.push(parent.join("com.vanloctech.youwee").join("youwee.db"));
+        candidate_paths.push(parent.join("com.vanloctech.youwee").join(LEGACY_DATABASE_FILE_NAME));
+    }
+
+    // 3. Quét chéo thư mục Roaming (%APPDATA%) trên Windows (bỏ qua khi chạy unit test)
+    #[cfg(not(test))]
+    if let Ok(appdata) = std::env::var("APPDATA") {
+        let roaming_dir = PathBuf::from(appdata);
+        candidate_paths.push(roaming_dir.join("com.retubematrix.app").join(DATABASE_FILE_NAME));
+        candidate_paths.push(roaming_dir.join("RETubeMatrix").join(DATABASE_FILE_NAME));
+        candidate_paths.push(roaming_dir.join("com.vanloctech.youwee").join(DATABASE_FILE_NAME));
+        candidate_paths.push(roaming_dir.join("com.vanloctech.youwee").join("youwee.db"));
+        candidate_paths.push(roaming_dir.join("com.vanloctech.youwee").join(LEGACY_DATABASE_FILE_NAME));
+    }
+
+    // 4. Quét chéo thư mục Local (%LOCALAPPDATA%) trên Windows (bỏ qua khi chạy unit test)
+    #[cfg(not(test))]
+    if let Ok(local_appdata) = std::env::var("LOCALAPPDATA") {
+        let local_dir = PathBuf::from(local_appdata);
+        candidate_paths.push(local_dir.join("com.retubematrix.app").join(DATABASE_FILE_NAME));
+        candidate_paths.push(local_dir.join("RETubeMatrix").join(DATABASE_FILE_NAME));
+        candidate_paths.push(local_dir.join("com.vanloctech.youwee").join(DATABASE_FILE_NAME));
+        candidate_paths.push(local_dir.join("com.vanloctech.youwee").join("youwee.db"));
+        candidate_paths.push(local_dir.join("com.vanloctech.youwee").join(LEGACY_DATABASE_FILE_NAME));
+    }
+
+    // Lọc các ứng viên hợp lệ, loại trừ chính db_path và sắp xếp theo dung lượng giảm dần (ưu tiên DB có dữ liệu lớn nhất)
+    let mut valid_candidates: Vec<(PathBuf, u64)> = candidate_paths
+        .into_iter()
+        .filter(|p| p != &db_path && p.exists())
+        .filter_map(|p| {
+            let meta = std::fs::metadata(&p).ok()?;
+            if meta.len() > 1024 {
+                Some((p, meta.len()))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    valid_candidates.sort_by(|a, b| b.1.cmp(&a.1));
+
+    let mut migrated = false;
+    for (cand, len) in valid_candidates {
+        log::info!(
+            "[DB RESOLVE] Thử khôi phục dữ liệu từ candidate: {} ({} bytes) -> {}",
+            cand.display(),
+            len,
+            db_path.display()
+        );
+        if migrate_legacy_database(&cand, &db_path).is_ok() {
+            migrated = true;
+            break;
         }
-    } else {
+    }
+
+    if !migrated {
         remove_incomplete_database(&temp_db_path);
     }
 
@@ -605,7 +680,9 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
             download_audio_bitrate TEXT NOT NULL DEFAULT '192',
             download_preferred_fps TEXT NOT NULL DEFAULT 'original',
             youtube_content_type TEXT NOT NULL DEFAULT 'videos',
-            total_videos INTEGER
+            total_videos INTEGER,
+            consecutive_green_count INTEGER NOT NULL DEFAULT 0,
+            enable_fast_track INTEGER NOT NULL DEFAULT 0
         )",
         [],
     )
@@ -804,6 +881,18 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     )
     .ok();
 
+    // Migration: Add Trusted Channel Fast-Track columns to followed_channels
+    conn.execute(
+        "ALTER TABLE followed_channels ADD COLUMN consecutive_green_count INTEGER NOT NULL DEFAULT 0",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE followed_channels ADD COLUMN enable_fast_track INTEGER NOT NULL DEFAULT 0",
+        [],
+    )
+    .ok();
+
     // Migration: Add risk status, BKT auto-test & Reup level flags to channel_videos
     conn.execute(
         "ALTER TABLE channel_videos ADD COLUMN risk_status TEXT DEFAULT 'green'",
@@ -837,6 +926,46 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     .ok();
     conn.execute(
         "ALTER TABLE channel_videos ADD COLUMN reup_pipeline_level INTEGER DEFAULT 1",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE channel_videos ADD COLUMN original_title TEXT",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE channel_videos ADD COLUMN original_description TEXT",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE channel_videos ADD COLUMN description TEXT",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE followed_channels ADD COLUMN direct_upload_target INTEGER NOT NULL DEFAULT 0",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE followed_channels ADD COLUMN upload_interval_minutes INTEGER NOT NULL DEFAULT 45",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE followed_channels ADD COLUMN upload_interval_mode TEXT NOT NULL DEFAULT 'auto_30_60'",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE followed_channels ADD COLUMN download_mode TEXT NOT NULL DEFAULT 'all'",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE followed_channels ADD COLUMN is_trusted_clean INTEGER NOT NULL DEFAULT 0",
         [],
     )
     .ok();
@@ -1058,6 +1187,50 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
         }
     }
 
+    // Cross-candidate fallback: Nếu followed_channels rỗng (0 dòng) nhưng có DB anh em chứa dữ liệu, tự động import phục hồi
+    let current_channel_count: i64 = conn
+        .query_row("SELECT COUNT(*) FROM followed_channels", [], |r| r.get(0))
+        .unwrap_or(0);
+    if current_channel_count == 0 {
+        let mut check_dirs = Vec::new();
+        if let Some(parent) = app_data_dir.parent() {
+            check_dirs.push(parent.join("com.retubematrix.app"));
+            check_dirs.push(parent.join("RETubeMatrix"));
+        }
+        if let Ok(appdata) = std::env::var("APPDATA") {
+            let roaming_dir = PathBuf::from(appdata);
+            check_dirs.push(roaming_dir.join("com.retubematrix.app"));
+            check_dirs.push(roaming_dir.join("RETubeMatrix"));
+        }
+        if let Ok(local) = std::env::var("LOCALAPPDATA") {
+            let local_dir = PathBuf::from(local);
+            check_dirs.push(local_dir.join("com.retubematrix.app"));
+            check_dirs.push(local_dir.join("RETubeMatrix"));
+        }
+
+        for dir in check_dirs {
+            let cand_file = dir.join(DATABASE_FILE_NAME);
+            if cand_file != db_path && cand_file.exists() {
+                if let Ok(meta) = std::fs::metadata(&cand_file) {
+                    if meta.len() > 1024 {
+                        let cand_str = cand_file.to_string_lossy().to_string();
+                        if conn.execute("ATTACH DATABASE ?1 AS cand_db", params![cand_str]).is_ok() {
+                            let _ = conn.execute("INSERT OR IGNORE INTO followed_channels SELECT * FROM cand_db.followed_channels", []);
+                            let _ = conn.execute("INSERT OR IGNORE INTO channel_videos SELECT * FROM cand_db.channel_videos", []);
+                            let _ = conn.execute("INSERT OR IGNORE INTO bkt_test_channels SELECT * FROM cand_db.bkt_test_channels", []);
+                            let _ = conn.execute("INSERT OR IGNORE INTO bkt_test_jobs SELECT * FROM cand_db.bkt_test_jobs", []);
+                            let _ = conn.execute("INSERT OR IGNORE INTO outlier_videos SELECT * FROM cand_db.outlier_videos", []);
+                            let _ = conn.execute("INSERT OR IGNORE INTO history SELECT * FROM cand_db.history", []);
+                            let _ = conn.execute("DETACH DATABASE cand_db", []);
+                            log::info!("[DB HEAL] Đã khôi phục dữ liệu từ candidate DB: {}", cand_file.display());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Startup Reconcile Sweep: Quét và giải phóng các tác vụ BKT bị gián đoạn khi app tắt/khởi động lại
     let _ = super::reconcile_bkt_jobs_on_startup_db(&conn);
 
@@ -1079,10 +1252,11 @@ pub fn get_db() -> Result<std::sync::MutexGuard<'static, Connection>, String> {
 
 #[cfg(test)]
 pub fn db_test_guard() -> std::sync::MutexGuard<'static, ()> {
-    DB_TEST_LOCK
-        .get_or_init(|| Mutex::new(()))
-        .lock()
-        .expect("lock shared database test mutex")
+    let mutex = DB_TEST_LOCK.get_or_init(|| Mutex::new(()));
+    match mutex.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => poisoned.into_inner(),
+    }
 }
 
 #[cfg(test)]

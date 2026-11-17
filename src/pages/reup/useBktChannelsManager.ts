@@ -74,7 +74,7 @@ export function useBktChannelsManager(): BktChannelsManager {
   const handleResetQuota = async () => {
     try {
       setLoading(true);
-      await invoke('reset_bkt_channel_daily_quota', { channelId: null });
+      await invoke('reset_bkt_channel_daily_quota', { channelId: null, channel_id: null });
       toast.success({
         title: 'Đã làm mới hạn ngạch',
         description: 'Đã hoàn trả toàn bộ hạn ngạch test bản quyền hôm nay về 0.',

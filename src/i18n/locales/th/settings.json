@@ -11,7 +11,8 @@
     "system": "ระบบ",
     "about": "เกี่ยวกับและเวอร์ชัน",
     "plugins": "ปลั๊กอิน",
-    "pluginStore": "Plugin Store"
+    "pluginStore": "Plugin Store",
+    "remoteDownload": "การดาวน์โหลดจากระยะไกล"
   },
   "search": {
     "placeholder": "ค้นหาในการตั้งค่า...",
@@ -519,7 +520,11 @@
     "duplicateHandlingDesc": "เลือกสิ่งที่ RETubeMatrix ควรทำเมื่อวิดีโอมีอยู่ใน Library แล้ว",
     "duplicateHandlingAsk": "ถามก่อนเพิ่ม",
     "duplicateHandlingSkip": "ข้ามอัตโนมัติ",
-    "duplicateHandlingAllow": "อนุญาตรายการซ้ำ"
+    "duplicateHandlingAllow": "อนุญาตรายการซ้ำ",
+    "queuePersistence": "คิวการดาวน์โหลด",
+    "queuePersistenceDesc": "เก็บการดาวน์โหลดในคิวไว้หลังจากปิด RETubeMatrix",
+    "persistDownloadQueue": "บันทึกคิวการดาวน์โหลด",
+    "persistDownloadQueueDesc": "กู้คืนรายการในคิว YouTube, Universal และ Gallery เมื่อเปิดแอปอีกครั้ง"
   },
   "dependencies": {
     "title": "Dependencies",

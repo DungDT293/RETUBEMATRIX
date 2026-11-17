@@ -20,6 +20,7 @@ from .eval import (
 from .modals import (
     inspect_studio_modal_state,
     dismiss_post_save_studio_modals,
+    dismiss_blocking_studio_dialogs,
 )
 from .interaction import (
     DEFAULT_FORBIDDEN_HREF_PATTERNS,
@@ -41,6 +42,7 @@ __all__ = [
     "get_studio_context",
     "inspect_studio_modal_state",
     "dismiss_post_save_studio_modals",
+    "dismiss_blocking_studio_dialogs",
     "DEFAULT_FORBIDDEN_HREF_PATTERNS",
     "_url_matches_patterns",
     "wait_for_stable_actionable",

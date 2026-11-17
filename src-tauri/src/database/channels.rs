@@ -66,7 +66,14 @@ pub fn get_followed_channels_db() -> Result<Vec<FollowedChannel>, String> {
                     youtube_content_type, total_videos, youtube_channel_id,
                     reup_mod_enabled, reup_mod_speed, reup_mod_pitch, reup_mod_flip, reup_mod_crop,
                     custom_filename_template, risk_status, risk_reason, bkt_test_mode, bkt_profile_id,
-                    COALESCE(target_profile_id, bkt_profile_id) AS target_profile_id
+                    COALESCE(target_profile_id, bkt_profile_id) AS target_profile_id,
+                    COALESCE(consecutive_green_count, 0) AS consecutive_green_count,
+                    COALESCE(enable_fast_track, 0) AS enable_fast_track,
+                    COALESCE(direct_upload_target, 0) AS direct_upload_target,
+                    COALESCE(upload_interval_minutes, 45) AS upload_interval_minutes,
+                    COALESCE(upload_interval_mode, 'auto_30_60') AS upload_interval_mode,
+                    COALESCE(download_mode, 'all') AS download_mode,
+                    COALESCE(is_trusted_clean, 0) AS is_trusted_clean
              FROM followed_channels ORDER BY created_at DESC",
         )
         .map_err(|e| format!("Failed to prepare query: {}", e))?;
@@ -109,6 +116,13 @@ pub fn get_followed_channels_db() -> Result<Vec<FollowedChannel>, String> {
                 bkt_test_mode: row.get::<_, Option<i64>>(32)?.map(|v| v != 0),
                 bkt_profile_id: row.get(33)?,
                 target_profile_id: row.get(34)?,
+                consecutive_green_count: row.get(35)?,
+                enable_fast_track: row.get::<_, Option<i64>>(36)?.map(|v| v != 0),
+                direct_upload_target: row.get::<_, Option<i64>>(37)?.map(|v| v != 0),
+                upload_interval_minutes: row.get(38)?,
+                upload_interval_mode: row.get(39)?,
+                download_mode: row.get(40)?,
+                is_trusted_clean: row.get::<_, Option<i64>>(41)?.map(|v| v != 0),
             })
         })
         .map_err(|e| format!("Query failed: {}", e))?
@@ -130,7 +144,14 @@ pub fn get_followed_channel_db(id: String) -> Result<FollowedChannel, String> {
                 youtube_content_type, total_videos, youtube_channel_id,
                 reup_mod_enabled, reup_mod_speed, reup_mod_pitch, reup_mod_flip, reup_mod_crop,
                 custom_filename_template, risk_status, risk_reason, bkt_test_mode, bkt_profile_id,
-                COALESCE(target_profile_id, bkt_profile_id) AS target_profile_id
+                COALESCE(target_profile_id, bkt_profile_id) AS target_profile_id,
+                COALESCE(consecutive_green_count, 0) AS consecutive_green_count,
+                COALESCE(enable_fast_track, 0) AS enable_fast_track,
+                COALESCE(direct_upload_target, 0) AS direct_upload_target,
+                COALESCE(upload_interval_minutes, 45) AS upload_interval_minutes,
+                COALESCE(upload_interval_mode, 'auto_30_60') AS upload_interval_mode,
+                COALESCE(download_mode, 'all') AS download_mode,
+                COALESCE(is_trusted_clean, 0) AS is_trusted_clean
          FROM followed_channels WHERE id = ?1",
         params![id],
         |row| {
@@ -170,6 +191,13 @@ pub fn get_followed_channel_db(id: String) -> Result<FollowedChannel, String> {
                 bkt_test_mode: row.get::<_, Option<i64>>(32)?.map(|v| v != 0),
                 bkt_profile_id: row.get(33)?,
                 target_profile_id: row.get(34)?,
+                consecutive_green_count: row.get(35)?,
+                enable_fast_track: row.get::<_, Option<i64>>(36)?.map(|v| v != 0),
+                direct_upload_target: row.get::<_, Option<i64>>(37)?.map(|v| v != 0),
+                upload_interval_minutes: row.get(38)?,
+                upload_interval_mode: row.get(39)?,
+                download_mode: row.get(40)?,
+                is_trusted_clean: row.get::<_, Option<i64>>(41)?.map(|v| v != 0),
             })
         },
     )
@@ -239,6 +267,44 @@ pub fn update_channel_settings_db(
     Ok(())
 }
 
+/// Cập nhật cấu hình Reup kiểu mới cho kênh (Kênh Sạch, Kênh Đích, Giãn cách đăng, v.v.)
+pub fn update_channel_reup_config_db(
+    channel_id: &str,
+    target_profile_id: Option<&str>,
+    is_trusted_clean: Option<bool>,
+    enable_fast_track: Option<bool>,
+    direct_upload_target: Option<bool>,
+    upload_interval_mode: Option<&str>,
+    upload_interval_minutes: Option<i64>,
+    download_mode: Option<&str>,
+) -> Result<(), String> {
+    let conn = get_db()?;
+    conn.execute(
+        "UPDATE followed_channels SET
+            target_profile_id = ?1,
+            bkt_profile_id = ?1,
+            is_trusted_clean = COALESCE(?2, is_trusted_clean),
+            enable_fast_track = COALESCE(?3, enable_fast_track),
+            direct_upload_target = COALESCE(?4, direct_upload_target),
+            upload_interval_mode = COALESCE(?5, upload_interval_mode),
+            upload_interval_minutes = COALESCE(?6, upload_interval_minutes),
+            download_mode = COALESCE(?7, download_mode)
+         WHERE id = ?8",
+        params![
+            target_profile_id,
+            is_trusted_clean.map(|v| if v { 1 } else { 0 }),
+            enable_fast_track.map(|v| if v { 1 } else { 0 }),
+            direct_upload_target.map(|v| if v { 1 } else { 0 }),
+            upload_interval_mode,
+            upload_interval_minutes,
+            download_mode,
+            channel_id,
+        ],
+    )
+    .map_err(|e| format!("Failed to update channel reup config: {e}"))?;
+    Ok(())
+}
+
 /// Update last checked info for a channel
 pub fn update_channel_last_checked_db(
     id: String,
@@ -281,6 +347,50 @@ pub fn update_channel_bkt_config_db(
         params![if bkt_test_mode { 1 } else { 0 }, bkt_profile_id, channel_id],
     )
     .map_err(|e| format!("Failed to update channel BKT config: {}", e))?;
+    Ok(())
+}
+
+/// Ghi nhận kết quả BKT cho kênh: nếu sạch tăng chuỗi liên tiếp; nếu lỗi hoặc vi phạm reset về 0 và ngắt Fast-Track (Circuit Breaker)
+pub fn record_channel_bkt_verdict_db(channel_id: &str, is_clean: bool) -> Result<(), String> {
+    let conn = get_db()?;
+    if is_clean {
+        conn.execute(
+            "UPDATE followed_channels SET consecutive_green_count = consecutive_green_count + 1 WHERE id = ?1",
+            params![channel_id],
+        )
+        .map_err(|e| format!("Không thể tăng consecutive_green_count: {e}"))?;
+    } else {
+        conn.execute(
+            "UPDATE followed_channels SET consecutive_green_count = 0, enable_fast_track = 0 WHERE id = ?1",
+            params![channel_id],
+        )
+        .map_err(|e| format!("Không thể reset consecutive_green_count & enable_fast_track: {e}"))?;
+    }
+    Ok(())
+}
+
+/// Bật hoặc tắt chế độ Fast-Track cho một kênh đối thủ
+pub fn set_channel_fast_track_db(channel_id: &str, enabled: bool) -> Result<(), String> {
+    let conn = get_db()?;
+    if enabled {
+        let count: i64 = conn
+            .query_row(
+                "SELECT consecutive_green_count FROM followed_channels WHERE id = ?1",
+                params![channel_id],
+                |row| row.get(0),
+            )
+            .unwrap_or(0);
+        if count < 5 {
+            return Err(format!(
+                "Kênh chưa đủ điều kiện Fast-Track: hiện chỉ có {count}/5 video sạch liên tiếp."
+            ));
+        }
+    }
+    conn.execute(
+        "UPDATE followed_channels SET enable_fast_track = ?1 WHERE id = ?2",
+        params![if enabled { 1 } else { 0 }, channel_id],
+    )
+    .map_err(|e| format!("Không thể cập nhật Fast-Track cho kênh: {e}"))?;
     Ok(())
 }
 
@@ -456,11 +566,15 @@ pub fn save_channel_videos_db(
             .video_type
             .clone()
             .unwrap_or_else(|| "video".to_string());
+        let orig_title = video.original_title.clone().or_else(|| Some(video.title.clone()));
+        let orig_desc = video.original_description.clone().or_else(|| video.description.clone());
+        let desc = video.description.clone().or_else(|| video.original_description.clone());
         let result = conn.execute(
             "INSERT INTO channel_videos
                 (id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
-                 risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20)
+                 risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level,
+                 original_title, original_description, description)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20, ?21, ?22, ?23)
              ON CONFLICT(channel_id, video_id) DO UPDATE SET
                 upload_timestamp = COALESCE(excluded.upload_timestamp, channel_videos.upload_timestamp),
                 video_type = COALESCE(excluded.video_type, channel_videos.video_type),
@@ -474,7 +588,10 @@ pub fn save_channel_videos_db(
                 bkt_youtube_id = COALESCE(excluded.bkt_youtube_id, channel_videos.bkt_youtube_id),
                 bkt_check_status = COALESCE(excluded.bkt_check_status, channel_videos.bkt_check_status),
                 bkt_restriction = COALESCE(excluded.bkt_restriction, channel_videos.bkt_restriction),
-                reup_pipeline_level = COALESCE(excluded.reup_pipeline_level, channel_videos.reup_pipeline_level)",
+                reup_pipeline_level = COALESCE(excluded.reup_pipeline_level, channel_videos.reup_pipeline_level),
+                original_title = COALESCE(excluded.original_title, channel_videos.original_title),
+                original_description = COALESCE(excluded.original_description, channel_videos.original_description),
+                description = COALESCE(excluded.description, channel_videos.description)",
             params![
                 video.id,
                 channel_id,
@@ -496,6 +613,9 @@ pub fn save_channel_videos_db(
                 video.bkt_check_status,
                 video.bkt_restriction,
                 video.reup_pipeline_level.unwrap_or(1),
+                orig_title,
+                orig_desc,
+                desc,
             ],
         );
 
@@ -545,16 +665,20 @@ pub fn get_channel_videos_db(
             bkt_check_status: row.get(17)?,
             bkt_restriction: row.get(18)?,
             reup_pipeline_level: row.get(19)?,
+            original_title: row.get(20).ok(),
+            original_description: row.get(21).ok(),
+            description: row.get(22).ok(),
         })
     };
 
     let videos: Vec<ChannelVideo> = if has_status {
-        let s = status.unwrap();
+        let s = status.as_deref().unwrap_or("");
         if limit_val > 0 {
             let mut stmt = conn
                 .prepare(
                     "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
-                            risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
+                            risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level,
+                            original_title, original_description, description
                      FROM channel_videos WHERE channel_id = ?1 AND status = ?2
                      ORDER BY COALESCE(upload_timestamp, 0) DESC, upload_date DESC, created_at DESC LIMIT ?3",
                 )
@@ -568,7 +692,8 @@ pub fn get_channel_videos_db(
             let mut stmt = conn
                 .prepare(
                     "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
-                            risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
+                            risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level,
+                            original_title, original_description, description
                      FROM channel_videos WHERE channel_id = ?1 AND status = ?2
                      ORDER BY COALESCE(upload_timestamp, 0) DESC, upload_date DESC, created_at DESC",
                 )
@@ -584,7 +709,8 @@ pub fn get_channel_videos_db(
             let mut stmt = conn
                 .prepare(
                     "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
-                            risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
+                            risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level,
+                            original_title, original_description, description
                      FROM channel_videos WHERE channel_id = ?1
                      ORDER BY COALESCE(upload_timestamp, 0) DESC, upload_date DESC, created_at DESC LIMIT ?2",
                 )
@@ -598,7 +724,8 @@ pub fn get_channel_videos_db(
             let mut stmt = conn
                 .prepare(
                     "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
-                            risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
+                            risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level,
+                            original_title, original_description, description
                      FROM channel_videos WHERE channel_id = ?1
                      ORDER BY COALESCE(upload_timestamp, 0) DESC, upload_date DESC, created_at DESC",
                 )
@@ -632,7 +759,8 @@ pub fn get_channel_videos_by_video_ids_db(
         .join(", ");
     let query = format!(
         "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
-                risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
+                risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level,
+                original_title, original_description, description
          FROM channel_videos
          WHERE channel_id = ? AND video_id IN ({placeholders})"
     );
@@ -668,6 +796,9 @@ pub fn get_channel_videos_by_video_ids_db(
                 bkt_check_status: row.get(17)?,
                 bkt_restriction: row.get(18)?,
                 reup_pipeline_level: row.get(19)?,
+                original_title: row.get(20).ok(),
+                original_description: row.get(21).ok(),
+                description: row.get(22).ok(),
             })
         })
         .map_err(|e| format!("Query failed: {}", e))?
@@ -1091,7 +1222,8 @@ pub fn get_channel_stats_db(channel_id: &str) -> Result<ChannelStats, String> {
     let mut stmt = conn
         .prepare(
             "SELECT id, channel_id, video_id, title, url, thumbnail, duration, upload_date, upload_timestamp, video_type, status, created_at, view_count,
-                    risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level
+                    risk_status, risk_reason, is_bkt_test, bkt_youtube_id, bkt_check_status, bkt_restriction, reup_pipeline_level,
+                    original_title, original_description, description
              FROM channel_videos WHERE channel_id = ?1
              ORDER BY upload_timestamp DESC, upload_date DESC, created_at DESC LIMIT 500",
         )
@@ -1120,6 +1252,9 @@ pub fn get_channel_stats_db(channel_id: &str) -> Result<ChannelStats, String> {
                 bkt_check_status: row.get(17)?,
                 bkt_restriction: row.get(18)?,
                 reup_pipeline_level: row.get(19)?,
+                original_title: row.get(20).ok(),
+                original_description: row.get(21).ok(),
+                description: row.get(22).ok(),
             })
         })
         .map_err(|e| format!("Failed to query videos for stats: {}", e))?
@@ -1209,7 +1344,14 @@ mod tests {
                 risk_reason TEXT,
                 bkt_test_mode INTEGER DEFAULT 0,
                 bkt_profile_id TEXT,
-                target_profile_id TEXT
+                target_profile_id TEXT,
+                consecutive_green_count INTEGER DEFAULT 0,
+                enable_fast_track INTEGER DEFAULT 0,
+                direct_upload_target INTEGER DEFAULT 0,
+                upload_interval_minutes INTEGER DEFAULT 45,
+                upload_interval_mode TEXT DEFAULT 'auto_30_60',
+                download_mode TEXT DEFAULT 'all',
+                is_trusted_clean INTEGER DEFAULT 0
             );
             CREATE TABLE IF NOT EXISTS channel_videos (
                 id TEXT PRIMARY KEY,
@@ -1231,7 +1373,10 @@ mod tests {
                 bkt_youtube_id TEXT,
                 bkt_check_status TEXT,
                 bkt_restriction TEXT,
-                reup_pipeline_level INTEGER DEFAULT 1
+                reup_pipeline_level INTEGER DEFAULT 1,
+                original_title TEXT,
+                original_description TEXT,
+                description TEXT
             );
             CREATE UNIQUE INDEX IF NOT EXISTS idx_channel_videos_unique
                 ON channel_videos(channel_id, video_id);
@@ -1435,6 +1580,9 @@ mod tests {
                 bkt_check_status: None,
                 bkt_restriction: None,
                 reup_pipeline_level: None,
+                original_title: None,
+                original_description: None,
+                description: None,
             },
             ChannelVideo {
                 id: "2".to_string(),
@@ -1457,6 +1605,9 @@ mod tests {
                 bkt_check_status: None,
                 bkt_restriction: None,
                 reup_pipeline_level: None,
+                original_title: None,
+                original_description: None,
+                description: None,
             },
         ];
 

@@ -2144,7 +2144,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
           </DialogHeader>
 
           <div className="flex flex-wrap gap-1.5 p-3 rounded-lg border border-border/50 bg-background/50 max-h-60 overflow-y-auto">
-            {spyTagsModal.tags.map((tag, idx) => (
+            {(spyTagsModal.tags || []).map((tag, idx) => (
               <button
                 type="button"
                 key={idx}

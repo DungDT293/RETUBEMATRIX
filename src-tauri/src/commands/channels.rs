@@ -1603,6 +1603,86 @@ pub async fn get_channel_video_filepath(
     Ok(None)
 }
 
+/// Tra cứu file video đã edit hoàn tất (_reup_ready.mp4) trong DB hoặc thư mục [DA_EDIT]
+#[tauri::command]
+pub async fn get_channel_video_edited_filepath(
+    app: AppHandle,
+    video_id: String,
+) -> Result<Option<String>, String> {
+    let clean_id = video_id.trim();
+    if clean_id.is_empty() {
+        return Ok(None);
+    }
+
+    // 1. Kiểm tra trong bảng bkt_test_jobs xem có job nào đã có reup_path hợp lệ trên đĩa
+    if let Ok(conn) = database::get_db() {
+        let sql = "SELECT reup_path FROM bkt_test_jobs 
+                   WHERE (source_ref_id = ?1 OR video_path LIKE ?2) 
+                     AND reup_path IS NOT NULL 
+                     AND TRIM(reup_path) <> ''
+                   ORDER BY updated_at DESC LIMIT 5";
+        if let Ok(mut stmt) = conn.prepare(sql) {
+            let rows = stmt.query_map(
+                rusqlite::params![clean_id, format!("%{clean_id}%")],
+                |row| row.get::<_, String>(0),
+            );
+            if let Ok(paths) = rows {
+                for rp in paths.flatten() {
+                    let p = std::path::Path::new(&rp);
+                    if p.is_file() && p.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+                        return Ok(Some(rp));
+                    }
+                }
+            }
+        }
+    }
+
+    // 2. Tra cứu đường dẫn file gốc của video
+    let orig_filepath = get_channel_video_filepath(app.clone(), clean_id.to_string()).await?;
+    if let Some(orig_str) = orig_filepath {
+        let orig_path = std::path::Path::new(&orig_str);
+        let parent_dir = orig_path.parent().unwrap_or(std::path::Path::new("."));
+        let video_stem = orig_path.file_stem().and_then(|s| s.to_str()).unwrap_or("video");
+
+        // Kiểm tra [DA_EDIT]_{video_stem}/{video_stem}_reup_ready.mp4
+        let direct_edit = parent_dir
+            .join(format!("[DA_EDIT]_{video_stem}"))
+            .join(format!("{video_stem}_reup_ready.mp4"));
+        if direct_edit.is_file() && direct_edit.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+            return Ok(Some(direct_edit.to_string_lossy().to_string()));
+        }
+
+        // Kiểm tra thư mục [DA_EDIT] chung
+        let alt_edit = parent_dir
+            .join("[DA_EDIT]")
+            .join(format!("{video_stem}_reup_ready.mp4"));
+        if alt_edit.is_file() && alt_edit.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+            return Ok(Some(alt_edit.to_string_lossy().to_string()));
+        }
+
+        // Quét bất kỳ file _reup_ready.mp4 nào trong thư mục [DA_EDIT]_{video_stem}
+        let reup_dir = parent_dir.join(format!("[DA_EDIT]_{video_stem}"));
+        if reup_dir.is_dir() {
+            if let Ok(entries) = std::fs::read_dir(&reup_dir) {
+                for entry in entries.flatten() {
+                    let ep = entry.path();
+                    if ep.is_file()
+                        && ep.file_name()
+                            .and_then(|n| n.to_str())
+                            .map(|s| s.ends_with("_reup_ready.mp4"))
+                            .unwrap_or(false)
+                        && ep.metadata().map(|m| m.len() > 100_000).unwrap_or(false)
+                    {
+                        return Ok(Some(ep.to_string_lossy().to_string()));
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(None)
+}
+
 #[tauri::command]
 pub async fn sync_channel_analytics_cmd(
     app: AppHandle,
@@ -1647,5 +1727,172 @@ pub async fn sync_channel_analytics_cmd(
     }
 
     Ok(val)
+}
+
+#[derive(serde::Deserialize, Clone, Debug)]
+pub struct UpdateChannelReupConfigPayload {
+    #[serde(alias = "channelId")]
+    pub channel_id: String,
+    #[serde(alias = "targetProfileId")]
+    pub target_profile_id: Option<String>,
+    #[serde(alias = "isTrustedClean")]
+    pub is_trusted_clean: Option<bool>,
+    #[serde(alias = "enableFastTrack")]
+    pub enable_fast_track: Option<bool>,
+    #[serde(alias = "directUploadTarget")]
+    pub direct_upload_target: Option<bool>,
+    #[serde(alias = "uploadIntervalMode")]
+    pub upload_interval_mode: Option<String>,
+    #[serde(alias = "uploadIntervalMinutes")]
+    pub upload_interval_minutes: Option<i64>,
+    #[serde(alias = "downloadMode")]
+    pub download_mode: Option<String>,
+}
+
+#[tauri::command]
+pub async fn update_channel_reup_config_cmd(
+    payload: UpdateChannelReupConfigPayload,
+) -> Result<(), String> {
+    database::update_channel_reup_config_db(
+        &payload.channel_id,
+        payload.target_profile_id.as_deref(),
+        payload.is_trusted_clean,
+        payload.enable_fast_track,
+        payload.direct_upload_target,
+        payload.upload_interval_mode.as_deref(),
+        payload.upload_interval_minutes,
+        payload.download_mode.as_deref(),
+    )
+}
+
+#[tauri::command]
+pub async fn set_channel_fast_track_cmd(
+    channel_id: Option<String>,
+    #[allow(non_snake_case)]
+    channelId: Option<String>,
+    enabled: bool,
+) -> Result<(), String> {
+    let id = channel_id.or(channelId).ok_or_else(|| "Thiếu channel_id".to_string())?;
+    database::set_channel_fast_track_db(&id, enabled)
+}
+
+#[tauri::command]
+pub async fn open_channel_edited_folder_cmd(
+    app: AppHandle,
+    channel_id: String,
+) -> Result<String, String> {
+    use tauri::Manager;
+    let channel = database::get_followed_channel_db(channel_id.clone())
+        .map_err(|e| format!("Không tìm thấy kênh: {e}"))?;
+
+    let dl_dir = app.path().download_dir()
+        .map_err(|e| format!("Không thể lấy thư mục Downloads: {e}"))?;
+
+    let channel_dir = dl_dir.join(&channel.name);
+    let target_folder = if channel_dir.exists() {
+        let mut edited_subfolder = None;
+        if let Ok(entries) = std::fs::read_dir(&channel_dir) {
+            for entry in entries.flatten() {
+                let p = entry.path();
+                if p.is_dir()
+                    && p.file_name()
+                        .and_then(|n| n.to_str())
+                        .map(|s| s.starts_with("[DA_EDIT]"))
+                        .unwrap_or(false)
+                {
+                    edited_subfolder = Some(p);
+                    break;
+                }
+            }
+        }
+        edited_subfolder.unwrap_or(channel_dir)
+    } else {
+        std::fs::create_dir_all(&channel_dir).ok();
+        channel_dir
+    };
+
+    let target_str = target_folder.to_string_lossy().to_string();
+
+    #[cfg(target_os = "windows")]
+    {
+        tokio::process::Command::new("explorer")
+            .arg(&target_str)
+            .spawn()
+            .map_err(|e| format!("Không thể mở thư mục: {e}"))?;
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        tokio::process::Command::new("open")
+            .arg(&target_str)
+            .spawn()
+            .map_err(|e| format!("Không thể mở thư mục: {e}"))?;
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        tokio::process::Command::new("xdg-open")
+            .arg(&target_str)
+            .spawn()
+            .map_err(|e| format!("Không thể mở thư mục: {e}"))?;
+    }
+
+    Ok(target_str)
+}
+
+#[derive(serde::Serialize, Clone, Debug)]
+pub struct ChannelEditedFolderStats {
+    pub count: usize,
+    pub folder_path: String,
+}
+
+#[tauri::command]
+pub async fn get_channel_edited_folder_stats_cmd(
+    app: AppHandle,
+    channel_id: String,
+) -> Result<ChannelEditedFolderStats, String> {
+    use tauri::Manager;
+    let channel = database::get_followed_channel_db(channel_id.clone())
+        .map_err(|e| format!("Không tìm thấy kênh: {e}"))?;
+
+    let dl_dir = app.path().download_dir().unwrap_or_else(|_| std::path::PathBuf::from("."));
+    let channel_dir = dl_dir.join(&channel.name);
+    let mut count = 0;
+    let mut target_folder = channel_dir.clone();
+
+    if channel_dir.exists() {
+        if let Ok(entries) = std::fs::read_dir(&channel_dir) {
+            for entry in entries.flatten() {
+                let p = entry.path();
+                if p.is_dir()
+                    && p.file_name()
+                        .and_then(|n| n.to_str())
+                        .map(|s| s.starts_with("[DA_EDIT]"))
+                        .unwrap_or(false)
+                {
+                    target_folder = p.clone();
+                    if let Ok(sub_entries) = std::fs::read_dir(&p) {
+                        for sub in sub_entries.flatten() {
+                            let sp = sub.path();
+                            if sp.is_file()
+                                && sp
+                                    .extension()
+                                    .and_then(|e| e.to_str())
+                                    .map(|ext| ext == "mp4" || ext == "mkv" || ext == "webm")
+                                    .unwrap_or(false)
+                            {
+                                count += 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(ChannelEditedFolderStats {
+        count,
+        folder_path: target_folder.to_string_lossy().to_string(),
+    })
 }
 

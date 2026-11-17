@@ -89,10 +89,16 @@ async def maybe_open_new_tab_and_close(context, return_page=None):
             previous_pages = [p for p in context.pages if not p.is_closed()]
             return_page = previous_pages[-1] if previous_pages else None
         new_page = await context.new_page()
-        await new_page.bring_to_front()
-        logger.debug("Mở tab mới trống")
-        await asyncio.sleep(random.uniform(1.5, 4.0))
-        await new_page.close()
+        try:
+            await new_page.bring_to_front()
+            logger.debug("Mở tab mới trống")
+            await asyncio.sleep(random.uniform(1.5, 4.0))
+        finally:
+            try:
+                if not new_page.is_closed():
+                    await new_page.close()
+            except Exception:
+                pass
         if return_page and not return_page.is_closed():
             await return_page.bring_to_front()
         logger.debug("Đóng tab mới trống")

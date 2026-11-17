@@ -164,13 +164,20 @@ export function BktJobsTable({ manager }: BktJobsTableProps) {
                   <div className="space-y-0.5 min-w-0 flex-1">
                     <div className="font-medium text-foreground truncate">{job.videoTitle}</div>
                     <div className="text-[11px] text-muted-foreground flex items-center gap-2">
-                      <span>Kênh: {job.testChannelName || job.testChannelId}</span>
+                      <span>Kênh: {job.testChannelName || job.testChannelId || 'Chưa gán'}</span>
                       {job.youtubeVideoId && (
                         <span className="font-mono text-primary">
                           YouTube ID: {job.youtubeVideoId}
                         </span>
                       )}
-                      <span>{new Date(job.createdAt).toLocaleTimeString('vi-VN')}</span>
+                      {(() => {
+                        const dateStr = job.createdAt || job.testedDate;
+                        if (!dateStr) return null;
+                        const d = new Date(dateStr);
+                        return Number.isNaN(d.getTime()) ? null : (
+                          <span>{d.toLocaleTimeString('vi-VN')}</span>
+                        );
+                      })()}
                     </div>
                   </div>
 

@@ -82,20 +82,22 @@ export function DownloadSection({ highlightId }: DownloadSectionProps) {
   };
 
   const updateYtdlpAdvancedOption = (index: number, updates: Partial<YtdlpAdvancedOption>) => {
+    const current = settings.ytdlpAdvancedOptions || [];
     updateYtdlpAdvancedOptions(
-      settings.ytdlpAdvancedOptions.map((option, optionIndex) =>
+      current.map((option, optionIndex) =>
         optionIndex === index ? { ...option, ...updates } : option,
       ),
     );
   };
 
   const removeYtdlpAdvancedOption = (index: number) => {
-    updateYtdlpAdvancedOptions(
-      settings.ytdlpAdvancedOptions.filter((_, optionIndex) => optionIndex !== index),
-    );
+    const current = settings.ytdlpAdvancedOptions || [];
+    updateYtdlpAdvancedOptions(current.filter((_, optionIndex) => optionIndex !== index));
   };
 
-  const selectedYtdlpOptionIds = new Set(settings.ytdlpAdvancedOptions.map((option) => option.id));
+  const selectedYtdlpOptionIds = new Set(
+    (settings.ytdlpAdvancedOptions || []).map((option) => option.id),
+  );
   const availableYtdlpOptionDefinitions = YTDLP_ADVANCED_OPTION_DEFINITIONS.filter(
     (definition) => definition.repeatable || !selectedYtdlpOptionIds.has(definition.id),
   );
@@ -110,7 +112,8 @@ export function DownloadSection({ highlightId }: DownloadSectionProps) {
   };
 
   const filenameMetadataPreview = (() => {
-    const prefix = settings.filenameMetadataFields
+    const currentFields = settings.filenameMetadataFields || [];
+    const prefix = currentFields
       .map((field) => filenameMetadataPreviewParts[field])
       .filter(Boolean)
       .join('_');
@@ -119,20 +122,22 @@ export function DownloadSection({ highlightId }: DownloadSectionProps) {
   })();
 
   const updateFilenameMetadataEnabled = (filenameMetadataEnabled: boolean) => {
+    const currentFields = settings.filenameMetadataFields || [];
     updateSettings({
       filenameMetadataEnabled,
       filenameMetadataFields:
-        filenameMetadataEnabled && settings.filenameMetadataFields.length === 0
+        filenameMetadataEnabled && currentFields.length === 0
           ? DEFAULT_FILENAME_METADATA_FIELDS
-          : settings.filenameMetadataFields,
+          : currentFields,
     });
   };
 
   const toggleFilenameMetadataField = (field: FilenameMetadataField) => {
-    const fields = settings.filenameMetadataFields.includes(field)
-      ? settings.filenameMetadataFields.filter((value) => value !== field)
+    const currentFields = settings.filenameMetadataFields || [];
+    const fields = currentFields.includes(field)
+      ? currentFields.filter((value) => value !== field)
       : FILENAME_METADATA_FIELDS.filter(
-          (value) => value === field || settings.filenameMetadataFields.includes(value),
+          (value) => value === field || currentFields.includes(value),
         );
     updateSettings({ filenameMetadataFields: fields });
   };
@@ -744,9 +749,9 @@ export function DownloadSection({ highlightId }: DownloadSectionProps) {
                 </Select>
               </div>
 
-              {settings.ytdlpAdvancedOptions.length > 0 && (
+              {(settings.ytdlpAdvancedOptions || []).length > 0 && (
                 <div className="space-y-2">
-                  {settings.ytdlpAdvancedOptions.map((option, index) => {
+                  {(settings.ytdlpAdvancedOptions || []).map((option, index) => {
                     const definition = getYtdlpAdvancedOptionDefinition(option.id);
                     if (!definition) return null;
 

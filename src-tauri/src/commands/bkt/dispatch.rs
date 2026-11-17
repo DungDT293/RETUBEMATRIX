@@ -186,11 +186,47 @@ pub async fn dispatch_batch_bkt_test(
     }
 
     // 2. Lấy danh sách kênh test
-    let channels = database::get_bkt_test_channels_db()?;
+    let mut channels = database::get_bkt_test_channels_db()?;
     if channels.is_empty() {
-        return Err(
-            "Bạn chưa cấu hình Kênh Test Bản Quyền nào trong hệ thống. Vui lòng vào mục 'Reup & BKT Test' → Tab 'Quản Lý Kênh Test BKT' để thêm kênh test (gán với một Profile BrowserMulti đã đăng nhập YouTube Studio) trước khi kiểm tra bản quyền.".to_string(),
-        );
+        let all_fast_track = payload.items.iter().all(|item| {
+            if item.skip_bkt_test.unwrap_or(false) {
+                return true;
+            }
+            if let Some(ref c_id) = item.channel_id {
+                if let Ok(ch) = database::get_followed_channel_db(c_id.clone()) {
+                    return ch.is_trusted_clean.unwrap_or(false)
+                        || (ch.enable_fast_track.unwrap_or(false) && ch.consecutive_green_count.unwrap_or(0) >= 5);
+                }
+            }
+            false
+        });
+
+        if all_fast_track {
+            let fallback_profile = payload.items.first().and_then(|i| {
+                i.main_target_profile_id.clone().or_else(|| i.target_profile_id.clone())
+            }).unwrap_or_else(|| "default".to_string());
+
+            channels.push(BktTestChannel {
+                id: "fast_track_direct".to_string(),
+                name: "Kênh Đích Trực Tiếp (Bỏ qua BKT)".to_string(),
+                profile_id: fallback_profile,
+                youtube_channel_name: None,
+                youtube_channel_id: None,
+                daily_quota: 9999,
+                daily_used: 0,
+                last_reset_date: Local::now().format("%Y-%m-%d").to_string(),
+                is_active: true,
+                priority: 0,
+                note: None,
+                created_at: Local::now().to_rfc3339(),
+                updated_at: Local::now().to_rfc3339(),
+                remaining_quota: 9999,
+            });
+        } else {
+            return Err(
+                "Bạn chưa cấu hình Kênh Test Bản Quyền nào trong hệ thống. Vui lòng vào mục 'Reup & BKT Test' → Tab 'Quản Lý Kênh Test BKT' để thêm kênh test (gán với một Profile BrowserMulti đã đăng nhập YouTube Studio) trước khi kiểm tra bản quyền.".to_string(),
+            );
+        }
     }
     let today = Local::now().format("%Y-%m-%d").to_string();
 
@@ -199,90 +235,150 @@ pub async fn dispatch_batch_bkt_test(
         .unwrap_or_default();
 
     let mut allocation_plan: Vec<(usize, BktTestChannel)> = Vec::new();
+    let mut checkpoint_map: std::collections::HashMap<usize, database::BktCheckpoint> =
+        std::collections::HashMap::new();
 
-    if let Some(target_id) = payload.target_test_channel_id.filter(|s| !s.trim().is_empty()) {
-        let target_ch = channels
-            .into_iter()
-            .find(|c| c.id == target_id)
-            .ok_or_else(|| format!("Không tìm thấy kênh test có ID: {target_id}"))?;
-
-        if !target_ch.is_active {
-            return Err(format!("Kênh test '{}' đang ở trạng thái Tạm dừng.", target_ch.name));
-        }
-
-        if let Err(prof_err) = resolve_profile_id_with_auto_heal(&target_ch.profile_id, &target_ch.name, &profiles) {
-            return Err(format!("Kênh test '{}' không thể sử dụng: {prof_err}", target_ch.name));
-        }
-
-        let needed = payload.items.len() as i64;
-        if target_ch.remaining_quota < needed {
-            return Err(format!(
-                "Kênh '{}' chỉ còn {} lượt test hôm nay, nhưng bạn đã chọn {} video (giới hạn {} video/ngày).",
-                target_ch.name, target_ch.remaining_quota, needed, target_ch.daily_quota
-            ));
-        }
-
-        for (idx, _) in payload.items.iter().enumerate() {
-            allocation_plan.push((idx, target_ch.clone()));
-        }
-    } else {
-        // Tự động phân bổ (Load Balancing) - Chỉ chọn kênh active, còn quota và hồ sơ profile thực sự tồn tại
-        let mut active_channels: Vec<BktTestChannel> = channels
-            .into_iter()
-            .filter(|c| {
-                c.is_active
-                    && c.remaining_quota > 0
-                    && resolve_profile_id_with_auto_heal(&c.profile_id, &c.name, &profiles).is_ok()
-            })
-            .collect();
-
-        if active_channels.is_empty() {
-            return Err(
-                "Tất cả Kênh Test Bản Quyền đang hoạt động đều đã dùng hết hạn mức kiểm tra hôm nay hoặc thiếu Hồ Sơ Trình Duyệt hợp lệ. Vui lòng kiểm tra lại Quản Lý Kênh Test BKT.".to_string(),
-            );
-        }
-
-        let total_available_quota: i64 = active_channels.iter().map(|c| c.remaining_quota).sum();
-        let total_requested = payload.items.len() as i64;
-
-        if total_requested > total_available_quota {
-            return Err(format!(
-                "Tổng số video bạn chọn ({total_requested}) vượt quá tổng lượt test khả dụng của tất cả các kênh ({total_available_quota} lượt). Vui lòng bỏ bớt {} video hoặc bổ sung thêm Kênh Test Bản Quyền.",
-                total_requested - total_available_quota
-            ));
-        }
-
-        // Sắp xếp kênh theo số slot còn lại giảm dần
-        active_channels.sort_by(|a, b| b.remaining_quota.cmp(&a.remaining_quota));
-
-        let mut channel_idx = 0;
-        let mut channel_used_in_batch: std::collections::HashMap<String, i64> =
-            std::collections::HashMap::new();
-
-        for (item_idx, _) in payload.items.iter().enumerate() {
-            let mut assigned = false;
-            let start_ch = channel_idx;
-
-            loop {
-                let ch = &active_channels[channel_idx];
-                let current_used = channel_used_in_batch.get(&ch.id).copied().unwrap_or(0);
-                if current_used < ch.remaining_quota {
-                    channel_used_in_batch.insert(ch.id.clone(), current_used + 1);
-                    allocation_plan.push((item_idx, ch.clone()));
-                    assigned = true;
-                    // Xoay vòng kênh tiếp theo
-                    channel_idx = (channel_idx + 1) % active_channels.len();
-                    break;
+    // Tra cứu Checkpoint: Nếu video đã upload lên một kênh test trước đó, cố định gán lại kênh test cũ
+    let mut unallocated_indices = Vec::new();
+    for (idx, item) in payload.items.iter().enumerate() {
+        let is_fast = item.skip_bkt_test.unwrap_or(false)
+            || payload.target_test_channel_id.as_deref() == Some("fast_track_direct")
+            || item.channel_id.as_ref().map(|c_id| {
+                if let Ok(ch) = database::get_followed_channel_db(c_id.clone()) {
+                    ch.is_trusted_clean.unwrap_or(false)
+                        || (ch.enable_fast_track.unwrap_or(false) && ch.consecutive_green_count.unwrap_or(0) >= 5)
+                } else {
+                    false
                 }
+            }).unwrap_or(false);
 
-                channel_idx = (channel_idx + 1) % active_channels.len();
-                if channel_idx == start_ch {
-                    break;
-                }
+        if is_fast {
+            let fallback_profile = item.main_target_profile_id.clone()
+                .or_else(|| item.target_profile_id.clone())
+                .unwrap_or_else(|| "default".to_string());
+            let dummy_ch = BktTestChannel {
+                id: "fast_track_direct".to_string(),
+                name: "Kênh Đích Trực Tiếp (Bỏ qua BKT)".to_string(),
+                profile_id: fallback_profile,
+                youtube_channel_name: None,
+                youtube_channel_id: None,
+                daily_quota: 9999,
+                daily_used: 0,
+                last_reset_date: Local::now().format("%Y-%m-%d").to_string(),
+                is_active: true,
+                priority: 0,
+                note: None,
+                created_at: Local::now().to_rfc3339(),
+                updated_at: Local::now().to_rfc3339(),
+                remaining_quota: 9999,
+            };
+            allocation_plan.push((idx, dummy_ch));
+            continue;
+        }
+
+        if let Ok(Some(cp)) =
+            database::get_existing_bkt_checkpoint_db(item.source_ref_id.as_deref(), &item.video_path)
+        {
+            if let Some(ch) = channels.iter().find(|c| c.id == cp.test_channel_id && c.is_active) {
+                log::info!(
+                    "[BKT AFFINITY] Tái sử dụng kênh test '{}' và YouTube ID '{}' cho video: {}",
+                    ch.name,
+                    cp.youtube_video_id,
+                    item.video_title
+                );
+                allocation_plan.push((idx, ch.clone()));
+                checkpoint_map.insert(idx, cp);
+                continue;
+            }
+        }
+        unallocated_indices.push(idx);
+    }
+
+    if !unallocated_indices.is_empty() {
+        if let Some(target_id) = payload.target_test_channel_id.filter(|s| !s.trim().is_empty()) {
+            let target_ch = channels
+                .iter()
+                .find(|c| c.id == target_id)
+                .ok_or_else(|| format!("Không tìm thấy kênh test có ID: {target_id}"))?;
+
+            if !target_ch.is_active {
+                return Err(format!("Kênh test '{}' đang ở trạng thái Tạm dừng.", target_ch.name));
             }
 
-            if !assigned {
-                return Err("Lỗi thuật toán phân bổ hạn ngạch kênh test".to_string());
+            if let Err(prof_err) = resolve_profile_id_with_auto_heal(&target_ch.profile_id, &target_ch.name, &profiles) {
+                return Err(format!("Kênh test '{}' không thể sử dụng: {prof_err}", target_ch.name));
+            }
+
+            let needed = unallocated_indices.len() as i64;
+            if target_ch.remaining_quota < needed {
+                return Err(format!(
+                    "Kênh '{}' chỉ còn {} lượt test hôm nay, nhưng bạn cần test mới {} video (giới hạn {} video/ngày).",
+                    target_ch.name, target_ch.remaining_quota, needed, target_ch.daily_quota
+                ));
+            }
+
+            for idx in unallocated_indices {
+                allocation_plan.push((idx, target_ch.clone()));
+            }
+        } else {
+            // Tự động phân bổ (Load Balancing) - Chỉ chọn kênh active, còn quota và hồ sơ profile thực sự tồn tại
+            let mut active_channels: Vec<BktTestChannel> = channels
+                .into_iter()
+                .filter(|c| {
+                    c.is_active
+                        && c.remaining_quota > 0
+                        && resolve_profile_id_with_auto_heal(&c.profile_id, &c.name, &profiles).is_ok()
+                })
+                .collect();
+
+            if active_channels.is_empty() {
+                return Err(
+                    "Tất cả Kênh Test Bản Quyền đang hoạt động đều đã dùng hết hạn mức kiểm tra hôm nay hoặc thiếu Hồ Sơ Trình Duyệt hợp lệ. Vui lòng kiểm tra lại Quản Lý Kênh Test BKT.".to_string(),
+                );
+            }
+
+            let total_available_quota: i64 = active_channels.iter().map(|c| c.remaining_quota).sum();
+            let total_requested = unallocated_indices.len() as i64;
+
+            if total_requested > total_available_quota {
+                return Err(format!(
+                    "Tổng số video cần test mới ({total_requested}) vượt quá tổng lượt test khả dụng của tất cả các kênh ({total_available_quota} lượt). Vui lòng bỏ bớt {} video hoặc bổ sung thêm Kênh Test Bản Quyền.",
+                    total_requested - total_available_quota
+                ));
+            }
+
+            // Sắp xếp kênh theo số slot còn lại giảm dần
+            active_channels.sort_by(|a, b| b.remaining_quota.cmp(&a.remaining_quota));
+
+            let mut channel_idx = 0;
+            let mut channel_used_in_batch: std::collections::HashMap<String, i64> =
+                std::collections::HashMap::new();
+
+            for item_idx in unallocated_indices {
+                let mut assigned = false;
+                let start_ch = channel_idx;
+
+                loop {
+                    let ch = &active_channels[channel_idx];
+                    let current_used = channel_used_in_batch.get(&ch.id).copied().unwrap_or(0);
+                    if current_used < ch.remaining_quota {
+                        channel_used_in_batch.insert(ch.id.clone(), current_used + 1);
+                        allocation_plan.push((item_idx, ch.clone()));
+                        assigned = true;
+                        // Xoay vòng kênh tiếp theo
+                        channel_idx = (channel_idx + 1) % active_channels.len();
+                        break;
+                    }
+
+                    channel_idx = (channel_idx + 1) % active_channels.len();
+                    if channel_idx == start_ch {
+                        break;
+                    }
+                }
+
+                if !assigned {
+                    return Err("Lỗi thuật toán phân bổ hạn ngạch kênh test".to_string());
+                }
             }
         }
     }
@@ -293,9 +389,52 @@ pub async fn dispatch_batch_bkt_test(
     for (item_idx, channel) in allocation_plan {
         let item = &payload.items[item_idx];
         let job_id = uuid::Uuid::new_v4().to_string();
-        let test_profile_id = resolve_profile_id_with_auto_heal(&channel.profile_id, &channel.name, &profiles)
-            .map(|(profile_id, _)| profile_id)
-            .map_err(|err| format!("Kênh test '{}' không thể dùng profile đã lưu: {err}", channel.name))?;
+        let test_profile_id = if channel.id == "fast_track_direct" {
+            channel.profile_id.clone()
+        } else {
+            resolve_profile_id_with_auto_heal(&channel.profile_id, &channel.name, &profiles)
+                .map(|(profile_id, _)| profile_id)
+                .map_err(|err| format!("Kênh test '{}' không thể dùng profile đã lưu: {err}", channel.name))?
+        };
+
+        let (mut reup_path_val, yt_id_val) = if let Some(cp) = checkpoint_map.get(&item_idx) {
+            (cp.reup_path.clone(), Some(cp.youtube_video_id.clone()))
+        } else {
+            (None, None)
+        };
+
+        let orig_video_path = Path::new(&item.video_path);
+        let parent_dir = orig_video_path.parent().unwrap_or(Path::new("."));
+        let video_stem = orig_video_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("video");
+        let candidate_reup = parent_dir
+            .join(format!("[DA_EDIT]_{video_stem}"))
+            .join(format!("{video_stem}_reup_ready.mp4"));
+        let alt_candidate_reup = parent_dir
+            .join("[DA_EDIT]")
+            .join(format!("{video_stem}_reup_ready.mp4"));
+
+        if reup_path_val.is_none() {
+            if candidate_reup.is_file() && candidate_reup.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+                log::info!("[BKT DISPATCH] Tự động nhận diện video đã edit sẵn trên đĩa: {}", candidate_reup.display());
+                reup_path_val = Some(candidate_reup.to_string_lossy().to_string());
+            } else if alt_candidate_reup.is_file() && alt_candidate_reup.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+                log::info!("[BKT DISPATCH] Tự động nhận diện video đã edit sẵn trên đĩa (alt): {}", alt_candidate_reup.display());
+                reup_path_val = Some(alt_candidate_reup.to_string_lossy().to_string());
+            }
+        }
+
+        let mut final_thumb = item.thumbnail_path.clone();
+        if final_thumb.is_none() {
+            let candidate_thumb = parent_dir
+                .join(format!("[DA_EDIT]_{video_stem}"))
+                .join(format!("{video_stem}_thumbnail.jpg"));
+            if candidate_thumb.is_file() {
+                final_thumb = Some(candidate_thumb.to_string_lossy().to_string());
+            }
+        }
 
         let job = BktTestJob {
             id: job_id.clone(),
@@ -309,8 +448,8 @@ pub async fn dispatch_batch_bkt_test(
             source_ref_id: item.source_ref_id.clone(),
             video_title: item.video_title.clone(),
             video_path: item.video_path.clone(),
-            reup_path: None,
-            youtube_video_id: None,
+            reup_path: reup_path_val,
+            youtube_video_id: yt_id_val,
             status: "queued".to_string(),
             restriction: None,
             error_message: None,
@@ -324,7 +463,8 @@ pub async fn dispatch_batch_bkt_test(
             target_title: item.target_title.clone(),
             target_description: item.target_description.clone(),
             target_tags: item.target_tags.clone(),
-            thumbnail_path: item.thumbnail_path.clone(),
+            thumbnail_path: final_thumb,
+            skip_bkt_test: item.skip_bkt_test,
         };
 
         match database::reserve_bkt_channel_and_create_job_db(&job) {

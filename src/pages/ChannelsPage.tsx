@@ -11,11 +11,13 @@ import {
 } from '@/contexts/channels/channel-flow-safety';
 import {
   cancelAllBktJobs,
+  cancelBktJob,
   dispatchBatchBktTest,
   getAllChannelStats,
   getChannelVideoFilepath,
   getMultibrowserProfiles,
   getSavedChannelVideos,
+  onDownloadProgress,
   toggleChannelAutoDownload,
   updateChannelBktConfig,
   waitBktJobCompletion,
@@ -140,6 +142,60 @@ export function ChannelsPage() {
   useEffect(() => {
     refreshStats();
   }, [refreshStats]);
+
+  // Lắng nghe tiến độ tải video realtime để cập nhật banner Auto Reup
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    onDownloadProgress((event) => {
+      const payload = event.payload;
+      if (!payload?.id) return;
+
+      setReupProgressMap((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        for (const chId of Object.keys(next)) {
+          const item = next[chId];
+          if (
+            item?.isRunning &&
+            item.currentVideoId &&
+            (payload.id === item.currentVideoId ||
+              payload.id.includes(item.currentVideoId) ||
+              item.currentVideoId.includes(payload.id))
+          ) {
+            const downloadPercent =
+              typeof payload.percent === 'number' && payload.percent > 0
+                ? payload.percent
+                : undefined;
+            const downloadSpeed = payload.speed || undefined;
+            const downloadEta = payload.eta
+              ? payload.eta.startsWith('00:')
+                ? `${payload.eta.slice(3)}s`
+                : payload.eta
+              : undefined;
+            const downloadSize =
+              payload.downloaded_size ||
+              (payload.filesize ? `${(payload.filesize / 1024 / 1024).toFixed(1)} MB` : undefined);
+
+            next[chId] = {
+              ...item,
+              downloadPercent: downloadPercent ?? item.downloadPercent,
+              downloadSpeed: downloadSpeed ?? item.downloadSpeed,
+              downloadEta: downloadEta ?? item.downloadEta,
+              downloadSize: downloadSize ?? item.downloadSize,
+            };
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
+    }).then((fn) => {
+      unlisten = fn;
+    });
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
 
   // Load videos when a channel is expanded
   const handleToggleExpand = useCallback(
@@ -417,6 +473,14 @@ export function ChannelsPage() {
 
         // BƯỚC 3: Gửi BKT Job tuần tự với autoPublishMain = true
         if (abortController.signal.aborted) break;
+        const isFastTrack = Boolean(
+          (channel.enable_fast_track ?? channel.enableFastTrack) &&
+            (channel.consecutive_green_count ?? channel.consecutiveGreenCount ?? 0) >= 5,
+        );
+        const waitingText = isFastTrack
+          ? `[${stepIndex}/${total}] [Fast-Track] Bỏ qua BKT -> Đang đẩy sang Kênh Đích...`
+          : `[${stepIndex}/${total}] Studio đang quét Content ID & Đăng đích...`;
+
         setReupProgressMap((prev) => ({
           ...prev,
           [channelId]: {
@@ -424,7 +488,7 @@ export function ChannelsPage() {
             isRunning: true,
             currentStep: stepIndex,
             totalSteps: total,
-            progressText: `[${stepIndex}/${total}] Studio đang quét Content ID & Đăng đích...`,
+            progressText: waitingText,
             status: 'running',
           },
         }));
@@ -458,7 +522,7 @@ export function ChannelsPage() {
         // BƯỚC 4: Chờ hoàn thành BKT & Tự động xuất bản & Dọn sạch đĩa
         const jobId = dispatchedJob.jobId;
         try {
-          const finishedJob = await waitBktJobCompletion(jobId, 1850);
+          const finishedJob = await waitBktJobCompletion(jobId, 7200);
           if (isSequentialSuccessStatus(finishedJob.status)) {
             successCount++;
             redCount = nextSequentialRedCount(redCount, finishedJob.status);
@@ -556,31 +620,45 @@ export function ChannelsPage() {
               return;
             }
 
+            const failMsg = finishedJob.errorMessage || finishedJob.restriction || 'Thất bại';
             setReupProgressMap((prev) => ({
               ...prev,
               [channelId]: {
                 channelId,
-                isRunning: true,
+                isRunning: false,
                 currentStep: stepIndex,
                 totalSteps: total,
-                progressText: `[${stepIndex}/${total}] Lỗi kiểm tra: ${finishedJob.errorMessage || finishedJob.restriction || 'Thất bại'}`,
-                status: 'running',
+                progressText: `Auto Reup dừng lại ở video [${stepIndex}/${total}] do lỗi: ${failMsg}`,
+                status: 'failed',
               },
             }));
+            toast.error({
+              title: `Video ${stepIndex}/${total} Thất Bại`,
+              message: `Auto Reup dừng lại ở video [${stepIndex}/${total}] do lỗi: ${failMsg}`,
+            });
+            break;
           }
         } catch (waitErr) {
           console.error(`Lỗi khi chờ BKT video ${v.title}:`, waitErr);
+          try {
+            await cancelBktJob(jobId);
+          } catch {}
           setReupProgressMap((prev) => ({
             ...prev,
             [channelId]: {
               channelId,
-              isRunning: true,
+              isRunning: false,
               currentStep: stepIndex,
               totalSteps: total,
-              progressText: `[${stepIndex}/${total}] Lỗi tác vụ: ${waitErr}`,
-              status: 'running',
+              progressText: `Auto Reup dừng lại ở video [${stepIndex}/${total}] do lỗi: ${waitErr}`,
+              status: 'failed',
             },
           }));
+          toast.error({
+            title: `Auto Reup Dừng Lại (${stepIndex}/${total})`,
+            message: `Auto Reup dừng lại ở video [${stepIndex}/${total}] do lỗi: ${waitErr}`,
+          });
+          break;
         }
 
         await new Promise((r) => setTimeout(r, 1000));

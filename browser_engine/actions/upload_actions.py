@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import os
 import re
 import sys
 import time
@@ -17,6 +18,7 @@ from actions.page_context import check_page_health
 from actions.studio_dom import (
     DEFAULT_FORBIDDEN_HREF_PATTERNS,
     click_stable_element,
+    dismiss_blocking_studio_dialogs,
     dismiss_post_save_studio_modals,
     eval_studio_dom,
     get_studio_context,
@@ -86,13 +88,23 @@ def is_upload_stream_complete(percent: int | None, raw_text: str) -> bool:
     low_text = (raw_text or "").lower()
     definitive_processing_signatures = [
         "đã hoàn tất quá trình tải lên",
+        "quá trình tải lên hoàn tất",
+        "quá trình tải lên đã hoàn tất",
+        "đã tải lên 100%",
+        "100% uploaded",
         "upload complete",
         "đang xử lý sd",
         "processing sd",
+        "đang xử lý bản sd",
+        "đang xử lý bản hd",
+        "processing hd",
         "đang xử lý đến độ phân giải tối đa",
         "quá trình xử lý video ở độ nét chuẩn (sd)",
         "processing complete",
         "checks complete",
+        "kiểm tra hoàn tất",
+        "không phát hiện thấy vấn đề nào",
+        "no issues found",
     ]
     return any(sig in low_text for sig in definitive_processing_signatures)
 
@@ -341,6 +353,65 @@ async def _ensure_not_for_kids_audience(page) -> bool:
     return await _is_not_for_kids_selected(page)
 
 
+async def dismiss_publish_anyway_dialogs(page) -> bool:
+    """Tự động dò tìm và click nút 'Vẫn xuất bản' / 'Publish anyway' / 'Vẫn lưu' nếu YouTube Studio hiện popup cảnh báo kiểm tra/SD xuyên Shadow DOM."""
+    try:
+        conf_res = await eval_studio_dom(
+            page,
+            """
+            const dlgs = __rtmDom.deepQueryMounted(document, 'ytcp-confirmation-dialog, tp-yt-paper-dialog, ytcp-dialog, [role="dialog"]');
+            for (const dlg of dlgs) {
+                if (!__rtmDom.isContainerVisiblyMounted(dlg)) continue;
+                const tag = (dlg.tagName || '').toLowerCase();
+                if (tag === 'ytcp-uploads-dialog') continue;
+
+                const btns = __rtmDom.deepQueryVisible(dlg, '#confirm-button, [dialog-confirm], ytcp-button.ytcp-confirmation-dialog, ytcp-button#primary-action-button, ytcp-button#save-button, ytcp-button#publish-button, ytcp-button, button');
+                for (const b of btns) {
+                    const btxt = (__rtmDom.collectVisibleText(b) || '').toLowerCase();
+                    const bid = (b.id || '').toLowerCase();
+                    const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+                    const isConfirmBtn = (
+                        bid.includes('confirm')
+                        || bid.includes('primary')
+                        || b.hasAttribute('dialog-confirm')
+                        || btxt.includes('vẫn xuất bản')
+                        || btxt.includes('publish anyway')
+                        || btxt.includes('xuất bản ngay')
+                        || btxt.includes('vẫn lưu')
+                        || btxt.includes('save anyway')
+                        || btxt.includes('publish now')
+                        || btxt.includes('xác nhận')
+                        || btxt.includes('tiếp tục')
+                        || btxt.includes('đã hiểu')
+                        || btxt.includes('got it')
+                        || btxt.includes('publicar de todos modos')
+                        || btxt.includes('publicar igualmente')
+                        || btxt.includes('trotzdem')
+                        || btxt.includes('publier')
+                        || btxt.includes('все равно')
+                        || btxt.includes('仍要发布')
+                        || btxt.includes('仍要發布')
+                        || aria.includes('vẫn xuất bản')
+                        || aria.includes('publish anyway')
+                    );
+                    if (isConfirmBtn && !btxt.includes('hủy') && !btxt.includes('cancel') && !btxt.includes('không')) {
+                        const nativeBtn = __rtmDom.resolveNativeButton(b) || b;
+                        nativeBtn.click();
+                        return { clicked: true, text: btxt || bid };
+                    }
+                }
+            }
+            return { clicked: false };
+            """,
+        )
+        if conf_res and conf_res.get("clicked"):
+            logger.info("Đã bấm xác nhận 'Vẫn xuất bản' (Publish anyway): %s", conf_res.get("text"))
+            return True
+    except Exception as conf_err:
+        logger.debug("Lỗi kiểm tra popup xác nhận xuất bản: %s", conf_err)
+    return False
+
+
 class YouTubeUpload:
     async def upload_video(
         self,
@@ -360,6 +431,17 @@ class YouTubeUpload:
         """Đăng video lên YouTube Studio. Trả về URL video (hoặc chuỗi rỗng nếu thất bại)."""
 
         video_path = _resolve_path(video_path)
+        if not os.path.exists(video_path):
+            raise FileNotFoundError(f"File video không tồn tại trên ổ đĩa: {video_path}")
+        file_size = os.path.getsize(video_path)
+        if file_size < 1024:
+            raise ValueError(f"File video rỗng hoặc không hợp lệ ({file_size} bytes): {video_path}")
+        try:
+            with open(video_path, "rb") as test_f:
+                _ = test_f.read(512)
+        except Exception as lock_err:
+            raise PermissionError(f"File video đang bị khóa bởi tiến trình khác (chưa kết xuất xong): {lock_err}")
+
         if thumbnail_path:
             thumbnail_path = _resolve_path(thumbnail_path)
 
@@ -408,6 +490,26 @@ class YouTubeUpload:
 
         # Dọn dẹp modal hậu xử lý còn sót từ phiên trước (nếu có) trước khi mở hộp thoại upload mới
         await dismiss_post_save_studio_modals(page, settlement_seconds=0.0, context="pre_upload")
+        await dismiss_blocking_studio_dialogs(page, allow_reload=True, context="pre_upload_notice")
+
+        # Tự động đóng các modal chặn (confirmation / backdrop dở dang từ phiên trước nếu có)
+        try:
+            await page.evaluate("""() => {
+                const backdrops = document.querySelectorAll('iron-overlay-backdrop.opened, tp-yt-iron-overlay-backdrop.opened');
+                const hasUploadDialog = !!document.querySelector('ytcp-uploads-dialog[opened], ytcp-uploads-dialog:not([hidden])');
+                if (!hasUploadDialog) {
+                    backdrops.forEach(b => {
+                        b.classList.remove('opened');
+                        b.style.display = 'none';
+                    });
+                }
+                const discardBtn = document.querySelector('ytcp-confirmation-dialog #confirm-button, ytcp-confirmation-dialog [test-id="confirm-button"]');
+                if (discardBtn && !hasUploadDialog) {
+                    discardBtn.click();
+                }
+            }""")
+        except Exception:
+            pass
 
         # Nếu trình duyệt đang kẹt ở scope /video/<id>/edit hoặc analytics của video cũ, thoát về trang kênh trước
         pre_ctx = await get_studio_context(page)
@@ -424,84 +526,127 @@ class YouTubeUpload:
 
         logger.info("Click Create -> Upload videos (language-agnostic)")
         opened = False
+
+        # Thử kiểm tra xem hộp thoại upload đã mở sẵn từ trước chưa
         try:
-            create_res = await safe_targeted_click(
-                page,
-                selectors=[
-                    "ytcp-header #create-icon",
-                    "ytcp-icon-button#create-icon",
-                    "#create-icon",
-                    "ytcp-header [test-id='create-icon']",
-                ],
-                action_name="studio_open_create_menu",
-                exclude_ancestors=["ytcp-video-row", "ytcp-uploads-dialog", "#hover-items"],
-                forbidden_href_patterns=DEFAULT_FORBIDDEN_HREF_PATTERNS + [r"/video/[^/]+/edit"],
-                allow_js_fallback=False,
-                timeout_ms=6000,
-                pre_delay=0.35,
-                post_click_settle=0.45,
-                verify_fn=lambda ctx: bool((ctx.get("headerMenus") or {}).get("menuItems")),
-            )
-            if create_res.get("ok") or create_res.get("method"):
-                await random_delay(0.4, 0.8)
-                upload_item_res = await safe_targeted_click(
-                    page,
-                    selectors=[
-                        "tp-yt-paper-item#text-item-0",
-                        "[test-id='upload-video-menu-item']",
-                        "tp-yt-paper-item:has(tp-yt-iron-icon[icon*='upload'])",
-                        "ytcp-ve:has(tp-yt-iron-icon[icon*='upload'])",
-                    ],
-                    action_name="studio_select_upload_menu_item",
-                    root_selector="ytcp-text-menu tp-yt-paper-dialog, tp-yt-paper-dialog[role='menu'], tp-yt-paper-dialog[opened], ytcp-text-menu",
-                    exclude_ancestors=["ytcp-video-row", "#recent-videos", "#latest-video-card", "ytcp-uploads-dialog"],
-                    forbidden_href_patterns=DEFAULT_FORBIDDEN_HREF_PATTERNS + [r"/video/[^/]+/edit"],
-                    allow_js_fallback=False,
-                    timeout_ms=5000,
-                    pre_delay=0.25,
-                    post_click_settle=0.6,
-                )
-                if upload_item_res.get("ok"):
-                    opened = True
-        except Exception as exc:
-            logger.debug("Create menu click failed: %s", exc)
+            cur_ctx_check = await get_studio_context(page)
+            if (cur_ctx_check.get("uploadState") or {}).get("filePickerVisible"):
+                opened = True
+                logger.info("Hộp thoại tải lên đã mở sẵn — tiếp tục chọn file")
+        except Exception:
+            pass
 
         if not opened:
-            # Fallback chỉ trên header/dashboard (cấm link dẫn sang /video/<id>/... hoặc nằm trong row/card video)
-            direct_res = await safe_targeted_click(
-                page,
-                selectors=[
-                    "ytcp-header #upload-icon",
-                    "#upload-icon",
-                    "#upload-button",
-                    "ytcp-icon-button#upload-icon",
-                ],
-                action_name="studio_direct_upload_icon",
-                exclude_ancestors=["ytcp-video-row", "#recent-videos", "#latest-video-card", "#hover-items"],
-                forbidden_href_patterns=DEFAULT_FORBIDDEN_HREF_PATTERNS + [r"/video/[^/]+/edit"],
-                allow_js_fallback=False,
-                timeout_ms=7000,
-                pre_delay=0.35,
-                post_click_settle=0.6,
-            )
-            if direct_res.get("ok"):
-                opened = True
-            else:
-                cur_ctx = await get_studio_context(page)
-                raise RuntimeError(
-                    f"Không mở được hộp thoại tải video lên trên YouTube Studio "
-                    f"(pageType={cur_ctx.get('pageType')}, url={cur_ctx.get('url')}, reason={direct_res.get('reason')})."
+            # Bước 1: Mở menu Tạo (Create)
+            try:
+                create_res = await safe_targeted_click(
+                    page,
+                    selectors=[
+                        "ytcp-button#create-icon",
+                        "ytcp-button-shape#create-icon",
+                        "ytcp-header #create-icon",
+                        "ytcp-icon-button#create-icon",
+                        "#create-icon",
+                        "#create-button",
+                        "ytcp-button[label*='Create' i]",
+                        "ytcp-button[label*='Tạo' i]",
+                        "button[aria-label*='Create' i]",
+                        "button[aria-label*='Tạo' i]",
+                        "ytcp-header [test-id='create-icon']",
+                    ],
+                    action_name="studio_open_create_menu",
+                    exclude_ancestors=["ytcp-video-row", "ytcp-uploads-dialog", "#hover-items"],
+                    forbidden_href_patterns=DEFAULT_FORBIDDEN_HREF_PATTERNS + [r"/video/[^/]+/edit"],
+                    allow_js_fallback=True,
+                    timeout_ms=5000,
+                    pre_delay=0.25,
+                    post_click_settle=0.4,
                 )
-        await random_delay(1.2, 2.0)
+            except Exception as exc:
+                logger.debug("Create menu click failed: %s", exc)
+
+            # Thử click menu item bằng Playwright native selector đa ngôn ngữ và CSS
+            try:
+                await random_delay(0.3, 0.6)
+                menu_locators = [
+                    page.locator("tp-yt-paper-dialog[opened] tp-yt-paper-item").first,
+                    page.locator("tp-yt-paper-item#text-item-0"),
+                    page.locator("tp-yt-paper-item:has-text('Upload')").first,
+                    page.locator("tp-yt-paper-item:has-text('Tải')").first,
+                    page.locator("[test-id='upload-video-menu-item']"),
+                    page.locator("ytcp-text-menu tp-yt-paper-item").first,
+                ]
+                for mloc in menu_locators:
+                    try:
+                        if await mloc.count() > 0 and await mloc.is_visible():
+                            await mloc.click(timeout=3000)
+                            opened = True
+                            logger.info("Đã click nút Tải video lên qua menu Create thành công")
+                            break
+                    except Exception:
+                        continue
+            except Exception as m_err:
+                logger.debug("Playwright menu click thử nghiệm: %s", m_err)
+
+        if not opened:
+            # Bước 2: Thử click nút trực tiếp qua Playwright và safe_targeted_click
+            try:
+                direct_locators = [
+                    page.locator("ytcp-header #upload-icon, #upload-icon").first,
+                    page.locator("#upload-button, ytcp-button#upload-button").first,
+                    page.locator("ytcp-button#create-icon, #create-icon").first,
+                ]
+                for dloc in direct_locators:
+                    try:
+                        if await dloc.count() > 0 and await dloc.is_visible():
+                            await dloc.click(timeout=3000)
+                            await random_delay(0.5, 1.0)
+                            sub_item = page.locator("tp-yt-paper-item#text-item-0, tp-yt-paper-dialog[opened] tp-yt-paper-item").first
+                            if await sub_item.count() > 0 and await sub_item.is_visible():
+                                await sub_item.click(timeout=3000)
+                            opened = True
+                            break
+                    except Exception:
+                        continue
+            except Exception as d_err:
+                logger.debug("Direct click fallback error: %s", d_err)
+
+        if not opened:
+            # Bước 3: Direct JS click xuyên Shadow DOM
+            try:
+                js_click_res = await eval_studio_dom(page, """
+                    const createBtn = document.querySelector('#create-icon, ytcp-header #create-icon, [aria-label*="Create" i], [aria-label*="Tạo" i]');
+                    if (createBtn) {
+                        createBtn.click();
+                        setTimeout(() => {
+                            const item = document.querySelector('tp-yt-paper-item#text-item-0, [test-id="upload-video-menu-item"], tp-yt-paper-item');
+                            if (item) item.click();
+                        }, 300);
+                        return true;
+                    }
+                    const uploadIcon = document.querySelector('#upload-icon, #upload-button');
+                    if (uploadIcon) {
+                        uploadIcon.click();
+                        return true;
+                    }
+                    return false;
+                """)
+                if js_click_res:
+                    opened = True
+                    await random_delay(1.0, 1.5)
+            except Exception as js_err:
+                logger.debug("Direct JS click error: %s", js_err)
 
         # Chờ file picker dialog thật xuất hiện
         logger.info("Chờ file picker dialog (ytcp-uploads-file-picker)")
         picker_ready = False
         try:
-            await page.wait_for_selector("ytcp-uploads-dialog ytcp-uploads-file-picker, ytcp-uploads-file-picker", timeout=35000)
+            await page.wait_for_selector("ytcp-uploads-dialog ytcp-uploads-file-picker, ytcp-uploads-file-picker", timeout=25000)
             picker_ready = True
         except Exception:
-            await random_delay(1.5, 2.5)
+            await random_delay(1.0, 1.8)
+            # Kiểm tra và dismiss popup cản trở (ví dụ: 'Bạn đã hoàn tất' / 'You're all set') nếu đang che khuất
+            await dismiss_blocking_studio_dialogs(page, allow_reload=False, context="picker_timeout_check")
             cur_ctx_picker = await get_studio_context(page)
             picker_ready = bool((cur_ctx_picker.get("uploadState") or {}).get("filePickerVisible"))
 
@@ -512,42 +657,66 @@ class YouTubeUpload:
                 f"(pageType={cur_ctx_picker.get('pageType')}, url={cur_ctx_picker.get('url')})."
             )
 
-        # Set file trực tiếp vào input scoped trong hộp thoại upload (cấm dính input thumbnail)
+        # Dọn dẹp blocking dialog nếu đang che khuất nút #select-files-button
+        await dismiss_blocking_studio_dialogs(page, allow_reload=False, context="before_select_files")
+
+        # Chọn file video bằng Dual Strategy (ưu tiên FileChooser, dự phòng set_input_files)
         logger.info("Chọn file video: %s", video_path)
-        file_input = None
-        scoped_input_sel = 'ytcp-uploads-dialog input[type="file"], ytcp-uploads-file-picker input[type="file"]'
-        for _attempt in range(4):
-            try:
-                fi = page.locator(scoped_input_sel).first
-                if await fi.count() > 0:
-                    file_input = fi
-                    break
-            except Exception:
-                pass
-            for frame in page.frames:
+        file_selected = False
+        try:
+            select_btn = page.locator('#select-files-button, [test-id="select-files-button"], ytcp-button#select-files-button').first
+            if await select_btn.count() > 0 and await select_btn.is_visible():
+                async with page.expect_file_chooser(timeout=6000) as fc_info:
+                    await select_btn.click()
+                file_chooser = await fc_info.value
+                await file_chooser.set_files(video_path)
+                file_selected = True
+                logger.info("Đã chọn file video qua Playwright FileChooser thành công")
+        except Exception as fc_err:
+            logger.debug("FileChooser click không kích hoạt được, kiểm tra blocking dialogs: %s", fc_err)
+            await dismiss_blocking_studio_dialogs(page, allow_reload=False, context="file_chooser_retry")
+
+        if not file_selected:
+            file_input = None
+            scoped_input_sel = 'ytcp-uploads-dialog input[type="file"], ytcp-uploads-file-picker input[type="file"]'
+            for _attempt in range(4):
                 try:
-                    fi = frame.locator(scoped_input_sel).first
+                    fi = page.locator(scoped_input_sel).first
                     if await fi.count() > 0:
                         file_input = fi
                         break
                 except Exception:
-                    continue
-            if file_input:
-                break
-            await random_delay(1.0, 1.8)
+                    pass
+                for frame in page.frames:
+                    try:
+                        fi = frame.locator(scoped_input_sel).first
+                        if await fi.count() > 0:
+                            file_input = fi
+                            break
+                    except Exception:
+                        continue
+                if file_input:
+                    break
+                await random_delay(1.0, 1.8)
 
-        if not file_input:
-            cur_ctx_fi = await get_studio_context(page)
-            raise RuntimeError(
-                f"Không tìm thấy input[type=file] bên trong ytcp-uploads-dialog "
-                f"(pageType={cur_ctx_fi.get('pageType')}, url={cur_ctx_fi.get('url')})."
-            )
+            if not file_input:
+                cur_ctx_fi = await get_studio_context(page)
+                raise RuntimeError(
+                    f"Không tìm thấy input[type=file] bên trong ytcp-uploads-dialog "
+                    f"(pageType={cur_ctx_fi.get('pageType')}, url={cur_ctx_fi.get('url')})."
+                )
 
-        await file_input.set_input_files(video_path)
-        try:
-            await file_input.dispatch_event("change")
-        except Exception:
-            pass
+            await file_input.set_input_files(video_path)
+            try:
+                await file_input.evaluate("""input => {
+                    input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+                }""")
+            except Exception:
+                try:
+                    await file_input.dispatch_event("change")
+                except Exception:
+                    pass
         logger.info("Đã chọn file, chờ dialog metadata xuất hiện")
 
         # Chờ dialog chuyển sang bước Details / BASIC_INFO (metadata) xuyên Shadow DOM
@@ -1028,6 +1197,14 @@ class YouTubeUpload:
                 logger.info("Đã đến bước Chế độ hiển thị (step=%s) thành công!", cur_step or "VISIBILITY")
                 break
 
+            # Đảm bảo chọn Đối tượng khán giả (Audience) ở Bước 1 trước khi bấm Next
+            if cur_step in ("DETAILS", "") or attempt == 0:
+                is_aud_selected = await _is_not_for_kids_selected(page)
+                if not is_aud_selected:
+                    logger.info("Chưa chọn đối tượng khán giả ở Bước 1 — Đảm bảo chọn 'Không dành cho trẻ em'...")
+                    await _ensure_not_for_kids_audience(page)
+                    await asyncio.sleep(0.5)
+
             # 1. Bước Kiếm Tiền (Monetization) cho kênh BKT:
             if "MONETIZATION" in cur_step or "MONETIZE" in cur_step:
                 logger.info("Phát hiện bước Kiếm Tiền (Monetization) cho kênh BKT — Đang tự động bật kiếm tiền...")
@@ -1103,6 +1280,22 @@ class YouTubeUpload:
                         """
                     )
                     await asyncio.sleep(0.6)
+
+                    # Đợi YouTube Studio tính điểm quảng cáo xong và kích hoạt lại nút Next
+                    logger.info("Đã bấm Gửi bài đánh giá — Đang chờ YouTube Studio tính điểm và kích hoạt lại nút Next...")
+                    for _wait_tick in range(20):
+                        is_disabled = await page.evaluate("""
+                            () => {
+                                const btn = document.querySelector('ytcp-uploads-dialog #next-button') || 
+                                            document.querySelector('#next-button');
+                                if (!btn) return true;
+                                return btn.hasAttribute('disabled') || btn.getAttribute('aria-disabled') === 'true';
+                            }
+                        """)
+                        if not is_disabled:
+                            logger.info("Nút Next đã được kích hoạt lại sau bài đánh giá quảng cáo (tick %d).", _wait_tick + 1)
+                            break
+                        await asyncio.sleep(1.0)
                 except Exception as suit_err:
                     logger.debug("Lỗi xử lý ad suitability: %s", suit_err)
 
@@ -1384,6 +1577,13 @@ class YouTubeUpload:
             raise RuntimeError("Không thể bấm nút Publish/Lưu (#done-button) vì nút vẫn đang bị khóa hoặc bị che khuất.")
         logger.info("Đã bấm nút Publish/Lưu (#done-button) lần 1 (%s) — chờ xác nhận từ YouTube Studio...", done_click_mode)
 
+        # Bổ sung vòng lặp 3 lần kiểm tra popup xác nhận với độ trễ 1.5 giây giữa mỗi lần để bắt dính modal cảnh báo xử lý SD/HD của YouTube Studio
+        for _popup_check_idx in range(3):
+            dismissed = await dismiss_publish_anyway_dialogs(page)
+            if dismissed:
+                logger.info("Đã phát hiện và giải phóng popup xác nhận xuất bản (lần kiểm tra %d/3).", _popup_check_idx + 1)
+            await asyncio.sleep(1.5)
+
         # Chờ xác nhận Save RPC lên tới 45s cho proxy có độ trễ cao (KHÔNG bấm trùng khi #done-button đã disabled / popup đang mở)
         saved_successfully = False
         share_dialog_visible = False
@@ -1395,58 +1595,7 @@ class YouTubeUpload:
             await asyncio.sleep(0.5)
 
             # Tự động dò tìm và click nút "Vẫn xuất bản" / "Publish anyway" / "Vẫn lưu" nếu YouTube Studio hiện popup cảnh báo kiểm tra
-            try:
-                conf_res = await eval_studio_dom(
-                    page,
-                    """
-                    const dlgs = __rtmDom.deepQueryMounted(document, 'ytcp-confirmation-dialog, tp-yt-paper-dialog, ytcp-dialog, [role="dialog"]');
-                    for (const dlg of dlgs) {
-                        if (!__rtmDom.isContainerVisiblyMounted(dlg)) continue;
-                        const tag = (dlg.tagName || '').toLowerCase();
-                        if (tag === 'ytcp-uploads-dialog') continue;
-
-                        const btns = __rtmDom.deepQueryVisible(dlg, '#confirm-button, [dialog-confirm], ytcp-button.ytcp-confirmation-dialog, ytcp-button#primary-action-button, ytcp-button#save-button, ytcp-button#publish-button, ytcp-button, button');
-                        for (const b of btns) {
-                            const btxt = (__rtmDom.collectVisibleText(b) || '').toLowerCase();
-                            const bid = (b.id || '').toLowerCase();
-                            const aria = (b.getAttribute('aria-label') || '').toLowerCase();
-                            const isConfirmBtn = (
-                                bid.includes('confirm')
-                                || bid.includes('primary')
-                                || b.hasAttribute('dialog-confirm')
-                                || btxt.includes('vẫn xuất bản')
-                                || btxt.includes('publish anyway')
-                                || btxt.includes('xuất bản ngay')
-                                || btxt.includes('vẫn lưu')
-                                || btxt.includes('save anyway')
-                                || btxt.includes('publish now')
-                                || btxt.includes('xác nhận')
-                                || btxt.includes('tiếp tục')
-                                || btxt.includes('publicar de todos modos')
-                                || btxt.includes('publicar igualmente')
-                                || btxt.includes('trotzdem')
-                                || btxt.includes('publier')
-                                || btxt.includes('все равно')
-                                || btxt.includes('仍要发布')
-                                || btxt.includes('仍要發布')
-                                || aria.includes('vẫn xuất bản')
-                                || aria.includes('publish anyway')
-                            );
-                            if (isConfirmBtn && !btxt.includes('hủy') && !btxt.includes('cancel') && !btxt.includes('không')) {
-                                const nativeBtn = __rtmDom.resolveNativeButton(b) || b;
-                                nativeBtn.click();
-                                return { clicked: true, text: btxt || bid };
-                            }
-                        }
-                    }
-                    return { clicked: false };
-                    """,
-                )
-                if conf_res and conf_res.get("clicked"):
-                    logger.info("Đã bấm xác nhận 'Vẫn xuất bản' (Publish anyway): %s", conf_res.get("text"))
-                    await asyncio.sleep(1.0)
-            except Exception as conf_err:
-                logger.debug("Lỗi kiểm tra popup xác nhận xuất bản: %s", conf_err)
+            await dismiss_publish_anyway_dialogs(page)
 
             st = await inspect_studio_modal_state(page)
             if not video_url:
@@ -1532,7 +1681,7 @@ class YouTubeUpload:
             video_url = verified_url
             logger.info("Đã xác minh URL sau khi lưu; tiếp tục giữ session theo dõi upload stream trước khi bàn giao.")
 
-        # LUỒNG UPLOAD (cả standalone và BKT handover):
+        # TUYỆT ĐỐI KHÔNG điều hướng goto_channel_videos ở đây! Giữ nguyên upload dialog để duy trì luồng TUS tải lên.
         # Không trả URL chỉ vì popup share đã xuất hiện; phải chờ upload stream hoàn tất.
 
         # Chờ xác nhận trạng thái lưu rồi theo dõi tiến trình upload tới 100% trước khi thoát trình duyệt.

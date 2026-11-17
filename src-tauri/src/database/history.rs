@@ -829,15 +829,44 @@ pub fn find_duplicate_downloads_in_history_db(
 
 /// Check whether a video already exists in history by video ID, media_id, or canonical URL
 pub fn is_video_in_history_db(video_id: &str, canonical_url: &str) -> bool {
-    let media_id = format!("youtube:{}", video_id);
-    let url_pattern = format!("%{}%", video_id);
+    let vid_trimmed = video_id.trim();
+    let url_trimmed = canonical_url.trim();
+
+    if vid_trimmed.is_empty() && url_trimmed.is_empty() {
+        return false;
+    }
+
+    let media_id = if !vid_trimmed.is_empty() {
+        format!("youtube:{}", vid_trimmed)
+    } else {
+        String::new()
+    };
+    let url_pattern = if !vid_trimmed.is_empty() {
+        format!("%{}%", vid_trimmed)
+    } else {
+        String::new()
+    };
 
     for _ in 0..3 {
         if let Ok(conn) = get_db() {
-            if let Ok(mut stmt) = conn.prepare(
-                "SELECT 1 FROM history WHERE media_id = ?1 OR canonical_url = ?2 OR url LIKE ?3 LIMIT 1"
-            ) {
-                return stmt.exists(rusqlite::params![media_id, canonical_url, url_pattern]).unwrap_or(false);
+            if !vid_trimmed.is_empty() && !url_trimmed.is_empty() {
+                if let Ok(mut stmt) = conn.prepare(
+                    "SELECT 1 FROM history WHERE media_id = ?1 OR canonical_url = ?2 OR url LIKE ?3 LIMIT 1"
+                ) {
+                    return stmt.exists(rusqlite::params![media_id, url_trimmed, url_pattern]).unwrap_or(false);
+                }
+            } else if !vid_trimmed.is_empty() {
+                if let Ok(mut stmt) = conn.prepare(
+                    "SELECT 1 FROM history WHERE media_id = ?1 OR url LIKE ?2 LIMIT 1"
+                ) {
+                    return stmt.exists(rusqlite::params![media_id, url_pattern]).unwrap_or(false);
+                }
+            } else {
+                if let Ok(mut stmt) = conn.prepare(
+                    "SELECT 1 FROM history WHERE canonical_url = ?1 LIMIT 1"
+                ) {
+                    return stmt.exists(rusqlite::params![url_trimmed]).unwrap_or(false);
+                }
             }
         }
         std::thread::sleep(std::time::Duration::from_millis(50));

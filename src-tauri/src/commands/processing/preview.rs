@@ -40,6 +40,7 @@ pub async fn generate_video_thumbnail(
 
     log::info!("[THUMBNAIL] Generating thumbnail for '{}'", input_path);
 
+    let thumb_str = thumb_path.to_string_lossy();
     let mut cmd = Command::new(&ffmpeg_path);
     cmd.args([
         "-y",
@@ -53,7 +54,7 @@ pub async fn generate_video_thumbnail(
         "scale=-2:720",
         "-q:v",
         "2",
-        thumb_path.to_str().unwrap(),
+        thumb_str.as_ref(),
     ])
     .stdout(Stdio::piped())
     .stderr(Stdio::piped());

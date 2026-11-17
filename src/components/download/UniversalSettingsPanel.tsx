@@ -286,12 +286,13 @@ export function UniversalSettingsPanel({
             showDetails={settings.subtitleMode !== 'off'}
             languageLabel={t('settings.languages', { defaultValue: 'Ngôn ngữ' })}
             languageCodes={['vi', 'en', 'zh', 'ja', 'ko', 'es', 'fr', 'de', 'ru']}
-            selectedLanguages={settings.subtitleLangs}
+            selectedLanguages={settings.subtitleLangs || []}
             onToggleLanguage={(code) => {
-              if (settings.subtitleLangs.includes(code)) {
-                onSubtitleLangsChange(settings.subtitleLangs.filter((l) => l !== code));
+              const currentLangs = settings.subtitleLangs || [];
+              if (currentLangs.includes(code)) {
+                onSubtitleLangsChange(currentLangs.filter((l) => l !== code));
               } else {
-                onSubtitleLangsChange([...settings.subtitleLangs, code]);
+                onSubtitleLangsChange([...currentLangs, code]);
               }
             }}
             getLanguageLabel={(code) => {

@@ -19,11 +19,11 @@ from urllib.parse import urlparse, parse_qs
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Ensure UTF-8 output on Windows
+# Ensure UTF-8 output and immediate line buffering on Windows
 if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
 if hasattr(sys.stderr, "reconfigure"):
-    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
 
 # Ensure local browser_engine directory is prioritized in sys.path
 ENGINE_DIR = Path(__file__).resolve().parent
@@ -107,7 +107,7 @@ def get_payload(args) -> dict:
             if snake_k not in normalized:
                 normalized[snake_k] = v
         return normalized
-    return data
+    return {}
 
 
 def _clean_profile_locks(profile_dir_name: str, force_kill_live: bool = False):
@@ -1109,38 +1109,8 @@ async def _async_bkt_unified_pipeline(args):
             cur_url_runner = getattr(page, "url", "") or ""
             if "/videos" not in cur_url_runner:
                 logger.info("Runner: Chủ động điều hướng trang sang /videos/upload trước khi kiểm tra BKT...")
-                ch_m_run = re.search(r"/channel/([^/?#]+)", cur_url_runner)
-                cid_run = ch_m_run.group(1) if ch_m_run else (handover_ctx.get("channelId") or "")
-                if not cid_run:
-                    try:
-                        cid_run = await page.evaluate("""() => {
-                            return (window.ytcfg && window.ytcfg.get && window.ytcfg.get('CHANNEL_ID'))
-                                || (document.querySelector('a[href*="/channel/UC"]')?.href?.match(/\\/channel\\/(UC[A-Za-z0-9_-]+)/)?.[1])
-                                || '';
-                        }""")
-                    except Exception:
-                        pass
-                target_nav_url = f"https://studio.youtube.com/channel/{cid_run}/videos/upload" if cid_run else "https://studio.youtube.com/videos/upload"
-                # Thử Polymer synthetic click trước
-                try:
-                    await page.evaluate("""() => {
-                        const item = document.querySelector('ytcp-navigation-item[test-id="videos"]')
-                            || document.querySelector('ytcp-navigation-drawer a[href*="/videos"]')
-                            || document.querySelector('#menu-item-1');
-                        if (item) {
-                            item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, composed: true, cancelable: true }));
-                            item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true, cancelable: true }));
-                            item.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true, cancelable: true }));
-                        }
-                    }""")
-                except Exception:
-                    pass
-                await asyncio.sleep(0.8)
-                cur_after_spa = getattr(page, "url", "") or ""
-                if "/videos" not in cur_after_spa:
-                    logger.info("Runner: SPA click chưa đổi trang, thực hiện page.goto tới %s", target_nav_url)
-                    await page.goto(target_nav_url, wait_until="domcontentloaded", timeout=30000)
-                    await asyncio.sleep(1.2)
+                from actions.upload.navigation import goto_channel_videos
+                await goto_channel_videos(page)
         except Exception as r_nav_err:
             logger.debug("Runner: Lỗi nhẹ khi điều hướng sang tab Nội dung: %s", r_nav_err)
 
@@ -1233,6 +1203,11 @@ async def _async_bkt_unified_pipeline(args):
         )
     finally:
         try:
+            if 'page' in locals() and page and hasattr(page, 'is_closed') and not page.is_closed():
+                await page.close()
+        except Exception:
+            pass
+        try:
             await session.close()
         except Exception:
             pass
@@ -1240,6 +1215,8 @@ async def _async_bkt_unified_pipeline(args):
         try:
             pdir_path = profile_data_dir(profile_dir)
             _clean_profile_cache_dir(pdir_path)
+            from core.browser import _ensure_browsermulti_startup_preferences
+            _ensure_browsermulti_startup_preferences(pdir_path)
         except Exception as cache_clean_err:
             logger.debug("Tự động dọn cache sau BKT unified gặp lỗi nhẹ: %s", cache_clean_err)
 
@@ -1291,14 +1268,15 @@ async def _async_check_copyright_status(args):
             profile_data=profile,
         )
 
+        if "studio.youtube.com" not in (page.url or ""):
+            try:
+                await page.goto("https://studio.youtube.com/", wait_until="domcontentloaded", timeout=60000)
+            except Exception:
+                pass
+            await asyncio.sleep(1.5)
+
         if preferred_channel:
             from actions.youtube_channel import ensure_preferred_youtube_channel
-            if "studio.youtube.com" not in (page.url or ""):
-                try:
-                    await page.goto("https://studio.youtube.com/", wait_until="domcontentloaded", timeout=60000)
-                except Exception:
-                    pass
-                await asyncio.sleep(1.5)
             switched = await ensure_preferred_youtube_channel(page, preferred_channel)
             if not switched:
                 raise RuntimeError(f"Không tìm thấy hoặc không chuyển được sang kênh YouTube ưu tiên: {preferred_channel}")
@@ -1341,6 +1319,11 @@ async def _async_check_copyright_status(args):
         )
     finally:
         try:
+            if 'page' in locals() and page and hasattr(page, 'is_closed') and not page.is_closed():
+                await page.close()
+        except Exception:
+            pass
+        try:
             await session.close()
         except Exception:
             pass
@@ -1348,6 +1331,8 @@ async def _async_check_copyright_status(args):
         try:
             pdir_path = profile_data_dir(profile_dir)
             _clean_profile_cache_dir(pdir_path)
+            from core.browser import _ensure_browsermulti_startup_preferences
+            _ensure_browsermulti_startup_preferences(pdir_path)
         except Exception as cache_clean_err:
             logger.debug("Tự động dọn cache sau check_copyright gặp lỗi nhẹ: %s", cache_clean_err)
 
@@ -1756,6 +1741,146 @@ async def _async_sync_channel_analytics(args):
             pass
 
 
+def action_test_profile_connection(args):
+    try:
+        payload = get_payload(args)
+        profile_id = str(payload.get("profile_id") or "").strip() or str(getattr(args, "profile_id", "") or "").strip()
+        if not profile_id:
+            print(json.dumps({"success": False, "error": "Thiếu profile_id để kiểm tra kết nối"}, ensure_ascii=False))
+            sys.stdout.flush()
+            return
+        profiles = load_profiles()
+        profile = next((p for p in profiles if (p.get("id") == profile_id or p.get("profile_name") == profile_id)), None)
+        if not profile:
+            print(json.dumps({"success": False, "error": f"Không tìm thấy hồ sơ: {profile_id}"}, ensure_ascii=False))
+            sys.stdout.flush()
+            return
+        proxy = profile.get("proxy") or ""
+        result = {
+            "success": True,
+            "profile_id": profile.get("id"),
+            "profile_name": profile.get("profile_name", ""),
+            "has_proxy": bool(proxy),
+            "status": "ready",
+        }
+        if proxy:
+            from core.proxy_format import parse_proxy_input
+            parsed = parse_proxy_input(proxy)
+            result["proxy_valid"] = bool(parsed.candidates)
+        else:
+            result["proxy_valid"] = True
+        print(json.dumps(result, ensure_ascii=False))
+        sys.stdout.flush()
+    except Exception as e:
+        logger.error(f"Lỗi action_test_profile_connection: {e}")
+        print(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False))
+        sys.stdout.flush()
+
+
+async def _async_nurture_channel(args):
+    t0 = time.time()
+    payload = get_payload(args)
+    profile_id = str(payload.get("profile_id") or "").strip() or str(getattr(args, "profile_id", "") or "").strip()
+    duration_minutes = int(payload.get("duration_minutes") or 15)
+    target_duration_seconds = max(60, duration_minutes * 60)
+
+    competitor_titles = payload.get("competitor_titles") or []
+    competitor_hashtags = payload.get("competitor_hashtags") or []
+    competitor_keywords = payload.get("competitor_keywords") or []
+    competitor_urls = payload.get("competitor_urls") or []
+    preferred_channel = str(payload.get("preferred_channel") or "").strip()
+
+    if not profile_id:
+        print(json.dumps({"success": False, "error": "Thiếu profile_id để nuôi kênh"}, ensure_ascii=False))
+        sys.stdout.flush()
+        return
+
+    profiles = load_profiles()
+    profile = next((p for p in profiles if (p.get("id") == profile_id or p.get("profile_name") == profile_id)), None)
+    if not profile:
+        print(json.dumps({"success": False, "error": f"Không tìm thấy hồ sơ: {profile_id}"}, ensure_ascii=False))
+        sys.stdout.flush()
+        return
+
+    name = profile.get("profile_name") or profile_id
+    profile_dir = profile.get("profile_dir") or name
+    proxy = profile.get("proxy") or ""
+    fingerprint_seed = profile.get("fingerprint_seed")
+
+    _clean_profile_locks(profile_dir)
+
+    session = CloakSession()
+    try:
+        from actions.youtube_actions import YouTubeNurture, build_competitor_nurture_plan
+        from actions.bkt_check import setup_low_end_route_interception
+
+        plan = build_competitor_nurture_plan(
+            competitor_titles=competitor_titles,
+            competitor_hashtags=competitor_hashtags,
+            competitor_keywords=competitor_keywords,
+            competitor_urls=competitor_urls,
+        )
+
+        page = await session.start(
+            profile_name=name,
+            proxy=proxy,
+            fingerprint_seed=fingerprint_seed,
+            profile_dir_name=profile_dir,
+            profile_data=profile,
+        )
+        await setup_low_end_route_interception(page)
+
+        nurture = YouTubeNurture()
+        nurture_ok = await nurture.watch_and_engage(
+            page=page,
+            search_topics=plan.get("search_topics") or [],
+            allowed_keywords=plan.get("allowed_keywords") or [],
+            target_duration_seconds=target_duration_seconds,
+            engagement_config={
+                "preferred_channel": preferred_channel,
+                "competitor_channel_urls": plan.get("competitor_channel_urls") or [],
+            },
+        )
+
+        duration = time.time() - t0
+        res = {
+            "success": bool(nurture_ok),
+            "plan": plan,
+            "duration_seconds": round(duration, 2),
+        }
+        if not nurture_ok:
+            res["error"] = "Phiên nuôi kênh hoàn tất sớm hơn dự kiến hoặc không tìm thấy nội dung tương tác phù hợp."
+        print(json.dumps(res, ensure_ascii=False))
+        sys.stdout.flush()
+
+        record_run(
+            profile_id=profile_id,
+            profile_name=name,
+            action="nurture_channel",
+            status="success" if nurture_ok else "error",
+            duration_seconds=duration,
+            error="" if nurture_ok else res.get("error", ""),
+        )
+    except Exception as exc:
+        duration = time.time() - t0
+        logger.error(f"Lỗi nuôi kênh: {exc}", exc_info=True)
+        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False))
+        sys.stdout.flush()
+        record_run(
+            profile_id=profile_id,
+            profile_name=name,
+            action="nurture_channel",
+            status="error",
+            duration_seconds=duration,
+            error=str(exc),
+        )
+    finally:
+        try:
+            await session.close()
+        except Exception:
+            pass
+
+
 def main():
     parser = argparse.ArgumentParser(description="RETubeMatrix Browser Engine Runner")
     parser.add_argument("--action", required=True, choices=[
@@ -1784,6 +1909,8 @@ def main():
         "extract_channel_seo",
         "configure_channel_settings",
         "sync_channel_analytics",
+        "nurture_channel",
+        "test_profile_connection",
     ])
     parser.add_argument("--profile-id", default="")
     parser.add_argument("--target-url", default="")
@@ -1843,6 +1970,10 @@ def main():
         action_analyze_hook(args)
     elif args.action == "analyze_competitor":
         action_analyze_competitor(args)
+    elif args.action == "nurture_channel":
+        asyncio.run(_async_nurture_channel(args))
+    elif args.action == "test_profile_connection":
+        action_test_profile_connection(args)
 
 
 if __name__ == "__main__":

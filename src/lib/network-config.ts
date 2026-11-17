@@ -13,6 +13,13 @@ export type CookieProxyInvokeOptions = {
   cookieFilePath: string | null;
   cookieSkipPatterns: string[];
   proxyUrl: string | null;
+  // snake_case aliases for Tauri v2 compatibility
+  cookie_mode?: CookieSettings['mode'];
+  cookie_browser?: CookieSettings['browser'] | null;
+  cookie_browser_profile?: string | null;
+  cookie_file_path?: string | null;
+  cookie_skip_patterns?: string[];
+  proxy_url?: string | null;
 };
 
 export function normalizeCookieSkipPattern(pattern: string): string {
@@ -137,13 +144,26 @@ export function buildCookieProxyInvokeOptions(
   cookieSettings: CookieSettings,
   proxySettings: ProxySettings,
 ): CookieProxyInvokeOptions {
+  const cookieMode = cookieSettings.mode;
+  const cookieBrowser = cookieSettings.browser || null;
+  const cookieBrowserProfile = cookieSettings.browserProfile || null;
+  const cookieFilePath = cookieSettings.filePath || null;
+  const cookieSkipPatterns = sanitizeCookieSkipPatterns(cookieSettings.cookieSkipPatterns);
+  const proxyUrl = buildProxyUrl(proxySettings) || null;
+
   return {
-    cookieMode: cookieSettings.mode,
-    cookieBrowser: cookieSettings.browser || null,
-    cookieBrowserProfile: cookieSettings.browserProfile || null,
-    cookieFilePath: cookieSettings.filePath || null,
-    cookieSkipPatterns: sanitizeCookieSkipPatterns(cookieSettings.cookieSkipPatterns),
-    proxyUrl: buildProxyUrl(proxySettings) || null,
+    cookieMode,
+    cookieBrowser,
+    cookieBrowserProfile,
+    cookieFilePath,
+    cookieSkipPatterns,
+    proxyUrl,
+    cookie_mode: cookieMode,
+    cookie_browser: cookieBrowser,
+    cookie_browser_profile: cookieBrowserProfile,
+    cookie_file_path: cookieFilePath,
+    cookie_skip_patterns: cookieSkipPatterns,
+    proxy_url: proxyUrl,
   };
 }
 

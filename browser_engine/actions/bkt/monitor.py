@@ -5,16 +5,22 @@ Realtime Content ID polling and copyright restriction evaluation orchestrator.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import os
 import re
+import sys
 import time
 from typing import Any, Dict, List, Optional
 
 from ..dom import (
+    DEFAULT_FORBIDDEN_HREF_PATTERNS,
     build_extract_table_rows_js,
+    dismiss_blocking_studio_dialogs,
     dismiss_post_save_studio_modals,
     get_studio_context,
     inspect_studio_modal_state,
+    safe_targeted_click,
 )
 from .claim_extractor import extract_copyright_claim_details
 from .evaluator import (
@@ -77,6 +83,7 @@ async def check_copyright_and_restrictions(
         guard_res = await dismiss_post_save_studio_modals(page, settlement_seconds=0.0, context="bkt_guard")
         if guard_res.get("closed_count", 0) > 0:
             logger.info("Đã dọn card hậu xử lý (%d dialog) trước khi kiểm tra tab Nội dung.", guard_res["closed_count"])
+        await dismiss_blocking_studio_dialogs(page, allow_reload=False, context="bkt_guard_notice")
 
         # 1. Xác định ngữ cảnh trang hiện tại qua get_studio_context (không dựa index vị trí menu)
         ctx = await get_studio_context(page)
@@ -114,6 +121,7 @@ async def check_copyright_and_restrictions(
     async def extract_table_rows() -> List[Dict[str, Any]]:
         # Đảm bảo không còn card hậu xử lý che bảng trước khi cào từng hàng
         await dismiss_post_save_studio_modals(page, settlement_seconds=0.0, context="bkt_before_scrape")
+        await dismiss_blocking_studio_dialogs(page, allow_reload=False, context="bkt_before_scrape_notice")
 
         # Chờ tối đa 15s cho hàng video đầu tiên xuất hiện (tránh quét DOM lúc đang skeleton loading)
         try:
@@ -133,8 +141,7 @@ async def check_copyright_and_restrictions(
 
     # 1. Mở YouTube Studio Content Uploads
     logger.info("Mở YouTube Studio để kiểm tra bản quyền Content ID...")
-    if "/videos" not in page.url:
-        target_content_url = ""
+    if "/videos" not in (page.url or ""):
         ch_m_init = re.search(r"/channel/([^/?#]+)", page.url or "")
         cid_init = ch_m_init.group(1) if ch_m_init else ""
         if not cid_init:
@@ -142,21 +149,19 @@ async def check_copyright_and_restrictions(
                 cid_init = await page.evaluate("""() => {
                     return (window.ytcfg && window.ytcfg.get && window.ytcfg.get('CHANNEL_ID'))
                         || (document.querySelector('a[href*="/channel/UC"]')?.href?.match(/\\/channel\\/(UC[A-Za-z0-9_-]+)/)?.[1])
+                        || (document.querySelector('ytcp-navigation-drawer a[href*="/channel/"]')?.href?.match(/\\/channel\\/([^/?#]+)/)?.[1])
                         || '';
                 }""")
             except Exception:
                 pass
+
         if cid_init:
             target_content_url = f"https://studio.youtube.com/channel/{cid_init}/videos/upload"
-        elif "studio.youtube.com" not in page.url:
-            target_content_url = "https://studio.youtube.com/videos/upload"
-
-        if target_content_url:
             logger.info("Điều hướng trang Studio sang tab Nội dung: %s", target_content_url)
             try:
                 await page.goto(target_content_url, wait_until="domcontentloaded", timeout=45000)
             except Exception as exc:
-                if "studio.youtube.com" in page.url:
+                if "studio.youtube.com" in (page.url or ""):
                     logger.info("Navigation timeout nhẹ nhưng đã tải được Studio: %s", exc)
                 else:
                     logger.warning("Thử lại truy cập Studio lần 2...")
@@ -169,6 +174,69 @@ async def check_copyright_and_restrictions(
             except Exception:
                 pass
             await asyncio.sleep(2.0)
+        else:
+            # Chưa có cid: click vào menu drawer SPA thay vì goto fallback videos/upload để tránh lỗi "Rất tiếc, đã xảy ra lỗi."
+            logger.info("Chưa có channel ID cụ thể, thực hiện chuyển tab Nội dung qua menu drawer SPA...")
+            if "studio.youtube.com" not in (page.url or ""):
+                try:
+                    await page.goto("https://studio.youtube.com", wait_until="domcontentloaded", timeout=45000)
+                    await asyncio.sleep(2.0)
+                except Exception as s_exc:
+                    logger.warning("Truy cập studio root gặp lỗi nhẹ: %s", s_exc)
+
+            clicked_nav = False
+            for sel in [
+                'ytcp-navigation-drawer a[href*="/videos"]',
+                'ytcp-navigation-item a[href*="/videos"]',
+                'a#menu-item-link[href*="/videos"]',
+                'a[test-id="menu-item-link"][href*="/videos"]',
+                'a[href*="/videos/upload"]',
+                'a[href*="/videos"]',
+                'ytcp-navigation-item[test-id="videos"]',
+            ]:
+                try:
+                    loc = page.locator(sel).first
+                    if await loc.count() > 0 and await loc.is_visible():
+                        await loc.click(timeout=3000)
+                        clicked_nav = True
+                        logger.info("BKT monitor: Đã click menu drawer Nội dung qua locator: %s", sel)
+                        break
+                except Exception:
+                    continue
+
+            if not clicked_nav:
+                try:
+                    await page.evaluate("""() => {
+                        function deepFindLink(root) {
+                            if (!root) return null;
+                            const direct = root.querySelectorAll('ytcp-navigation-drawer a[href*="/videos"], a[href*="/videos"]');
+                            for (const a of direct) {
+                                if (a.offsetParent !== null || a.getClientRects().length > 0) return a;
+                            }
+                            const all = root.querySelectorAll('*');
+                            for (const el of all) {
+                                if (el.shadowRoot) {
+                                    const res = deepFindLink(el.shadowRoot);
+                                    if (res) return res;
+                                }
+                            }
+                            return null;
+                        }
+                        const link = deepFindLink(document);
+                        if (link) {
+                            link.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, composed: true, cancelable: true }));
+                            link.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true, cancelable: true }));
+                            link.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true, cancelable: true }));
+                        }
+                    }""")
+                except Exception:
+                    pass
+
+            for _ in range(12):
+                await asyncio.sleep(0.4)
+                if "/videos" in (page.url or ""):
+                    logger.info("BKT monitor: Đã chuyển sang tab Nội dung qua SPA drawer: %s", page.url)
+                    break
 
     curr_url_check = page.url.lower()
     if any(sig in curr_url_check for sig in ["accounts.google.com", "servicelogin", "signin", "v3/signin"]):
@@ -219,6 +287,7 @@ async def check_copyright_and_restrictions(
     saw_checks_active: Dict[str, bool] = {}
     while True:
         poll_cycle += 1
+        now_ts = time.time()
         if is_browser_disconnected(page):
             raise RuntimeError("Cửa sổ/thẻ YouTube Studio hoặc trình duyệt Chromium đã bị đóng hoặc mất kết nối.")
 
@@ -260,8 +329,13 @@ async def check_copyright_and_restrictions(
             continue
         nav_state["off_page_since"] = None
 
-        rows_data = await extract_table_rows()
-        logger.info("Quét tab Videos: tìm thấy %d hàng video trên bảng", len(rows_data))
+        try:
+            rows_data = await extract_table_rows()
+            logger.info("Quét tab Videos: tìm thấy %d hàng video trên bảng", len(rows_data))
+        except Exception as dom_err:
+            logger.warning("Lỗi DOM / detached frame khi trích xuất bảng video Studio: %s. Thử lại sau 2s...", dom_err)
+            await asyncio.sleep(2.0)
+            continue
 
         dom_results: Dict[str, Any] = {}
         for r in rows_data:
@@ -397,30 +471,21 @@ async def check_copyright_and_restrictions(
                     except Exception:
                         pass
 
-            is_explicit_processing_only = (
-                upload_pct is None
-                and not cancel_upload_visible
-                and any(sig in status_text_only for sig in [
-                    "quá trình xử lý sẽ sớm bắt đầu", "processing will begin",
-                    "đang xử lý", "processing sd", "quá trình kiểm tra",
-                    "checks will begin", "checks pending", "チェック", "検", "処理",
-                    "검토", "검사", "확인", "처리", "prüfung", "überprüf", "verarbeit",
-                    "comprob", "procesando", "vérif", "traitement", "检查", "檢查", "处理", "處理", "確認",
-                    "провер", "обработ", "ตรวจ", "ประมวล", "memeriksa", "memproses", "verificações",
-                ])
-            )
+            has_processing_signal = any(sig in status_text_only for sig in [
+                "quá trình xử lý sẽ sớm bắt đầu", "processing will begin",
+                "đang xử lý", "processing sd", "quá trình kiểm tra",
+                "checks will begin", "checks pending", "チェック", "検", "処理",
+                "검토", "검사", "확인", "처리", "prüfung", "überprüf", "verarbeit",
+                "comprob", "procesando", "vérif", "traitement", "检查", "檢查", "处理", "處理", "確認",
+                "провер", "обработ", "ตรวจ", "ประมวล", "memeriksa", "memproses", "verificações",
+                "bản nháp", "draft", "草稿", "下書き", "초안", "borrador", "brouillon", "entwurf",
+                "đã hoàn tất quá trình tải lên", "upload complete", "processing complete",
+            ])
 
-            # Bảo vệ chống kẹt vô tận ở 0% khi nút Huỷ tải lên có mặt nhưng không có % sau >40s và subtitle nói đang xử lý/kiểm tra
+            # Bảo vệ chống kẹt vô tận ở 0% khi nút Huỷ tải lên có mặt nhưng không có % sau >15s hoặc đã có tín hiệu xử lý
             stale_zero_without_pct = (
                 upload_pct is None
-                and cancel_upload_visible
-                and no_pct_upload_cycles >= 16
-                and any(k in status_text_only for k in [
-                    "xử lý", "processing", "kiểm tra", "check", "処理", "チェック",
-                    "검토", "검사", "확인", "처리", "prüfung", "überprüf", "verarbeit",
-                    "comprob", "proces", "vérif", "traitement", "检查", "檢查", "处理", "處理", "確認",
-                    "провер", "обработ", "ตรวจ", "ประมวล", "memeriksa", "memproses", "verificações",
-                ])
+                and (has_processing_signal or no_pct_upload_cycles >= 6)
             )
 
             is_row_uploading = (
@@ -428,7 +493,7 @@ async def check_copyright_and_restrictions(
                 or (
                     cancel_upload_visible
                     and not has_explicit_cancel_error
-                    and not is_explicit_processing_only
+                    and not has_processing_signal
                     and not stale_zero_without_pct
                 )
             )
@@ -676,27 +741,46 @@ async def check_copyright_and_restrictions(
             elif not is_actively_checking_or_processing and not cancel_upload_visible and is_known_clean_text:
                 elapsed_check_vid = (now_ts - check_poll_start_time) if check_poll_start_time is not None else 0.0
                 is_ready_for_clean = False
+                has_seen_processing = saw_checks_active.get(vid, False)
+
                 if is_explicit_clean_text:
                     clean_streak[vid] = clean_streak.get(vid, 0) + 1
-                    is_ready_for_clean = clean_streak[vid] >= 2
+                    # Text sạch tường minh ("Không có vấn đề nào", "No issues"):
+                    if has_seen_processing:
+                        is_ready_for_clean = clean_streak[vid] >= 3
+                    else:
+                        # Nếu chưa thấy processing, phải chờ tối thiểu 60s
+                        is_ready_for_clean = (clean_streak[vid] >= 4 and elapsed_check_vid >= 60.0)
                 elif is_clean_dash:
-                    has_seen_processing = saw_checks_active.get(vid, False)
-                    # TUYET DOI KHONG danh dau sach ban quyen khi dang dem nguoc hoac con tien trinh xu ly
-                    if has_seen_processing and not is_actively_checking_or_processing and (estimated_minutes is None):
+                    # Tuyệt đối không kết luận sạch nếu chưa thấy quét:
+                    # Nếu has_seen_processing == False: Không bao giờ được phép gán green_clean chỉ sau 20 giây!
+                    # Dấu gạch ngang — hoặc None trong 120 giây đầu chỉ được coi là trạng thái chờ.
+                    if has_seen_processing and (estimated_minutes is None):
+                        # Trường hợp A: Đã từng thấy cờ quét (has_seen_processing == True),
+                        # trạng thái chuyển sang sạch và duy trì liên tục tối thiểu 3 chu kỳ quét
                         clean_streak[vid] = clean_streak.get(vid, 0) + 1
                         is_ready_for_clean = clean_streak[vid] >= 3
-                    elif not is_actively_checking_or_processing and (estimated_minutes is None) and (elapsed_check_vid >= 20.0 or not emit_upload_events):
-                        # Truong hop reload/F5 hoac kiem tra doc lap: video da hoan tat kiem tra Content ID truoc do
-                        clean_streak[vid] = clean_streak.get(vid, 0) + 1
-                        is_ready_for_clean = clean_streak[vid] >= 4
+                    elif not has_seen_processing and (estimated_minutes is None):
+                        # Trường hợp B (Fallback an toàn): Nếu video quá ngắn khiến YouTube bỏ qua hiển thị text "Processing",
+                        # hệ thống bắt buộc phải chờ tối thiểu 180 giây VÀ duy trì trạng thái sạch liên tục tối thiểu 8 chu kỳ
+                        if elapsed_check_vid >= 180.0:
+                            clean_streak[vid] = clean_streak.get(vid, 0) + 1
+                            is_ready_for_clean = clean_streak[vid] >= 8
+                        else:
+                            clean_streak[vid] = 0
+                            is_ready_for_clean = False
                     else:
                         clean_streak[vid] = 0
                         is_ready_for_clean = False
 
                 if not is_ready_for_clean:
+                    if not has_seen_processing:
+                        wait_msg = f"Đang chờ YouTube bắt đầu quét bản quyền Content ID ({int(elapsed_check_vid)}s/180s)..."
+                    else:
+                        wait_msg = "Đang chờ YouTube quét bản quyền Content ID (Kiểm tra kỹ lưỡng)..."
                     classified[vid] = {
                         "bkt_check_status": "pending",
-                        "bkt_restriction": "Đang chờ YouTube quét bản quyền Content ID (Kiểm tra kỹ lưỡng)...",
+                        "bkt_restriction": wait_msg,
                         "processing_stage": "checking",
                         "estimated_minutes": None,
                         "claim_type": "none",
@@ -756,7 +840,14 @@ async def check_copyright_and_restrictions(
             if pct_changed_this_cycle:
                 last_upload_pct = upload_percent_snapshot
                 last_upload_pct_changed_at = now_ts
-            if (upload_percent_snapshot or 0) <= 0 and (now_ts - last_upload_pct_changed_at >= 900.0):
+            if (upload_percent_snapshot or 0) <= 0 and (now_ts - last_upload_pct_changed_at >= 45.0):
+                logger.info(
+                    "Không thấy tiến trình %% tải lên tăng trên bảng Nội dung sau 45s "
+                    "— tự động hoàn tất giai đoạn upload stream và chuyển sang theo dõi xử lý bản quyền Content ID."
+                )
+                any_uploading = False
+                saw_active_upload = True
+            elif (upload_percent_snapshot or 0) <= 0 and (now_ts - last_upload_pct_changed_at >= 900.0):
                 raise RuntimeError(
                     "Quá trình tải lên bị treo tại 0% quá 15 phút trên YouTube Studio (không có tiến triển)."
                 )
@@ -921,3 +1012,41 @@ async def check_copyright_and_restrictions(
                     await ensure_on_upload_content_page()
             except Exception as nav_err:
                 logger.debug("Lỗi làm mới SPA: %s", nav_err)
+
+
+async def poll_bkt_status(
+    page: Any,
+    video_ids: Optional[List[str]] = None,
+    video_title: Optional[str] = None,
+    poll_in_session: bool = False,
+    max_poll_seconds: int = 1800,
+    emit_upload_events: bool = False,
+    video_url: str = "",
+) -> Dict[str, Any]:
+    """
+    Wrapper giám sát trạng thái bản quyền kèm Graceful Shutdown đóng trình duyệt sạch sẽ,
+    ngăn chặn hoàn toàn cờ crash Chromium và popup khôi phục trang.
+    """
+    try:
+        return await check_copyright_and_restrictions(
+            page=page,
+            video_ids=video_ids,
+            video_title=video_title,
+            poll_in_session=poll_in_session,
+            max_poll_seconds=max_poll_seconds,
+            emit_upload_events=emit_upload_events,
+            video_url=video_url,
+        )
+    finally:
+        try:
+            if 'page' in locals() and page and hasattr(page, 'is_closed') and not page.is_closed():
+                await page.close()
+        except Exception:
+            pass
+        try:
+            browser = getattr(getattr(page, 'context', None), 'browser', None)
+            if browser:
+                await browser.close()
+        except Exception:
+            pass
+

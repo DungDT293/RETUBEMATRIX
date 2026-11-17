@@ -7,6 +7,117 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-11-17
+
+### Thêm mới
+
+- **Hệ Thống Tự Động Đóng Hộp Thoại YouTube Studio Đa Tầng** - Tích hợp nhận diện và đóng tự động các modal cản trở trên YouTube Studio Polymer, bao gồm "Bạn đã hoàn tất" / "You're all set", "Vẫn xuất bản" / "Publish anyway" và popup nền đang xử lý video.
+- **Dọn Sạch Cây Tiến Trình Con Cho Watchdogs** - Nâng cấp toàn bộ cơ chế Watchdog (180s im lặng, 15m treo 0%, 40m đứng yên) tự động tiêu diệt đệ quy cây tiến trình con (`taskkill /F /T /PID`), triệt tiêu hoàn toàn tiến trình Chromium chạy ngầm.
+- **Cơ Chế Pipe Không Đệm Trên Windows** - Cấu hình cờ `PYTHONUNBUFFERED=1` và `-u` cho runner, đảm bảo dữ liệu sự kiện thời gian thực được đẩy qua pipe ngay lập tức mà không bị nghẽn buffer.
+
+### Sửa lỗi
+
+- **Rò Rỉ Dấu Vết Metadata Cấp Stream Trong Reup Pipeline** - Bổ sung cờ `-map_metadata:s -1` cho cả 3 cấp Reup V1, V2 và Adaptive để xóa sạch metadata ở cấp luồng stream audio/video.
+- **Khớp Sai Lịch Sử Do Ký Tự Wildcard SQL Khi ID Video Rỗng** - Sửa lỗi `is_video_in_history_db` tự động khớp với mọi bản ghi khi ID video rỗng, ngăn chặn đánh dấu nhầm trạng thái đã tải.
+- **Trùng Lặp Thông Báo Video Mới Trong Deep Sync** - Bổ sung bước kiểm tra tồn tại CSDL trước khi tính `new_count`, loại bỏ hiện tượng bắn thông báo và tự động tải trùng lặp.
+- **Race Condition Khi Video Dính Bản Quyền Hình Ảnh** - Khắc phục xung đột luồng khi hệ thống kích hoạt Reup Lv.2 ngầm đồng thời với tác vụ dọn dẹp xóa tệp nguồn.
+- **Kiểm Soát Tính Toàn Vẹn Tệp Video Trước Khi Tải Lên** - Bắt buộc kiểm tra kích thước tối thiểu (> 100KB) trước khi mở phiên tải lên Kênh Test hoặc Kênh Đích.
+- **Nhận Diện Video Đã Edit Tại Thư Mục Dùng Chung** - Đồng bộ thuật toán tìm kiếm artifact thành phẩm tại cả `[DA_EDIT]_{video_stem}` và thư mục chung `[DA_EDIT]`.
+- **Tăng Ngưỡng Timeout Đăng Kênh Đích Lên 120 Phút** - Mở rộng timeout backend từ 30 phút lên 7200 giây (120 phút), hỗ trợ trơn tru các video dung lượng lớn qua proxy.
+
+## [1.3.0] - 2026-11-17
+
+### Thêm mới
+
+- **Cơ Chế Timeout Bất Đồng Bộ Cho IPC Frontend (Profiles & Dashboard)** - Bổ sung timeout không nghẽn cho các lệnh IPC tại `ProfilesPage` và `DashboardPage`, triệt tiêu hoàn toàn tình trạng spinner xoay vô tận khi nạp danh sách profile và số liệu thống kê.
+- **Tự Động Phát Hiện CSDL & Cô Lập Môi Trường Unit Test** - Hoàn thiện cơ chế tự động nhận diện đường dẫn SQLite và thiết lập fixture CSDL tạm thời/in-memory độc lập cho môi trường kiểm thử unit test.
+
+### Sửa lỗi
+
+- **Khắc Phục Tự Khóa (Self-Deadlock) SQLite Mutex Khi Cập Nhật Trạng Thái Xuất Bản Kênh Đích** - Xử lý dứt điểm lỗi tự deadlock mutex CSDL trong `commands/bkt/publish.rs` và `pipeline.rs` khi cập nhật trạng thái xuất bản, đảm bảo transaction được giải phóng an toàn trước khi gọi cập nhật tiếp theo.
+- **Tối Ưu Hóa Luồng Xuất Bản Tự Động Cho Video Đã Edit Sẵn Trên Đĩa** - Tối ưu toàn diện pipeline xuất bản khi video thành phẩm đã tồn tại trên ổ đĩa, tự động bỏ qua công đoạn render dư thừa và chuyển tiếp tức thì sang tiến trình đăng Kênh Đích.
+
+## [1.2.9] - 2026-11-17
+
+### Thêm mới
+
+- **Phân Rã Mô-Đun & Tối Ưu Kiến Trúc Accordion Video Kênh** - Tái cấu trúc toàn diện tệp `ChannelVideoAccordion.tsx` (từ tệp nguyên khối 2.019 dòng) thành các mô-đun con chuyên biệt tại `src/pages/channels/accordion/`: `ChannelVideoToolbar`, `ChannelVideoFilterBar`, `ChannelVideoRow`, và `useChannelVideoWorkflows`. Giảm 86% quy mô bộ điều phối chính xuống còn 276 dòng, bảo toàn 100% logic an toàn và không gây hồi quy giao diện.
+- **Tự Động Nhận Diện Video Đã Edit Sẵn (`[DA_EDIT]`)** - Pipeline và Dispatcher tự động quét tìm tệp `_reup_ready.mp4` trong thư mục `[DA_EDIT]_{video_stem}` trước khi gọi FFmpeg. Tiết kiệm 100% thời gian render khi video đã qua xử lý, chuyển thẳng sang bước đăng Kênh Đích.
+- **Hợp Nhất Nút Hành Động Video Đã Xử Lý** - Chuẩn hóa giao diện danh sách video. Khi video đã có bản edit hoàn tất hoặc ở trạng thái sẵn sàng tiếp tục đăng, hệ thống ẩn nút chỉnh sửa thừa hoặc hiển thị nhãn "Đăng ngay (Đã Edit)", triệt tiêu hoàn toàn xung đột duplicate nút bấm và tránh render lại nhầm.
+
+### Sửa lỗi
+
+- **Hiện Tượng Render Lại Thừa Khi Bấm Đăng Video Đã Xử Lý** - Sửa lỗi `pipeline.rs` tự động phát thông báo `reuping` và chạy lại FFmpeg từ đầu đối với video đã có tệp reup sẵn trên đĩa.
+- **Mất Dấu Artifact Khi Dispatch Fast-Track** - Sửa lỗi `dispatch.rs` bỏ qua artifact sẵn có trên ổ đĩa, đảm bảo job luôn lưu giữ `reup_path` ngay từ lúc tạo.
+
+## [1.2.8] - 2026-11-17
+
+### Thêm mới
+
+- **Tự Động Nhận Diện Video Đã Edit Sẵn (`[DA_EDIT]`)** - Pipeline và Dispatcher tự động quét tìm tệp `_reup_ready.mp4` trong thư mục `[DA_EDIT]_{video_stem}` trước khi gọi FFmpeg. Tiết kiệm 100% thời gian render khi video đã qua xử lý, chuyển thẳng sang bước đăng Kênh Đích.
+- **Hợp Nhất Nút Hành Động Video Đã Xử Lý** - Chuẩn hóa giao diện trong `ChannelVideoAccordion.tsx`. Khi video đã có bản edit hoàn tất hoặc ở trạng thái sẵn sàng tiếp tục đăng, hệ thống ẩn nút chỉnh sửa thừa hoặc hiển thị nhãn "Đăng ngay (Đã Edit)", triệt tiêu hoàn toàn xung đột duplicate nút bấm và tránh render lại nhầm.
+
+### Sửa lỗi
+
+- **Hiện Tượng Render Lại Thừa Khi Bấm Đăng Video Đã Xử Lý** - Sửa lỗi `pipeline.rs` tự động phát thông báo `reuping` và chạy lại FFmpeg từ đầu đối với video đã có tệp reup sẵn trên đĩa.
+- **Mất Dấu Artifact Khi Dispatch Fast-Track** - Sửa lỗi `dispatch.rs` bỏ qua artifact sẵn có trên ổ đĩa, đảm bảo job luôn lưu giữ `reup_path` ngay từ lúc tạo.
+
+### Thêm mới
+
+- **Bỏ Qua Tuyệt Đối Kênh Test Khi Bấm "Chỉnh Sửa & Đăng Ngay" (`skip_bkt_test`)** - Thao tác "Chỉnh sửa & Đăng ngay" (đơn lẻ hoặc hàng loạt) được chuyển hướng trực tiếp (Fast-Track Bypass), không upload Unlisted lên kênh test và không mở YouTube Studio check bản quyền. Hệ thống render video reup thích ứng trực tiếp vào thư mục `[DA_EDIT]` và đăng thẳng lên Kênh Đích đã gán.
+
+### Sửa lỗi
+
+- **Khắc Phục Triệt Để Khóa Lịch Sử Đăng Video ("BKT: Sạch, đăng lỗi")** - Thay thế điều kiện khóa cứng `status IN ('publishing', 'published')` bằng cơ chế timeout tác vụ đang xuất bản (`status = 'publishing' AND updated_at > datetime('now', '-15 minutes')`) trong `claim_bkt_job_for_publish_with_conn`. Xóa bỏ hoàn toàn lỗi `Auto Reup chưa đăng được lên Kênh Đích: Job BKT đã được đăng hoặc đang được xử lý bởi tác vụ khác`, cho phép người dùng bấm "Thử tự đăng" hoặc reup đăng lại nhiều lần mà không bị kẹt trong CSDL.
+- **Tự Động Phân Bổ Fast-Track Khi Hệ Thống Chưa Có Kênh Test** - Cho phép các tác vụ Chỉnh sửa & Đăng ngay hoạt động trơn tru ngay cả khi người dùng chưa cấu hình bất kỳ kênh test BKT nào.
+
+## [1.2.6] - 2026-11-16
+
+### Thêm mới
+
+- **Chỉnh Sửa & Đăng Ngay (Đơn Lẻ & Hàng Loạt Kèm Smart Jitter)** - Bổ sung nút "Chỉnh sửa & Đăng ngay" cho từng video đã tải và nút hàng loạt kèm bộ đếm ngược thời gian thực, nút dừng an toàn và chế độ ngẫu nhiên Smart Jitter 30-60 phút giúp kênh phát triển tự nhiên, tránh bị thuật toán YouTube đánh cờ spam.
+- **Bảng Tiến Độ Hàng Đợi Reup Thời Gian Thực** - Hiển thị chi tiết trạng thái từng video, tiến độ tổng thể và cho phép người dùng can thiệp ngắt chu trình an toàn bất kỳ lúc nào.
+
+### Sửa lỗi
+
+- **Khắc Phục Triệt Để Màn Hình Trắng YouTube Studio ("Rất tiếc, đã xảy ra lỗi.")** - Xóa bỏ hoàn toàn URL fallback bare `/videos/upload` trên toàn bộ engine (`navigation.py`, `monitor.py`, `network.py`, `runner.py`), thay thế bằng cơ chế phân giải Channel ID nhiều tầng và click menu drawer SPA.
+- **Sửa Lỗi Trùng Lặp Tham Số IPC Lưu Cấu Hình Reup** - Chuẩn hóa tham số trong `update_channel_reup_config_cmd` và `ChannelSettingsDialog.tsx` loại bỏ lỗi `duplicate field channel_id`.
+- **Hỗ Trợ Gỡ Bỏ Hoặc Đổi Hồ Sơ Kênh Đích** - Cập nhật câu lệnh SQL trong `database/channels.rs` cho phép gán hoặc hủy gán Kênh Đích (`target_profile_id = ?1, bkt_profile_id = ?1`).
+
+## [1.2.5] - 2026-11-16
+
+### Thêm mới
+
+- **Cấu Hình Reup Kiểu Mới & Quản Lý Kênh Uy Tín** - Tái cấu trúc toàn diện hộp thoại cài đặt kênh thành bảng Cấu hình Reup tinh gọn, hỗ trợ công tắc đánh dấu kênh sạch uy tín, tùy chọn chế độ tải (tất cả video hoặc chỉ video được chọn), gán kênh đích và cài đặt thời gian giãn cách ngẫu nhiên Smart Jitter (30 đến 60 phút).
+- **Hàng Đợi Batch Reup Tuần Tự & Chống Quá Tải Phần Cứng** - Hỗ trợ chọn nhiều file video cùng lúc, kéo thả tệp/thư mục, quét thư mục tự động (`scan_directory_videos_cmd`), và cơ chế render tuần tự 1 video tại một thời điểm trên `ReupPipelineSection.tsx`, kết hợp quét tiền trạm AI Adaptive bảo toàn hiệu năng CPU/GPU máy tính.
+- **Nút Mở Nhanh Thư Mục Đã Edit Trên Thẻ Kênh** - Bổ sung nút truy cập nhanh với icon `FolderCheck` trên `ChannelCard.tsx`, liên kết trực tiếp lệnh IPC `open_channel_edited_folder_cmd` và hiển thị số lượng video đã xử lý thời gian thực qua `get_channel_edited_folder_stats_cmd`.
+- **Cơ Chế Checkpoint & Kế Thừa Kênh Test (Channel Affinity)** - Triển khai tái sử dụng video và kênh test trong `dispatch.rs` và `bkt_channels.rs`, ngăn chặn lãng phí hạn ngạch hàng ngày và không mở trùng lặp kênh test mới khi video đã tồn tại trên kênh test cũ.
+- **Lưu Trữ Tiêu Đề & Mô Tả Gốc** - Thêm các trường `original_title` và `original_description` vào cơ sở dữ liệu SQLite `channel_videos`, cho phép trích xuất nguyên bản tiêu đề và mô tả để phục vụ đăng thẳng Kênh Đích.
+
+### Sửa lỗi
+
+- **Triệt Tiêu Hoàn Toàn Lỗi Upload Interrupted & TCP Reset** - Loại bỏ lệnh điều hướng sớm `goto_channel_videos` khi luồng tải lên TUS đang đẩy dữ liệu trong `upload_actions.py`. Chỉ cho phép chuyển trang khi `upload_stream_finished == True` và các hộp thoại đóng an toàn.
+- **Loại Bỏ Chữ Ký Hoàn Tất Giả Mạo** - Xóa các chuỗi dự đoán tương lai khỏi `is_upload_stream_complete`, chấm dứt tình trạng ngộ nhận hoàn tất tải lên trên các video dung lượng lớn (hàng GB).
+- **Bảo Vệ Tệp Video Đã Edit Trên Ổ Đĩa** - Giữ lại tệp `reup_ready.mp4` trên ổ đĩa sau khi hoàn tất trong `publish.rs`, cho phép tiếp tục tải lên trên YouTube Studio khi cần thiết.
+- **Đồng Bộ Hoàn Toàn Engine Trình Duyệt** - Duy trì tính nhất quán mã nguồn nhị phân 100% giữa `browser_engine/` và `roots/browsermulti/`.
+
+## [1.2.1] - 2026-11-16
+
+### Sửa lỗi
+
+- **Kiến Trúc Mở Hộp Thoại Tải Lên YouTube Studio 3 Tầng** - Khắc phục dứt điểm lỗi `not_found_or_unstable` khi click nút Tạo / Tải lên trên trang Nội dung Studio bằng hệ thống 3 tầng: Playwright locator xuyên shadow DOM, tự động định vị mục tải lên đầu tiên đa ngôn ngữ và fallback kích hoạt trực tiếp sự kiện click JavaScript.
+- **Triệt Tiêu Lỗi Treo Tải Lên 0% Quá 15 Phút Trong BKT Pipeline** - Sửa thuật toán nhận diện `cancelUploadVisible` bị bắt nhầm các nút trong hàng video. Bổ sung 14 chuỗi nhận diện trạng thái xử lý và kiểm tra bản quyền mới của Studio 2026. Tự động chuyển giao sang luồng kiểm tra Content ID nếu số liệu tải lên không tăng sau 45 giây, giải phóng hoàn toàn hàng đợi và không làm nghẽn tiến trình.
+- **Đồng Bộ Parity 100% Cả Hai Bộ Engine Python** - Cập nhật đồng thời mã nguồn giữa `browser_engine/` và `roots/browsermulti/`, bảo đảm không có độ lệch nào khi build bộ cài đặt.
+
+## [1.2.0] - 2026-11-16
+
+### Sửa lỗi
+
+- **Khắc Phục Triệt Để Lỗi Treo Tải Lên 0% & Không Mở Được Hộp Thoại Trên YouTube Studio** - Loại bỏ hoàn toàn lỗi treo upload tại 0% quá 15 phút và lỗi nghẽn modal tải lên bằng cơ chế Dual File Chooser (`expect_file_chooser()` kết hợp sự kiện giả lập Polymer với `bubbles: true, composed: true`), tự động dọn sạch phần tử phủ `iron-overlay-backdrop` và kiểm tra khóa ghi nhị phân trước khi upload.
+- **Chuẩn Hóa Tham Số IPC Cho Tauri v2** - Đồng bộ hóa truyền tham số kép song song (`camelCase` và `snake_case`) cho toàn bộ 210 lệnh gọi `invoke()` từ giao diện, bao gồm quản lý kênh BKT, đóng mở profile trình duyệt, săn video đề xuất AI, cấu hình cookie/proxy và luồng xử lý reup.
+- **Phòng Chống Crash & Xử Lý An Toàn Kiểu Dữ Liệu** - Loại bỏ các điểm gọi `.unwrap()` rủi ro trong backend Rust (`preview.rs`, `channels.rs`, `pipeline.rs`), bảo vệ ứng dụng không bị sập đột ngột và chống vỡ giao diện trong React ErrorBoundary khi xử lý định dạng ngày tháng hoặc mảng rỗng.
+- **Đồng Bộ Hoàn Toàn Engine Trình Duyệt & Chống Hồi Quy** - Đạt 100% tính đồng nhất mã băm (63/63 tệp) giữa `browser_engine/` và `roots/browsermulti/`, bảo đảm đo tần số mẫu âm thanh động qua FFprobe và phân tích chính xác số lượng người đăng ký kênh.
+
 ## [1.0.11] - 2026-11-15
 
 ### Thêm mới

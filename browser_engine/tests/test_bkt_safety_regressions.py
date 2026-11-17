@@ -5,7 +5,16 @@ import unittest
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+def _find_repo_root(start: Path) -> Path:
+    cur = start
+    for _ in range(6):
+        if (cur / "package.json").is_file():
+            return cur
+        cur = cur.parent
+    return start.parents[3]
+
+
+REPO_ROOT = _find_repo_root(Path(__file__).resolve())
 ENGINE_ROOT = REPO_ROOT / "browser_engine"
 if str(ENGINE_ROOT) not in sys.path:
     sys.path.insert(0, str(ENGINE_ROOT))
@@ -184,6 +193,17 @@ class BktSafetyRegressionTests(unittest.TestCase):
                             ),
                             f"{node.name} overwrites terminal status",
                         )
+
+    def test_blocking_studio_dialogs_dismissal_is_exported(self):
+        studio_dom = importlib.import_module("actions.studio_dom")
+        self.assertTrue(callable(getattr(studio_dom, "dismiss_blocking_studio_dialogs", None)))
+        dom_mod = importlib.import_module("actions.dom")
+        self.assertTrue(callable(getattr(dom_mod, "dismiss_blocking_studio_dialogs", None)))
+        self.assertIn("inspectAndDismissBlockingDialog", dom_mod.STUDIO_DOM_JS_LIB)
+        self.assertIn("bạn đã hoàn tất", dom_mod.STUDIO_DOM_JS_LIB)
+        self.assertIn("you're all set", dom_mod.STUDIO_DOM_JS_LIB)
+        self.assertIn("hãy thử làm mới trang", dom_mod.STUDIO_DOM_JS_LIB)
+        self.assertIn("đã hiểu", dom_mod.STUDIO_DOM_JS_LIB)
 
     def test_source_and_runtime_mirrors_are_byte_identical(self):
         for relative in (

@@ -798,8 +798,14 @@ export function CompanyAdminPortalPage() {
                       </td>
                       <td className="py-3 px-4 text-slate-400">{dev.osInfo}</td>
                       <td className="py-3 px-4 text-slate-400 font-mono text-[11px]">
-                        {new Date(dev.lastHeartbeatAt).toLocaleTimeString('vi-VN')}{' '}
-                        {new Date(dev.lastHeartbeatAt).toLocaleDateString('vi-VN')}
+                        {dev.lastHeartbeatAt ? (
+                          <>
+                            {new Date(dev.lastHeartbeatAt).toLocaleTimeString('vi-VN')}{' '}
+                            {new Date(dev.lastHeartbeatAt).toLocaleDateString('vi-VN')}
+                          </>
+                        ) : (
+                          'Chưa có'
+                        )}
                       </td>
                       <td className="py-3 px-4">
                         {dev.status === 'online' ? (
@@ -1200,7 +1206,7 @@ export function CompanyAdminPortalPage() {
             </div>
 
             <div className="p-4 overflow-y-auto space-y-3 flex-1">
-              {viewingVideosModal.videos.map((vid, idx) => (
+              {(viewingVideosModal.videos || []).map((vid, idx) => (
                 <div
                   key={vid.video_id || vid.id || idx}
                   className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-start justify-between gap-3"

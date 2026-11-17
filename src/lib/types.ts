@@ -1395,6 +1395,20 @@ export interface FollowedChannel {
   bkt_test_mode?: boolean;
   bkt_profile_id?: string;
   target_profile_id?: string;
+  consecutive_green_count?: number;
+  enable_fast_track?: boolean;
+  consecutiveGreenCount?: number;
+  enableFastTrack?: boolean;
+  direct_upload_target?: boolean;
+  directUploadTarget?: boolean;
+  upload_interval_minutes?: number;
+  uploadIntervalMinutes?: number;
+  upload_interval_mode?: 'auto_30_60' | 'fixed';
+  uploadIntervalMode?: 'auto_30_60' | 'fixed';
+  download_mode?: 'all' | 'selected';
+  downloadMode?: 'all' | 'selected';
+  is_trusted_clean?: boolean;
+  isTrustedClean?: boolean;
 }
 
 export interface ChannelVideo {
@@ -1419,6 +1433,11 @@ export interface ChannelVideo {
   bkt_restriction?: string;
   reup_pipeline_level?: number;
   is_downloaded?: number | boolean;
+  original_title?: string;
+  originalTitle?: string;
+  original_description?: string;
+  originalDescription?: string;
+  description?: string;
 }
 
 export interface ReupPipelineResult {
@@ -1659,6 +1678,8 @@ export interface BktTestJob {
   targetDescription?: string | null;
   targetTags?: string | null;
   thumbnailPath?: string | null;
+  skipBktTest?: boolean | null;
+  skip_bkt_test?: boolean | null;
 }
 
 export interface BktBatchItemRequest {
@@ -1674,6 +1695,8 @@ export interface BktBatchItemRequest {
   targetDescription?: string | null;
   targetTags?: string | null;
   thumbnailPath?: string | null;
+  skipBktTest?: boolean | null;
+  skip_bkt_test?: boolean | null;
 }
 
 export interface BktBatchDispatchRequest {

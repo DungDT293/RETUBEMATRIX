@@ -25,6 +25,8 @@ class CloakBrowserEngine(BaseBrowserEngine):
 
         args = [
             *spec.window_args(),
+            "--disable-session-crashed-bubble",
+            "--hide-crash-restore-bubble",
             f"--force-device-scale-factor={float(options.get('scale_factor', 1.0)):.4f}",
             f"--homepage={options.get('homepage', 'https://www.google.com/')}",
             "--webrtc-ip-handling-policy=disable_non_proxied_udp",

@@ -307,3 +307,90 @@ async def dismiss_post_save_studio_modals(
     }
 
 
+async def dismiss_blocking_studio_dialogs(
+    page: Any,
+    allow_reload: bool = True,
+    context: str = "general",
+    max_retries: int = 2,
+) -> Dict[str, Any]:
+    """
+    Tự động dò tìm, xác nhận và dismiss các hộp thoại cản trở trên YouTube Studio:
+    - Hộp thoại 'Bạn đã hoàn tất' / 'You're all set'.
+    - Hộp thoại yêu cầu 'Hãy thử làm mới trang' / 'Try refreshing the page'.
+    Tự động reload trang an toàn nếu được phép và có yêu cầu từ modal.
+    """
+    result = {
+        "handled": False,
+        "type": "none",
+        "reloaded": False,
+        "details": "",
+    }
+    for attempt in range(max_retries):
+        try:
+            diag = await eval_studio_dom(
+                page,
+                "return __rtmDom.inspectAndDismissBlockingDialog(arg);",
+                {"allowReload": allow_reload},
+            )
+            if not diag or not diag.get("found"):
+                break
+
+            logger.info(
+                "[%s] Phát hiện và bấm đóng hộp thoại cản trở: button='%s', allSet=%s, needsReload=%s, sample='%s'",
+                context,
+                diag.get("buttonText"),
+                diag.get("isAllSet"),
+                diag.get("needsReload"),
+                diag.get("sample"),
+            )
+            result["handled"] = True
+            result["type"] = "you_are_all_set" if diag.get("isAllSet") else "blocking_notice"
+            result["details"] = diag.get("sample", "")
+
+            # Chờ modal đóng và backdrop mờ dần
+            await asyncio.sleep(0.6)
+
+            # Xử lý yêu cầu reload trang nếu modal yêu cầu
+            if diag.get("needsReload") and allow_reload and context != "upload_streaming":
+                logger.info("[%s] Modal yêu cầu làm mới trang. Tiến hành reload Studio an toàn...", context)
+                cur_url = getattr(page, "url", "") or ""
+                target_url = cur_url
+                if "/channel/" in cur_url:
+                    import re
+                    cid_match = re.search(r"/channel/([^/?#]+)", cur_url)
+                    if cid_match:
+                        target_url = f"https://studio.youtube.com/channel/{cid_match.group(1)}/videos/upload"
+                if not target_url or "studio.youtube.com" not in target_url:
+                    target_url = "https://studio.youtube.com/"
+
+                try:
+                    await page.goto(target_url, wait_until="domcontentloaded", timeout=45000)
+                    await asyncio.sleep(1.5)
+                    result["reloaded"] = True
+                except Exception as goto_err:
+                    logger.debug("[%s] Reload trang sau khi dismiss modal lỗi: %s", context, goto_err)
+                break
+
+        except Exception as exc:
+            logger.debug("[%s] Lỗi kiểm tra blocking dialog: %s", context, exc)
+            break
+
+    # Dọn dẹp ghost backdrop nếu modal đã đóng nhưng backdrop còn sót và không có uploads dialog
+    try:
+        await page.evaluate("""() => {
+            const hasUploadDialog = !!document.querySelector('ytcp-uploads-dialog[opened], ytcp-uploads-dialog:not([hidden])');
+            if (!hasUploadDialog) {
+                const backdrops = document.querySelectorAll('iron-overlay-backdrop.opened, tp-yt-iron-overlay-backdrop.opened');
+                backdrops.forEach(b => {
+                    b.classList.remove('opened');
+                    b.style.display = 'none';
+                });
+            }
+        }""")
+    except Exception:
+        pass
+
+    return result
+
+
+

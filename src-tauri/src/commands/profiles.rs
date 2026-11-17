@@ -256,10 +256,12 @@ pub fn create_runner_cmd(app: &AppHandle) -> (Command, PathBuf) {
     cmd.env("PYTHONUTF8", "1");
     cmd.env("PYTHONIOENCODING", "utf-8");
     cmd.env("PYTHONDONTWRITEBYTECODE", "1");
+    cmd.env("PYTHONUNBUFFERED", "1");
     if let Some(data_dir) = get_browser_data_dir(Some(app)) {
         cmd.env("RETUBEMATRIX_BROWSER_DATA_DIR", &data_dir);
     }
     cmd.arg("-B");
+    cmd.arg("-u");
     cmd.arg("-X").arg("utf8");
 
     // Inject YTDLP_BIN to ensure Outlier Hunter and Background Engines always find yt-dlp
@@ -531,28 +533,54 @@ pub async fn get_all_raw_multibrowser_profiles(app: AppHandle) -> Result<Vec<Mul
 }
 
 #[tauri::command]
-#[allow(non_snake_case)]
 pub async fn get_multibrowser_profiles(
     app: AppHandle,
     include_bkt: Option<bool>,
-    include_bkt_test: Option<bool>,
-    includeBkt: Option<bool>,
-    includeBktTest: Option<bool>,
 ) -> Result<Vec<MultiBrowserProfile>, String> {
-    let include = include_bkt
-        .or(include_bkt_test)
-        .or(includeBkt)
-        .or(includeBktTest)
-        .unwrap_or(false);
-    let mut profiles = get_all_raw_multibrowser_profiles(app).await?;
-    if !include {
-        let bkt_ids: std::collections::HashSet<String> = crate::database::get_bkt_test_channels_db()
-            .unwrap_or_default()
-            .into_iter()
-            .map(|c| c.profile_id)
-            .collect();
-        profiles.retain(|p| !is_bkt_test_profile(p, Some(&bkt_ids)));
+    let include = include_bkt.unwrap_or(false);
+
+    // Đọc danh sách profile thô với timeout 5 giây tránh nghẽn luồng
+    let raw_profiles = tokio::time::timeout(
+        std::time::Duration::from_secs(5),
+        get_all_raw_multibrowser_profiles(app.clone()),
+    )
+    .await
+    .map_err(|_| "Hết thời gian tải danh sách hồ sơ trình duyệt (Timeout 5s)".to_string())??;
+
+    if include {
+        return Ok(raw_profiles);
     }
+
+    // 1. Lọc nhanh dựa trên tiền tố [BKT Test] và nhóm Kênh Test BKT (không phụ thuộc vào DB lock)
+    let mut profiles: Vec<MultiBrowserProfile> = raw_profiles
+        .into_iter()
+        .filter(|p| !is_bkt_test_profile(p, None))
+        .collect();
+
+    // 2. Đối soát thêm với DB bkt_test_channels ngoài reactor thread (an toàn tuyệt đối, không làm nghẽn UI)
+    let bkt_ids_res = tokio::task::spawn_blocking(|| {
+        if let Ok(conn) = crate::database::get_db() {
+            let mut stmt = match conn.prepare("SELECT profile_id FROM bkt_test_channels WHERE profile_id IS NOT NULL AND TRIM(profile_id) != ''") {
+                Ok(s) => s,
+                Err(_) => return std::collections::HashSet::new(),
+            };
+            let rows = match stmt.query_map([], |row| row.get::<_, String>(0)) {
+                Ok(r) => r,
+                Err(_) => return std::collections::HashSet::new(),
+            };
+            rows.flatten().collect::<std::collections::HashSet<String>>()
+        } else {
+            std::collections::HashSet::new()
+        }
+    })
+    .await;
+
+    if let Ok(bkt_ids) = bkt_ids_res {
+        if !bkt_ids.is_empty() {
+            profiles.retain(|p| !bkt_ids.contains(&p.id));
+        }
+    }
+
     Ok(profiles)
 }
 
@@ -806,41 +834,61 @@ pub async fn upload_video_multibrowser(
         }
     });
 
-    let mut final_json_str = String::new();
-    let reader = BufReader::new(stdout);
-    let mut lines = reader.lines();
-    while let Ok(Some(line)) = lines.next_line().await {
-        let trimmed = line.trim();
-        if trimmed.starts_with('{') && trimmed.ends_with('}') {
-            if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(trimmed) {
-                let ev_type = parsed.get("event").and_then(|v| v.as_str()).unwrap_or("");
-                if ev_type == "upload_progress" {
-                    let _ = app.emit("browser-upload-progress", &parsed);
-                    let _ = app.emit(
-                        "browser-upload-log",
-                        serde_json::json!({
-                            "profile_id": &params.profile_id,
-                            "log": parsed.get("message").and_then(|m| m.as_str()).unwrap_or(trimmed)
-                        }),
-                    );
-                    continue;
+    let app_handle_progress = app.clone();
+    let profile_id_for_progress = params.profile_id.clone();
+    let upload_task = async {
+        let mut final_json_str = String::new();
+        let reader = BufReader::new(stdout);
+        let mut lines = reader.lines();
+        while let Ok(Some(line)) = lines.next_line().await {
+            let trimmed = line.trim();
+            if trimmed.starts_with('{') && trimmed.ends_with('}') {
+                if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(trimmed) {
+                    let ev_type = parsed.get("event").and_then(|v| v.as_str()).unwrap_or("");
+                    if ev_type == "upload_progress" {
+                        let _ = app_handle_progress.emit("browser-upload-progress", &parsed);
+                        let _ = app_handle_progress.emit(
+                            "browser-upload-log",
+                            serde_json::json!({
+                                "profile_id": &profile_id_for_progress,
+                                "log": parsed.get("message").and_then(|m| m.as_str()).unwrap_or(trimmed)
+                            }),
+                        );
+                        continue;
+                    }
+                    if parsed.get("success").is_some() || parsed.get("video_url").is_some() {
+                        final_json_str = trimmed.to_string();
+                        break;
+                    }
                 }
-                if parsed.get("success").is_some() || parsed.get("video_url").is_some() {
-                    final_json_str = trimmed.to_string();
-                }
+            } else {
+                let _ = app_handle_progress.emit(
+                    "browser-upload-log",
+                    serde_json::json!({
+                        "profile_id": &profile_id_for_progress,
+                        "log": line
+                    }),
+                );
             }
-        } else {
-            let _ = app.emit(
-                "browser-upload-log",
-                serde_json::json!({
-                    "profile_id": &params.profile_id,
-                    "log": line
-                }),
-            );
         }
-    }
 
-    let status = child.wait().await.map_err(|e| format!("Lỗi chờ tiến trình upload: {e}"))?;
+        let status = match tokio::time::timeout(std::time::Duration::from_secs(5), child.wait()).await {
+            Ok(res) => res.map_err(|e| format!("Lỗi chờ tiến trình upload: {e}"))?,
+            Err(_) => {
+                let _ = child.kill().await;
+                child.wait().await.map_err(|e| format!("Lỗi chờ tiến trình upload sau khi dừng: {e}"))?
+            }
+        };
+        Ok::<_, String>((status, final_json_str))
+    };
+
+    let (status, final_json_str) = match tokio::time::timeout(std::time::Duration::from_secs(7200), upload_task).await {
+        Ok(res) => res?,
+        Err(_) => {
+            let _ = child.kill().await;
+            return Err("Quá thời gian tải video lên YouTube Studio (Timeout 120 phút)".to_string());
+        }
+    };
     clear_stats_cache();
 
     if !status.success() && final_json_str.is_empty() {
@@ -1156,16 +1204,32 @@ pub async fn get_multibrowser_stats(app: AppHandle) -> Result<serde_json::Value,
 
     // 2. FAST PATH trong Rust: Tính toán chỉ số trực tiếp từ profiles.json mà không cần khởi tạo tiến trình Python (0.1ms vs 1500ms)
     // TUYỆT ĐỐI KHÔNG tính hồ sơ thuộc pool Kênh Test BKT vào chỉ số hồ sơ kiếm tiền / kênh đích của Chức năng 2.
-    if let Ok(raw_profiles) = get_all_raw_multibrowser_profiles(app.clone()).await {
-        let bkt_ids: std::collections::HashSet<String> = crate::database::get_bkt_test_channels_db()
-            .unwrap_or_default()
-            .into_iter()
-            .map(|c| c.profile_id)
-            .collect();
-        let profiles: Vec<MultiBrowserProfile> = raw_profiles
-            .into_iter()
-            .filter(|p| !is_bkt_test_profile(p, Some(&bkt_ids)))
-            .collect();
+    if let Ok(raw_res) = tokio::time::timeout(
+        std::time::Duration::from_secs(4),
+        get_all_raw_multibrowser_profiles(app.clone()),
+    ).await {
+        if let Ok(raw_profiles) = raw_res {
+            let bkt_ids: std::collections::HashSet<String> = tokio::task::spawn_blocking(|| {
+                if let Ok(conn) = crate::database::get_db() {
+                    let mut stmt = match conn.prepare("SELECT profile_id FROM bkt_test_channels WHERE profile_id IS NOT NULL AND TRIM(profile_id) != ''") {
+                        Ok(s) => s,
+                        Err(_) => return std::collections::HashSet::new(),
+                    };
+                    let rows = match stmt.query_map([], |row| row.get::<_, String>(0)) {
+                        Ok(r) => r,
+                        Err(_) => return std::collections::HashSet::new(),
+                    };
+                    rows.flatten().collect()
+                } else {
+                    std::collections::HashSet::new()
+                }
+            })
+            .await
+            .unwrap_or_default();
+            let profiles: Vec<MultiBrowserProfile> = raw_profiles
+                .into_iter()
+                .filter(|p| !is_bkt_test_profile(p, Some(&bkt_ids)))
+                .collect();
         let now_utc = chrono::Utc::now();
         let total = profiles.len();
         let running_profiles: Vec<serde_json::Value> = profiles
@@ -1277,6 +1341,7 @@ pub async fn get_multibrowser_stats(app: AppHandle) -> Result<serde_json::Value,
         }
 
         return Ok(stats_val);
+        }
     }
 
     // 3. Fallback: Nếu không đọc được profiles.json trực tiếp mới gọi Python

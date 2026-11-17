@@ -11,7 +11,8 @@
     "system": "Sistema",
     "about": "Sobre e Versão",
     "plugins": "Plugins",
-    "pluginStore": "Plugin Store"
+    "pluginStore": "Plugin Store",
+    "remoteDownload": "Download remoto"
   },
   "search": {
     "placeholder": "Pesquisar configurações...",
@@ -519,7 +520,11 @@
     "duplicateHandlingDesc": "Escolha o que o RETubeMatrix deve fazer quando um vídeo já existe na Biblioteca",
     "duplicateHandlingAsk": "Perguntar antes de adicionar",
     "duplicateHandlingSkip": "Pular automaticamente",
-    "duplicateHandlingAllow": "Permitir duplicados"
+    "duplicateHandlingAllow": "Permitir duplicados",
+    "queuePersistence": "Fila de download",
+    "queuePersistenceDesc": "Manter downloads na fila após fechar o RETubeMatrix",
+    "persistDownloadQueue": "Salvar fila de download",
+    "persistDownloadQueueDesc": "Restaurar itens da fila do YouTube, Universal e Gallery quando o aplicativo abrir novamente"
   },
   "dependencies": {
     "title": "Dependências",

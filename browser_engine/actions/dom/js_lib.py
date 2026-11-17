@@ -506,6 +506,9 @@ const __rtmDom = (() => {
                         || mid.includes('dismiss')
                         || mid.includes('done')
                         || /\b(close|dismiss|ok|done|got it|đóng|xong|cerrar|fermer|schließen|закрыть|fechar|tutup)\b/i.test(comb)
+                        || comb.includes('đã hiểu')
+                        || comb.includes('got it')
+                        || comb.includes('知道了')
                         || comb.includes('閉じる')
                         || comb.includes('关闭')
                         || comb.includes('닫기')
@@ -536,6 +539,101 @@ const __rtmDom = (() => {
             }
         }
         return null;
+    }
+
+    function inspectAndDismissBlockingDialog(opts = {}) {
+        const candidates = deepQueryMounted(
+            document,
+            'ytcp-confirmation-dialog, ytcp-dialog, tp-yt-paper-dialog, [role="dialog"]'
+        );
+        for (const dlg of candidates) {
+            if (!isContainerVisiblyMounted(dlg)) continue;
+            const tag = (dlg.tagName || '').toLowerCase();
+            if (tag === 'ytcp-uploads-dialog') continue;
+            if (hasAncestorTag(dlg, new Set(['ytcp-uploads-dialog', 'ytcp-video-row']))) continue;
+
+            const fullText = (collectVisibleText(dlg) || '').toLowerCase();
+            if (!fullText) continue;
+
+            // Nhận diện thông báo Hoàn tất / Sẵn sàng / Quyền tính năng
+            const isAllSet = (
+                fullText.includes("bạn đã hoàn tất")
+                || fullText.includes("tất cả đã sẵn sàng")
+                || fullText.includes("bạn đã sẵn sàng")
+                || fullText.includes("quyền sử dụng tính năng này")
+                || fullText.includes("you're all set")
+                || fullText.includes("you are all set")
+                || fullText.includes("all set")
+                || fullText.includes("use these features now")
+                || fullText.includes("ready to upload")
+                || fullText.includes("feature eligibility")
+                || fullText.includes("features unlocked")
+                || fullText.includes("ya está todo listo")
+                || fullText.includes("tout est prêt")
+                || fullText.includes("alles bereit")
+                || fullText.includes("все готово")
+                || fullText.includes("全部就绪")
+                || fullText.includes("設定が完了しました")
+            );
+
+            // Nhận diện thông điệp yêu cầu làm mới trang
+            const needsReload = (
+                fullText.includes("hãy thử làm mới trang")
+                || fullText.includes("làm mới trang")
+                || fullText.includes("tải lại trang")
+                || fullText.includes("try refreshing the page")
+                || fullText.includes("refresh the page")
+                || fullText.includes("reload the page")
+                || fullText.includes("actualizar la página")
+                || fullText.includes("actualiser la page")
+                || fullText.includes("seite neu laden")
+                || fullText.includes("перезагрузить страницу")
+                || fullText.includes("请刷新页面")
+                || fullText.includes("ページを再読み込み")
+            );
+
+            if (!isAllSet && !needsReload) continue;
+
+            // Tìm nút an toàn để dismiss
+            const btns = deepQueryVisible(
+                dlg,
+                '#confirm-button, [dialog-confirm], #dismiss-button, [dialog-dismiss], ytcp-button.ytcp-confirmation-dialog, ytcp-button#primary-action-button, ytcp-button, button'
+            );
+            for (const b of btns) {
+                const btxt = (collectVisibleText(b) || '').toLowerCase();
+                const bid = (b.id || '').toLowerCase();
+                const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+                const combined = `${bid} ${btxt} ${aria}`;
+
+                if (isCancelForbiddenControl(b)) continue;
+                if (combined.includes('hủy') || combined.includes('cancel') || combined.includes('không')) continue;
+
+                const isSafeConfirm = (
+                    bid.includes('confirm')
+                    || bid.includes('dismiss')
+                    || b.hasAttribute('dialog-confirm')
+                    || /\b(got it|đã hiểu|xong|done|ok|tiếp tục|continue|làm mới|refresh|đóng|close)\b/i.test(combined)
+                    || combined.includes('đã hiểu')
+                    || combined.includes('got it')
+                    || combined.includes('閉じる')
+                    || combined.includes('知道了')
+                );
+
+                if (isSafeConfirm) {
+                    const nativeBtn = resolveNativeButton(b) || b;
+                    nativeBtn.click();
+                    return {
+                        found: true,
+                        clicked: true,
+                        needsReload: needsReload,
+                        isAllSet: isAllSet,
+                        buttonText: btxt || bid,
+                        sample: fullText.slice(0, 100),
+                    };
+                }
+            }
+        }
+        return { found: false, clicked: false, needsReload: false };
     }
 
     function inspectStudioState() {
@@ -1090,6 +1188,7 @@ const __rtmDom = (() => {
         isUploadEditorVisible,
         isPostSaveDialogElement,
         findSafePostSaveCloseControl,
+        inspectAndDismissBlockingDialog,
         inspectStudioState,
         parseStudioUrl,
         extractChannelId,
@@ -1238,7 +1337,7 @@ def build_extract_table_rows_js() -> str:
             let cancelUploadVisible = false;
             const rowButtons = __rtmDom.deepQueryVisible(
                 row,
-                '#cancel-upload-button, [id*="cancel-upload" i], [test-id*="cancel-upload" i], ytcp-video-row-progress ytcp-button, ytcp-button, button'
+                '#cancel-upload-button, [id*="cancel-upload" i], [test-id*="cancel-upload" i], ytcp-video-row-progress #cancel-button, ytcp-video-row-progress [id*="cancel" i]'
             );
             for (const btn of rowButtons) {{
                 if (btn.closest && (btn.closest('#hover-items') || btn.closest('.hover-items') || btn.closest('#row-actions'))) continue;
@@ -1248,21 +1347,21 @@ def build_extract_table_rows_js() -> str:
                 const btxt = __rtmDom.collectVisibleText(btn).toLowerCase();
                 const combined = `${{bid}} ${{btid}} ${{bal}} ${{btxt}}`;
                 if (
-                    bid.includes('cancel')
-                    || btid.includes('cancel')
+                    bid.includes('cancel-upload')
+                    || btid.includes('cancel-upload')
+                    || combined.includes('cancel upload')
                     || combined.includes('huỷ tải')
                     || combined.includes('hủy tải')
-                    || combined.includes('cancel upload')
-                    || combined.includes('annuler')
-                    || combined.includes('cancelar')
-                    || combined.includes('abbrechen')
-                    || combined.includes('отменить')
-                    || combined.includes('キャンセル')
-                    || combined.includes('취소')
-                    || combined.includes('取消')
-                    || combined.includes('ยกเลิก')
-                    || combined.includes('cancel')
-                    || (btn.closest && btn.closest('ytcp-video-row-progress'))
+                    || combined.includes('annuler la mise')
+                    || combined.includes('cancelar subida')
+                    || combined.includes('cancelar envio')
+                    || combined.includes('upload abbrechen')
+                    || combined.includes('отменить загруз')
+                    || combined.includes('アップロードをキャンセル')
+                    || combined.includes('업로드 취소')
+                    || combined.includes('取消上传')
+                    || combined.includes('取消上傳')
+                    || combined.includes('ยกเลิกการอัปโหลด')
                 ) {{
                     cancelUploadVisible = true;
                     break;

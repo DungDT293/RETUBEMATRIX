@@ -11,7 +11,8 @@
     "system": "النظام",
     "about": "حول البرنامج والإصدار",
     "plugins": "الإضافات",
-    "pluginStore": "Plugin Store"
+    "pluginStore": "Plugin Store",
+    "remoteDownload": "التنزيل عن بعد"
   },
   "search": {
     "placeholder": "ابحث في الإعدادات...",
@@ -519,7 +520,11 @@
     "duplicateHandlingDesc": "اختر ما يفعله RETubeMatrix عندما يكون الفيديو موجودا في المكتبة",
     "duplicateHandlingAsk": "اسأل قبل الإضافة",
     "duplicateHandlingSkip": "تخط تلقائيا",
-    "duplicateHandlingAllow": "السماح بالتكرارات"
+    "duplicateHandlingAllow": "السماح بالتكرارات",
+    "queuePersistence": "قائمة انتظار التنزيل",
+    "queuePersistenceDesc": "الاحتفاظ بالتنزيلات في قائمة الانتظار بعد إغلاق RETubeMatrix",
+    "persistDownloadQueue": "حفظ قائمة انتظار التنزيل",
+    "persistDownloadQueueDesc": "استعادة عناصر قائمة الانتظار لـ YouTube و Universal و Gallery عند فتح التطبيق مرة أخرى"
   },
   "dependencies": {
     "title": "Dependencies",

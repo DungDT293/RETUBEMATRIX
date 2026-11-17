@@ -46,6 +46,13 @@ pub struct FollowedChannel {
     pub bkt_test_mode: Option<bool>,
     pub bkt_profile_id: Option<String>,
     pub target_profile_id: Option<String>,
+    pub consecutive_green_count: Option<i64>,
+    pub enable_fast_track: Option<bool>,
+    pub direct_upload_target: Option<bool>,
+    pub upload_interval_minutes: Option<i64>,
+    pub upload_interval_mode: Option<String>,
+    pub download_mode: Option<String>,
+    pub is_trusted_clean: Option<bool>,
 }
 
 /// A video belonging to a followed channel
@@ -71,6 +78,9 @@ pub struct ChannelVideo {
     pub bkt_check_status: Option<String>,
     pub bkt_restriction: Option<String>,
     pub reup_pipeline_level: Option<i64>,
+    pub original_title: Option<String>,
+    pub original_description: Option<String>,
+    pub description: Option<String>,
 }
 
 /// Posting schedule analysis result

@@ -865,9 +865,9 @@ export function CompetitorAiStudioModal({
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-1.5 p-2 rounded-lg bg-card border border-border/50">
-                      {smartDescription.tier4Hashtags.map((ht: string, i: number) => (
+                      {(smartDescription.tier4Hashtags || []).map((ht: string, i: number) => (
                         <span
-                          key={ht}
+                          key={`${ht}-${i}`}
                           className={cn(
                             'px-2 py-0.5 rounded text-[11px] font-mono border',
                             i < 3
@@ -970,9 +970,9 @@ export function CompetitorAiStudioModal({
                       3 Kịch Bản Remake Hook Thay Thế Để Giữ Chân Người Xem:
                     </div>
 
-                    {hookAnalysis.remakeHooks.map((h, i: number) => (
+                    {(hookAnalysis.remakeHooks || []).map((h, i: number) => (
                       <Card
-                        key={h.hookType}
+                        key={`${h.hookType}-${i}`}
                         className="p-4 border-border/60 bg-background/50 hover:bg-muted/30 transition-all space-y-3"
                       >
                         <div className="flex items-center justify-between">

@@ -21,6 +21,7 @@ from .claim_extractor import (
 )
 from .monitor import (
     check_copyright_and_restrictions,
+    poll_bkt_status,
 )
 
 __all__ = [
@@ -34,4 +35,5 @@ __all__ = [
     "navigate_to_channel_content",
     "extract_copyright_claim_details",
     "check_copyright_and_restrictions",
+    "poll_bkt_status",
 ]

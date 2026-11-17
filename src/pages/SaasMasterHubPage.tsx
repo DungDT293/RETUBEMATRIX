@@ -2711,7 +2711,9 @@ export function SaasMasterHubPage() {
 
                         {/* Ngày tạo */}
                         <td className="py-3.5 px-4 text-xs text-slate-400">
-                          {new Date(tenant.createdAt).toLocaleDateString('vi-VN')}
+                          {tenant.createdAt
+                            ? new Date(tenant.createdAt).toLocaleDateString('vi-VN')
+                            : '—'}
                         </td>
 
                         {/* Thao tác */}
@@ -2985,7 +2987,7 @@ export function SaasMasterHubPage() {
 
                         {/* Ngày tạo */}
                         <td className="py-3.5 px-4 text-xs font-mono text-slate-400">
-                          {new Date(m.createdAt).toLocaleDateString('vi-VN')}
+                          {m.createdAt ? new Date(m.createdAt).toLocaleDateString('vi-VN') : '—'}
                         </td>
 
                         {/* Thao tác */}
@@ -3453,7 +3455,9 @@ export function SaasMasterHubPage() {
 
                           {/* Thời gian */}
                           <td className="py-3.5 px-4 text-xs text-slate-400 whitespace-nowrap">
-                            {new Date(req.requestedAt).toLocaleString('vi-VN')}
+                            {req.requestedAt
+                              ? new Date(req.requestedAt).toLocaleString('vi-VN')
+                              : '—'}
                           </td>
 
                           {/* Thao tác */}
@@ -3618,7 +3622,9 @@ export function SaasMasterHubPage() {
                               dev.status === 'offline' && 'text-slate-400',
                             )}
                           >
-                            {new Date(dev.lastHeartbeatAt).toLocaleTimeString('vi-VN')}
+                            {dev.lastHeartbeatAt
+                              ? new Date(dev.lastHeartbeatAt).toLocaleTimeString('vi-VN')
+                              : '—'}
                           </span>
                         </td>
 
@@ -3996,7 +4002,7 @@ export function SaasMasterHubPage() {
             </div>
 
             <div className="p-4 overflow-y-auto space-y-3 flex-1">
-              {viewingVideosModal.videos.map((vid, idx) => (
+              {(viewingVideosModal.videos || []).map((vid, idx) => (
                 <div
                   key={vid.video_id || vid.id || idx}
                   className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-start justify-between gap-3"
@@ -4390,7 +4396,7 @@ export function SaasMasterHubPage() {
             </div>
 
             <div className="p-4 overflow-y-auto space-y-3 flex-1">
-              {viewingVideosModal.videos.map((vid, idx) => (
+              {(viewingVideosModal.videos || []).map((vid, idx) => (
                 <div
                   key={vid.video_id || vid.id || idx}
                   className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-start justify-between gap-3"
@@ -5088,7 +5094,9 @@ export function SaasMasterHubPage() {
               <div>
                 Hạn hiện tại:{' '}
                 <span className="text-slate-400">
-                  {new Date(selectedLicense.expiresAt).toLocaleDateString('vi-VN')}
+                  {selectedLicense.expiresAt
+                    ? new Date(selectedLicense.expiresAt).toLocaleDateString('vi-VN')
+                    : '—'}
                 </span>
               </div>
             </div>
@@ -6111,7 +6119,9 @@ export function SaasMasterHubPage() {
                 <div className="text-slate-400">
                   Hạn dùng:{' '}
                   <span className="text-slate-200">
-                    {new Date(upgradeTargetTenant.expiresAt).toLocaleDateString('vi-VN')}
+                    {upgradeTargetTenant.expiresAt
+                      ? new Date(upgradeTargetTenant.expiresAt).toLocaleDateString('vi-VN')
+                      : '—'}
                   </span>
                 </div>
               </div>

@@ -11,7 +11,8 @@
     "system": "Système",
     "about": "À propos et version",
     "plugins": "Plugins",
-    "pluginStore": "Plugin Store"
+    "pluginStore": "Plugin Store",
+    "remoteDownload": "Téléchargement à distance"
   },
   "search": {
     "placeholder": "Rechercher dans les paramètres...",
@@ -519,7 +520,11 @@
     "duplicateHandlingDesc": "Choisissez quoi faire quand une vidéo existe déjà dans la bibliothèque",
     "duplicateHandlingAsk": "Demander avant d ajouter",
     "duplicateHandlingSkip": "Ignorer automatiquement",
-    "duplicateHandlingAllow": "Autoriser les doublons"
+    "duplicateHandlingAllow": "Autoriser les doublons",
+    "queuePersistence": "File d'attente de téléchargement",
+    "queuePersistenceDesc": "Conserver les téléchargements en file d'attente après la fermeture de RETubeMatrix",
+    "persistDownloadQueue": "Enregistrer la file d'attente de téléchargement",
+    "persistDownloadQueueDesc": "Restaurer les éléments de la file d'attente YouTube, Universal et Gallery à la réouverture de l'application"
   },
   "dependencies": {
     "title": "Dépendances",

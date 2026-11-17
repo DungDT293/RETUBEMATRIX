@@ -1464,6 +1464,17 @@ def _scan_single_query(
         if os.name == "nt":
             kwargs["creationflags"] = 0x08000000  # CREATE_NO_WINDOW
         res = subprocess.run(cmd, **kwargs)
+        if res.returncode != 0:
+            err_msg = (res.stderr or "").strip()
+            low_err = err_msg.lower()
+            if "429" in low_err or "too many requests" in low_err:
+                raise RuntimeError(f"YouTube áp đặt giới hạn tần suất HTTP 429 (Too Many Requests). Vui lòng cấu hình Proxy hoặc giảm tần suất quét: {err_msg[:200]}")
+            if "sign in to confirm you're not a bot" in low_err:
+                raise RuntimeError(f"YouTube yêu cầu xác thực bot. Cần cung cấp Cookies hoặc đổi IP/Proxy: {err_msg[:200]}")
+            if err_msg:
+                logger.warning(f"yt-dlp trả về mã lỗi {res.returncode} cho '{query_text}': {err_msg[:300]}")
+    except RuntimeError:
+        raise
     except Exception as e:
         logger.error(f"Lỗi chạy yt-dlp cho '{query_text}': {e}")
         return []

@@ -237,10 +237,16 @@ export function ProfilesPage() {
     try {
       if (!silent) setLoading(true);
       setError('');
-      const data = await invoke<MultiBrowserProfile[]>('get_multibrowser_profiles', {
+      const dataPromise = invoke<MultiBrowserProfile[]>('get_multibrowser_profiles', {
         includeBkt: false,
-        include_bkt: false,
       });
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error('Hết thời gian tải hồ sơ trình duyệt (Timeout 6s)')),
+          6000,
+        ),
+      );
+      const data = await Promise.race([dataPromise, timeoutPromise]);
       // TUYỆT ĐỐI KHÔNG hiển thị hồ sơ thuộc pool Kênh Test BKT tại Chức năng 2
       const list = (data || []).filter((p) => !isBktTestProfile(p));
       cachedProfilesList = list;
@@ -249,7 +255,7 @@ export function ProfilesPage() {
       console.error('Lỗi khi tải profiles:', err);
       setError(String(err));
     } finally {
-      if (!silent) setLoading(false);
+      setLoading(false);
     }
   }, []);
 
@@ -453,7 +459,10 @@ export function ProfilesPage() {
 
     try {
       setActionLoadingId(p.id);
-      await invoke('delete_multibrowser_profile', { profileId: p.id });
+      await invoke('delete_multibrowser_profile', {
+        profileId: p.id,
+        profile_id: p.id,
+      });
 
       // Telemetry: Đồng bộ xóa kênh đích 1-1
       workTelemetryService.syncManagedChannel({
@@ -515,7 +524,10 @@ export function ProfilesPage() {
   const handleStopProfile = async (p: MultiBrowserProfile) => {
     try {
       setActionLoadingId(p.id);
-      await invoke('stop_multibrowser_profile', { profileId: p.id });
+      await invoke('stop_multibrowser_profile', {
+        profileId: p.id,
+        profile_id: p.id,
+      });
       setMessage(`Đã dừng hồ sơ "${p.profile_name}"`);
       await fetchProfiles();
     } catch (err) {
@@ -535,7 +547,10 @@ export function ProfilesPage() {
     }
     try {
       setActionLoadingId(p.id);
-      const res = await invoke<string>('clean_multibrowser_profile_cache', { profileId: p.id });
+      const res = await invoke<string>('clean_multibrowser_profile_cache', {
+        profileId: p.id,
+        profile_id: p.id,
+      });
       setMessage(res || 'Đã dọn dẹp cache.');
       await fetchProfiles();
     } catch (err) {
@@ -587,7 +602,10 @@ export function ProfilesPage() {
     if (selectedIds.length === 0) return;
     try {
       setLoading(true);
-      await invoke('bulk_stop_multibrowser_profiles', { profileIds: selectedIds });
+      await invoke('bulk_stop_multibrowser_profiles', {
+        profileIds: selectedIds,
+        profile_ids: selectedIds,
+      });
       setMessage(`Đã dừng ${selectedIds.length} hồ sơ đã chọn.`);
       await fetchProfiles();
     } catch (err) {
@@ -605,7 +623,10 @@ export function ProfilesPage() {
     try {
       setLoading(true);
       for (const id of selectedIds) {
-        await invoke('delete_multibrowser_profile', { profileId: id });
+        await invoke('delete_multibrowser_profile', {
+          profileId: id,
+          profile_id: id,
+        });
       }
       setMessage(`Đã xóa ${selectedIds.length} hồ sơ.`);
       setSelectedIds([]);
@@ -761,7 +782,7 @@ export function ProfilesPage() {
           <button
             type="button"
             onClick={() => {
-              fetchProfiles();
+              fetchProfiles({ silent: false });
             }}
             className="btn-ghost flex items-center gap-1.5 px-3 py-2 text-xs"
           >
@@ -1253,6 +1274,17 @@ export function ProfilesPage() {
                 );
               })}
 
+              {filteredProfiles.length === 0 && loading && (
+                <tr>
+                  <td colSpan={10} className="px-4 py-16 text-center text-muted-foreground">
+                    <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-primary opacity-60" />
+                    <div className="font-medium text-sm text-foreground">
+                      Đang tải danh sách hồ sơ...
+                    </div>
+                  </td>
+                </tr>
+              )}
+
               {filteredProfiles.length === 0 && !loading && (
                 <tr>
                   <td colSpan={10} className="px-4 py-16 text-center text-muted-foreground">
@@ -1526,6 +1558,7 @@ export function ProfilesPage() {
                 try {
                   await invoke('bulk_set_multibrowser_group', {
                     profileIds: selectedIds,
+                    profile_ids: selectedIds,
                     group: targetAssignGroup,
                   });
                   setMessage(
@@ -1582,13 +1615,16 @@ export function ProfilesPage() {
                     const proxy = lines[i] !== undefined ? lines[i] : '';
                     const p = profiles.find((item) => item.id === selectedIds[i]);
                     if (p) {
+                      const profilePayload = {
+                        id: p.id,
+                        profile_name: p.profile_name,
+                        proxy: proxy || undefined,
+                        group: p.group || 'Default',
+                      };
                       await invoke('save_multibrowser_profile', {
-                        profile: {
-                          id: p.id,
-                          profile_name: p.profile_name,
-                          proxy: proxy || undefined,
-                          group: p.group || 'Default',
-                        },
+                        profile: profilePayload,
+                        profile_input: profilePayload,
+                        profileInput: profilePayload,
                       });
                     }
                   }
@@ -1670,6 +1706,7 @@ export function ProfilesPage() {
                     .filter(Boolean);
                   await invoke('update_multibrowser_profile_meta', {
                     profileId: metaTarget.id,
+                    profile_id: metaTarget.id,
                     note: metaNote,
                     tags: tagsArr,
                     color: metaColor,

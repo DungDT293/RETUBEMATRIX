@@ -119,8 +119,11 @@ export async function updateOutlierVideoStatus(input: {
     id: input.id,
     status: input.status,
     localFilepath: input.localFilepath || null,
+    local_filepath: input.localFilepath || null,
     reupFilepath: input.reupFilepath || null,
+    reup_filepath: input.reupFilepath || null,
     bktStatus: input.bktStatus || null,
+    bkt_status: input.bktStatus || null,
   });
 }
 
@@ -138,7 +141,12 @@ export async function analyzeCompetitorChannel(
 ): Promise<CompetitorVideo[]> {
   const res = await invoke<{ success: boolean; error?: string; videos: CompetitorVideo[] }>(
     'analyze_competitor_channel_cmd',
-    { channelUrl, sortBy },
+    {
+      channelUrl,
+      channel_url: channelUrl,
+      sortBy,
+      sort_by: sortBy,
+    },
   );
   if (res && res.success === false && res.error) {
     throw new Error(res.error);
@@ -185,13 +193,19 @@ export async function triggerOutlierPing(): Promise<OutlierVideo[]> {
 export async function findKeywordGoldmines(seedKeyword: string): Promise<KeywordGoldmine[]> {
   const res = await invoke<{ success: boolean; keywords: KeywordGoldmine[] }>(
     'find_keyword_goldmines_cmd',
-    { seedKeyword },
+    {
+      seedKeyword,
+      seed_keyword: seedKeyword,
+    },
   );
   return res?.keywords || [];
 }
 
 export async function analyzeVideoHook(videoId: string): Promise<HookAnatomyResult> {
-  return await invoke<HookAnatomyResult>('analyze_video_hook_cmd', { videoId });
+  return await invoke<HookAnatomyResult>('analyze_video_hook_cmd', {
+    videoId,
+    video_id: videoId,
+  });
 }
 
 export interface TitleVariantItem {
@@ -241,8 +255,10 @@ export async function rewriteViralTitles(
 ): Promise<AiTitleVariants> {
   return await invoke<AiTitleVariants>('ai_rewrite_viral_titles_cmd', {
     originalTitle,
+    original_title: originalTitle,
     niche: niche || null,
     competitorKeywords: competitorKeywords || null,
+    competitor_keywords: competitorKeywords || null,
     slmMode: slmMode ?? false,
     slm_mode: slmMode ?? false,
   });
@@ -259,7 +275,9 @@ export async function generateSmartDescription(
     title,
     niche: niche || null,
     competitorTags: competitorTags || null,
+    competitor_tags: competitorTags || null,
     competitorChannel: competitorChannel || null,
+    competitor_channel: competitorChannel || null,
     slmMode: slmMode ?? false,
     slm_mode: slmMode ?? false,
   });
@@ -273,6 +291,7 @@ export async function analyzeHookDeep(
   return await invoke<HookAnalysisResult>('ai_analyze_hook_deep_cmd', {
     title,
     transcriptPreview: transcriptPreview || null,
+    transcript_preview: transcriptPreview || null,
     niche: niche || null,
   });
 }

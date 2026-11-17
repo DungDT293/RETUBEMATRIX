@@ -157,3 +157,38 @@ pub fn tray_text(key: &str) -> &'static str {
         _ => "???",
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tray_i18n_locales() {
+        set_tray_lang("en".to_string());
+        assert_eq!(tray_text("open"), "Open RETubeMatrix");
+        assert_eq!(tray_text("quit"), "Quit");
+
+        set_tray_lang("vi".to_string());
+        assert_eq!(tray_text("open"), "Mở RETubeMatrix");
+        assert_eq!(tray_text("quit"), "Thoát");
+
+        set_tray_lang("zh-CN".to_string());
+        assert_eq!(tray_text("open"), "打开 RETubeMatrix");
+
+        set_tray_lang("fr".to_string());
+        assert_eq!(tray_text("open"), "Ouvrir RETubeMatrix");
+
+        set_tray_lang("ja".to_string());
+        assert_eq!(tray_text("open"), "RETubeMatrix を開く");
+
+        set_tray_lang("es".to_string());
+        assert_eq!(tray_text("open"), "Abrir RETubeMatrix");
+
+        // Fallback for unknown language
+        set_tray_lang("de".to_string());
+        assert_eq!(tray_text("open"), "Open RETubeMatrix");
+
+        // Fallback for unknown key
+        assert_eq!(tray_text("non_existent_key"), "???");
+    }
+}

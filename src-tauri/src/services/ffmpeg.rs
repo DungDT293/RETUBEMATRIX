@@ -1193,6 +1193,7 @@ pub async fn run_reup_pipeline_v1(
     cmd.args([
         "-pix_fmt", "yuv420p",
         "-map_metadata", "-1",
+        "-map_metadata:s", "-1",
         "-metadata", "title=",
         "-metadata", "artist=",
         "-metadata", "comment=",
@@ -1331,6 +1332,7 @@ pub async fn run_reup_pipeline_v2(
     cmd.args([
         "-pix_fmt", "yuv420p",
         "-map_metadata", "-1",
+        "-map_metadata:s", "-1",
         "-metadata", "title=",
         "-metadata", "artist=",
         "-metadata", "comment=",
@@ -1515,6 +1517,7 @@ pub async fn run_reup_pipeline_adaptive(
     cmd.args([
         "-pix_fmt", "yuv420p",
         "-map_metadata", "-1",
+        "-map_metadata:s", "-1",
         "-metadata", "title=",
         "-metadata", "artist=",
         "-metadata", "comment=",

@@ -98,3 +98,32 @@ pub async fn run_reup_pipeline_adaptive_cmd(
 
     crate::services::run_reup_pipeline_adaptive(&app, &input_path, output_path.as_deref(), resolved_preflight).await
 }
+
+/// Quét danh sách file video trong một thư mục
+#[tauri::command]
+pub async fn scan_directory_videos_cmd(
+    dir_path: Option<String>,
+    #[allow(non_snake_case)]
+    dirPath: Option<String>,
+) -> Result<Vec<String>, String> {
+    let target = dir_path.or(dirPath).ok_or_else(|| "Thiếu dir_path".to_string())?;
+    let path = std::path::Path::new(&target);
+    if !path.exists() || !path.is_dir() {
+        return Err("Thư mục không tồn tại".to_string());
+    }
+    let mut files = Vec::new();
+    if let Ok(entries) = std::fs::read_dir(path) {
+        for entry in entries.flatten() {
+            let p = entry.path();
+            if p.is_file() {
+                if let Some(ext) = p.extension().and_then(|e| e.to_str()).map(|e| e.to_lowercase()) {
+                    if matches!(ext.as_str(), "mp4" | "mkv" | "mov" | "webm" | "avi" | "flv" | "m4v") {
+                        files.push(p.to_string_lossy().to_string());
+                    }
+                }
+            }
+        }
+    }
+    files.sort();
+    Ok(files)
+}

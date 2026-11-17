@@ -961,7 +961,7 @@ export function LeaderWorkspacePage() {
                         </td>
                         <td className="py-3.5 px-4 text-slate-300 max-w-xs">{r.reason}</td>
                         <td className="py-3.5 px-4 text-slate-400">
-                          {new Date(r.requestedAt).toLocaleString('vi-VN')}
+                          {r.requestedAt ? new Date(r.requestedAt).toLocaleString('vi-VN') : '—'}
                         </td>
                         <td className="py-3.5 px-4">
                           {r.leaderEndorsed || r.status === 'endorsed' ? (
@@ -1011,7 +1011,7 @@ export function LeaderWorkspacePage() {
             </div>
 
             <div className="p-4 overflow-y-auto space-y-3 flex-1">
-              {viewingVideosModal.videos.map((vid, idx) => (
+              {(viewingVideosModal.videos || []).map((vid, idx) => (
                 <div
                   key={vid.video_id || vid.id || idx}
                   className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-start justify-between gap-3"

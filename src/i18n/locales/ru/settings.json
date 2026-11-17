@@ -11,7 +11,8 @@
     "system": "Система",
     "about": "О программе và версии",
     "plugins": "Плагины",
-    "pluginStore": "Plugin Store"
+    "pluginStore": "Plugin Store",
+    "remoteDownload": "Удаленная загрузка"
   },
   "search": {
     "placeholder": "Поиск настроек...",
@@ -519,7 +520,11 @@
     "duplicateHandlingDesc": "Выберите действие, если видео уже есть в библиотеке",
     "duplicateHandlingAsk": "Спрашивать перед добавлением",
     "duplicateHandlingSkip": "Автоматически пропускать",
-    "duplicateHandlingAllow": "Разрешить дубли"
+    "duplicateHandlingAllow": "Разрешить дубли",
+    "queuePersistence": "Очередь загрузки",
+    "queuePersistenceDesc": "Сохранять загрузки в очереди после закрытия RETubeMatrix",
+    "persistDownloadQueue": "Сохранить очередь загрузки",
+    "persistDownloadQueueDesc": "Восстанавливать элементы очереди YouTube, Universal и Gallery при повторном открытии приложения"
   },
   "dependencies": {
     "title": "Зависимости",

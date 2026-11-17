@@ -276,17 +276,37 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
         setLoading(true);
       }
       try {
+        const withTimeout = <T,>(p: Promise<T>, fallback: T, ms = 6000): Promise<T> =>
+          Promise.race([p, new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms))]);
+
         const [dailyData, mbStats, chData, prData] = await Promise.all([
           getDailyReportStats(timeFilter).catch((err) => {
             console.warn('Lỗi getDailyReportStats:', err);
             return null;
           }),
-          invoke<MultiBrowserStats>('get_multibrowser_stats').catch(() => EMPTY_STATS),
-          invoke<FollowedChannel[]>('get_followed_channels').catch(() => []),
-          invoke<MultiBrowserProfile[]>('get_multibrowser_profiles', {
-            includeBkt: false,
-            include_bkt: false,
-          }).catch(() => []),
+          withTimeout(
+            invoke<MultiBrowserStats>('get_multibrowser_stats').catch((err) => {
+              console.warn('[Dashboard] Lỗi get_multibrowser_stats:', err);
+              return EMPTY_STATS;
+            }),
+            EMPTY_STATS,
+          ),
+          withTimeout(
+            invoke<FollowedChannel[]>('get_followed_channels').catch((err) => {
+              console.warn('[Dashboard] Lỗi get_followed_channels:', err);
+              return [];
+            }),
+            [],
+          ),
+          withTimeout(
+            invoke<MultiBrowserProfile[]>('get_multibrowser_profiles', {
+              includeBkt: false,
+            }).catch((err) => {
+              console.warn('[Dashboard] Lỗi get_multibrowser_profiles:', err);
+              return [];
+            }),
+            [],
+          ),
         ]);
 
         if (!isMountedRef.current || reqSeq !== fetchSeqRef.current) {
@@ -1106,7 +1126,10 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
                     <Layers className="w-3 h-3" /> Python Engine
                   </div>
                   <div className="font-semibold text-foreground mt-0.5">
-                    Python {stats.system_info?.python || '3.11'}
+                    {(() => {
+                      const py = stats.system_info?.python || '3.11';
+                      return py.toLowerCase().startsWith('python') ? py : `Python ${py}`;
+                    })()}
                   </div>
                 </div>
                 <div className="p-2 rounded-lg border border-border/60 bg-muted/20">

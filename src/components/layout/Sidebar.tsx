@@ -1,3 +1,4 @@
+import { getVersion } from '@tauri-apps/api/app';
 import {
   AlertTriangle,
   Building2,
@@ -18,7 +19,7 @@ import {
   UserCheck,
   Users2,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -108,6 +109,13 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { mode, toggleMode } = useTheme();
   const { user, isAuthenticated, isHwidMismatch } = useAuth();
+  const [appVersion, setAppVersion] = useState('1.2.1');
+
+  useEffect(() => {
+    getVersion()
+      .then(setAppVersion)
+      .catch(() => {});
+  }, []);
 
   const isPrivileged =
     user?.role === 'owner' ||
@@ -194,14 +202,19 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
             >
               <img src="/logo-128.png" alt="RETubeMatrix" className="w-full h-full object-cover" />
             </div>
-            <span
+            <div
               className={cn(
-                'font-bold text-lg whitespace-nowrap transition-all duration-300 gradient-text tracking-wide',
+                'flex flex-col min-w-0 transition-all duration-300',
                 isCollapsed ? 'opacity-0 w-0 ml-0 pointer-events-none' : 'opacity-100',
               )}
             >
-              RETubeMatrix
-            </span>
+              <span className="font-bold text-base leading-tight whitespace-nowrap gradient-text tracking-wide">
+                RETubeMatrix
+              </span>
+              <span className="text-[10px] font-semibold text-muted-foreground/80 tracking-wider">
+                v{appVersion || '1.2.1'}
+              </span>
+            </div>
           </div>
         </div>
 

@@ -129,11 +129,19 @@ async def extract_studio_analytics_async(
 
     try:
         # 1. Điều hướng tới trang Studio Analytics
-        target_url = "https://studio.youtube.com/channel/analytics"
+        target_url = ""
         if channel_url and "/channel/" in channel_url:
             channel_id_match = re.search(r"/channel/([a-zA-Z0-9_-]+)", channel_url)
             if channel_id_match:
                 target_url = f"https://studio.youtube.com/channel/{channel_id_match.group(1)}/analytics"
+
+        if not target_url:
+            curr = getattr(page, "url", "") or ""
+            m_curr = re.search(r"/channel/([a-zA-Z0-9_-]+)", curr)
+            if m_curr:
+                target_url = f"https://studio.youtube.com/channel/{m_curr.group(1)}/analytics"
+            else:
+                target_url = "https://studio.youtube.com/"
 
         logger.info(f"Đang mở trang Analytics Studio: {target_url}")
         await page.goto(target_url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)

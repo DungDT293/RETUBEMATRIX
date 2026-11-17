@@ -298,7 +298,9 @@ fn tokenize_command(command: &str) -> Result<Vec<String>, String> {
                 if q == '"' && c == '\\' {
                     if let Some(next) = chars.peek().copied() {
                         if matches!(next, '"' | '\\') {
-                            current.push(chars.next().unwrap());
+                            if let Some(escaped) = chars.next() {
+                                current.push(escaped);
+                            }
                             continue;
                         }
                     }
@@ -330,7 +332,9 @@ fn tokenize_command(command: &str) -> Result<Vec<String>, String> {
                 '\\' => {
                     if let Some(next) = chars.peek().copied() {
                         if is_unquoted_backslash_escape(next) {
-                            current.push(chars.next().unwrap());
+                            if let Some(escaped) = chars.next() {
+                                current.push(escaped);
+                            }
                         } else {
                             current.push(c);
                         }

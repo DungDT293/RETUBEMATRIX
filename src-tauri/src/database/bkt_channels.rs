@@ -257,16 +257,20 @@ pub fn reserve_bkt_channel_and_create_job_with_conn(
     let today = Local::now().format("%Y-%m-%d").to_string();
     reset_bkt_channel_quota_if_needed(&tx, &today)?;
 
-    let reserved = tx
-        .execute(
-            "UPDATE bkt_test_channels
-             SET daily_used = daily_used + 1, updated_at = CURRENT_TIMESTAMP
-             WHERE id = ?1 AND daily_used < daily_quota",
-            params![job.test_channel_id],
-        )
-        .map_err(|e| format!("Lỗi giữ quota kênh test BKT: {e}"))?;
-    if reserved == 0 {
-        return Ok(false);
+    // Nếu job đã có youtube_video_id hoặc là kênh fast-track direct, không cần trừ quota bkt_test_channels
+    let is_fast_track_direct = job.test_channel_id == "fast_track_direct";
+    if job.youtube_video_id.is_none() && !is_fast_track_direct {
+        let reserved = tx
+            .execute(
+                "UPDATE bkt_test_channels
+                 SET daily_used = daily_used + 1, updated_at = CURRENT_TIMESTAMP
+                 WHERE id = ?1 AND daily_used < daily_quota",
+                params![job.test_channel_id],
+            )
+            .map_err(|e| format!("Lỗi giữ quota kênh test BKT: {e}"))?;
+        if reserved == 0 {
+            return Ok(false);
+        }
     }
 
     let target_profile = job
@@ -569,7 +573,8 @@ pub fn has_bkt_publish_duplicate_source_with_conn(
                    ON existing.id <> candidate.id
                   AND existing.source_ref_id IS NOT NULL
                   AND existing.source_ref_id = candidate.source_ref_id
-                  AND existing.status IN ('publishing', 'published')
+                  AND existing.status = 'publishing'
+                  AND existing.updated_at > datetime('now', '-15 minutes')
                  WHERE candidate.id = ?1
                    AND candidate.source_ref_id IS NOT NULL
              )",
@@ -601,12 +606,56 @@ pub fn claim_bkt_job_for_publish_with_conn(
                    WHERE existing.id <> candidate.id
                      AND existing.source_ref_id IS NOT NULL
                      AND existing.source_ref_id = candidate.source_ref_id
-                     AND existing.status IN ('publishing', 'published')
+                     AND existing.status = 'publishing'
+                     AND existing.updated_at > datetime('now', '-15 minutes')
                )",
             rusqlite::params![id],
         )
         .map_err(|e| format!("Lỗi claim publish BKT: {e}"))?;
     Ok(changed == 1)
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct BktCheckpoint {
+    pub test_channel_id: String,
+    pub youtube_video_id: String,
+    pub reup_path: Option<String>,
+    pub status: String,
+}
+
+/// Tìm kiếm checkpoint BKT đã upload của một video để tái sử dụng kênh test và video ID
+pub fn get_existing_bkt_checkpoint_db(
+    source_ref_id: Option<&str>,
+    video_path: &str,
+) -> Result<Option<BktCheckpoint>, String> {
+    let conn = get_db()?;
+    let mut stmt = conn
+        .prepare(
+            "SELECT j.test_channel_id, j.youtube_video_id, j.reup_path, j.status
+             FROM bkt_test_jobs j
+             JOIN bkt_test_channels tc ON j.test_channel_id = tc.id
+             WHERE ((?1 IS NOT NULL AND TRIM(?1) <> '' AND j.source_ref_id = ?1) OR j.video_path = ?2)
+               AND j.youtube_video_id IS NOT NULL
+               AND TRIM(j.youtube_video_id) <> ''
+               AND j.status NOT IN ('published')
+             ORDER BY j.created_at DESC
+             LIMIT 1",
+        )
+        .map_err(|e| format!("Lỗi truy vấn checkpoint BKT: {e}"))?;
+
+    let res = stmt
+        .query_row(params![source_ref_id, video_path], |row| {
+            Ok(BktCheckpoint {
+                test_channel_id: row.get(0)?,
+                youtube_video_id: row.get(1)?,
+                reup_path: row.get(2)?,
+                status: row.get(3)?,
+            })
+        })
+        .optional()
+        .map_err(|e| format!("Lỗi đọc checkpoint BKT: {e}"))?;
+
+    Ok(res)
 }
 
 /// Cập nhật trạng thái tác vụ test video
@@ -816,6 +865,7 @@ pub fn get_bkt_test_jobs_db(limit: Option<i64>) -> Result<Vec<BktTestJob>, Strin
                 target_tags: row.get(19)?,
                 thumbnail_path: row.get(20)?,
                 test_profile_id: row.get(22)?,
+                skip_bkt_test: None,
             })
         })
         .map_err(|e| format!("Lỗi map dữ liệu bkt_test_jobs: {e}"))?;
@@ -876,6 +926,7 @@ pub fn get_bkt_test_job_by_id_db(job_id: &str) -> Result<Option<BktTestJob>, Str
                 target_tags: row.get(19)?,
                 thumbnail_path: row.get(20)?,
                 test_profile_id: row.get(22)?,
+                skip_bkt_test: None,
             })
         })
         .map_err(|e| format!("Lỗi map dữ liệu: {e}"))?;
@@ -920,6 +971,7 @@ mod integrity_tests {
             target_tags: None,
             thumbnail_path: None,
             test_profile_id: Some("profile-integrity".to_string()),
+            skip_bkt_test: None,
         }
     }
 
@@ -1090,17 +1142,17 @@ mod integrity_tests {
     }
 
     #[test]
-    fn publish_claim_rejects_duplicate_source_already_published() {
+    fn publish_claim_rejects_duplicate_source_actively_publishing() {
         let conn = rusqlite::Connection::open_in_memory().unwrap();
         create_schema(&conn);
         conn.execute(
             "INSERT INTO bkt_test_jobs (
                 id, test_channel_id, video_source_type, source_ref_id,
                 video_title, video_path, status, tested_date, created_at, updated_at
-             ) VALUES ('job-published', 'channel-integrity', 'channel_video', 'source-1',
-                       'title', 'video.mp4', 'published', '2026-11-13', '2026-11-13', '2026-11-13'),
+             ) VALUES ('job-publishing', 'channel-integrity', 'channel_video', 'source-1',
+                       'title', 'video.mp4', 'publishing', '2026-11-13', datetime('now'), datetime('now')),
                       ('job-duplicate', 'channel-integrity', 'channel_video', 'source-1',
-                       'title', 'video-2.mp4', 'green_clean', '2026-11-13', '2026-11-13', '2026-11-13')",
+                       'title', 'video-2.mp4', 'green_clean', '2026-11-13', datetime('now'), datetime('now'))",
             [],
         )
         .unwrap();

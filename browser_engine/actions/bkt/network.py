@@ -11,6 +11,7 @@ from typing import Any, Dict
 
 from ..dom import (
     DEFAULT_FORBIDDEN_HREF_PATTERNS,
+    dismiss_blocking_studio_dialogs,
     dismiss_post_save_studio_modals,
     eval_studio_dom,
     get_studio_context,
@@ -141,6 +142,7 @@ async def navigate_to_channel_content(
 
     # Guard modals if any post-save card is covering the page
     await dismiss_post_save_studio_modals(page, settlement_seconds=0.0, context="nav_guard")
+    await dismiss_blocking_studio_dialogs(page, allow_reload=False, context="nav_guard_notice")
 
     # Re-read after modal check
     ctx = await get_studio_context(page)
@@ -182,20 +184,53 @@ async def navigate_to_channel_content(
 
     # Step 2: If in channel scope (and not yet on /videos upload list), click Content link or direct goto
     if scope == "channel" and page_type != "channel_content_videos":
-        # Thử kích hoạt Polymer navigation item trước
-        try:
-            await page.evaluate("""() => {
-                const item = document.querySelector('ytcp-navigation-item[test-id="videos"]')
-                    || document.querySelector('ytcp-navigation-drawer a[href*="/videos"]')
-                    || document.querySelector('#menu-item-1');
-                if (item) {
-                    item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, composed: true, cancelable: true }));
-                    item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true, cancelable: true }));
-                    item.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true, cancelable: true }));
-                }
-            }""")
-        except Exception:
-            pass
+        # Thử kích hoạt Polymer navigation item qua Playwright piercing locator trước
+        clicked_nav = False
+        for sel in [
+            'ytcp-navigation-drawer a[href*="/videos"]',
+            'ytcp-navigation-item a[href*="/videos"]',
+            'a#menu-item-link[href*="/videos"]',
+            'a[test-id="menu-item-link"][href*="/videos"]',
+            'a[href*="/videos/upload"]',
+            'a[href*="/videos"]',
+            'ytcp-navigation-item[test-id="videos"]',
+        ]:
+            try:
+                loc = page.locator(sel).first
+                if await loc.count() > 0 and await loc.is_visible():
+                    await loc.click(timeout=2500)
+                    clicked_nav = True
+                    break
+            except Exception:
+                continue
+
+        if not clicked_nav:
+            try:
+                await page.evaluate("""() => {
+                    function deepFindLink(root) {
+                        if (!root) return null;
+                        const direct = root.querySelectorAll('a[href*="/videos"]');
+                        for (const a of direct) {
+                            if (a.offsetParent !== null || a.getClientRects().length > 0) return a;
+                        }
+                        const all = root.querySelectorAll('*');
+                        for (const el of all) {
+                            if (el.shadowRoot) {
+                                const res = deepFindLink(el.shadowRoot);
+                                if (res) return res;
+                            }
+                        }
+                        return null;
+                    }
+                    const link = deepFindLink(document);
+                    if (link) {
+                        link.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, composed: true, cancelable: true }));
+                        link.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true, cancelable: true }));
+                        link.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true, cancelable: true }));
+                    }
+                }""")
+            except Exception:
+                pass
 
         for _ in range(6):
             await asyncio.sleep(0.35)
@@ -229,15 +264,50 @@ async def navigate_to_channel_content(
             ch_m = re.search(r"/channel/([^/?#]+)", getattr(page, "url", "") or "")
             if ch_m:
                 known_channel_id = ch_m.group(1)
+        if not known_channel_id:
+            try:
+                known_channel_id = await page.evaluate(
+                    """() => {
+                        return (window.ytcfg && window.ytcfg.get && window.ytcfg.get('CHANNEL_ID'))
+                            || (document.querySelector('a[href*="/channel/UC"]')?.href?.match(/\\/channel\\/(UC[A-Za-z0-9_-]+)/)?.[1])
+                            || (document.querySelector('ytcp-navigation-drawer a[href*="/channel/"]')?.href?.match(/\\/channel\\/([^/?#]+)/)?.[1])
+                            || '';
+                    }"""
+                ) or ""
+            except Exception:
+                pass
 
-        target_url = f"https://studio.youtube.com/channel/{known_channel_id}/videos/upload" if known_channel_id else "https://studio.youtube.com/videos/upload"
-        logger.info("[NAV] Chuyển hướng trực tiếp URL tới tab Nội dung: %s", target_url)
-        try:
-            await page.goto(target_url, wait_until="domcontentloaded", timeout=45000)
-            await asyncio.sleep(1.2)
+        if known_channel_id and allow_direct_goto:
+            target_url = f"https://studio.youtube.com/channel/{known_channel_id}/videos/upload"
+            logger.info("[NAV] Chuyển hướng trực tiếp URL tới tab Nội dung: %s", target_url)
+            try:
+                await page.goto(target_url, wait_until="domcontentloaded", timeout=45000)
+                await asyncio.sleep(1.2)
+                ctx = await get_studio_context(page)
+            except Exception as exc:
+                logger.warning("[NAV] Fallback goto failed: %s", exc)
+        else:
+            logger.warning(
+                "[NAV] Không có channel_id hoặc allow_direct_goto=False, thử lại click drawer SPA và KHÔNG gọi URL fallback videos/upload để tránh lỗi màn hình trắng."
+            )
+            # Thử click lại drawer SPA lần nữa nếu chưa vào được tab Nội dung
+            for sel in [
+                'ytcp-navigation-drawer a[href*="/videos"]',
+                'ytcp-navigation-item a[href*="/videos"]',
+                'a#menu-item-link[href*="/videos"]',
+                'a[test-id="menu-item-link"][href*="/videos"]',
+                'a[href*="/videos/upload"]',
+                'a[href*="/videos"]',
+            ]:
+                try:
+                    loc = page.locator(sel).first
+                    if await loc.count() > 0 and await loc.is_visible():
+                        await loc.click(timeout=2500)
+                        break
+                except Exception:
+                    continue
+            await asyncio.sleep(1.0)
             ctx = await get_studio_context(page)
-        except Exception as exc:
-            logger.warning("[NAV] Fallback goto failed: %s", exc)
 
     ctx = await get_studio_context(page)
     return {

@@ -326,6 +326,20 @@ def _ensure_browsermulti_startup_preferences(user_data_dir: Path) -> bool:
             session = {}
             preferences["session"] = session
 
+        # Reset exit state to prevent "Chromium did not shut down correctly"
+        profile_pref = preferences.setdefault("profile", {})
+        if isinstance(profile_pref, dict):
+            profile_pref["exit_type"] = "Normal"
+            profile_pref["exited_cleanly"] = True
+
+        session["exit_type"] = "Normal"
+        session["exited_cleanly"] = True
+
+        if "exit_type" in preferences:
+            preferences["exit_type"] = "Normal"
+        if "exited_cleanly" in preferences:
+            preferences["exited_cleanly"] = True
+
         # Only set default restore_on_startup if not already configured by profile
         if "restore_on_startup" not in session:
             session["restore_on_startup"] = 4
@@ -1029,8 +1043,7 @@ class CloakSession:
                 w, h = default_w, default_h
                 logger.info("Profile '%s' first open uses work area: %dx%d", profile_name, w, h)
         ensure_google_search_provider(user_data_dir)
-        if engine.engine_id == "browsermulti":
-            _ensure_browsermulti_startup_preferences(user_data_dir)
+        _ensure_browsermulti_startup_preferences(user_data_dir)
         seed = _normalize_fingerprint_seed(fingerprint_seed, profile_name)
         launch_options = _profile_launch_options(profile_data)
         spec = BrowserLaunchSpec(
@@ -1403,6 +1416,10 @@ class CloakSession:
                     self._proxy_bridge = None
             finally:
                 if self.profile_dir is not None:
+                    try:
+                        _ensure_browsermulti_startup_preferences(self.profile_dir)
+                    except Exception:
+                        pass
                     _remove_owned_session_pid(self.profile_dir, self._session_pid)
                     self._session_pid = None
                     logger.info(
@@ -1441,6 +1458,10 @@ class CloakSession:
                     self._proxy_bridge = None
             finally:
                 if self.profile_dir is not None:
+                    try:
+                        _ensure_browsermulti_startup_preferences(self.profile_dir)
+                    except Exception:
+                        pass
                     _remove_owned_session_pid(self.profile_dir, self._session_pid)
                     self._session_pid = None
                     logger.info(

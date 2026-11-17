@@ -1,15 +1,12 @@
 import { invoke } from '@tauri-apps/api/core';
 import {
-  AlertTriangle,
-  CheckCircle2,
+  Clock,
+  Download,
   Filter,
-  FlaskConical,
   Layers,
-  Loader2,
   PlaySquare,
   Scissors,
   Settings2,
-  ShieldAlert,
   ShieldCheck,
   Sparkles,
   UserCheck,
@@ -47,7 +44,7 @@ interface ChannelSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   channel: FollowedChannel;
-  initialTab?: 'filter' | 'bkt' | 'filename';
+  initialTab?: 'reup' | 'download' | 'filename';
   onSave: (updated: {
     id: string;
     checkInterval: number;
@@ -74,17 +71,6 @@ interface ChannelSettingsDialogProps {
   onBktConfigSaved?: () => Promise<void> | void;
 }
 
-const COMMON_EXCLUDE_TAGS = [
-  'Livestream',
-  'Trực tiếp',
-  'Thông báo',
-  'Q&A',
-  'Hỏi đáp',
-  'Trailer',
-  'Teaser',
-  'Highlight',
-];
-
 const TEMPLATE_TOKENS = [
   { label: '[Kênh]', token: '[Kênh]' },
   { label: '[Ngày đăng]', token: '[Ngày đăng]' },
@@ -98,11 +84,11 @@ export function ChannelSettingsDialog({
   open,
   onOpenChange,
   channel,
-  initialTab = 'filter',
+  initialTab = 'reup',
   onSave,
   onBktConfigSaved,
 }: ChannelSettingsDialogProps) {
-  const [activeTab, setActiveTab] = useState<'filter' | 'bkt' | 'filename'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'reup' | 'download' | 'filename'>(initialTab);
 
   useEffect(() => {
     if (initialTab) {
@@ -110,7 +96,27 @@ export function ChannelSettingsDialog({
     }
   }, [initialTab]);
 
-  // Filter & Download settings
+  // Reup Configuration States
+  const [isTrustedClean, setIsTrustedClean] = useState<boolean>(
+    Boolean(channel.is_trusted_clean ?? channel.isTrustedClean ?? false),
+  );
+  const [targetProfileId, setTargetProfileId] = useState<string>(
+    channel.target_profile_id || channel.bkt_profile_id || '',
+  );
+  const [directUploadTarget, setDirectUploadTarget] = useState<boolean>(
+    Boolean(channel.direct_upload_target ?? channel.directUploadTarget ?? false),
+  );
+  const [uploadIntervalMode, setUploadIntervalMode] = useState<string>(
+    channel.upload_interval_mode || channel.uploadIntervalMode || 'auto_30_60',
+  );
+  const [uploadIntervalMinutes, setUploadIntervalMinutes] = useState<number>(
+    channel.upload_interval_minutes || channel.uploadIntervalMinutes || 45,
+  );
+  const [downloadMode, setDownloadMode] = useState<'all' | 'selected'>(
+    (channel.download_mode || channel.downloadMode || 'all') as 'all' | 'selected',
+  );
+
+  // Download & Filter settings
   const [autoDownload, setAutoDownload] = useState(channel.auto_download);
   const [checkInterval, setCheckInterval] = useState(channel.check_interval || 15);
   const [contentType, setContentType] = useState<YoutubeChannelContentType>(
@@ -122,30 +128,33 @@ export function ChannelSettingsDialog({
   const [maxDuration, setMaxDuration] = useState<string>(
     channel.filter_max_duration != null ? String(channel.filter_max_duration) : '',
   );
-  const [excludeKeywords, setExcludeKeywords] = useState(channel.filter_exclude_keywords || '');
-  const [includeKeywords, setIncludeKeywords] = useState(channel.filter_include_keywords || '');
-
-  // Reup Mod Pipeline settings
-  const [reupEnabled, _setReupEnabled] = useState(channel.reup_mod_enabled ?? false);
-  const [reupSpeed, _setReupSpeed] = useState<number>(channel.reup_mod_speed ?? 1.03);
-  const [reupPitch, _setReupPitch] = useState<boolean>((channel.reup_mod_pitch ?? 1.0) !== 1.0);
-  const [reupFlip, _setReupFlip] = useState<boolean>(channel.reup_mod_flip ?? false);
-  const [reupCrop, _setReupCrop] = useState<boolean>((channel.reup_mod_crop ?? 0) > 0);
+  const [excludeKeywords] = useState(channel.filter_exclude_keywords || '');
+  const [includeKeywords] = useState(channel.filter_include_keywords || '');
 
   // Filename template
   const [filenameTemplate, setFilenameTemplate] = useState<string>(
     channel.custom_filename_template || '[Kênh] - [Ngày đăng] - [Tiêu đề]',
   );
 
-  // BKT Test & Upload settings
-  const [bktTestMode, setBktTestMode] = useState<boolean>(Boolean(channel.bkt_test_mode));
-  const [bktProfileId, setBktProfileId] = useState<string>(channel.bkt_profile_id || '');
   const [profiles, setProfiles] = useState<MultiBrowserProfile[]>([]);
+  const toast = useToast();
+  const [saving, setSaving] = useState(false);
+  const [showSeoDialog, setShowSeoDialog] = useState(false);
 
   useEffect(() => {
-    setBktProfileId(channel.bkt_profile_id || '');
-    setBktTestMode(Boolean(channel.bkt_test_mode));
-  }, [channel.bkt_profile_id, channel.bkt_test_mode]);
+    setIsTrustedClean(Boolean(channel.is_trusted_clean ?? channel.isTrustedClean ?? false));
+    setTargetProfileId(channel.target_profile_id || channel.bkt_profile_id || '');
+    setDirectUploadTarget(
+      Boolean(channel.direct_upload_target ?? channel.directUploadTarget ?? false),
+    );
+    setUploadIntervalMode(
+      channel.upload_interval_mode || channel.uploadIntervalMode || 'auto_30_60',
+    );
+    setUploadIntervalMinutes(
+      channel.upload_interval_minutes || channel.uploadIntervalMinutes || 45,
+    );
+    setDownloadMode((channel.download_mode || channel.downloadMode || 'all') as 'all' | 'selected');
+  }, [channel]);
 
   useEffect(() => {
     getMultibrowserProfiles()
@@ -159,49 +168,6 @@ export function ChannelSettingsDialog({
       });
   }, []);
 
-  const toast = useToast();
-  const [saving, setSaving] = useState(false);
-  const [showSeoDialog, setShowSeoDialog] = useState(false);
-  const [extractingKeywords, setExtractingKeywords] = useState(false);
-
-  const handleAutoFillKeywordsFromCompetitor = async () => {
-    setExtractingKeywords(true);
-    try {
-      const res = await invoke<{
-        success: boolean;
-        channel_keywords?: string[];
-        default_tags?: string[];
-        error?: string;
-      }>('extract_competitor_channel_seo_cmd', {
-        channelUrl: channel.url,
-        channel_url: channel.url,
-      });
-
-      if (res.success && res.channel_keywords && res.channel_keywords.length > 0) {
-        const topKeywords = res.channel_keywords.slice(0, 10).join(', ');
-        setIncludeKeywords((prev) => (prev ? `${prev}, ${topKeywords}` : topKeywords));
-        toast.success({
-          title: 'Đã tự động điền từ khóa đối thủ',
-          description: `Đã bổ sung ${Math.min(res.channel_keywords.length, 10)} từ khóa nhận diện của đối thủ vào bộ lọc.`,
-        });
-      } else {
-        toast.error({
-          title: 'Không tìm thấy từ khóa',
-          description: res.error || 'Đối thủ chưa thiết lập từ khóa kênh hoặc không thể bóc tách.',
-        });
-      }
-    } catch (err) {
-      console.error('Lỗi tự động điền từ khóa:', err);
-      toast.error({
-        title: 'Lỗi bóc tách từ khóa',
-        description: String(err),
-      });
-    } finally {
-      setExtractingKeywords(false);
-    }
-  };
-
-  // Live preview of filename
   const previewFilename = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10);
     let tmpl = filenameTemplate || '[Kênh] - [Ngày đăng] - [Tiêu đề]';
@@ -228,41 +194,35 @@ export function ChannelSettingsDialog({
       setMaxDuration('60');
       setContentType('shorts');
     } else if (type === 'no-live') {
-      setMaxDuration('3600'); // skip videos > 60m
-      if (!excludeKeywords.includes('Livestream')) {
-        setExcludeKeywords((prev) =>
-          prev ? `${prev}, Livestream, Trực tiếp` : 'Livestream, Trực tiếp',
-        );
-      }
+      setMaxDuration('3600');
     }
-  };
-
-  const handleAddExcludeTag = (tag: string) => {
-    const tags = excludeKeywords
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
-    if (!tags.includes(tag)) {
-      tags.push(tag);
-      setExcludeKeywords(tags.join(', '));
-    }
-  };
-
-  const handleInsertToken = (token: string) => {
-    setFilenameTemplate((prev) => `${prev} ${token}`.trim());
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      // 1. Cập nhật cấu hình BKT / Hồ sơ đối chiếu 1-1 trước
-      await updateChannelBktConfig({
-        channelId: channel.id,
-        bktTestMode: bktTestMode,
-        bktProfileId: bktProfileId.trim() || null,
+      // 1. Cập nhật cấu hình Reup Kiểu Mới qua lệnh IPC backend
+      await invoke('update_channel_reup_config_cmd', {
+        payload: {
+          channel_id: channel.id,
+          target_profile_id: targetProfileId.trim() || null,
+          is_trusted_clean: isTrustedClean,
+          enable_fast_track: isTrustedClean,
+          direct_upload_target: directUploadTarget,
+          upload_interval_mode: uploadIntervalMode,
+          upload_interval_minutes: Number(uploadIntervalMinutes) || 45,
+          download_mode: downloadMode,
+        },
       });
 
-      // 2. Cập nhật các cài đặt lọc & tải của kênh
+      // 2. Đồng bộ cấu hình BKT / Target profile
+      await updateChannelBktConfig({
+        channelId: channel.id,
+        bktTestMode: !isTrustedClean,
+        bktProfileId: targetProfileId.trim() || null,
+      });
+
+      // 3. Cập nhật cài đặt tải & lọc cơ bản
       await onSave({
         id: channel.id,
         checkInterval: Number(checkInterval) || 15,
@@ -279,11 +239,11 @@ export function ChannelSettingsDialog({
         filterMaxVideos: channel.filter_max_videos || null,
         downloadThreads: channel.download_threads || 1,
         youtubeContentType: contentType,
-        reupModEnabled: reupEnabled,
-        reupModSpeed: reupSpeed,
-        reupModPitch: reupPitch ? 1.02 : 1.0,
-        reupModFlip: reupFlip,
-        reupModCrop: reupCrop ? 0.015 : 0.0,
+        reupModEnabled: channel.reup_mod_enabled ?? false,
+        reupModSpeed: channel.reup_mod_speed ?? 1.03,
+        reupModPitch: channel.reup_mod_pitch ?? 1.02,
+        reupModFlip: channel.reup_mod_flip ?? false,
+        reupModCrop: channel.reup_mod_crop ?? 0.015,
         customFilenameTemplate: filenameTemplate.trim() || null,
       });
 
@@ -291,9 +251,17 @@ export function ChannelSettingsDialog({
         await onBktConfigSaved();
       }
 
+      toast.success({
+        title: 'Đã lưu cấu hình Reup',
+        description: `Đã cập nhật cấu hình kênh ${channel.name} thành công.`,
+      });
       onOpenChange(false);
     } catch (err) {
-      console.error('Failed to save channel settings:', err);
+      console.error('Failed to save channel reup config:', err);
+      toast.error({
+        title: 'Lỗi lưu cấu hình',
+        description: String(err),
+      });
     } finally {
       setSaving(false);
     }
@@ -309,7 +277,7 @@ export function ChannelSettingsDialog({
             </div>
             <div>
               <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
-                Cài đặt Kênh Đối Thủ &amp; Bộ Lọc Tải
+                Cấu hình Reup &amp; Kênh Đích
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground truncate max-w-[380px]">
                 {channel.name}
@@ -320,39 +288,227 @@ export function ChannelSettingsDialog({
 
         <Tabs
           value={activeTab}
-          onValueChange={(v) => setActiveTab(v as 'filter' | 'bkt' | 'filename')}
+          onValueChange={(v) => setActiveTab(v as 'reup' | 'download' | 'filename')}
           className="w-full mt-2"
         >
           <TabsList className="grid grid-cols-3 w-full bg-muted/60 p-1 border border-border/40 text-xs">
-            <TabsTrigger value="filter" className="flex items-center gap-1 text-xs py-1.5">
+            <TabsTrigger value="reup" className="flex items-center gap-1.5 text-xs py-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Cấu hình Reup</span>
+            </TabsTrigger>
+            <TabsTrigger value="download" className="flex items-center gap-1.5 text-xs py-1.5">
               <Filter className="w-3.5 h-3.5 text-primary" />
-              <span>Lọc Tự Động</span>
+              <span>Bộ Lọc &amp; Tải</span>
             </TabsTrigger>
-            <TabsTrigger value="bkt" className="flex items-center gap-1 text-xs py-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Kênh Đích (Chức năng 2)</span>
-              {bktProfileId ? (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 ml-0.5" />
-              ) : (
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 ml-0.5" />
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="filename" className="flex items-center gap-1 text-xs py-1.5">
+            <TabsTrigger value="filename" className="flex items-center gap-1.5 text-xs py-1.5">
               <Layers className="w-3.5 h-3.5 text-amber-500" />
               <span>Mẫu Tên Tệp</span>
             </TabsTrigger>
           </TabsList>
 
-          {/* TAB 1: SMART AUTO-DOWNLOAD FILTER */}
-          <TabsContent value="filter" className="space-y-4 pt-3">
+          {/* TAB 1: REUP CONFIGURATION & TARGET CHANNEL */}
+          <TabsContent value="reup" className="space-y-4 pt-3">
+            {/* Clean Channel Toggle */}
+            <div className="p-3.5 rounded-lg border border-emerald-500/30 bg-emerald-500/5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5 pr-2">
+                  <Label
+                    htmlFor="clean-channel-toggle"
+                    className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    Kênh Sạch / Tin Cậy (Bỏ qua BKT - Tải &amp; Đăng Thẳng)
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Khi bật cờ này, video tải về sẽ bỏ qua bước upload kênh test và mở thẳng quy
+                    trình xuất bản lên Kênh Đích đã liên kết.
+                  </p>
+                </div>
+                <Switch
+                  id="clean-channel-toggle"
+                  checked={isTrustedClean}
+                  onCheckedChange={setIsTrustedClean}
+                />
+              </div>
+            </div>
+
+            {/* Target Profile Selection */}
+            <div className="space-y-2 p-3.5 rounded-lg border border-border/60 bg-card/60">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-medium flex items-center gap-1.5">
+                  <UserCheck className="w-3.5 h-3.5 text-primary" />
+                  Hồ sơ Kênh Đích xuất bản (Target Profile)
+                </Label>
+                <span className="text-[10px] text-muted-foreground">
+                  Kho hồ sơ: {profiles.length} profile
+                </span>
+              </div>
+              <Select
+                value={targetProfileId || '__none__'}
+                onValueChange={(val) => setTargetProfileId(val === '__none__' ? '' : val)}
+              >
+                <SelectTrigger className="h-9 text-xs bg-background">
+                  <SelectValue placeholder="Chọn hồ sơ trình duyệt Kênh Đích..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__" className="text-xs text-amber-500 font-medium">
+                    -- Chưa gán Kênh Đích (Chỉ tải về máy) --
+                  </SelectItem>
+                  {profiles.map((p) => (
+                    <SelectItem key={p.id} value={p.id} className="text-xs">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: p.color || '#10b981' }}
+                        />
+                        <span className="font-semibold text-foreground">{p.profile_name}</span>
+                        {p.youtube_preferred_channel && (
+                          <span className="text-[11px] text-primary font-mono">
+                            ({p.youtube_preferred_channel})
+                          </span>
+                        )}
+                        {p.group && p.group !== 'Default' && (
+                          <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                            {p.group}
+                          </span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Direct Auto-Publish & Upload Spacing */}
+            <div className="space-y-3 p-3.5 rounded-lg border border-border/60 bg-card/60">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5 pr-2">
+                  <Label
+                    htmlFor="direct-upload-toggle"
+                    className="text-xs font-medium cursor-pointer"
+                  >
+                    Tự động xuất bản lên Kênh Đích sau khi Edit
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Sau khi video được xử lý Reup và trích xuất tiêu đề/mô tả gốc, hệ thống tự động
+                    đẩy sang Kênh Đích.
+                  </p>
+                </div>
+                <Switch
+                  id="direct-upload-toggle"
+                  checked={directUploadTarget}
+                  onCheckedChange={setDirectUploadTarget}
+                />
+              </div>
+
+              {directUploadTarget && (
+                <div className="space-y-2.5 pt-2 border-t border-border/40">
+                  <Label className="text-xs font-medium flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-amber-500" />
+                    Khoảng cách giãn cách giữa các video đăng (Chống Spam)
+                  </Label>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <Button
+                      type="button"
+                      variant={uploadIntervalMode === 'auto_30_60' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setUploadIntervalMode('auto_30_60')}
+                      className="h-8 text-xs font-medium"
+                    >
+                      Mặc định (Ngẫu nhiên 30 - 60 phút)
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={uploadIntervalMode === 'fixed' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setUploadIntervalMode('fixed')}
+                      className="h-8 text-xs font-medium"
+                    >
+                      Tùy chỉnh số phút cố định
+                    </Button>
+                  </div>
+
+                  {uploadIntervalMode === 'fixed' && (
+                    <div className="space-y-1 pt-1">
+                      <Label htmlFor="interval-input" className="text-[11px] text-muted-foreground">
+                        Thời gian giãn cách (15 - 360 phút)
+                      </Label>
+                      <Input
+                        id="interval-input"
+                        type="number"
+                        min="15"
+                        max="360"
+                        value={uploadIntervalMinutes}
+                        onChange={(e) => setUploadIntervalMinutes(Number(e.target.value))}
+                        className="h-8 text-xs w-36"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* SEO Competitor Action */}
+            <div className="p-3 rounded-lg border border-purple-500/30 bg-purple-500/5 flex items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                  Nuôi Kênh &amp; SEO Kênh Đích
+                </span>
+                <p className="text-[11px] text-muted-foreground">
+                  Trích xuất từ khóa kênh và thẻ mặc định từ đối thủ để cài đặt vào YouTube Studio.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSeoDialog(true)}
+                className="h-7 text-xs border-purple-500/40 text-purple-600 dark:text-purple-400 shrink-0"
+              >
+                Cài đặt SEO
+              </Button>
+            </div>
+          </TabsContent>
+
+          {/* TAB 2: DOWNLOAD & FILTER OPTIONS */}
+          <TabsContent value="download" className="space-y-3.5 pt-3">
+            {/* Download Mode */}
+            <div className="space-y-2 p-3 rounded-lg border border-border/50 bg-card/60">
+              <Label className="text-xs font-medium flex items-center gap-1.5">
+                <Download className="w-3.5 h-3.5 text-primary" />
+                Chế độ Tải Video
+              </Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={downloadMode === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDownloadMode('all')}
+                  className="h-8 text-xs font-medium"
+                >
+                  Tải toàn bộ video mới
+                </Button>
+                <Button
+                  type="button"
+                  variant={downloadMode === 'selected' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDownloadMode('selected')}
+                  className="h-8 text-xs font-medium"
+                >
+                  Chọn lọc từng video thủ công
+                </Button>
+              </div>
+            </div>
+
             {/* Auto-download Toggle & Interval */}
             <div className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-card/60">
               <div className="space-y-0.5">
-                <Label htmlFor="auto-dl-toggle" className="text-sm font-medium cursor-pointer">
-                  Tự động tải video mới
+                <Label htmlFor="auto-dl-toggle" className="text-xs font-medium cursor-pointer">
+                  Tự động tải khi phát hiện video mới
                 </Label>
-                <p className="text-xs text-muted-foreground">
-                  Hệ thống tự động phát hiện qua RSS & tải về khi có video mới
+                <p className="text-[11px] text-muted-foreground">
+                  Quét RSS thời gian thực và nạp video vào hàng đợi
                 </p>
               </div>
               <Switch
@@ -369,11 +525,11 @@ export function ChannelSettingsDialog({
                   value={String(checkInterval)}
                   onValueChange={(val) => setCheckInterval(Number(val))}
                 >
-                  <SelectTrigger className="h-9 text-xs">
+                  <SelectTrigger className="h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="5">Mỗi 5 phút (Siêu tốc)</SelectItem>
+                    <SelectItem value="5">Mỗi 5 phút</SelectItem>
                     <SelectItem value="15">Mỗi 15 phút (Khuyên dùng)</SelectItem>
                     <SelectItem value="30">Mỗi 30 phút</SelectItem>
                     <SelectItem value="60">Mỗi 1 giờ</SelectItem>
@@ -382,19 +538,18 @@ export function ChannelSettingsDialog({
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Tab quét nội dung</Label>
+                <Label className="text-xs font-medium">Loại nội dung quét</Label>
                 <Select
                   value={contentType}
                   onValueChange={(val) => setContentType(val as YoutubeChannelContentType)}
                 >
-                  <SelectTrigger className="h-9 text-xs">
+                  <SelectTrigger className="h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả (Video, Shorts, Trực tiếp)</SelectItem>
                     <SelectItem value="videos">Chỉ Video dài</SelectItem>
                     <SelectItem value="shorts">Chỉ Shorts</SelectItem>
-                    <SelectItem value="streams">Chỉ Trực tiếp / Livestream</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -402,10 +557,7 @@ export function ChannelSettingsDialog({
 
             {/* Quick Presets */}
             <div className="space-y-1.5 pt-1">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-medium">Cấu hình thời lượng nhanh</Label>
-                <span className="text-[11px] text-muted-foreground">Chọn để điền tự động</span>
-              </div>
+              <Label className="text-xs font-medium">Cấu hình thời lượng nhanh</Label>
               <div className="flex flex-wrap items-center gap-1.5">
                 <Button
                   type="button"
@@ -434,7 +586,7 @@ export function ChannelSettingsDialog({
                   onClick={() => handleApplyPreset('all')}
                   className="h-7 text-xs text-muted-foreground"
                 >
-                  Đặt lại (Tất cả)
+                  Đặt lại
                 </Button>
               </div>
             </div>
@@ -448,10 +600,10 @@ export function ChannelSettingsDialog({
                 <Input
                   id="min-dur"
                   type="number"
-                  placeholder="Ví dụ: 0"
+                  placeholder="0"
                   value={minDuration}
                   onChange={(e) => setMinDuration(e.target.value)}
-                  className="h-9 text-xs"
+                  className="h-8 text-xs"
                 />
               </div>
               <div className="space-y-1.5">
@@ -461,327 +613,65 @@ export function ChannelSettingsDialog({
                 <Input
                   id="max-dur"
                   type="number"
-                  placeholder="Ví dụ: 3600 (1 tiếng)"
+                  placeholder="3600"
                   value={maxDuration}
                   onChange={(e) => setMaxDuration(e.target.value)}
-                  className="h-9 text-xs"
+                  className="h-8 text-xs"
                 />
-              </div>
-            </div>
-
-            {/* Keyword Exclude & Include */}
-            <div className="space-y-2 pt-1">
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="exclude-kw"
-                  className="text-xs font-medium flex items-center gap-1.5"
-                >
-                  <ShieldAlert className="w-3.5 h-3.5 text-red-500" />
-                  Từ khóa loại trừ (Bỏ qua video chứa từ khóa này)
-                </Label>
-                <Input
-                  id="exclude-kw"
-                  placeholder="Ví dụ: Livestream, Thông báo, Q&A, Trực tiếp"
-                  value={excludeKeywords}
-                  onChange={(e) => setExcludeKeywords(e.target.value)}
-                  className="h-9 text-xs"
-                />
-                <div className="flex flex-wrap items-center gap-1 pt-0.5">
-                  <span className="text-[10px] text-muted-foreground mr-1">Thêm nhanh:</span>
-                  {COMMON_EXCLUDE_TAGS.map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => handleAddExcludeTag(tag)}
-                      className="text-[10px] bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded border border-border/40 transition-colors"
-                    >
-                      + {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-1.5 pt-1">
-                <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor="include-kw"
-                    className="text-xs font-medium flex items-center gap-1.5"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-primary" />
-                    Từ khóa bắt buộc (Chỉ tải nếu tiêu đề chứa từ khóa này)
-                  </Label>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleAutoFillKeywordsFromCompetitor}
-                    disabled={extractingKeywords}
-                    className="h-6 px-1.5 text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-500/10 gap-1 font-medium"
-                    title="Tự động trích xuất từ khóa kênh đối thủ và điền vào ô này"
-                  >
-                    {extractingKeywords ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-3 h-3 text-purple-500" />
-                    )}
-                    <span>Tự điền từ đối thủ</span>
-                  </Button>
-                </div>
-                <Input
-                  id="include-kw"
-                  placeholder="Để trống để tải tất cả, hoặc nhập: Tập, Review, Highlight"
-                  value={includeKeywords}
-                  onChange={(e) => setIncludeKeywords(e.target.value)}
-                  className="h-9 text-xs"
-                />
-              </div>
-
-              {/* Tự động cấu hình theo đối thủ */}
-              <div className="p-3 rounded-lg border border-purple-500/30 bg-purple-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-2">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-600 dark:text-purple-400">
-                    <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-                    <span>Tự động Cài Đặt Kênh (Studio) theo đối thủ</span>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Trích xuất bộ từ khóa kênh và thẻ video mặc định từ đối thủ để tự động cài đặt
-                    vào YouTube Studio.
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowSeoDialog(true)}
-                  className="h-8 px-3 text-xs gap-1.5 border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 font-medium shrink-0 shadow-sm"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-                  <span>Tự động cấu hình theo đối thủ</span>
-                </Button>
-              </div>
-
-              {/* Thông báo phân tách tính năng */}
-              <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 flex items-start gap-2.5 mt-2">
-                <FlaskConical className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                <div className="text-xs text-muted-foreground space-y-0.5">
-                  <span className="font-semibold text-foreground">
-                    Chức năng Reup &amp; Test BKT đã được tách riêng:
-                  </span>
-                  <p className="leading-relaxed">
-                    Sau khi video được tải về máy, bạn hãy truy cập trực tiếp vào mục{' '}
-                    <b>"Reup &amp; Test BKT"</b> trên thanh menu bên trái để chọn video, áp dụng
-                    Reup Pipeline (Lv.1 / Lv.2) và tải lên kênh BKT để kiểm tra bản quyền.
-                  </p>
-                </div>
               </div>
             </div>
           </TabsContent>
 
-          {/* TAB 2: PROFILE MAPPING & BKT TEST */}
-          <TabsContent value="bkt" className="space-y-4 pt-3">
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-                <UserCheck className="w-4 h-4 text-emerald-500" />
-                <span>Gán Hồ Sơ Kênh Đích (Chức Năng 2 - Đối Chiếu 1-1)</span>
-              </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Liên kết kênh đối thủ này với một Hồ Sơ Chromium Kênh Đích (Chức năng 2). Video sau
-                khi kiểm tra bản quyền đạt chuẩn sạch sẽ tự động Reup Lv.1 và đăng lên Kênh Đích
-                này. Quá trình kiểm tra bản quyền (BKT) được xử lý riêng biệt bởi Pool Kênh Test
-                (Chức năng 5).
-              </p>
-            </div>
-
-            {/* Profile Selection Dropdown */}
-            <div className="space-y-2 p-3.5 rounded-lg border border-border/60 bg-card/60">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-medium">
-                  Hồ sơ Kênh Đích xuất bản (Target Profile)
-                </Label>
-                <span className="text-[10px] text-muted-foreground">
-                  Kho hồ sơ: {profiles.length} profile
-                </span>
-              </div>
-              <Select
-                value={bktProfileId || '__none__'}
-                onValueChange={(val) => setBktProfileId(val === '__none__' ? '' : val)}
-              >
-                <SelectTrigger className="h-9 text-xs bg-background">
-                  <SelectValue placeholder="Chọn hồ sơ trình duyệt nuôi kênh..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__" className="text-xs text-amber-500 font-medium">
-                    -- Chưa gán Kênh Đích (Dễ nhầm lẫn) --
-                  </SelectItem>
-                  {profiles.map((p) => (
-                    <SelectItem key={p.id} value={p.id} className="text-xs">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: p.color || '#10b981' }}
-                        />
-                        <span className="font-semibold text-foreground">{p.profile_name}</span>
-                        {p.youtube_preferred_channel && (
-                          <span className="text-[11px] text-primary font-mono">
-                            ({p.youtube_preferred_channel})
-                          </span>
-                        )}
-                        {p.group && p.group !== 'Default' && (
-                          <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                            {p.group}
-                          </span>
-                        )}
-                        {p.proxy && (
-                          <span className="text-[10px] text-muted-foreground font-mono">
-                            (Proxy)
-                          </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Status banner */}
-              {bktProfileId ? (
-                <div className="p-2.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-2 text-xs text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-500" />
-                  <div className="space-y-0.5">
-                    <span className="font-semibold">
-                      Đã khớp 1-1 với Kênh Đích:{' '}
-                      {profiles.find((p) => p.id === bktProfileId)?.profile_name || bktProfileId}
-                    </span>
-                    <p className="text-[11px] opacity-90">
-                      Mọi video cào từ kênh đối thủ này sau khi kiểm tra bản quyền sạch sẽ tự động
-                      Reup Lv.1 và xuất bản lên hồ sơ Kênh Đích này.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-xs text-amber-600 dark:text-amber-400">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
-                  <div className="space-y-0.5">
-                    <span className="font-semibold">Cảnh báo: Chưa gán Kênh Đích 1-1</span>
-                    <p className="text-[11px] opacity-90">
-                      Dashboard sẽ gắn nhãn cảnh báo để nhắc nhở tránh nhầm lẫn giữa các kênh đối
-                      thủ và kênh nuôi chính thức.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Action box: Studio Auto Setting */}
-            <div className="p-3 rounded-lg border border-purple-500/30 bg-purple-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-600 dark:text-purple-400">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-                  <span>Tự động Cài Đặt Kênh (Studio) theo đối thủ</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Tự động đồng bộ Từ khóa kênh, Thẻ video mặc định và chuẩn COPPA vào hồ sơ Studio
-                  đã gán.
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSeoDialog(true)}
-                className="h-8 px-3 text-xs gap-1.5 border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 font-medium shrink-0 shadow-sm"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-                <span>Cài đặt Kênh Studio</span>
-              </Button>
-            </div>
-
-            {/* BKT Shadow Check Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-card/60">
-              <div className="space-y-0.5 pr-3">
-                <Label
-                  htmlFor="bkt-toggle"
-                  className="text-xs font-semibold cursor-pointer flex items-center gap-1.5"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-                  Bật chế độ Shadow Check (Test BKT ngầm)
-                </Label>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Video tải về sẽ tự động gửi vào Pool Kênh Test BKT (Chức năng 5) để quét Content
-                  ID unlisted. Nếu sạch sẽ tự động Reup Lv.1 và xuất bản lên Kênh Đích đã gán ở
-                  trên.
-                </p>
-              </div>
-              <Switch id="bkt-toggle" checked={bktTestMode} onCheckedChange={setBktTestMode} />
-            </div>
-          </TabsContent>
-
-          {/* TAB 2: FILENAME TEMPLATE */}
+          {/* TAB 3: FILENAME TEMPLATE */}
           <TabsContent value="filename" className="space-y-4 pt-3">
             <div className="space-y-2">
-              <Label htmlFor="template-input" className="text-xs font-medium">
-                Mẫu đặt tên tệp tải về
+              <Label htmlFor="filename-tmpl" className="text-xs font-medium">
+                Mẫu định dạng tên tệp
               </Label>
               <Input
-                id="template-input"
+                id="filename-tmpl"
                 value={filenameTemplate}
                 onChange={(e) => setFilenameTemplate(e.target.value)}
-                placeholder="[Kênh] - [Ngày đăng] - [Tiêu đề]"
-                className="h-9 text-xs font-mono"
+                className="h-8 text-xs font-mono"
               />
-              <p className="text-[11px] text-muted-foreground">
-                Tệp tải về sẽ tự động thay thế các biến bằng thông tin thực tế của video.
-              </p>
-            </div>
-
-            {/* Quick token insert buttons */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Chèn biến nhanh:</Label>
-              <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1 pt-1">
+                <span className="text-[10px] text-muted-foreground mr-1">Chèn thẻ:</span>
                 {TEMPLATE_TOKENS.map((item) => (
-                  <Button
+                  <button
                     key={item.token}
                     type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleInsertToken(item.token)}
-                    className="h-7 text-xs font-mono px-2 border-border/60 hover:border-primary/50"
+                    onClick={() => setFilenameTemplate((prev) => `${prev} ${item.token}`.trim())}
+                    className="text-[10px] bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded border border-border/40 font-mono transition-colors"
                   >
                     {item.label}
-                  </Button>
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Live Preview Box */}
-            <div className="p-3 rounded-lg border border-border/50 bg-muted/40 space-y-1">
-              <span className="text-[11px] text-muted-foreground font-medium block">
-                Xem trước tên tệp thực tế:
-              </span>
-              <p className="text-xs font-mono text-primary font-semibold break-all">
-                {previewFilename}
-              </p>
+            <div className="p-3 rounded-lg border border-border/60 bg-muted/30 space-y-1">
+              <span className="text-[11px] font-medium text-foreground">Xem trước tên tệp:</span>
+              <p className="text-xs font-mono text-primary truncate">{previewFilename}</p>
             </div>
           </TabsContent>
         </Tabs>
 
-        <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t border-border/40">
+        <DialogFooter className="mt-4 flex items-center justify-end gap-2 border-t border-border/40 pt-3">
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => onOpenChange(false)}
-            disabled={saving}
-            className="text-xs"
+            className="h-8 text-xs"
           >
             Hủy
           </Button>
           <Button
             type="button"
-            variant="default"
             size="sm"
             onClick={handleSave}
             disabled={saving}
-            className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+            className="h-8 text-xs font-medium"
           >
             {saving ? 'Đang lưu...' : 'Lưu cấu hình'}
           </Button>
@@ -792,10 +682,7 @@ export function ChannelSettingsDialog({
         <CompetitorSeoDialog
           isOpen={showSeoDialog}
           onClose={() => setShowSeoDialog(false)}
-          channel={{
-            ...channel,
-            bkt_profile_id: bktProfileId || channel.bkt_profile_id,
-          }}
+          channel={channel}
           profiles={profiles}
         />
       )}

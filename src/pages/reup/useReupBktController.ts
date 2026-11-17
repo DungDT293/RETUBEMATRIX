@@ -296,7 +296,10 @@ export function useReupBktController(onNavigate?: (page: Page) => void): ReupBkt
         setUploadThumbnailPath(compThumb);
       }
       if (!candidateDesc) {
-        invoke<string | null>('read_companion_description', { videoPath: candidatePath })
+        invoke<string | null>('read_companion_description', {
+          videoPath: candidatePath,
+          video_path: candidatePath,
+        })
           .then((d) => {
             if (d?.trim()) {
               setUploadDescription(d.trim());
@@ -478,7 +481,10 @@ export function useReupBktController(onNavigate?: (page: Page) => void): ReupBkt
         if (compThumb) {
           setUploadThumbnailPath(compThumb);
         }
-        invoke<string | null>('read_companion_description', { videoPath: selected })
+        invoke<string | null>('read_companion_description', {
+          videoPath: selected,
+          video_path: selected,
+        })
           .then((d) => {
             if (d?.trim()) {
               setUploadDescription(d.trim());
@@ -513,7 +519,10 @@ export function useReupBktController(onNavigate?: (page: Page) => void): ReupBkt
         if (compThumb) {
           setUploadThumbnailPath(compThumb);
         }
-        invoke<string | null>('read_companion_description', { videoPath: selected })
+        invoke<string | null>('read_companion_description', {
+          videoPath: selected,
+          video_path: selected,
+        })
           .then((d) => {
             if (d?.trim()) {
               setUploadDescription(d.trim());
@@ -559,7 +568,9 @@ export function useReupBktController(onNavigate?: (page: Page) => void): ReupBkt
 
       const res = await invoke<ReupPipelineResult>(commandName, {
         inputPath: inputVideoPath,
+        input_path: inputVideoPath,
         outputPath,
+        output_path: outputPath,
       });
 
       setPipelineResult(res);
@@ -1047,6 +1058,7 @@ export function useReupBktController(onNavigate?: (page: Page) => void): ReupBkt
       try {
         const d = await invoke<string | null>('read_companion_description', {
           videoPath: inputVideoPath,
+          video_path: inputVideoPath,
         });
         if (d?.trim()) {
           compDesc = d.trim();

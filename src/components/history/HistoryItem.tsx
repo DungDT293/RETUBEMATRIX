@@ -465,9 +465,9 @@ export function HistoryItem({ entry, onNavigate }: HistoryItemProps) {
             </span>
           </div>
 
-          {(entry.tags.length > 0 || entry.collections.length > 0) && (
+          {((entry.tags?.length ?? 0) > 0 || (entry.collections?.length ?? 0) > 0) && (
             <div className="mt-2 flex flex-wrap gap-2">
-              {entry.tags.map((tag) => (
+              {(entry.tags || []).map((tag) => (
                 <button
                   type="button"
                   key={tag.id}
@@ -478,7 +478,7 @@ export function HistoryItem({ entry, onNavigate }: HistoryItemProps) {
                   {tag.name}
                 </button>
               ))}
-              {entry.collections.map((collection) => (
+              {(entry.collections || []).map((collection) => (
                 <button
                   type="button"
                   key={collection.id}

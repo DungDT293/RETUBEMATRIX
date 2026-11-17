@@ -39,8 +39,8 @@ export function HistoryTagsCollectionsDialog({
 
   useEffect(() => {
     if (!open) return;
-    setSelectedTags(entry.tags.map((tag) => tag.name));
-    setSelectedCollectionIds(entry.collections.map((collection) => collection.id));
+    setSelectedTags((entry.tags || []).map((tag) => tag.name));
+    setSelectedCollectionIds((entry.collections || []).map((collection) => collection.id));
     setTagInput('');
     setNewCollectionName('');
     setError(null);

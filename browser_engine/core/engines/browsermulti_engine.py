@@ -207,6 +207,7 @@ class BrowserMultiEngine(BaseBrowserEngine):
             "--no-first-run",
             "--no-default-browser-check",
             "--disable-session-crashed-bubble",
+            "--hide-crash-restore-bubble",
             "--webrtc-ip-handling-policy=disable_non_proxied_udp",
             "--disable-quic",
             f"--lang={lang}",

@@ -7,6 +7,117 @@ RETubeMatrix 的所有重要更改都将记录在此文件中。
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-11-17
+
+### 新增
+
+- **YouTube Studio 多层阻塞对话框自动关闭机制** - 集成对 Polymer 弹窗的自动识别与关闭支持，包括“您已准备就绪 / You're all set”、“仍然发布 / Publish anyway”以及后台视频处理模态框。
+- **Watchdog 进程树深度清理** - 升级全部超时看门狗（180秒静音、15分钟0%进度、40分钟无响应），支持递归终止完整子进程树（`taskkill /F /T /PID`），彻底消除孤儿 Chromium 进程。
+- **Windows 管道无缓冲即时 I/O** - 为 Python 运行器注入 `PYTHONUNBUFFERED=1` 与 `-u` 参数，确保实时状态事件无阻塞推送，避免 Windows 匿名管道死锁。
+
+### 修复
+
+- **Reup 管道流级元数据泄露问题** - 为 Reup V1、V2 及自适应管道增加 `-map_metadata:s -1` 参数，彻底清除音视频流层级的编码与软件标识。
+- **媒体 ID 为空时的 SQL 通配符误匹配** - 修复 `is_video_in_history_db` 在 ID 为空时执行 `url LIKE '%%'` 导致所有记录被误判为已下载的缺陷。
+- **深度轮询下的重复新视频通知告警** - 在 yt-dlp 深度轮询阶段增加数据库存在性预检，消除假性新视频通知与重复自动下载。
+- **画面版权命中时的 Reup 竞态条件** - 消除画面版权命中触发后台 Reup Lv.2 时清理程序并发删除源文件的竞态风险。
+- **上传前视频文件完整性校验** - 上传至测试频道或目标频道前强制检查文件存在性与最小大小阈值（> 100KB）。
+- **共享编辑目录产物识别** - 统一产物检测逻辑，同时检索 `[DA_EDIT]_{video_stem}` 与共享 `[DA_EDIT]` 目录。
+- **目标频道大视频上传超时阈值提升至 120 分钟** - 将后端上传超时时间由 30 分钟延长至 7200 秒（120分钟），平稳支撑代理环境下的超大文件直传。
+
+## [1.3.0] - 2026-11-17
+
+### 新增
+
+- **前端 IPC 非阻塞超时机制 (Profiles & Dashboard)** - 为 `ProfilesPage` 与 `DashboardPage` 的 IPC 请求增加非阻塞超时防护，杜绝在加载配置文件及仪表盘统计数据时加载动画无限旋转的问题。
+- **数据库自动发现与单元测试环境隔离** - 完善 SQLite 数据库动态寻址逻辑，并为单元测试构建隔离的临时及内存数据库测试夹具。
+
+### 修复
+
+- **修复更新目标频道发布状态时的 SQLite Mutex 自死锁** - 彻底解决 `commands/bkt/publish.rs` 和 `pipeline.rs` 在更新目标频道发布状态时同一调用栈重复获取互斥锁导致的自死锁（Self-Deadlock）缺陷。
+- **优化磁盘预剪辑就绪视频的自动发布流程** - 优化视频就绪后的自动发布管道，当成品视频已存在于磁盘时自动跳过冗余的重新编码阶段，无缝直传至目标频道。
+
+## [1.2.9] - 2026-11-17
+
+### 新增
+
+- **频道视频折叠面板模块化与架构解耦** - 全面重构 `ChannelVideoAccordion.tsx`（由 2,019 行单体文件解耦），拆分为 `src/pages/channels/accordion/` 目录下的专用子模块：`ChannelVideoToolbar`、`ChannelVideoFilterBar`、`ChannelVideoRow` 与 `useChannelVideoWorkflows`。主协调组件体积锐减 86%（降至 276 行），100% 保持流程安全保证与界面交互一致性。
+- **自动识别磁盘已剪辑就绪视频 (`[DA_EDIT]`)** - Pipeline 和调度器现在会在启动 FFmpeg 重新渲染之前，自动检查 `[DA_EDIT]_{video_stem}` 目录下是否存在完整的 `_reup_ready.mp4` 文件。若视频已预先剪辑完毕，100% 跳过重新渲染，立即直传目标频道。
+- **规范已处理视频的操作按钮界面** - 重构视频列表的操作按钮。当视频已剪辑完成或具备继续发布状态时，自动隐藏多余按钮或显示“立即发布 (已剪辑)”绿色按钮，杜绝重复任务与误触重新渲染。
+
+### 修复
+
+- **已剪辑视频点击发布时重复渲染问题** - 修复 `pipeline.rs` 在磁盘已存在成品文件时仍错误发送 `reuping` 状态并重新编码的缺陷。
+- **Fast-Track 调度丢弃磁盘成品路径** - 修复 `dispatch.rs` 在 Fast-Track 模式下未能直接捕获磁盘现有产物的缺陷，确保任务创建之初即持有有效的 `reup_path`。
+
+## [1.2.8] - 2026-11-17
+
+### 新增
+
+- **自动识别磁盘已剪辑就绪视频 (`[DA_EDIT]`)** - Pipeline 和调度器现在会在启动 FFmpeg 重新渲染之前，自动检查 `[DA_EDIT]_{video_stem}` 目录下是否存在完整的 `_reup_ready.mp4` 文件。若视频已预先剪辑完毕，100% 跳过重新渲染，立即直传目标频道。
+- **规范已处理视频的操作按钮界面** - 重构 `ChannelVideoAccordion.tsx` 的单条视频操作按钮。当视频已剪辑完成或具备继续发布状态时，自动隐藏多余按钮或显示“立即发布 (已剪辑)”绿色按钮，杜绝重复任务与误触重新渲染。
+
+### 修复
+
+- **已剪辑视频点击发布时重复渲染问题** - 修复 `pipeline.rs` 在磁盘已存在成品文件时仍错误发送 `reuping` 状态并重新编码的缺陷。
+- **Fast-Track 调度丢弃磁盘成品路径** - 修复 `dispatch.rs` 在 Fast-Track 模式下未能直接捕获磁盘现有产物的缺陷，确保任务创建之初即持有有效的 `reup_path`。
+
+### 新增
+
+- **“剪辑并立即发布”完全跳过测试频道 (`skip_bkt_test`)** - 点击“剪辑并立即发布”（单条或批量）时直接走 Fast-Track 旁路，不再向测试频道上传 Unlisted 视频，也不再启动 Playwright Studio 轮询版权。系统将自适应 Reup 视频直接输出至 `[DA_EDIT]` 目录并直接向已绑定的目标频道发布。
+
+### 修复
+
+- **彻底消除历史记录锁定导致发布失败（“BKT: Sạch, đăng lỗi”）** - 将 `claim_bkt_job_for_publish_with_conn` 中的硬编码 `status IN ('publishing', 'published')` 替换为正在发布状态的超时检测（`status = 'publishing' AND updated_at > datetime('now', '-15 minutes')`）。彻底解决 `Auto Reup chưa đăng được lên Kênh Đích: Job BKT đã được đăng hoặc đang được xử lý bởi tác vụ khác` 错误，支持用户手动重试及多次重新发布，杜绝死锁。
+- **无测试频道环境下的 Fast-Track 自动分配** - 确保在系统尚未添加任何 BKT 测试频道时，直接剪辑发布任务仍能直接正常执行。
+
+## [1.2.6] - 2026-11-16
+
+### 新增
+
+- **单条与批量“一键剪辑并发布”及 Smart Jitter 防风控** - 在 `ChannelVideoAccordion.tsx` 中新增已下载视频的一键及批量剪辑发布按钮，支持自动提取 AI 标题/封面、实时倒计时面板、安全中断与 30-60 分钟智能随机时间间隔，保护目标频道免遭 YouTube 算法判定滥用。
+- **批量队列实时进度面板与安全停止** - 支持在批量 Reup 及发布过程中实时查看各视频状态，并提供随时安全中断操作。
+
+### 修复
+
+- **彻底消除 YouTube Studio 白屏错误（“很抱歉，发生错误”）** - 在全引擎（`navigation.py`、`monitor.py`、`network.py`、`runner.py`）中彻底移除无频道 ID 的裸 URL `/videos/upload`，改用多层 Channel ID 解析与 SPA 侧边栏菜单点击。
+- **修复 IPC 保存 Reup 配置参数重复冲突** - 规范化 `update_channel_reup_config_cmd` 与 `ChannelSettingsDialog.tsx` 中的参数传递，消除 `duplicate field channel_id` 错误。
+- **支持清除或切换目标频道配置** - 优化 `database/channels.rs` 中的更新语句（`target_profile_id = ?1, bkt_profile_id = ?1`），支持解绑目标发布频道。
+
+## [1.2.5] - 2026-11-16
+
+### 新增
+
+- **全新现代化 Reup 配置系统** - 全面重构频道设置弹窗为精简高效的 Reup 配置面板，支持标记干净受信任频道、下载模式选择（下载全量视频或仅下载勾选视频）、目标频道绑定以及 30 至 60 分钟智能随机时间间隔调度。
+- **顺次批量 Reup 流水线与硬件负载保护** - 在 `ReupPipelineSection.tsx` 中引入多文件选择、拖拽注入、目录扫描（`scan_directory_videos_cmd`）及顺次队列渲染机制。坚持单视频顺序处理，防止 CPU/GPU 过载，并全面结合 AI 自适应前置探测。
+- **频道卡片已编辑文件夹快捷打开** - 在 `ChannelCard.tsx` 操作区新增 `FolderCheck` 图标快捷按钮，直接联动 IPC 命令 `open_channel_edited_folder_cmd`，并通过 `get_channel_edited_folder_stats_cmd` 实时显示已处理视频数量。
+- **检查点与测试频道亲和性（Channel Affinity）** - 在 `dispatch.rs` 和 `bkt_channels.rs` 中实现测试频道与已上传视频复用机制，避免每日配额浪费，杜绝旧视频重复在不同测试频道上传。
+- **保留原始标题与描述元数据** - 在 SQLite `channel_videos` 数据表中增加 `original_title` 与 `original_description` 字段，实现原汁原味的标题描述提取并用于直发目标频道。
+
+### 修复
+
+- **彻底消除 Upload Interrupted 与 TCP Reset 异常** - 移除 `upload_actions.py` 在 TUS 上传流进行期间过早触发的 `goto_channel_videos` 页面导航。仅在 `upload_stream_finished == True` 且弹窗安全关闭后执行跳转。
+- **清理虚假完成签名** - 彻底移除了 `is_upload_stream_complete` 中对未来处理状态的猜测性字符串，根治数 GB 大文件上传提前误报完成的问题。
+- **保留磁盘已编辑视频文件** - 在 `publish.rs` 中取消删除本地 `reup_ready.mp4` 文件，确保 YouTube Studio 断点续传和文件复检可用。
+- **双引擎代码 100% 同步** - 持续维持 `browser_engine/` 与 `roots/browsermulti/` 之间的二进制一致性。
+
+## [1.2.1] - 2026-11-16
+
+### 修复
+
+- **三层弹性架构修复 YouTube Studio 上传弹窗开启失败** - 通过 Playwright 穿透选择器、多语言首选项自动定位以及递归 Shadow DOM JavaScript 点击回退方案，彻底根除了在内容列表页点击创建/上传按钮时出现的 `not_found_or_unstable` 异常。
+- **清除 BKT 流水线中上传进度在 0% 卡死超过 15 分钟的错误** - 修复了 `cancelUploadVisible` 因选择器范围过宽而误将视频行其他按钮当成取消按钮的算法缺陷。引入 2026 版 YouTube Studio 的 14 种最新处理与版权检查签名，并在上传指标静止超过 45 秒时自动平滑转入 Content ID 验证流程，彻底杜绝任务队列死锁。
+- **双引擎代码 100% 同步** - 严格对齐 `browser_engine/` 与打包目录 `roots/browsermulti/` 的全部代码变更，确保构建产物零偏差。
+
+## [1.2.0] - 2026-11-16
+
+### 修复
+
+- **彻底修复 YouTube Studio 视频上传 0% 卡死与弹窗阻塞问题** - 通过双重文件选择器策略（`expect_file_chooser()` 结合具有 `bubbles: true, composed: true` 的 Polymer 模拟事件派发）、自动清理残留的 `iron-overlay-backdrop` 遮罩层以及上传前的二进制写锁定检查，彻底解决了上传卡在 0% 超过 15 分钟及上传弹窗无法打开的问题。
+- **标准化 Tauri v2 IPC 通信参数契约** - 对前端所有 210 处 `invoke()` 调用全面实施 `camelCase` 与 `snake_case` 双格式参数传递，覆盖 BKT 测试频道管理、浏览器 Profile 启停、AI 爆款挖掘、Cookie/代理配置与 Reup 自动化流水线。
+- **崩溃防范与安全反序列化** - 消除 Rust 后端控制器中的不安全 `.unwrap()` 调用（`preview.rs`、`channels.rs`、`pipeline.rs`），防止进程异常中断，并在 React ErrorBoundary 层面全面防护日期格式化与空数组迭代错误。
+- **浏览器引擎完全一致性与防回归验证** - 实现了 `browser_engine/` 与 `roots/browsermulti/` 间 63/63 个文件的 100% 二进制哈希一致性，严格保障基于 FFprobe 的动态音频重采样及爆款挖掘器中的粉丝数后缀解析。
+
 ## [1.0.11] - 2026-11-15
 
 ### 新增

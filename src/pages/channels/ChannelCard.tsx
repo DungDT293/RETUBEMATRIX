@@ -1,25 +1,31 @@
+import { invoke } from '@tauri-apps/api/core';
 import {
   AlertTriangle,
+  Award,
   CheckCircle2,
   ChevronDown,
   Clock,
   ExternalLink,
+  FolderCheck,
   Globe,
   Loader2,
   RefreshCw,
   Settings,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   Square,
   Trash2,
   UserCheck,
   Video,
+  Zap,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/toast';
+import { setChannelFastTrack } from '@/contexts/channels/channels-client';
 import { detectPlatform } from '@/contexts/channels/useChannelsController';
 import type { ChannelStats, FollowedChannel, MultiBrowserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -34,7 +40,12 @@ export interface ChannelReupProgress {
   currentStep: number;
   totalSteps: number;
   progressText: string;
-  status: 'idle' | 'running' | 'success' | 'error';
+  status: 'idle' | 'running' | 'success' | 'error' | 'failed';
+  downloadPercent?: number;
+  downloadSpeed?: string;
+  downloadEta?: string;
+  downloadSize?: string;
+  currentVideoId?: string;
 }
 
 interface ChannelCardProps {
@@ -76,7 +87,58 @@ export function ChannelCard({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSeoDialog, setShowSeoDialog] = useState(false);
-  const [settingsTab, setSettingsTab] = useState<'filter' | 'bkt' | 'filename'>('filter');
+  const [settingsTab, setSettingsTab] = useState<'reup' | 'download' | 'filename'>('reup');
+  const [editedStats, setEditedStats] = useState<{
+    folder_path: string;
+    exists: boolean;
+    video_count: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    invoke<{ folder_path: string; exists: boolean; video_count: number }>(
+      'get_channel_edited_folder_stats_cmd',
+      {
+        channelId: channel.id,
+        channel_id: channel.id,
+      },
+    )
+      .then((res) => {
+        if (active) setEditedStats(res);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [channel.id]);
+
+  const handleOpenEditedFolder = async () => {
+    try {
+      const res = await invoke<{ success: boolean; folder_path: string; error?: string }>(
+        'open_channel_edited_folder_cmd',
+        {
+          channelId: channel.id,
+          channel_id: channel.id,
+        },
+      );
+      if (res.success) {
+        toast.success({
+          title: 'Đã mở thư mục',
+          message: res.folder_path,
+        });
+      } else {
+        toast.error({
+          title: 'Không thể mở thư mục',
+          message: res.error || 'Thư mục chưa tồn tại hoặc rỗng',
+        });
+      }
+    } catch (err) {
+      toast.error({
+        title: 'Lỗi',
+        message: String(err),
+      });
+    }
+  };
 
   const targetId = channel.target_profile_id || channel.bkt_profile_id;
   const matchedProfile = profiles.find((p) => p.id === targetId || p.profile_name === targetId);
@@ -88,11 +150,34 @@ export function ChannelCard({
         message:
           'Vui lòng gán Kênh Đích (Chức năng 2) để hệ thống biết xuất bản video vào kênh nào sau khi test.',
       });
-      setSettingsTab('bkt');
+      setSettingsTab('reup');
       setShowSettings(true);
       return;
     }
     onToggleAutoDownload(enabled);
+  };
+
+  const consecutiveCount = channel.consecutive_green_count ?? channel.consecutiveGreenCount ?? 0;
+  const isFastTrackEnabled = channel.enable_fast_track ?? channel.enableFastTrack ?? false;
+
+  const handleToggleFastTrack = async (enabled: boolean) => {
+    try {
+      await setChannelFastTrack(channel.id, enabled);
+      if (onRefreshChannels) {
+        await onRefreshChannels();
+      }
+      toast.success({
+        title: enabled ? 'Đã bật Fast-Track' : 'Đã tắt Fast-Track',
+        message: enabled
+          ? 'Kênh uy tín cao: Các video mới sẽ được Tải -> Reup -> Đăng thẳng Kênh Đích (bỏ qua BKT).'
+          : 'Đã chuyển về luồng BKT tiêu chuẩn (kiểm tra bản quyền trước khi đăng).',
+      });
+    } catch (err) {
+      toast.error({
+        title: 'Lỗi cập nhật Fast-Track',
+        message: String(err),
+      });
+    }
   };
 
   const platform = detectPlatform(channel.url);
@@ -167,7 +252,7 @@ export function ChannelCard({
                     variant="outline"
                     className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[10px] py-0 cursor-pointer flex items-center gap-1 hover:bg-emerald-500/25 transition-colors"
                     onClick={() => {
-                      setSettingsTab('bkt');
+                      setSettingsTab('reup');
                       setShowSettings(true);
                     }}
                     title="Đã khớp 1-1 với hồ sơ hệ thống. Bấm để đổi hồ sơ"
@@ -180,7 +265,7 @@ export function ChannelCard({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      setSettingsTab('bkt');
+                      setSettingsTab('reup');
                       setShowSettings(true);
                     }}
                     className="h-5 px-1.5 text-[10px] text-amber-500 border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 font-medium gap-1"
@@ -197,6 +282,35 @@ export function ChannelCard({
                     title="Chế độ Test BKT đang BẬT: Video dính rủi ro sẽ được gửi sang kênh BKT để kiểm tra ngầm"
                   >
                     Test BKT bật
+                  </Badge>
+                )}
+                {consecutiveCount >= 5 ? (
+                  <Badge
+                    variant="outline"
+                    className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[10px] py-0 font-medium flex items-center gap-1 shadow-sm"
+                    title={`Kênh uy tín cao: Đã đạt ${consecutiveCount} video liên tiếp sạch bản quyền. Đủ điều kiện bật Fast-Track.`}
+                  >
+                    <Award className="w-3 h-3 text-emerald-400" />
+                    <span>Kênh Uy Tín ({consecutiveCount} video sạch)</span>
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="outline"
+                    className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[10px] py-0 flex items-center gap-1"
+                    title={`Chuỗi video sạch bản quyền: ${consecutiveCount}/5 để mở khóa Fast-Track`}
+                  >
+                    <ShieldCheck className="w-3 h-3 text-blue-400" />
+                    <span>BKT: {consecutiveCount}/5 sạch</span>
+                  </Badge>
+                )}
+                {Boolean(isFastTrackEnabled) && (
+                  <Badge
+                    variant="outline"
+                    className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[10px] py-0 font-medium flex items-center gap-1 shadow-sm"
+                    title="Chế độ Fast-Track đang BẬT: Bỏ qua BKT, đăng thẳng Kênh Đích"
+                  >
+                    <Zap className="w-3 h-3 fill-amber-500/20 text-amber-400" />
+                    <span>Fast-Track</span>
                   </Badge>
                 )}
                 {channel.auto_download ? (
@@ -233,6 +347,20 @@ export function ChannelCard({
 
           {/* Action Buttons */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOpenEditedFolder}
+              className="h-8 gap-1.5 text-xs font-medium border-border/70 hover:border-emerald-500/50 text-foreground hover:text-emerald-500 bg-background/50 hover:bg-emerald-500/10 hidden sm:inline-flex shadow-sm transition-colors"
+              title="Mở thư mục video đã Edit của kênh này"
+            >
+              <FolderCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="hidden md:inline">
+                Thư mục Edit
+                {editedStats && editedStats.video_count > 0 ? ` (${editedStats.video_count})` : ''}
+              </span>
+            </Button>
+
             <Button
               variant="outline"
               size="sm"
@@ -375,8 +503,13 @@ export function ChannelCard({
                 </span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                {reupProgress.downloadPercent !== undefined && reupProgress.downloadPercent > 0 && (
+                  <span className="text-[11px] font-mono font-bold text-cyan-300 bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-500/30">
+                    Video: {reupProgress.downloadPercent.toFixed(1)}%
+                  </span>
+                )}
                 <span className="text-[11px] font-mono font-bold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded border border-purple-500/30">
-                  {Math.round((reupProgress.currentStep / reupProgress.totalSteps) * 100)}%
+                  Tổng: {Math.round((reupProgress.currentStep / reupProgress.totalSteps) * 100)}%
                 </span>
                 {onStopAutoReup && (
                   <Button
@@ -393,11 +526,47 @@ export function ChannelCard({
                 )}
               </div>
             </div>
+
+            {/* Chi tiết tiến độ tải video: Tốc độ, Dung lượng và Thời gian còn lại ETA */}
+            {(reupProgress.downloadSpeed ||
+              reupProgress.downloadEta ||
+              (reupProgress.downloadPercent !== undefined && reupProgress.downloadPercent > 0)) && (
+              <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground/90 px-0.5 pt-0.5">
+                <div className="flex items-center gap-2.5">
+                  {reupProgress.downloadSpeed && (
+                    <span className="text-cyan-400 font-medium">
+                      Tốc độ: <strong className="font-bold">{reupProgress.downloadSpeed}</strong>
+                    </span>
+                  )}
+                  {reupProgress.downloadSize && (
+                    <span className="text-muted-foreground/80">({reupProgress.downloadSize})</span>
+                  )}
+                </div>
+                {reupProgress.downloadEta && (
+                  <span className="text-amber-400 font-medium">
+                    Còn lại: <strong className="font-bold">{reupProgress.downloadEta}</strong>
+                  </span>
+                )}
+              </div>
+            )}
+
             <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden">
               <div
-                className="bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300 ease-out"
+                className="bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 h-full transition-all duration-300 ease-out"
                 style={{
-                  width: `${Math.max(5, Math.min(100, Math.round((reupProgress.currentStep / reupProgress.totalSteps) * 100)))}%`,
+                  width: `${Math.max(
+                    5,
+                    Math.min(
+                      100,
+                      reupProgress.downloadPercent !== undefined && reupProgress.downloadPercent > 0
+                        ? Math.round(
+                            ((reupProgress.currentStep - 1 + reupProgress.downloadPercent / 100) /
+                              reupProgress.totalSteps) *
+                              100,
+                          )
+                        : Math.round((reupProgress.currentStep / reupProgress.totalSteps) * 100),
+                    ),
+                  )}%`,
                 }}
               />
             </div>
@@ -424,6 +593,28 @@ export function ChannelCard({
             )}
           </div>
         )}
+
+        {reupProgress &&
+          !reupProgress.isRunning &&
+          (reupProgress.status === 'error' || reupProgress.status === 'failed') && (
+            <div className="px-3 py-2 rounded-lg bg-rose-500/10 border border-rose-500/25 text-xs text-rose-400 flex items-center justify-between animate-in fade-in">
+              <span className="flex items-center gap-1.5 truncate">
+                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span className="truncate">
+                  {reupProgress.progressText || 'Chu trình Reup Tuần Tự Top 5 đã dừng do lỗi.'}
+                </span>
+              </span>
+              {onClearReupProgress && (
+                <button
+                  type="button"
+                  onClick={() => onClearReupProgress(channel.id)}
+                  className="text-[11px] text-muted-foreground hover:text-foreground underline ml-2 shrink-0 cursor-pointer"
+                >
+                  Đóng
+                </button>
+              )}
+            </div>
+          )}
 
         {/* Bottom Bar: Auto Reup switch & settings */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/40 text-xs text-muted-foreground">
@@ -454,12 +645,31 @@ export function ChannelCard({
               </Badge>
             )}
 
+            {consecutiveCount >= 5 && (
+              <div className="flex items-center gap-2 pl-2 border-l border-border/40">
+                <Switch
+                  checked={Boolean(isFastTrackEnabled)}
+                  onCheckedChange={handleToggleFastTrack}
+                  disabled={reupProgress?.isRunning}
+                  id={`fast-track-${channel.id}`}
+                />
+                <label
+                  htmlFor={`fast-track-${channel.id}`}
+                  className="font-medium text-amber-500 dark:text-amber-400 cursor-pointer select-none flex items-center gap-1"
+                  title="Kênh uy tín cao: Bỏ qua upload test và Studio polling để đăng thẳng Kênh Đích"
+                >
+                  <Zap className="w-3.5 h-3.5 fill-amber-500/20 text-amber-500" />
+                  <span>Bỏ qua BKT (Đăng thẳng)</span>
+                </label>
+              </div>
+            )}
+
             {!targetId ? (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setSettingsTab('bkt');
+                  setSettingsTab('reup');
                   setShowSettings(true);
                 }}
                 className="h-7 px-2.5 text-xs gap-1.5 border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 font-semibold shadow-sm"
@@ -473,7 +683,7 @@ export function ChannelCard({
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setSettingsTab('bkt');
+                  setSettingsTab('reup');
                   setShowSettings(true);
                 }}
                 className="h-7 px-2.5 text-xs gap-1.5 border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 font-medium"
@@ -489,7 +699,7 @@ export function ChannelCard({
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setSettingsTab('filter');
+                  setSettingsTab('download');
                   setShowSettings(true);
                 }}
                 className="h-7 px-2.5 text-xs gap-1.5 border-border/60 hover:border-primary/60 font-medium"
@@ -507,6 +717,20 @@ export function ChannelCard({
                 )}
               </Button>
             )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOpenEditedFolder}
+              className="h-8 gap-1.5 text-xs font-medium border-border/70 hover:border-emerald-500/50 text-foreground hover:text-emerald-500 bg-background/50 hover:bg-emerald-500/10 hidden sm:inline-flex shadow-sm transition-colors"
+              title="Mở thư mục video đã Edit của kênh này"
+            >
+              <FolderCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="hidden md:inline">
+                Thư mục Edit
+                {editedStats && editedStats.video_count > 0 ? ` (${editedStats.video_count})` : ''}
+              </span>
+            </Button>
 
             <Button
               variant="outline"

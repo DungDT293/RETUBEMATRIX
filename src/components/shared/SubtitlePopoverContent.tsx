@@ -113,7 +113,7 @@ export function SubtitlePopoverContent<TMode extends string, TFormat extends str
           <div className="space-y-2">
             <Label className="text-[11px] text-muted-foreground">{mode.label}</Label>
             <div className="grid grid-cols-3 gap-1.5">
-              {mode.options.map((option) => (
+              {(mode.options || []).map((option) => (
                 <button
                   type="button"
                   key={option.value}

@@ -340,7 +340,7 @@ export function PluginStoreSection({ onOpenPlugins }: PluginStoreSectionProps) {
                           ? ` - ${formatPackageSize(latestVersion.packageSize)}`
                           : ''}
                       </span>
-                      {entry.categories.map((category) => (
+                      {(entry.categories || []).map((category) => (
                         <span
                           key={category}
                           className="rounded-md bg-primary/10 px-2 py-1 text-[11px] text-primary"

@@ -314,8 +314,11 @@ export async function triggerBktTestVideo(input: {
 }): Promise<void> {
   await invoke('trigger_bkt_test_video', {
     channelVideoId: input.channelVideoId,
+    channel_video_id: input.channelVideoId,
     channelId: input.channelId ?? null,
+    channel_id: input.channelId ?? null,
     bktProfileId: input.bktProfileId ?? null,
+    bkt_profile_id: input.bktProfileId ?? null,
   });
 }
 
@@ -328,8 +331,11 @@ export async function triggerBktTestVideosBatch(
 ): Promise<number> {
   return await invoke<number>('trigger_bkt_test_videos_batch', {
     items: items.map((i) => ({
+      channelVideoId: i.channelVideoId,
       channel_video_id: i.channelVideoId,
+      channelId: i.channelId ?? null,
       channel_id: i.channelId ?? null,
+      bktProfileId: i.bktProfileId ?? null,
       bkt_profile_id: i.bktProfileId ?? null,
     })),
   });
@@ -351,7 +357,9 @@ export async function checkBktCopyrightStatus(input: {
 }> {
   return await invoke('check_bkt_copyright_status_cmd', {
     channelVideoId: input.channelVideoId ?? null,
+    channel_video_id: input.channelVideoId ?? null,
     profileId: input.profileId ?? null,
+    profile_id: input.profileId ?? null,
   });
 }
 
@@ -383,7 +391,7 @@ export async function saveBktTestChannel(input: BktTestChannelInput): Promise<Bk
 }
 
 export async function deleteBktTestChannel(channelId: string): Promise<void> {
-  await invoke('delete_bkt_test_channel', { channelId });
+  await invoke('delete_bkt_test_channel', { channelId, channel_id: channelId });
 }
 
 export async function getBktTestJobs(limit?: number): Promise<BktTestJob[]> {
@@ -397,11 +405,18 @@ export async function dispatchBatchBktTest(
 }
 
 export async function getChannelVideoFilepath(videoId: string): Promise<string | null> {
-  return await invoke<string | null>('get_channel_video_filepath', { videoId });
+  return await invoke<string | null>('get_channel_video_filepath', { videoId, video_id: videoId });
+}
+
+export async function getChannelVideoEditedFilepath(videoId: string): Promise<string | null> {
+  return await invoke<string | null>('get_channel_video_edited_filepath', {
+    videoId,
+    video_id: videoId,
+  });
 }
 
 export async function publishBktJobToMain(jobId: string): Promise<string> {
-  return await invoke<string>('publish_bkt_job_to_main_cmd', { jobId });
+  return await invoke<string>('publish_bkt_job_to_main_cmd', { jobId, job_id: jobId });
 }
 
 export async function publishBktCatchup(): Promise<import('@/lib/types').BktCatchupResult> {
@@ -409,13 +424,14 @@ export async function publishBktCatchup(): Promise<import('@/lib/types').BktCatc
 }
 
 export async function recheckBktJob(jobId: string): Promise<void> {
-  return await invoke<void>('recheck_bkt_job_cmd', { jobId });
+  return await invoke<void>('recheck_bkt_job_cmd', { jobId, job_id: jobId });
 }
 
 export async function getDailyReportStats(date?: string): Promise<DailyReportStats> {
   return await invoke<DailyReportStats>('get_daily_report_stats', {
     date: date ?? null,
     dateFilter: date ?? null,
+    date_filter: date ?? null,
   });
 }
 
@@ -425,7 +441,9 @@ export async function waitBktJobCompletion(
 ): Promise<BktTestJob> {
   return await invoke<BktTestJob>('wait_bkt_job_completion', {
     jobId,
-    timeoutSecs: timeoutSecs ?? 1800,
+    job_id: jobId,
+    timeoutSecs: timeoutSecs ?? 7200,
+    timeout_secs: timeoutSecs ?? 7200,
   });
 }
 
@@ -435,4 +453,12 @@ export async function cancelBktJob(jobId: string): Promise<void> {
 
 export async function cancelAllBktJobs(): Promise<number> {
   return await invoke<number>('cancel_all_bkt_jobs');
+}
+
+export async function setChannelFastTrack(channelId: string, enabled: boolean): Promise<void> {
+  return await invoke<void>('set_channel_fast_track_cmd', {
+    channelId,
+    channel_id: channelId,
+    enabled,
+  });
 }

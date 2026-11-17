@@ -85,8 +85,8 @@ pub fn update_channel_video_publish_result(ref_id: &str, published: bool, messag
              WHERE video_id = ?4 OR id = ?4",
             params![status, risk_status, message, ref_id],
         );
-        let _ = database::recalculate_channel_risk_by_video_db(ref_id);
     }
+    let _ = database::recalculate_channel_risk_by_video_db(ref_id);
 }
 
 /// Kích hoạt đăng thủ công hoặc tự động sang Kênh Đích cho một BKT job đã sạch bản quyền
@@ -111,12 +111,70 @@ pub async fn publish_bkt_job_to_main_cmd(
         .or_else(|| job.main_target_profile_id.clone())
         .ok_or_else(|| "Tác vụ này không có cấu hình Kênh Đích (target_profile_id)".to_string())?;
 
-    let upload_video_path = job.reup_path.clone().ok_or_else(|| {
-        "Job BKT không có artifact reup đã kiểm tra; từ chối đăng lại để tránh tải nhầm video nguồn".to_string()
-    })?;
+    let upload_video_path = if let Some(ref path) = job.reup_path {
+        let p = Path::new(path);
+        if p.is_file() && p.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+            path.clone()
+        } else {
+            let orig_video_path = Path::new(&job.video_path);
+            let parent_dir = orig_video_path.parent().unwrap_or(Path::new("."));
+            let video_stem = orig_video_path.file_stem().and_then(|s| s.to_str()).unwrap_or("video");
+            let candidate_reup = parent_dir
+                .join(format!("[DA_EDIT]_{video_stem}"))
+                .join(format!("{video_stem}_reup_ready.mp4"));
+            let alt_candidate_reup = parent_dir
+                .join("[DA_EDIT]")
+                .join(format!("{video_stem}_reup_ready.mp4"));
+            if candidate_reup.is_file() && candidate_reup.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+                let candidate_str = candidate_reup.to_string_lossy().to_string();
+                log::info!("[BKT PUBLISH] Phục hồi reup_path từ tệp có sẵn trên đĩa: {candidate_str}");
+                candidate_str
+            } else if alt_candidate_reup.is_file() && alt_candidate_reup.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+                let candidate_str = alt_candidate_reup.to_string_lossy().to_string();
+                log::info!("[BKT PUBLISH] Phục hồi reup_path từ tệp alt trên đĩa: {candidate_str}");
+                candidate_str
+            } else {
+                return Err("Job BKT không có artifact reup đã kiểm tra; từ chối đăng lại để tránh tải nhầm video nguồn".to_string());
+            }
+        }
+    } else {
+        let orig_video_path = Path::new(&job.video_path);
+        let parent_dir = orig_video_path.parent().unwrap_or(Path::new("."));
+        let video_stem = orig_video_path.file_stem().and_then(|s| s.to_str()).unwrap_or("video");
+        let candidate_reup = parent_dir
+            .join(format!("[DA_EDIT]_{video_stem}"))
+            .join(format!("{video_stem}_reup_ready.mp4"));
+        let alt_candidate_reup = parent_dir
+            .join("[DA_EDIT]")
+            .join(format!("{video_stem}_reup_ready.mp4"));
+        if candidate_reup.is_file() && candidate_reup.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+            let candidate_str = candidate_reup.to_string_lossy().to_string();
+            log::info!("[BKT PUBLISH] Tự động gán reup_path từ tệp có sẵn trên đĩa: {candidate_str}");
+            candidate_str
+        } else if alt_candidate_reup.is_file() && alt_candidate_reup.metadata().map(|m| m.len() > 100_000).unwrap_or(false) {
+            let candidate_str = alt_candidate_reup.to_string_lossy().to_string();
+            log::info!("[BKT PUBLISH] Tự động gán reup_path từ tệp alt trên đĩa: {candidate_str}");
+            candidate_str
+        } else {
+            return Err("Job BKT không có artifact reup đã kiểm tra; từ chối đăng lại để tránh tải nhầm video nguồn".to_string());
+        }
+    };
     verify_video_ready_for_upload(Path::new(&upload_video_path)).await.map_err(|err| {
         format!("Artifact reup không sẵn sàng để đăng; job vẫn giữ trạng thái hiện tại: {err}")
     })?;
+
+    let mut final_thumb = job.thumbnail_path.clone();
+    if final_thumb.is_none() {
+        let orig_video_path = Path::new(&job.video_path);
+        let parent_dir = orig_video_path.parent().unwrap_or(Path::new("."));
+        let video_stem = orig_video_path.file_stem().and_then(|s| s.to_str()).unwrap_or("video");
+        let candidate_thumb = parent_dir
+            .join(format!("[DA_EDIT]_{video_stem}"))
+            .join(format!("{video_stem}_thumbnail.jpg"));
+        if candidate_thumb.is_file() {
+            final_thumb = Some(candidate_thumb.to_string_lossy().to_string());
+        }
+    }
 
     let claim_won = {
         let db = database::get_db()?;
@@ -134,7 +192,7 @@ pub async fn publish_bkt_job_to_main_cmd(
         video_path: upload_video_path,
         title: safe_pub_title,
         description: job.target_description.clone().unwrap_or_default(),
-        thumbnail_path: job.thumbnail_path.clone(),
+        thumbnail_path: final_thumb,
         visibility: Some("public".to_string()),
         tags: job.target_tags.clone(),
         schedule_date: None,
@@ -160,16 +218,31 @@ pub async fn publish_bkt_job_to_main_cmd(
     match crate::commands::profiles::upload_video_multibrowser(app.clone(), upload_params).await {
         Ok(upload_res) => {
             if upload_res.success {
+                let published_yt_id = upload_res
+                    .youtube_video_id
+                    .clone()
+                    .or_else(|| {
+                        upload_res.video_url.as_deref().and_then(|url| {
+                            url.split('/')
+                                .last()
+                                .and_then(|seg| seg.split('?').next())
+                                .filter(|id| pipeline::is_verified_youtube_id(id))
+                                .map(ToString::to_string)
+                        })
+                    })
+                    .or_else(|| job.youtube_video_id.clone());
+
                 let success_msg = "Sạch Bản Quyền & Đã xuất bản Công khai lên Kênh Đích thành công!".to_string();
                 let _ = database::update_bkt_test_job_status_db(
                     &job.id,
                     "published",
                     job.reup_path.as_deref(),
-                    job.youtube_video_id.as_deref(),
+                    published_yt_id.as_deref(),
                     Some(&success_msg),
                     None,
                 );
                 updated_job.status = "published".to_string();
+                updated_job.youtube_video_id = published_yt_id;
                 updated_job.restriction = Some(success_msg.clone());
                 if job.video_source_type == "channel_video" {
                     if let Some(ref ref_id) = job.source_ref_id {
@@ -179,16 +252,11 @@ pub async fn publish_bkt_job_to_main_cmd(
                 let _ = app.emit("bkt-test-job-updated", &updated_job);
                 let _ = app.emit("bkt-auto-published-main", &updated_job);
 
-                // XÓA NGAY FILE VIDEO GỐC, REUP VÀ THUMBNAIL ĐỂ TỐI ƯU Ổ CỨNG
-                let freed_bytes = cleanup_video_and_reup_files(
-                    &job.video_path,
-                    job.reup_path.as_deref(),
-                    job.thumbnail_path.as_deref(),
-                );
-                let freed_mb = (freed_bytes as f64) / (1024.0 * 1024.0);
+                // BẢO TỒN ARTIFACT ĐÃ EDIT: Giữ lại file reup_ready.mp4 và thumbnail trong thư mục [DA_EDIT]
+                // để người dùng có thể mở nhanh từ Thẻ Kênh và hỗ trợ resume upload nếu YouTube Studio cần.
                 log::info!(
-                    "[BKT MANUAL-PUBLISH] Xuất bản thành công: Đã xóa file video gốc/reup/thumbnail, giải phóng {:.2} MB dung lượng đĩa!",
-                    freed_mb
+                    "[BKT MANUAL-PUBLISH] Xuất bản thành công: Bảo toàn video edit tại {:?}",
+                    job.reup_path
                 );
 
                 // DỌN DẸP CACHE PROFILE CHROMIUM
@@ -360,7 +428,7 @@ pub async fn wait_bkt_job_completion(
     job_id: String,
     timeout_secs: Option<u64>,
 ) -> Result<crate::types::BktTestJob, String> {
-    let max_duration = std::time::Duration::from_secs(timeout_secs.unwrap_or(3600));
+    let max_duration = std::time::Duration::from_secs(timeout_secs.unwrap_or(7200));
     let start = std::time::Instant::now();
 
     loop {

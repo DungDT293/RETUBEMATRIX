@@ -99,6 +99,8 @@ pub struct BktTestJob {
     /// Immutable profile used for the original BKT test.
     #[serde(default)]
     pub test_profile_id: Option<String>,
+    #[serde(default)]
+    pub skip_bkt_test: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -126,6 +128,8 @@ pub struct BktBatchItemRequest {
     pub target_tags: Option<String>,
     #[serde(default)]
     pub thumbnail_path: Option<String>,
+    #[serde(default)]
+    pub skip_bkt_test: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
