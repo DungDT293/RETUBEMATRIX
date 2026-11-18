@@ -9,8 +9,8 @@
 ## 1. TỔNG QUAN DỰ ÁN & MỤC ĐÍCH
 
 - **Tên ứng dụng**: **RETubeMatrix** (Tên mã kỹ thuật: `reupytb`, Tên gói: `retubematrix`)
-- **Phiên bản hiện tại**: `v1.0.3` (Phát hành: 2026-11-12)
-- **Mục đích**: Nền tảng Desktop All-in-One chuyên nghiệp dành cho việc săn đón video đề xuất ngách (Outlier Hunter theo mô hình Ikigai), tải video sạch đa luồng, theo dõi tự động kênh đối thủ (đối chiếu 1-1 không nhầm lẫn kênh), xử lý lách bản quyền đa cấp độ (Reup Pipeline Lv.1 & Lv.2 đổi Checksum MD5/SHA256, Dynamic Audio Resampling, xóa sạch EXIF gốc), kiểm tra bản quyền trực tiếp với YouTube Studio qua Kênh Test BKT độc lập (Quota 15 video/24h, Traffic Light Xanh/Vàng/Đỏ), AI tối ưu Tiêu đề (Quy tắc 95%-5%) & Thumbnail (bảo toàn 95% nhân vật/chữ), quản lý hồ sơ trình duyệt Anti-Detect độc lập (MultiBrowser Cloak Chromium 155), chẩn đoán lỗi chuyên biệt 6 file log, Trung tâm Điều hành Doanh nghiệp SaaS Master Hub phân quyền 4 cấp với Cloudflare Edge Gateway & Khóa cứng máy HWID, và hệ sinh thái Plugin mở rộng (`.ywp`).
+- **Phiên bản hiện tại**: `v1.3.3` (Phát hành: 2026-11-18)
+- **Mục đích**: Nền tảng Desktop All-in-One chuyên nghiệp dành cho việc săn đón video đề xuất ngách (Outlier Hunter theo mô hình Ikigai), tải video sạch đa luồng, theo dõi tự động kênh đối thủ (đối chiếu 1-1 không nhầm lẫn kênh), tự động trích xuất cookie trình duyệt vượt bot check, hệ thống Task Dock giám sát tiến trình ngầm với ETA thời gian thực, xử lý lách bản quyền đa cấp độ (Reup Pipeline Lv.1 & Lv.2 đổi Checksum MD5/SHA256, Dynamic Audio Resampling, xóa sạch EXIF gốc), kiểm tra bản quyền trực tiếp với YouTube Studio qua Kênh Test BKT độc lập (Quota 15 video/24h, Traffic Light Xanh/Vàng/Đỏ), AI tối ưu Tiêu đề (Quy tắc 95%-5%) & Thumbnail (bảo toàn 95% nhân vật/chữ), quản lý hồ sơ trình duyệt Anti-Detect độc lập (MultiBrowser Cloak Chromium 155), chẩn đoán lỗi chuyên biệt 6 file log, Trung tâm Điều hành Doanh nghiệp SaaS Master Hub phân quyền 4 cấp với Cloudflare Edge Gateway & Khóa cứng máy HWID, và hệ sinh thái Plugin mở rộng (`.ywp`).
 
 - **Công nghệ cốt lõi (Tech Stack)**:
   - **Desktop Core**: [Tauri 2.0](https://tauri.app/) (Rust backend)
@@ -442,12 +442,21 @@ CREATE TABLE channel_videos (
     bkt_check_status TEXT, -- 'pending' | 'green_clean' | 'red_matched' | 'failed'
     bkt_restriction TEXT,
     reup_pipeline_level INTEGER DEFAULT 1,
+    original_title TEXT,
+    original_description TEXT,
+    description TEXT,
+    target_published INTEGER DEFAULT 0,
+    target_video_id TEXT,
+    target_profile_id TEXT,
+    target_published_at TEXT,
     created_at TEXT NOT NULL,
     FOREIGN KEY (channel_id) REFERENCES followed_channels(id) ON DELETE CASCADE,
     UNIQUE(channel_id, video_id)
 );
 CREATE INDEX idx_channel_videos_channel ON channel_videos(channel_id);
 CREATE INDEX idx_channel_videos_status ON channel_videos(status);
+CREATE INDEX idx_channel_videos_target_published ON channel_videos(channel_id, target_published);
+CREATE INDEX idx_channel_videos_target_vid ON channel_videos(target_video_id);
 ```
 
 ### 4.4B. Bảng `bkt_test_channels` & `bkt_test_jobs` (Kênh Test Bản Quyền Pool)
@@ -469,6 +478,10 @@ CREATE TABLE bkt_test_channels (
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
+
+-- Kênh hệ thống nội bộ: 'fast_track_direct' (Kênh Đích Trực Tiếp - Bỏ qua BKT)
+-- luôn được seed tự động qua ensure_fast_track_channel_seeded() để thỏa mãn
+-- ràng buộc khóa ngoại FOREIGN KEY với bkt_test_jobs khi video đi qua luồng Fast-Track.
 
 CREATE TABLE bkt_test_jobs (
     id TEXT PRIMARY KEY,
@@ -858,7 +871,7 @@ flowchart TD
    - Mặc định tắt `autoCheckUpdate` khi khởi động; chỉ hiển thị thông báo trạng thái cập nhật khi người dùng chủ động thao tác trong phần Giới thiệu & Phiên bản.
 
 10. **Chuẩn Hóa UI Clean Design System & Cấm Emoji Rác**:
-    - Nghiêm cấm dùng emoji trang trí tùy tiện (`⚡`, `🎯`, `🕒`, `⌛`, `⏱️`, `⏳`, `🔤`) trên nhãn nút bấm hay badge hệ thống.
+    - Nghiêm cấm dùng emoji trang trí tùy tiện trên nhãn nút bấm hay badge hệ thống.
     - Sử dụng các Lucide icons đồng bộ: icon `Settings` cho Cài đặt Studio, icon `Sparkles` tím chuẩn cho AI và Nuôi Kênh SEO, `ShieldCheck` xanh dương cho Bảo mật/Cài đặt.
     - Popover Theme Picker phải sử dụng color swatch phẳng dạng thẻ chữ nhật bo góc gradient (`rounded-lg shadow-sm`) có dấu kiểm `Check` trắng, đồng nhất 100% với giao diện Cài đặt chung, xóa bỏ toàn bộ emoji quần áo/thức uống.
 
@@ -874,10 +887,10 @@ Hệ thống được chuẩn hóa toàn diện theo 10 phân hệ chức năng 
 - **5 Thẻ KPI sản xuất trọng tâm**:
   1. _Video mới phát hiện (Discovered)_: Đếm số lượng video cào mới từ các kênh đối thủ trong ngày.
   2. _Đã tải về máy & Dung lượng (Downloaded)_: Số lượng video đã tải về máy kèm tổng dung lượng (GB/MB).
-  3. _Kiểm tra Bản Quyền BKT_: Số video đã đưa lên Studio quét Content ID với phân loại chi tiết (🟢 Sạch / 🔴 Dính Claim / 🟡 Đang chờ).
+  3. _Kiểm tra Bản Quyền BKT_: Số video đã đưa lên Studio quét Content ID với phân loại chi tiết ([Xanh] Sạch / [Đỏ] Dính Claim / [Vàng] Đang chờ).
   4. _Đã đăng Kênh Đích (Published)_: Số video sạch đã được Auto-Pilot xuất bản công khai lên Kênh YouTube Chính.
   5. _Quota Test BKT Còn Lại_: Giám sát hạn ngạch test còn khả dụng trong ngày trên toàn bộ bể kênh test (tự động reset lúc 00:00).
-- **Tiến trình tự động hóa trong ngày (Daily Production Timeline)**: Dòng thời gian trực quan dạng vertical connecting nodes ghi lại hành trình video (Cào đối thủ ➔ Tải về ➔ Test BKT ➔ Xuất bản đích) có bộ lọc phân loại theo từng nghiệp vụ.
+- **Tiến trình tự động hóa trong ngày (Daily Production Timeline)**: Dòng thời gian trực quan dạng vertical connecting nodes ghi lại hành trình video (Cào đối thủ -> Tải về -> Test BKT -> Xuất bản đích) có bộ lọc phân loại theo từng nghiệp vụ.
 - **Bảng đối chiếu 1-1 (Thu gọn 7 phần)**: Kênh đối thủ ↔ Kênh hệ thống (Profile đích), hiển thị số video cào được, trạng thái rủi ro, cảnh báo chống nhầm kênh (`Chưa gán đích`) và nút chuyển nhanh tới Quản lý Kênh.
 - **Hạ tầng Engine & Runtime (Thu gọn 5 phần)**: Trạng thái Local Engine Online, cấu hình phần cứng (OS, RAM, Python 3.11 Embed, thư mục AppData), tổng số hồ sơ và modal "Chi tiết phiên chạy" lưu trữ lịch sử automation.
 
@@ -922,9 +935,9 @@ Hệ thống được chuẩn hóa toàn diện theo 10 phân hệ chức năng 
 - **Mặc định xóa sạch metadata gốc**: Toàn bộ video tải về đều áp dụng `--no-add-metadata` và `-map_metadata -1`, xóa sạch EXIF, uploader title, tags và comments gốc.
 - **Reup Pipeline Lv.1**: Đổi mã băm container MD5/SHA256 và Dynamic Resampling âm thanh theo tần số gốc của file `{sr}` (`asetrate={sr}*pitch,aresample={sr},atempo={speed/pitch}`), triệt tiêu hoàn toàn hiện tượng lệch tiếng/hình.
 - **Hệ thống nhãn rủi ro Traffic Light**:
-  - 🟢 **Xanh (Green)**: Toàn bộ video từ kênh này an toàn, sạch bản quyền.
-  - 🟡 **Vàng (Yellow)**: Video mới nhất hoặc 1 video cũ dính bản quyền (cảnh báo).
-  - 🔴 **Đỏ (Red - Blacklist)**: 2 video liên tiếp dính Content ID ➔ Lập tức gắn nhãn Đỏ, tự động tắt `auto_download = 0`, khóa quét/tải để bảo vệ hệ thống tuyệt đối.
+  - **[Xanh / Green]**: Toàn bộ video từ kênh này an toàn, sạch bản quyền.
+  - **[Vàng / Yellow]**: Video mới nhất hoặc 1 video cũ dính bản quyền (cảnh báo).
+  - **[Đỏ / Red - Blacklist]**: 2 video liên tiếp dính Content ID -> Lập tức gắn nhãn Đỏ, tự động tắt `auto_download = 0`, khóa quét/tải để bảo vệ hệ thống tuyệt đối.
 - **Kênh Test Bản Quyền (BKT Pool)**:
   - Chỉ làm nhiệm vụ tự động tải video Unlisted lên Studio để quét bản quyền ngầm, không liên quan đến dữ liệu Profile nuôi chính.
   - Quota nghiêm ngặt: 15 video / 24 giờ. Khi kênh hết quota, tự động khóa đăng và luân chuyển sang kênh test khác còn lượt.
@@ -1144,6 +1157,30 @@ Thanh điều hướng bên trái (Sidebar) của RETubeMatrix v1.0.0 được s
 5. **Hiện Đại Hóa HWID Tương Thích Windows 11 24H2**:
    - Thay thế các lệnh gọi `wmic` đã bị Microsoft gỡ bỏ bằng 1 lệnh PowerShell CIM duy nhất xuất JSON nén.
    - Tối ưu hóa thời gian trích xuất phần cứng từ 4.5s xuống dưới **0.6s**, vượt qua toàn bộ unit test an ninh phần cứng.
+
+### 8.11. Cải Tiến Hệ Thống Trong Phiên Bản v1.3.3
+
+1. **Tự Động Trích Xuất Cookie Trình Duyệt để Vượt Bot Challenge Của YouTube**:
+   - Tích hợp hàm `resolve_test_profile_cookie_arg_safe` trong `src-tauri/src/services/ytdlp.rs` và `commands/download/executor.rs`.
+   - Hệ thống tự động rà soát kho hồ sơ `%LOCALAPPDATA%\RETubeMatrix\browser_engine\profiles\` để tìm profile trình duyệt có file cơ sở dữ liệu cookie hợp lệ (`Default\Network\Cookies` hoặc `Default\Cookies`).
+   - Tự động bổ sung tham số `--cookies-from-browser chrome:<profile_path>` vào lệnh gọi `yt-dlp` khi người dùng không cấu hình cookie thủ công.
+   - Khắc phục triệt để lỗi chặn bot của YouTube: `ERROR: [youtube] ...: Sign in to confirm you're not a bot. Use --cookies-from-browser or --cookies for the authentication`.
+
+2. **Hệ Thống Hiển Thị ETA Toàn Diện & Global Task Dock**:
+   - Thư viện tính toán thời gian `src/lib/format-eta.ts` (`formatEta`, `calculateRemainingSeconds`) tính toán thời gian còn lại chuẩn xác dựa trên tốc độ tải thực tế, dung lượng và phần trăm tiến độ.
+   - Thành phần giao diện `GlobalActiveTasksDock.tsx` hiển thị thanh tác vụ nổi (Floating Task Dock) ghim ở góc dưới ứng dụng, gom nhóm và hiển thị toàn bộ tác vụ đang chạy ngầm: Tải xuống video, Xử lý render lách bản quyền, và Đăng video kiểm tra bản quyền Studio BKT.
+   - Cơ chế duy trì trạng thái liên tục (State Persistence): Tiến trình ngầm tiếp tục được cập nhật tiến độ, tốc độ, ETA kể cả khi người dùng chuyển đổi qua lại giữa các tab hoặc trang khác nhau trong ứng dụng mà không bị mất dữ liệu hiển thị.
+
+3. **Cơ Chế Chống Trùng Lặp Tải & Đăng Video Tối Ưu (Anti-Duplicate Guard)**:
+   - Mở rộng bảng `channel_videos` với các trường theo dõi xuất bản: `target_published`, `target_video_id`, `target_profile_id`, `target_published_at` kèm chỉ mục tìm kiếm tối ưu.
+   - Tự động kiểm tra và khóa hành động nếu video đã được xuất bản (`published`) hoặc đang trong tiến trình xuất bản (`publishing`), hiển thị thông báo rõ ràng cho người dùng, ngăn chặn việc tải lại hoặc dispatch trùng lặp tác vụ lên kênh YouTube đích.
+   - Khởi tạo và bảo đảm sự tồn tại của kênh hệ thống `FAST_TRACK_CHANNEL_ID = 'fast_track_direct'` nhằm thỏa mãn ràng buộc khóa ngoại (FOREIGN KEY) trong cơ sở dữ liệu `bkt_test_jobs`.
+
+4. **Kiên Cố Hóa Quy Trình Tự Động Hóa YouTube Studio & Modal Recovery**:
+   - Bổ sung cơ chế giải phóng tự động các popup cảnh báo kiểm tra và xác nhận xuất bản (`dismiss_publish_anyway_dialogs` trong `upload_actions.py`).
+   - Xử lý hồi phục hộp thoại tải video khi bị YouTube tự động thu nhỏ xuống thanh dock (`isDocked`).
+   - Hỗ trợ thích ứng với các thay đổi Web Components Shadow DOM mới nhất của YouTube Studio 2026.
+
 
 
 

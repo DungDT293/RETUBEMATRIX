@@ -1,6 +1,6 @@
-# Kiểm Toán Toàn Diện Các Lỗi Hệ Thống & Rủi Ro Tồn Đọng (Audit Report v1.0.0 - v1.2.1)
+# Kiểm Toán Toàn Diện Các Lỗi Hệ Thống & Rủi Ro Tồn Đọng (Audit Report v1.0.0 - v1.3.3)
 
-Tài liệu này ghi nhận toàn bộ quá trình phát hiện, chẩn đoán, xử lý các lỗi kỹ thuật và danh mục rủi ro còn tồn đọng của hệ thống **RETubeMatrix** qua tất cả các phiên bản phát hành từ v1.0.0 đến v1.2.1.
+Tài liệu này ghi nhận toàn bộ quá trình phát hiện, chẩn đoán, xử lý các lỗi kỹ thuật và danh mục rủi ro còn tồn đọng của hệ thống **RETubeMatrix** qua tất cả các phiên bản phát hành từ v1.0.0 đến v1.3.3.
 
 ---
 
@@ -16,6 +16,10 @@ Tài liệu này ghi nhận toàn bộ quá trình phát hiện, chẩn đoán, 
 | **BUG-06** | Tauri v2 IPC: Lỗi deserialization do xung đột camelCase / snake_case | v1.2.0 | **v1.2.0** | P1 (High) | **Đã khắc phục hoàn toàn** |
 | **BUG-07** | Process Control: Rò rỉ tiến trình Chrome zombie chạy ngầm chiếm RAM | v1.0.5 - v1.0.9 | **v1.0.10** | P2 (Medium) | **Đã khắc phục hoàn toàn** |
 | **BUG-08** | Sidebar Panel: Không hiển thị phiên bản phần mềm dưới logo RETubeMatrix | v1.0.0 - v1.2.0 | **v1.2.1** | P3 (Low) | **Đã khắc phục hoàn toàn** |
+| **BUG-09** | YouTube Studio: Treo hộp thoại kiểm tra tính năng nâng cao (Feature Eligibility Freeze) | v1.0.0 - v1.3.1 | **v1.3.2** | P1 (High) | **Đã khắc phục hoàn toàn** |
+| **BUG-10** | YouTube Bot Challenge: yt-dlp bị chặn `Sign in to confirm you're not a bot` khi tải video | v1.0.0 - v1.3.2 | **v1.3.3** | P0 (Critical) | **Đã khắc phục hoàn toàn** |
+| **BUG-11** | UI State & ETA: Mất hiển thị tiến trình khi chuyển tab và thiếu ước lượng thời gian ETA | v1.0.0 - v1.3.2 | **v1.3.3** | P1 (High) | **Đã khắc phục hoàn toàn** |
+| **BUG-12** | Deduplication: Dispatch trùng lặp video đã xuất bản lên Kênh Đích | v1.0.0 - v1.3.2 | **v1.3.3** | P1 (High) | **Đã khắc phục hoàn toàn** |
 | **RISK-01**| Mạng / Proxy: YouTube chặn IP Proxy trả về HTTP 429 hoặc yêu cầu xác minh SMS | Tất cả | Chưa thể triệt tiêu 100% | P1 (High) | **Rủi ro môi trường (Cần quản lý Proxy)** |
 | **RISK-02**| Kênh YouTube: Đạt ngưỡng giới hạn tải video hàng ngày (Daily Upload Limit) | Tất cả | Đã có bộ nhận diện cảnh báo | P2 (Medium) | **Giới hạn thuật toán của YouTube** |
 | **RISK-03**| Render Pipeline: Khóa file video đầu ra khi FFmpeg chưa hoàn tất ghi | v1.0.0 - v1.2.0 | Đã có retry & lock check | P2 (Medium) | **Đã phòng vệ (Cần giám sát I/O)** |
@@ -61,6 +65,26 @@ Tài liệu này ghi nhận toàn bộ quá trình phát hiện, chẩn đoán, 
 - **Hiện tượng**: Kênh có 500-1000 video khi mở accordion làm trình duyệt bị đơ chuột 5-10 giây.
 - **Nguyên nhân gốc rễ**: DOM render đồng thời hơn 35.000 phần tử HTML cùng lúc, kèm theo các thao tác tìm kiếm mảng $O(N^2)$.
 - **Giải pháp xử lý**: Áp dụng Chunked Virtual Rendering (nạp 30 video mỗi lần cuộn) và tối ưu hóa Map tra cứu trạng thái $O(1)$, giảm 97% số lượng node DOM hoạt động.
+
+### BUG-09: Treo hộp thoại kiểm tra tính năng nâng cao (Feature Eligibility Freeze) trên YouTube Studio
+- **Hiện tượng**: Tiến trình tải video lên YouTube Studio bị đứng vô thời hạn khi xuất hiện popup kiểm tra điều kiện sử dụng tính năng nâng cao (`ytcp-feature-eligibility-dialog`).
+- **Nguyên nhân gốc rễ**: Popup này xuất hiện bất ngờ đè lên wizard tải lên nhưng không nằm trong danh sách modal được bộ dọn dẹp nhận diện.
+- **Giải pháp xử lý**: Bổ sung bộ nhận diện và tự động đóng modal `ytcp-feature-eligibility-dialog` trong `modals.py` và `upload_actions.py` trên phiên bản v1.3.2.
+
+### BUG-10: YouTube Bot Challenge khi tải video kênh qua yt-dlp
+- **Hiện tượng**: Khi tải video từ một số kênh hoặc video mới, yt-dlp báo lỗi `ERROR: [youtube] ...: Sign in to confirm you're not a bot. Use --cookies-from-browser or --cookies for the authentication`. Tiến trình tải thất bại và nút quay về trạng thái ban đầu.
+- **Nguyên nhân gốc rễ**: YouTube kích hoạt thuật toán phát hiện bot khi yêu cầu xuất phát từ địa chỉ IP datacenter hoặc thiếu phiên cookie người dùng thực tế.
+- **Giải pháp xử lý**: Tích hợp hàm `resolve_test_profile_cookie_arg_safe` trong backend Rust (v1.3.3), tự động quét thư mục profile test của ứng dụng (`browser_engine/profiles/*/Default/Network/Cookies`) và tiêm cờ `--cookies-from-browser chrome:<path>` vào yt-dlp, loại bỏ hoàn toàn lỗi bot challenge.
+
+### BUG-11: Mất hiển thị tiến trình khi chuyển đổi tab và thiếu ước lượng thời gian ETA
+- **Hiện tượng**: Khi chuyển sang tab khác trong quá trình tải hoặc render video rồi quay lại, thông tin tiến độ bị biến mất khiến người dùng không biết tác vụ có còn hoạt động hay không; không có thời gian dự kiến hoàn tất (ETA).
+- **Nguyên nhân gốc rễ**: Trạng thái tiến trình chỉ được lưu trong state cục bộ của component và bị unmount khi rời tab; thiếu công thức tính toán thời gian còn lại chuẩn hóa.
+- **Giải pháp xử lý**: Xây dựng thanh trạng thái nổi `GlobalActiveTasksDock.tsx` gom nhóm toàn bộ tác vụ ngầm (Tải, Render, BKT) duy trì liên tục qua chuyển đổi route, kết hợp bộ tính toán `formatEta` và `calculateRemainingSeconds` trên toàn bộ các khâu.
+
+### BUG-12: Dispatch trùng lặp video đã xuất bản lên Kênh Đích
+- **Hiện tượng**: Người dùng có thể vô tình bấm tải hoặc điều phối reup lại một video đối thủ đã được xuất bản thành công lên kênh chính trước đó.
+- **Nguyên nhân gốc rễ**: Thiếu cờ liên kết trạng thái xuất bản giữa bảng `bkt_test_jobs` và bảng `channel_videos`.
+- **Giải pháp xử lý**: Bổ sung cột `target_published`, `target_video_id`, `target_profile_id`, `target_published_at` vào bảng `channel_videos` cùng khóa chặn logic trong `useChannelVideoWorkflows.ts`, khóa hành động và thông báo trực quan nếu video đã được xuất bản thành công.
 
 ---
 
