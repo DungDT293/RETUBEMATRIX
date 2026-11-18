@@ -376,10 +376,11 @@ export function UniversalQueueItem({
                     )}
                   </div>
                 ) : (
-                  <>
+                  <div className="flex items-center justify-between w-full text-[10px] text-white/90 font-medium tabular-nums">
                     <span>{item.progress.toFixed(0)}%</span>
                     {item.speed && <span>{item.speed}</span>}
-                  </>
+                    {item.eta && <span className="text-white/80">Còn ~{item.eta}</span>}
+                  </div>
                 )}
               </div>
             </div>
@@ -453,6 +454,16 @@ export function UniversalQueueItem({
               {isSkipped && t('queue.status.skipped')}
             </span>
           </span>
+
+          {/* Active Download Progress Details: ETA, Speed, Downloaded Size */}
+          {isActive && item.status === 'downloading' && (
+            <span className="inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium tabular-nums border border-blue-500/20">
+              <span className="font-semibold">{Math.round(item.progress)}%</span>
+              {item.speed && <span>• {item.speed}</span>}
+              {item.eta && <span>• Còn ~{item.eta}</span>}
+              {item.downloadedSize && <span>• {item.downloadedSize}</span>}
+            </span>
+          )}
 
           {retryState && (
             <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-medium tabular-nums">

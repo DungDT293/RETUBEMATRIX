@@ -44,6 +44,7 @@ fn configure_connection(conn: &Connection) -> Result<(), String> {
 }
 
 fn migrate_bkt_test_jobs_foreign_key(conn: &Connection) -> Result<(), String> {
+    let _ = crate::database::bkt_channels::ensure_fast_track_channel_seeded(conn);
     let channel_foreign_key_count: i64 = conn
         .query_row(
             "SELECT COUNT(*) FROM pragma_foreign_key_list('bkt_test_jobs')
@@ -959,6 +960,49 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
         [],
     )
     .ok();
+
+    // Migration: Add Target Published Tracking to channel_videos for anti-duplicate upload
+    conn.execute(
+        "ALTER TABLE channel_videos ADD COLUMN target_published INTEGER DEFAULT 0",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE channel_videos ADD COLUMN target_video_id TEXT",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE channel_videos ADD COLUMN target_profile_id TEXT",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "ALTER TABLE channel_videos ADD COLUMN target_published_at TEXT",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_channel_videos_target_published ON channel_videos(channel_id, target_published)",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_channel_videos_target_vid ON channel_videos(target_video_id)",
+        [],
+    )
+    .ok();
+
+    // Backfill existing published videos from bkt_test_jobs into channel_videos
+    conn.execute(
+        "UPDATE channel_videos 
+         SET target_published = 1,
+             target_video_id = (SELECT b.youtube_video_id FROM bkt_test_jobs b WHERE (b.source_ref_id = channel_videos.id OR b.source_ref_id = channel_videos.video_id) AND b.status = 'published' AND b.youtube_video_id IS NOT NULL LIMIT 1),
+             target_profile_id = (SELECT COALESCE(b.target_profile_id, b.main_target_profile_id) FROM bkt_test_jobs b WHERE (b.source_ref_id = channel_videos.id OR b.source_ref_id = channel_videos.video_id) AND b.status = 'published' LIMIT 1)
+         WHERE id IN (SELECT b.source_ref_id FROM bkt_test_jobs b WHERE b.status = 'published')
+            OR video_id IN (SELECT b.source_ref_id FROM bkt_test_jobs b WHERE b.status = 'published')",
+        [],
+    ).ok();
     conn.execute(
         "ALTER TABLE followed_channels ADD COLUMN download_mode TEXT NOT NULL DEFAULT 'all'",
         [],
@@ -1122,6 +1166,7 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     .ok();
 
     conn.execute("CREATE INDEX IF NOT EXISTS idx_bkt_test_channels_active ON bkt_test_channels(is_active)", []).ok();
+    crate::database::bkt_channels::ensure_fast_track_channel_seeded(&conn)?;
 
     // BKT Test Jobs table (tracking individual test tasks)
     conn.execute(

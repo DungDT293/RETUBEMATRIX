@@ -4,19 +4,49 @@ use rusqlite::{params, OptionalExtension};
 use crate::database::get_db;
 use crate::types::{BktTestChannel, BktTestChannelInput, BktTestJob};
 
+pub const FAST_TRACK_CHANNEL_ID: &str = "fast_track_direct";
+
+/// Đảm bảo kênh hệ thống Fast-Track Direct luôn tồn tại trong DB để thỏa mãn ràng buộc khóa ngoại (FOREIGN KEY)
+pub fn ensure_fast_track_channel_seeded(conn: &rusqlite::Connection) -> Result<(), String> {
+    conn.execute(
+        "INSERT OR IGNORE INTO bkt_test_channels (
+            id, name, profile_id, youtube_channel_name, youtube_channel_id,
+            daily_quota, daily_used, last_reset_date, is_active, priority, note,
+            created_at, updated_at
+        ) VALUES (
+            ?1,
+            'Kênh Đích Trực Tiếp (Bỏ qua BKT)',
+            'fast_track_direct',
+            NULL,
+            NULL,
+            999999,
+            0,
+            '2026-01-01',
+            0,
+            -999,
+            'Kênh hệ thống nội bộ định tuyến xuất bản trực tiếp lên Kênh Đích',
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )",
+        params![FAST_TRACK_CHANNEL_ID],
+    )
+    .map_err(|e| format!("Lỗi khởi tạo kênh hệ thống Fast-Track: {e}"))?;
+    Ok(())
+}
+
 /// Đảm bảo tất cả các kênh test BKT đều được reset về 0/15 nếu sang ngày mới (YYYY-MM-DD)
 pub fn reset_bkt_channel_quota_if_needed(conn: &rusqlite::Connection, today: &str) -> Result<(), String> {
     conn.execute(
         "UPDATE bkt_test_channels
          SET daily_used = 0, last_reset_date = ?1, updated_at = CURRENT_TIMESTAMP
-         WHERE last_reset_date != ?1",
-        params![today],
+         WHERE last_reset_date != ?1 AND id != ?2",
+        params![today, FAST_TRACK_CHANNEL_ID],
     )
     .map_err(|e| format!("Lỗi tự động reset quota kênh test BKT: {e}"))?;
     Ok(())
 }
 
-/// Lấy danh sách tất cả các kênh test bản quyền
+/// Lấy danh sách tất cả các kênh test bản quyền (Ẩn kênh hệ thống fast_track_direct)
 pub fn get_bkt_test_channels_db() -> Result<Vec<BktTestChannel>, String> {
     let conn = get_db()?;
     let today = Local::now().format("%Y-%m-%d").to_string();
@@ -28,12 +58,13 @@ pub fn get_bkt_test_channels_db() -> Result<Vec<BktTestChannel>, String> {
                     daily_quota, daily_used, last_reset_date, is_active, priority, note,
                     created_at, updated_at
              FROM bkt_test_channels
+             WHERE id != ?1
              ORDER BY priority DESC, created_at ASC",
         )
         .map_err(|e| format!("Lỗi truy vấn bkt_test_channels: {e}"))?;
 
     let rows = stmt
-        .query_map([], |row| {
+        .query_map(params![FAST_TRACK_CHANNEL_ID], |row| {
             let daily_quota: i64 = row.get(5)?;
             let daily_used: i64 = row.get(6)?;
             let remaining_quota = (daily_quota - daily_used).max(0);
@@ -122,6 +153,9 @@ pub fn get_bkt_test_channel_by_id_db(id: &str) -> Result<Option<BktTestChannel>,
 /// (std::sync::Mutex không reentrant — gọi `get_db()` lần 2 trong cùng thread sẽ treo).
 /// Thay vào đó, đọc lại bản ghi trực tiếp trên cùng connection.
 pub fn save_bkt_test_channel_db(input: BktTestChannelInput) -> Result<BktTestChannel, String> {
+    if input.id.as_deref() == Some(FAST_TRACK_CHANNEL_ID) {
+        return Err("Không thể chỉnh sửa kênh hệ thống Fast-Track".to_string());
+    }
     let conn = get_db()?;
     let today = Local::now().format("%Y-%m-%d").to_string();
     let now_str = Local::now().to_rfc3339();
@@ -223,6 +257,9 @@ pub fn save_bkt_test_channel_db(input: BktTestChannelInput) -> Result<BktTestCha
 
 /// Xóa Kênh Test Bản Quyền
 pub fn delete_bkt_test_channel_db(id: &str) -> Result<(), String> {
+    if id == FAST_TRACK_CHANNEL_ID {
+        return Err("Không thể xóa kênh hệ thống Fast-Track".to_string());
+    }
     let conn = get_db()?;
     conn.execute("DELETE FROM bkt_test_channels WHERE id = ?1", params![id])
         .map_err(|e| format!("Lỗi xóa kênh test BKT: {e}"))?;
@@ -231,6 +268,9 @@ pub fn delete_bkt_test_channel_db(id: &str) -> Result<(), String> {
 
 /// Tăng số lượng video đã test hôm nay cho một kênh test. Trả về false nếu đã đạt quota.
 pub fn increment_bkt_channel_used_db(id: &str, count: i64) -> Result<bool, String> {
+    if id == FAST_TRACK_CHANNEL_ID {
+        return Ok(true);
+    }
     let conn = get_db()?;
     let today = Local::now().format("%Y-%m-%d").to_string();
     reset_bkt_channel_quota_if_needed(&conn, &today)?;
@@ -258,8 +298,10 @@ pub fn reserve_bkt_channel_and_create_job_with_conn(
     reset_bkt_channel_quota_if_needed(&tx, &today)?;
 
     // Nếu job đã có youtube_video_id hoặc là kênh fast-track direct, không cần trừ quota bkt_test_channels
-    let is_fast_track_direct = job.test_channel_id == "fast_track_direct";
-    if job.youtube_video_id.is_none() && !is_fast_track_direct {
+    let is_fast_track_direct = job.test_channel_id == FAST_TRACK_CHANNEL_ID;
+    if is_fast_track_direct {
+        ensure_fast_track_channel_seeded(&tx)?;
+    } else if job.youtube_video_id.is_none() {
         let reserved = tx
             .execute(
                 "UPDATE bkt_test_channels
@@ -372,7 +414,7 @@ pub fn cancel_bkt_test_job_and_refund_quota_with_conn(
         params![reason, id],
     )
     .map_err(|e| format!("Lỗi cập nhật trạng thái hủy BKT: {e}"))?;
-    if youtube_video_id.is_none() {
+    if youtube_video_id.is_none() && channel_id != FAST_TRACK_CHANNEL_ID {
         tx.execute(
             "UPDATE bkt_test_channels
              SET daily_used = MAX(0, daily_used - 1), updated_at = CURRENT_TIMESTAMP
@@ -426,7 +468,7 @@ pub fn fail_bkt_test_job_and_refund_quota_with_conn(
     if rows != 1 {
         return Ok(false);
     }
-    if youtube_video_id.is_none() {
+    if youtube_video_id.is_none() && channel_id != FAST_TRACK_CHANNEL_ID {
         tx.execute(
             "UPDATE bkt_test_channels
              SET daily_used = MAX(0, daily_used - 1), updated_at = CURRENT_TIMESTAMP
@@ -459,6 +501,9 @@ pub fn foreign_keys_enabled(conn: &rusqlite::Connection) -> bool {
 
 /// Giảm/hoàn lại số lượng quota đã dùng khi job bị hủy hoặc thất bại trước khi upload
 pub fn decrement_bkt_channel_used_db(id: &str, count: i64) -> Result<(), String> {
+    if id == FAST_TRACK_CHANNEL_ID {
+        return Ok(());
+    }
     let conn = get_db()?;
     conn.execute(
         "UPDATE bkt_test_channels
@@ -474,6 +519,9 @@ pub fn decrement_bkt_channel_used_db(id: &str, count: i64) -> Result<(), String>
 pub fn reset_bkt_channel_daily_quota_db(channel_id: Option<&str>) -> Result<(), String> {
     let conn = get_db()?;
     if let Some(id) = channel_id {
+        if id == FAST_TRACK_CHANNEL_ID {
+            return Ok(());
+        }
         conn.execute(
             "UPDATE bkt_test_channels SET daily_used = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?1",
             params![id],
@@ -481,8 +529,8 @@ pub fn reset_bkt_channel_daily_quota_db(channel_id: Option<&str>) -> Result<(), 
         .map_err(|e| format!("Lỗi reset quota kênh test: {e}"))?;
     } else {
         conn.execute(
-            "UPDATE bkt_test_channels SET daily_used = 0, updated_at = CURRENT_TIMESTAMP",
-            [],
+            "UPDATE bkt_test_channels SET daily_used = 0, updated_at = CURRENT_TIMESTAMP WHERE id != ?1",
+            params![FAST_TRACK_CHANNEL_ID],
         )
         .map_err(|e| format!("Lỗi reset toàn bộ quota kênh test: {e}"))?;
     }
@@ -492,6 +540,9 @@ pub fn reset_bkt_channel_daily_quota_db(channel_id: Option<&str>) -> Result<(), 
 /// Tạo một bản ghi tác vụ test video
 pub fn create_bkt_test_job_db(job: &BktTestJob) -> Result<(), String> {
     let conn = get_db()?;
+    if job.test_channel_id == FAST_TRACK_CHANNEL_ID {
+        ensure_fast_track_channel_seeded(&conn)?;
+    }
     let target_profile = job.target_profile_id.as_deref().or(job.main_target_profile_id.as_deref());
     conn.execute(
         "INSERT INTO bkt_test_jobs (
@@ -606,8 +657,11 @@ pub fn claim_bkt_job_for_publish_with_conn(
                    WHERE existing.id <> candidate.id
                      AND existing.source_ref_id IS NOT NULL
                      AND existing.source_ref_id = candidate.source_ref_id
-                     AND existing.status = 'publishing'
-                     AND existing.updated_at > datetime('now', '-15 minutes')
+                     AND (
+                         (existing.status = 'publishing' AND existing.updated_at > datetime('now', '-15 minutes'))
+                         OR existing.status = 'published'
+                         OR existing.restriction LIKE '%Đã xuất bản%'
+                     )
                )",
             rusqlite::params![id],
         )
@@ -777,16 +831,18 @@ pub fn retry_bkt_test_job_with_quota_with_conn(
         return Ok(true);
     }
 
-    let reserved = tx
-        .execute(
-            "UPDATE bkt_test_channels
-             SET daily_used = daily_used + 1, updated_at = CURRENT_TIMESTAMP
-             WHERE id = ?1 AND daily_used < daily_quota",
-            params![channel_id],
-        )
-        .map_err(|e| format!("Lỗi giữ quota retry BKT: {e}"))?;
-    if reserved == 0 {
-        return Ok(false);
+    if channel_id != FAST_TRACK_CHANNEL_ID {
+        let reserved = tx
+            .execute(
+                "UPDATE bkt_test_channels
+                 SET daily_used = daily_used + 1, updated_at = CURRENT_TIMESTAMP
+                 WHERE id = ?1 AND daily_used < daily_quota",
+                params![channel_id],
+            )
+            .map_err(|e| format!("Lỗi giữ quota retry BKT: {e}"))?;
+        if reserved == 0 {
+            return Ok(false);
+        }
     }
 
     let now_str = Local::now().to_rfc3339();
@@ -1371,6 +1427,41 @@ mod integrity_tests {
         );
     }
 
+    #[test]
+    fn fast_track_direct_job_creation_seeds_system_channel_and_preserves_fk() {
+        let conn = rusqlite::Connection::open_in_memory().unwrap();
+        conn.execute_batch("PRAGMA foreign_keys = ON;").unwrap();
+        create_schema(&conn);
+
+        let mut job = sample_job();
+        job.test_channel_id = FAST_TRACK_CHANNEL_ID.to_string();
+        job.skip_bkt_test = Some(true);
+        job.auto_publish_main = Some(true);
+
+        // Phải tạo thành công mà không gặp lỗi FOREIGN KEY constraint failed
+        let res = reserve_bkt_channel_and_create_job_with_conn(&conn, &job);
+        assert!(res.is_ok(), "reserve_bkt_channel_and_create_job_with_conn failed: {:?}", res);
+        assert!(res.unwrap());
+
+        // Kênh hệ thống không bị trừ quota
+        let daily_used: i64 = conn.query_row(
+            "SELECT daily_used FROM bkt_test_channels WHERE id = ?1",
+            params![FAST_TRACK_CHANNEL_ID],
+            |r| r.get(0),
+        ).unwrap();
+        assert_eq!(daily_used, 0);
+
+        // Job được chèn vào DB thành công
+        let count: i64 = conn.query_row("SELECT COUNT(*) FROM bkt_test_jobs WHERE id = ?1", params![job.id], |r| r.get(0)).unwrap();
+        assert_eq!(count, 1);
+
+        // Thử lại retry không bị trừ quota kênh test
+        conn.execute("UPDATE bkt_test_jobs SET status = 'failed' WHERE id = ?1", params![job.id]).unwrap();
+        assert!(retry_bkt_test_job_with_quota_with_conn(&conn, &job.id).unwrap());
+
+        // Kênh hệ thống được bảo vệ không thể xóa
+        assert!(delete_bkt_test_channel_db(FAST_TRACK_CHANNEL_ID).is_err());
+    }
 }
 
 fn should_refund_reconciled_quota(youtube_video_id: Option<&str>) -> bool {
@@ -1419,8 +1510,8 @@ pub fn reconcile_bkt_jobs_on_startup_db(conn: &rusqlite::Connection) -> Result<u
         )
         .map_err(|e| format!("Lỗi cập nhật reconcile job {id}: {e}"))?;
 
-        // Chỉ hoàn quota nếu chưa tạo video test trên YouTube.
-        if previous_status != "publishing" && should_refund_reconciled_quota(youtube_video_id.as_deref()) {
+        // Chỉ hoàn quota nếu chưa tạo video test trên YouTube và không phải kênh hệ thống fast-track.
+        if previous_status != "publishing" && should_refund_reconciled_quota(youtube_video_id.as_deref()) && test_channel_id != FAST_TRACK_CHANNEL_ID {
             conn.execute(
                 "UPDATE bkt_test_channels
                  SET daily_used = MAX(0, daily_used - 1), updated_at = CURRENT_TIMESTAMP

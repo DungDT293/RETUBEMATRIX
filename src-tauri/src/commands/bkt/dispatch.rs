@@ -388,6 +388,48 @@ pub async fn dispatch_batch_bkt_test(
     let now_str = Local::now().to_rfc3339();
     for (item_idx, channel) in allocation_plan {
         let item = &payload.items[item_idx];
+
+        // 0. Chặn tạo Job lặp lại nếu video đã xuất bản lên Kênh Đích
+        let target_prof_opt = item.main_target_profile_id.as_deref().or(item.target_profile_id.as_deref());
+        if let (Some(target_prof), Ok(conn)) = (target_prof_opt, database::get_db()) {
+            let clean_title = item.video_title.trim();
+            let title_prefix = if clean_title.chars().count() > 30 {
+                clean_title.chars().take(30).collect::<String>()
+            } else {
+                clean_title.to_string()
+            };
+            let title_like = format!("{title_prefix}%");
+            let already_published = conn.query_row(
+                "SELECT 1 FROM bkt_test_jobs
+                 WHERE (status = 'published' OR restriction LIKE '%Đã xuất bản%')
+                   AND (main_target_profile_id = ?1 OR target_profile_id = ?1)
+                   AND (video_title = ?2 OR target_title = ?2 OR video_title LIKE ?3 OR target_title LIKE ?3
+                        OR (source_ref_id IS NOT NULL AND source_ref_id = ?4))
+                 UNION ALL
+                 SELECT 1 FROM channel_videos
+                 WHERE (target_published = 1 OR bkt_check_status = 'published' OR bkt_restriction LIKE '%Đã xuất bản%')
+                   AND (target_profile_id = ?1 OR target_profile_id IS NULL)
+                   AND (title = ?2 OR original_title = ?2 OR title LIKE ?3 OR original_title LIKE ?3
+                        OR (id = ?4 OR video_id = ?4))
+                 LIMIT 1",
+                rusqlite::params![target_prof, clean_title, title_like, item.source_ref_id],
+                |_| Ok(true),
+            ).unwrap_or(false);
+
+            if already_published {
+                log::info!("[BKT DISPATCH] Bỏ qua tạo job cho video '{}' vì đã xuất bản trên Profile '{}'", item.video_title, target_prof);
+                dispatch_results.push(BktDispatchItemResult {
+                    video_title: item.video_title.clone(),
+                    assigned_channel_id: Some(channel.id.clone()),
+                    assigned_channel_name: Some("Đã xuất bản trên Kênh Đích".to_string()),
+                    job_id: None,
+                    success: true,
+                    error: None,
+                });
+                continue;
+            }
+        }
+
         let job_id = uuid::Uuid::new_v4().to_string();
         let test_profile_id = if channel.id == "fast_track_direct" {
             channel.profile_id.clone()

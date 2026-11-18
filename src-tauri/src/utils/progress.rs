@@ -27,15 +27,16 @@ pub fn parse_progress(
     if line.contains("[download]") && line.contains("%") {
         // Try to match with speed and ETA
         if line.contains(" at ") {
-            let re = regex::Regex::new(r"(\d+\.?\d*)%.*at\s+(\S+)(?:.*ETA\s+(\S+))?").ok()?;
+            let re = regex::Regex::new(r"(\d+\.?\d*)%(?:\s+of\s+(~?\s*[\d.]+\s*\w+))?.*at\s+(\S+)(?:.*ETA\s+(\S+))?").ok()?;
             if let Some(caps) = re.captures(line) {
                 let percent: f64 = caps.get(1)?.as_str().parse().ok()?;
+                let total_size = caps.get(2).map(|m| m.as_str().trim().to_string());
                 let speed = caps
-                    .get(2)
+                    .get(3)
                     .map(|m| m.as_str().to_string())
                     .unwrap_or_default();
                 let eta = caps
-                    .get(3)
+                    .get(4)
                     .map(|m| m.as_str().to_string())
                     .unwrap_or_default();
                 return Some((
@@ -44,7 +45,7 @@ pub fn parse_progress(
                     eta,
                     playlist_index,
                     playlist_count,
-                    None,
+                    total_size,
                     None,
                 ));
             }

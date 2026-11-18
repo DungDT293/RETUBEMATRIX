@@ -93,7 +93,12 @@ export function ReupAutoPilotBanner({ controller }: ReupAutoPilotBannerProps) {
             <span>Tốc độ: {reupProgress.speed || 'N/A'}</span>
             {reupProgress.fps !== undefined && <span>FPS: {reupProgress.fps}</span>}
             {reupProgress.eta_seconds !== undefined && (
-              <span>Còn lại: ~{Math.ceil(reupProgress.eta_seconds)}s</span>
+              <span>
+                Còn lại: ~
+                {reupProgress.eta_seconds < 60
+                  ? `${Math.ceil(reupProgress.eta_seconds)}s`
+                  : `${Math.floor(reupProgress.eta_seconds / 60)}m ${Math.ceil(reupProgress.eta_seconds % 60)}s`}
+              </span>
             )}
           </div>
         </div>

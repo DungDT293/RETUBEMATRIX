@@ -100,7 +100,7 @@ pub fn get_daily_report_stats_db(date_filter: Option<String>) -> Result<DailyRep
         .query_row(
             "SELECT coalesce(sum(daily_quota), 0), coalesce(sum(daily_used), 0)
              FROM bkt_test_channels
-             WHERE is_active = 1",
+             WHERE is_active = 1 AND id != 'fast_track_direct'",
             [],
             |row| Ok((row.get(0)?, row.get(1)?)),
         )

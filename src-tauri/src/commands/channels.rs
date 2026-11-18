@@ -298,6 +298,7 @@ async fn fetch_channel_videos_once(
         "--no-warnings".to_string(),
         "--socket-timeout".to_string(),
         "30".to_string(),
+        "--force-ipv4".to_string(),
     ];
 
     // Only use --flat-playlist for YouTube; other platforms (Bilibili, etc.)
@@ -550,6 +551,7 @@ pub async fn get_channel_info(
         "--no-warnings".to_string(),
         "--socket-timeout".to_string(),
         "30".to_string(),
+        "--force-ipv4".to_string(),
     ];
 
     // Only use --flat-playlist for YouTube; other platforms return

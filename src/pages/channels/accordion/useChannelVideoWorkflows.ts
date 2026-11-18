@@ -18,6 +18,7 @@ import {
   waitBktJobCompletion,
 } from '@/contexts/channels/channels-client';
 import { useChannels } from '@/contexts/channels-context';
+import { formatEta } from '@/lib/format-eta';
 import type { BktBatchItemRequest, BktTestJob, ChannelVideo, FollowedChannel } from '@/lib/types';
 import { parseVideoUploadEpoch } from '@/pages/channels/channelUtils';
 import {
@@ -52,6 +53,8 @@ export function useChannelVideoWorkflows({
   const [isBatchTestingBkt, setIsBatchTestingBkt] = useState<boolean>(false);
   const [isSequentialTop5Running, setIsSequentialTop5Running] = useState<boolean>(false);
   const [sequentialProgressText, setSequentialProgressText] = useState<string>('');
+  const sequentialProgressTextRef = useRef('');
+  sequentialProgressTextRef.current = sequentialProgressText;
   const [isBatchReupPublishing, setIsBatchReupPublishing] = useState<boolean>(false);
   const [batchReupProgressText, setBatchReupProgressText] = useState<string>('');
   const [videoOverrides, setVideoOverrides] = useState<VideoOverridesMap>({});
@@ -60,12 +63,45 @@ export function useChannelVideoWorkflows({
   const batchReupStopRequestedRef = useRef<boolean>(false);
   const videosRef = useRef<ChannelVideo[]>(videos);
   videosRef.current = videos;
+  const testingVideoIdRef = useRef<string | null>(testingVideoId);
+
+  useEffect(() => {
+    testingVideoIdRef.current = testingVideoId;
+  }, [testingVideoId]);
 
   useEffect(() => {
     let cancelled = false;
     getBktTestJobs(300)
       .then((jobs) => {
-        if (!cancelled) setBktJobs(jobs);
+        if (!cancelled) {
+          setBktJobs(jobs);
+          const activePhases: ActiveJobPhasesMap = {};
+          const overrides: VideoOverridesMap = {};
+          const ACTIVE_STATUSES = [
+            'pending',
+            'downloading',
+            'reup_processing',
+            'uploading',
+            'studio_checking',
+            'publishing',
+          ];
+          for (const job of jobs) {
+            if (job.sourceRefId && ACTIVE_STATUSES.includes(job.status)) {
+              activePhases[job.sourceRefId] = job.status;
+              overrides[job.sourceRefId] = {
+                is_bkt_test: true,
+                bkt_check_status: 'pending',
+                bkt_restriction: job.restriction || `Đang xử lý (${job.status})...`,
+              };
+            }
+          }
+          if (Object.keys(activePhases).length > 0) {
+            setActiveJobPhases((prev) => ({ ...prev, ...activePhases }));
+          }
+          if (Object.keys(overrides).length > 0) {
+            setVideoOverrides((prev) => ({ ...prev, ...overrides }));
+          }
+        }
       })
       .catch(() => {});
     return () => {
@@ -162,6 +198,11 @@ export function useChannelVideoWorkflows({
           | 'red_matched'
           | 'failed'
           | 'publish_failed'
+          | 'reuping'
+          | 'uploading'
+          | 'checking'
+          | 'publishing'
+          | 'published'
           | undefined = current.bkt_check_status;
         if (job.status === 'green_clean' || job.status === 'published')
           resolvedStatus = 'green_clean';
@@ -172,7 +213,8 @@ export function useChannelVideoWorkflows({
           job.status === 'queued' ||
           job.status === 'checking' ||
           job.status === 'uploading' ||
-          job.status === 'reuping'
+          job.status === 'reuping' ||
+          job.status === 'publishing'
         ) {
           resolvedStatus = 'pending';
         }
@@ -188,7 +230,9 @@ export function useChannelVideoWorkflows({
               ? 'Đang tải video lên YouTube Studio...'
               : job.status === 'checking'
                 ? 'Studio đang quét Content ID...'
-                : undefined),
+                : job.status === 'publishing'
+                  ? 'Đang xuất bản lên Kênh Đích...'
+                  : undefined),
         };
 
         const next: typeof prev = {
@@ -210,9 +254,148 @@ export function useChannelVideoWorkflows({
       }
     });
 
+    let unlistenReup: (() => void) | undefined;
+    listen<{
+      percent: number;
+      speed?: string;
+      fps?: number;
+      eta_seconds?: number;
+      status: string;
+    }>('reup-pipeline-progress', (event) => {
+      if (cancelled) return;
+      const p = event.payload;
+      if (!p) return;
+      const vId = testingVideoIdRef.current;
+      if (!vId) return;
+
+      const etaStr = formatEta(p.eta_seconds);
+      const speedStr = p.speed || (p.fps ? `${p.fps.toFixed(0)} fps` : '');
+      const restriction = `Đang render Reup: ${p.percent.toFixed(0)}%${speedStr ? ` (${speedStr})` : ''} • ${etaStr}`;
+
+      setVideoOverrides((prev) => ({
+        ...prev,
+        [vId]: {
+          ...prev[vId],
+          is_bkt_test: true,
+          bkt_check_status: 'pending',
+          bkt_restriction: restriction,
+        },
+      }));
+    }).then((fn) => {
+      if (cancelled) {
+        fn();
+      } else {
+        unlistenReup = fn;
+      }
+    });
+
+    let unlistenDownload: (() => void) | undefined;
+    listen<{
+      id: string;
+      status: string;
+      error_message?: string;
+      percent?: number;
+      speed?: string;
+      eta?: string;
+    }>('download-progress', (event) => {
+      if (cancelled) return;
+      const p = event.payload;
+      if (!p) return;
+      if (p.status === 'downloading') {
+        const vId = testingVideoIdRef.current;
+        const etaStr = p.eta ? ` • ${formatEta(p.eta)}` : '';
+        const speedStr = p.speed ? ` • ${p.speed}` : '';
+        const dlLabel = `Đang tải: ${Math.round(p.percent || 0)}%${speedStr}${etaStr}`;
+        if (vId) {
+          setVideoOverrides((prev) => ({
+            ...prev,
+            [vId]: {
+              ...prev[vId],
+              status: 'downloading',
+              bkt_restriction: dlLabel,
+            },
+          }));
+        }
+        if (sequentialProgressTextRef.current) {
+          setSequentialProgressText((prev) => {
+            if (!prev) return prev;
+            const match = prev.match(/Video \d+\/\d+:/);
+            const prefix = match ? match[0] : 'Auto-Pilot:';
+            return `${prefix} ${dlLabel}`;
+          });
+        }
+      } else if (p.status === 'error') {
+        const rawErr = p.error_message || '';
+        let msg = rawErr;
+        if (rawErr.includes("confirm you're not a bot") || rawErr.includes('Sign in to confirm')) {
+          msg = 'YouTube chặn bot. Đang tự động trích xuất Cookie từ Hồ sơ Test...';
+        }
+        const vId = testingVideoIdRef.current;
+        if (vId) {
+          setVideoOverrides((prev) => ({
+            ...prev,
+            [vId]: {
+              ...prev[vId],
+              status: 'new',
+              bkt_restriction: `Lỗi tải: ${msg}`,
+            },
+          }));
+        }
+      }
+    }).then((fn) => {
+      if (cancelled) {
+        fn();
+      } else {
+        unlistenDownload = fn;
+      }
+    });
+
+    let unlistenReupPipeline: (() => void) | undefined;
+    listen<{
+      percent: number;
+      speed?: string;
+      fps?: number;
+      eta_seconds?: number;
+      status: string;
+    }>('reup-pipeline-progress', (event) => {
+      if (cancelled) return;
+      const p = event.payload;
+      if (!p) return;
+      const vId = testingVideoIdRef.current;
+      const etaStr = p.eta_seconds != null ? ` • ${formatEta(p.eta_seconds)}` : '';
+      const speedStr = p.speed ? ` • ${p.speed}` : '';
+      const progressLabel = `Đang Reup: ${Math.round(p.percent)}%${speedStr}${etaStr}`;
+      if (vId) {
+        setVideoOverrides((prev) => ({
+          ...prev,
+          [vId]: {
+            ...prev[vId],
+            bkt_restriction: progressLabel,
+          },
+        }));
+      }
+      if (sequentialProgressTextRef.current) {
+        setSequentialProgressText((prev) => {
+          if (!prev) return prev;
+          const match = prev.match(/Video \d+\/\d+:/);
+          const prefix = match ? match[0] : 'Auto-Pilot:';
+          return `${prefix} ${progressLabel}`;
+        });
+      }
+    }).then((fn) => {
+      if (cancelled) {
+        fn();
+      } else {
+        unlistenReupPipeline = fn;
+      }
+    });
+
     return () => {
       cancelled = true;
       if (unlisten) unlisten();
+      if (unlistenReup) unlistenReup();
+      if (unlistenDownload) unlistenDownload();
+      if (unlistenReupPipeline) unlistenReupPipeline();
     };
   }, []);
 
@@ -221,8 +404,16 @@ export function useChannelVideoWorkflows({
 
     const resolvedChannel = channel || followedChannels.find((c) => c.name === channelName);
 
-    // 1. Sắp xếp danh sách video theo thời gian đăng mới nhất (loại bỏ video live/stream và Shorts nếu là kênh video dài)
+    // 1. Sắp xếp danh sách video theo thời gian đăng mới nhất (loại bỏ video live/stream, Shorts và video đã xuất bản)
     const validVideos = videos.filter((v) => {
+      // Loại bỏ video đã được xuất bản lên Kênh Đích để tuyệt đối không đăng trùng
+      const isAlreadyPublished =
+        v.target_published === 1 ||
+        v.bkt_check_status === 'published' ||
+        v.bkt_restriction?.includes('Đã xuất bản') ||
+        v.bkt_restriction?.includes('xuất bản Công khai');
+      if (isAlreadyPublished) return false;
+
       const vt = (v.video_type || '').toLowerCase();
       const isLive = vt === 'live' || vt === 'stream' || v.url.includes('/live/');
       const isShort =
@@ -510,11 +701,24 @@ export function useChannelVideoWorkflows({
 
     const targetId = v.id || v.video_id;
 
-    // 0. Nếu video đã có BKT job ở trạng thái có thể đăng (green_clean hoặc publish_failed)
-    // thì ưu tiên gọi publishBktJobToMain thay vì dispatch tạo job mới trùng lặp!
+    // 0. Nếu video đã có BKT job ở trạng thái đã xuất bản hoặc đang đăng, ngăn chặn tuyệt đối việc đăng trùng lặp
     const existingJob = bktJobs.find(
       (j) => j.sourceRefId === targetId || j.sourceRefId === v.video_id,
     );
+    if (existingJob && existingJob.status === 'published') {
+      toast.info({
+        title: 'Video đã được xuất bản',
+        message: 'Video này đã được đăng thành công lên Kênh Đích từ trước, không cần tải lại.',
+      });
+      return;
+    }
+    if (existingJob && existingJob.status === 'publishing') {
+      toast.info({
+        title: 'Đang tiến hành xuất bản',
+        message: 'Video này đang trong quá trình tải lên Kênh Đích. Vui lòng đợi hoàn tất.',
+      });
+      return;
+    }
     if (existingJob && canPublishBktStatus(existingJob.status)) {
       await handleBktJobAction(existingJob, 'publish');
       return;
@@ -629,12 +833,20 @@ export function useChannelVideoWorkflows({
       return;
     }
 
-    const selectedList = filteredAndSortedVideos.filter((v) => selectedVideoIds.has(v.video_id));
+    const selectedList = filteredAndSortedVideos.filter((v) => {
+      if (!selectedVideoIds.has(v.video_id)) return false;
+      const isAlreadyPublished =
+        v.target_published === 1 ||
+        v.bkt_check_status === 'published' ||
+        v.bkt_restriction?.includes('Đã xuất bản') ||
+        v.bkt_restriction?.includes('xuất bản Công khai');
+      return !isAlreadyPublished;
+    });
 
     if (selectedList.length === 0) {
       toast.warning({
-        title: 'Chưa chọn video nào',
-        message: 'Vui lòng chọn ít nhất 1 video để tiến hành chỉnh sửa & đăng.',
+        title: 'Không có video phù hợp',
+        message: 'Các video bạn chọn đều đã được xuất bản lên Kênh Đích hoặc chưa chọn video nào.',
       });
       return;
     }

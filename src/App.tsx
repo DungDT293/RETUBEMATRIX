@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { AlertCircle, Clock, Loader2, RefreshCw } from 'lucide-react';
+import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -10,6 +11,7 @@ import { MeteorTransition } from '@/components/effects/MeteorTransition';
 import { FFmpegDialog } from '@/components/FFmpegDialog';
 import type { Page } from '@/components/layout';
 import { MainLayout } from '@/components/layout';
+import { GlobalActiveTasksDock } from '@/components/layout/GlobalActiveTasksDock';
 import { MusicPlayer } from '@/components/player';
 import type { SettingsSectionId } from '@/components/settings';
 import { UpdateDialog } from '@/components/UpdateDialog';
@@ -32,6 +34,7 @@ import { useTelegramRemoteCommands } from '@/hooks/useTelegramRemoteCommands';
 import { useTrayDownloadStatus } from '@/hooks/useTrayDownloadStatus';
 import { useTrayEvents } from '@/hooks/useTrayEvents';
 import { useYtdlpAutoUpdateToast } from '@/hooks/useYtdlpAutoUpdateToast';
+import { cn } from '@/lib/utils';
 import {
   ChannelsPage,
   DashboardPage,
@@ -46,10 +49,40 @@ import {
 import { AdminPortalDispatcher } from '@/pages/admin/AdminPortalDispatcher';
 import { openExternalUrl } from '@/utils/open-url';
 
+interface KeepAliveTabProps {
+  isActive: boolean;
+  hasBeenVisited: boolean;
+  children: React.ReactNode;
+}
+
+function KeepAliveTab({ isActive, hasBeenVisited, children }: KeepAliveTabProps) {
+  if (!hasBeenVisited) return null;
+  return (
+    <div
+      className={cn(
+        'flex-1 flex flex-col h-full min-h-0 min-w-0 overflow-hidden',
+        !isActive && 'hidden',
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
 function AppContent() {
   const { i18n } = useTranslation('settings');
   const { user, isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [visitedPages, setVisitedPages] = useState<Set<Page>>(() => new Set(['dashboard']));
+
+  useEffect(() => {
+    setVisitedPages((prev) => {
+      if (prev.has(currentPage)) return prev;
+      const next = new Set(prev);
+      next.add(currentPage);
+      return next;
+    });
+  }, [currentPage]);
   const [settingsInitialSection, setSettingsInitialSection] =
     useState<SettingsSectionId>('general');
   const [showFfmpegDialog, setShowFfmpegDialog] = useState(false);
@@ -289,20 +322,57 @@ function AppContent() {
   return (
     <>
       <MainLayout currentPage={currentPage} onPageChange={setCurrentPage}>
-        {currentPage === 'dashboard' && <DashboardPage onNavigate={setCurrentPage} />}
+        <KeepAliveTab
+          isActive={currentPage === 'dashboard'}
+          hasBeenVisited={visitedPages.has('dashboard')}
+        >
+          <DashboardPage onNavigate={setCurrentPage} />
+        </KeepAliveTab>
         {currentPage === 'saas' && (
           <AdminPortalDispatcher onNavigateHome={() => setCurrentPage('dashboard')} />
         )}
-        {currentPage === 'profiles' && <ProfilesPage />}
-        {currentPage === 'universal' && (
+        <KeepAliveTab
+          isActive={currentPage === 'profiles'}
+          hasBeenVisited={visitedPages.has('profiles')}
+        >
+          <ProfilesPage />
+        </KeepAliveTab>
+        <KeepAliveTab
+          isActive={currentPage === 'universal'}
+          hasBeenVisited={visitedPages.has('universal')}
+        >
           <UniversalPage onNavigateToSettings={() => openSettingsPage('general')} />
-        )}
-        {currentPage === 'channels' && <ChannelsPage />}
-        {currentPage === 'outliers' && <OutlierHunterPage onNavigate={setCurrentPage} />}
-        {currentPage === 'reup' && <ReupBktPage onNavigate={setCurrentPage} />}
-        {currentPage === 'library' && <HistoryPage onNavigate={setCurrentPage} />}
-        {currentPage === 'logs' && <LogsPage />}
-        {currentPage === 'settings' && <SettingsPage initialSection={settingsInitialSection} />}
+        </KeepAliveTab>
+        <KeepAliveTab
+          isActive={currentPage === 'channels'}
+          hasBeenVisited={visitedPages.has('channels')}
+        >
+          <ChannelsPage />
+        </KeepAliveTab>
+        <KeepAliveTab
+          isActive={currentPage === 'outliers'}
+          hasBeenVisited={visitedPages.has('outliers')}
+        >
+          <OutlierHunterPage onNavigate={setCurrentPage} />
+        </KeepAliveTab>
+        <KeepAliveTab isActive={currentPage === 'reup'} hasBeenVisited={visitedPages.has('reup')}>
+          <ReupBktPage onNavigate={setCurrentPage} />
+        </KeepAliveTab>
+        <KeepAliveTab
+          isActive={currentPage === 'library'}
+          hasBeenVisited={visitedPages.has('library')}
+        >
+          <HistoryPage onNavigate={setCurrentPage} />
+        </KeepAliveTab>
+        <KeepAliveTab isActive={currentPage === 'logs'} hasBeenVisited={visitedPages.has('logs')}>
+          <LogsPage />
+        </KeepAliveTab>
+        <KeepAliveTab
+          isActive={currentPage === 'settings'}
+          hasBeenVisited={visitedPages.has('settings')}
+        >
+          <SettingsPage initialSection={settingsInitialSection} />
+        </KeepAliveTab>
         <MusicPlayer />
       </MainLayout>
 
@@ -321,6 +391,7 @@ function AppContent() {
 
       {showDenoDialog && <DenoDialog onDismiss={() => setShowDenoDialog(false)} />}
       <DuplicateDownloadReviewHost />
+      <GlobalActiveTasksDock />
       <MeteorTransition
         isActive={isTransitioning}
         oldMode={oldMode}

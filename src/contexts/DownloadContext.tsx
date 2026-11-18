@@ -92,7 +92,6 @@ import { DownloadContext } from './download-context';
 const STORAGE_KEY = 'retubematrix-settings';
 const LEGACY_STORAGE_KEY = 'youwee-settings';
 const DOWNLOAD_QUEUE_IDLE_GRACE_MS = 1000;
-const PROGRESS_THROTTLE_MS = 120;
 
 // Check if path is absolute (cross-platform)
 const isAbsolutePath = (path: string): boolean => {
@@ -420,8 +419,7 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
 
   // Throttle buffer for progress updates to prevent React 19 render storms
   const progressBufferRef = useRef<Map<string, DownloadProgress>>(new Map());
-  const progressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const progressRafRef = useRef<number | null>(null);
+  const rafPendingRef = useRef(false);
   const lastProgressFlushRef = useRef(0);
 
   const applyProgressBatch = useCallback((updates: Map<string, DownloadProgress>) => {
@@ -491,46 +489,24 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
 
   // Listen for progress updates from Rust backend - runs once at app start
   useEffect(() => {
-    const cancelScheduledFlush = () => {
-      if (progressTimerRef.current) {
-        clearTimeout(progressTimerRef.current);
-        progressTimerRef.current = null;
-      }
-      if (progressRafRef.current !== null) {
-        cancelAnimationFrame(progressRafRef.current);
-        progressRafRef.current = null;
-      }
-    };
-
     const flushBuffer = () => {
-      cancelScheduledFlush();
       if (progressBufferRef.current.size > 0) {
         const batch = new Map(progressBufferRef.current);
         progressBufferRef.current.clear();
         applyProgressBatch(batch);
         lastProgressFlushRef.current = Date.now();
       }
+      rafPendingRef.current = false;
     };
 
     const unlisten = listen<DownloadProgress>('download-progress', (event) => {
       const progress = event.payload;
 
       if (progress.playlist_index && progress.playlist_count) {
-        const nextInfo = {
+        setCurrentPlaylistInfo({
           index: progress.playlist_index,
           total: progress.playlist_count,
           title: progress.title || '',
-        };
-        setCurrentPlaylistInfo((prev) => {
-          if (
-            prev &&
-            prev.index === nextInfo.index &&
-            prev.total === nextInfo.total &&
-            prev.title === nextInfo.title
-          ) {
-            return prev;
-          }
-          return nextInfo;
         });
       }
 
@@ -555,26 +531,21 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Intermediate progress updates are throttled to 100-150ms aligned with requestAnimationFrame
-      if (!progressTimerRef.current && progressRafRef.current === null) {
-        const now = Date.now();
-        const elapsed = now - lastProgressFlushRef.current;
-        const delay = Math.max(0, PROGRESS_THROTTLE_MS - elapsed);
-
-        progressTimerRef.current = setTimeout(() => {
-          progressTimerRef.current = null;
-          progressRafRef.current = requestAnimationFrame(() => {
-            progressRafRef.current = null;
-            flushBuffer();
-          });
-        }, delay);
+      // Intermediate progress updates are throttled to ~100ms via requestAnimationFrame
+      const now = Date.now();
+      if (now - lastProgressFlushRef.current >= 100) {
+        flushBuffer();
+      } else if (!rafPendingRef.current) {
+        rafPendingRef.current = true;
+        requestAnimationFrame(flushBuffer);
       }
     });
 
     return () => {
       unlisten.then((fn) => fn());
-      cancelScheduledFlush();
-      flushBuffer();
+      if (rafPendingRef.current) {
+        flushBuffer();
+      }
     };
   }, [applyProgressBatch]);
 
@@ -1243,7 +1214,6 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
   }, [pendingOutputPathUpdate]);
 
   const removeItem = useCallback((id: string) => {
-    progressBufferRef.current.delete(id);
     setItems((items) => {
       const nextItems = items.filter((item) => item.id !== id);
       itemsRef.current = nextItems;
@@ -1353,7 +1323,6 @@ export function DownloadProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clearAll = useCallback(() => {
-    progressBufferRef.current.clear();
     itemsRef.current = [];
     setItems([]);
     setCurrentPlaylistInfo(null);

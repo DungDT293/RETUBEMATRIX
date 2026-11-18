@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-11-18
+
+### Added
+
+- **Automatic Browser Profile Cookie Resolver for yt-dlp** - Seamlessly extracts and passes cookies from BKT test profiles and browser instances (`--cookies-from-browser "chrome:<dir>\Default"`) during YouTube downloads, preventing "Sign in to confirm you're not a bot" challenge blocks.
+- **Global Active Tasks Dock with Live ETA** - Integrated persistent, cross-tab task monitor floating in the bottom-right dock that tracks live download, reup pipeline, copyright check, and publish workflows with percentage, speed, and real-time ETA calculation.
+- **Multi-Task Management Drawer** - Added expandable multi-job drawer allowing users to track simultaneous operations across tab switches with auto-dismiss timers and manual clear actions.
+
+### Fixed
+
+- **Target Channel Duplicate Upload Vulnerability** - Implemented robust 3-layer deduplication guard across SQLite database, Rust IPC commands, and YouTube Studio DOM content search to completely prevent uploading duplicate videos to target channels.
+- **In-Memory Channel State Reset on Navigation** - Fixed channel video state management to preserve active downloading indicators and percentage progress across tab switches and batch refreshes.
+- **Channel URL Normalization in Database Lookup** - Normalized channel URLs when persisting download statuses, stripping `/videos`, `/shorts`, `/streams`, and trailing slashes to prevent database update failures.
+
 ## [1.3.2] - 2026-11-17
 
 ### Added

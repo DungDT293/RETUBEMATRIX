@@ -787,7 +787,12 @@ export function ReupPipelineSection({ controller }: ReupPipelineSectionProps) {
                           <span>Tốc độ: {item.speed || 'N/A'}</span>
                           {item.fps !== undefined && <span>FPS: {item.fps}</span>}
                           {item.etaSeconds !== undefined && (
-                            <span>Còn lại: ~{Math.ceil(item.etaSeconds)}s</span>
+                            <span>
+                              Còn lại: ~
+                              {item.etaSeconds < 60
+                                ? `${Math.ceil(item.etaSeconds)}s`
+                                : `${Math.floor(item.etaSeconds / 60)}m ${Math.ceil(item.etaSeconds % 60)}s`}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -1081,7 +1086,12 @@ export function ReupPipelineSection({ controller }: ReupPipelineSectionProps) {
                   <span>Tốc độ: {reupProgress.speed || 'N/A'}</span>
                   {reupProgress.fps !== undefined && <span>FPS: {reupProgress.fps}</span>}
                   {reupProgress.eta_seconds !== undefined && (
-                    <span>Còn lại: ~{Math.ceil(reupProgress.eta_seconds)}s</span>
+                    <span>
+                      Còn lại: ~
+                      {reupProgress.eta_seconds < 60
+                        ? `${Math.ceil(reupProgress.eta_seconds)}s`
+                        : `${Math.floor(reupProgress.eta_seconds / 60)}m ${Math.ceil(reupProgress.eta_seconds % 60)}s`}
+                    </span>
                   )}
                 </div>
               </div>

@@ -890,9 +890,23 @@ pub fn update_channel_video_status_by_video_id_db(
 /// Get channel_id for a followed channel by URL
 pub fn get_channel_id_by_url_db(url: String) -> Result<Option<String>, String> {
     let conn = get_db()?;
+    let clean_url = url.trim().trim_end_matches('/').to_lowercase();
+    let base_url = clean_url
+        .trim_end_matches("/videos")
+        .trim_end_matches("/shorts")
+        .trim_end_matches("/streams")
+        .trim_end_matches("/featured")
+        .trim_end_matches('/');
+    let like_pattern = format!("{base_url}%");
+
     let result = conn.query_row(
-        "SELECT id FROM followed_channels WHERE url = ?1",
-        params![url],
+        "SELECT id FROM followed_channels 
+         WHERE url = ?1 
+            OR LOWER(RTRIM(url, '/')) = ?2
+            OR LOWER(REPLACE(REPLACE(url, '/videos', ''), '/shorts', '')) = ?3
+            OR url LIKE ?4
+         LIMIT 1",
+        params![url, clean_url, base_url, like_pattern],
         |row| row.get::<_, String>(0),
     );
     match result {

@@ -26,6 +26,7 @@ dist-ssr/
 
 # Rust / Tauri build artifacts
 src-tauri/target/
+bin/
 src-tauri/bin/*.exe
 src-tauri/bin/yt-dlp*
 *.setup.exe

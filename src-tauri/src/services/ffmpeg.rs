@@ -1,5 +1,5 @@
 use crate::types::{DependencySource, FfmpegStatus};
-use crate::utils::{find_system_binary, unix_system_binary_dirs, CommandExt};
+use crate::utils::{find_app_binary, find_system_binary, unix_system_binary_dirs, CommandExt};
 use md5::{Digest as Md5Digest, Md5};
 use sha2::{Digest as Sha2Digest, Sha256};
 use std::path::PathBuf;
@@ -110,53 +110,13 @@ pub async fn set_ffmpeg_source(app: &AppHandle, source: &DependencySource) -> Re
     Ok(())
 }
 
-fn get_app_ffmpeg_path(app: &AppHandle) -> Option<PathBuf> {
+pub fn get_app_ffmpeg_path(app: &AppHandle) -> Option<PathBuf> {
     #[cfg(windows)]
     let binary_name = "ffmpeg.exe";
     #[cfg(not(windows))]
     let binary_name = "ffmpeg";
 
-    // 1. Check bundled bin next to current running executable
-    if let Ok(exe_path) = std::env::current_exe() {
-        if let Some(exe_dir) = exe_path.parent() {
-            let candidates = [
-                exe_dir.join("bin").join(binary_name),
-                exe_dir.join(binary_name),
-                exe_dir.join("resources").join("bin").join(binary_name),
-                exe_dir.join("resources").join(binary_name),
-            ];
-            for cand in candidates {
-                if cand.exists() {
-                    return Some(cand);
-                }
-            }
-        }
-    }
-
-    // 2. Check Tauri resource directory
-    if let Ok(res_dir) = app.path().resource_dir() {
-        let candidates = [
-            res_dir.join("bin").join(binary_name),
-            res_dir.join(binary_name),
-            res_dir.join("resources").join("bin").join(binary_name),
-        ];
-        for cand in candidates {
-            if cand.exists() {
-                return Some(cand);
-            }
-        }
-    }
-
-    // 3. App data directory (downloaded or legacy)
-    let app_data_dir = app.path().app_data_dir().ok()?;
-    let bin_dir = app_data_dir.join("bin");
-    let ffmpeg_path = bin_dir.join(binary_name);
-
-    if ffmpeg_path.exists() {
-        Some(ffmpeg_path)
-    } else {
-        None
-    }
+    find_app_binary(app, binary_name)
 }
 
 fn get_system_ffmpeg_path() -> Option<PathBuf> {
@@ -218,52 +178,13 @@ pub async fn check_ffmpeg_internal(app: &AppHandle) -> Result<FfmpegStatus, Stri
     })
 }
 
-fn get_app_ffprobe_path(app: &AppHandle) -> Option<PathBuf> {
+pub fn get_app_ffprobe_path(app: &AppHandle) -> Option<PathBuf> {
     #[cfg(windows)]
     let binary_name = "ffprobe.exe";
     #[cfg(not(windows))]
     let binary_name = "ffprobe";
 
-    // 1. Check bundled bin next to current running executable
-    if let Ok(exe_path) = std::env::current_exe() {
-        if let Some(exe_dir) = exe_path.parent() {
-            let candidates = [
-                exe_dir.join("bin").join(binary_name),
-                exe_dir.join(binary_name),
-                exe_dir.join("resources").join("bin").join(binary_name),
-                exe_dir.join("resources").join(binary_name),
-            ];
-            for cand in candidates {
-                if cand.exists() {
-                    return Some(cand);
-                }
-            }
-        }
-    }
-
-    // 2. Check Tauri resource directory
-    if let Ok(res_dir) = app.path().resource_dir() {
-        let candidates = [
-            res_dir.join("bin").join(binary_name),
-            res_dir.join(binary_name),
-            res_dir.join("resources").join("bin").join(binary_name),
-        ];
-        for cand in candidates {
-            if cand.exists() {
-                return Some(cand);
-            }
-        }
-    }
-
-    // 3. App data directory
-    let app_data_dir = app.path().app_data_dir().ok()?;
-    let bin_dir = app_data_dir.join("bin");
-    let p = bin_dir.join(binary_name);
-    if p.exists() {
-        Some(p)
-    } else {
-        None
-    }
+    find_app_binary(app, binary_name)
 }
 
 pub async fn get_ffprobe_path(app: &AppHandle) -> Option<PathBuf> {

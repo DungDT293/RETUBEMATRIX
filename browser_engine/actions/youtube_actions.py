@@ -2740,7 +2740,6 @@ def build_competitor_nurture_plan(
        - allowed_keywords: Bộ lọc kiểm tra tính liên quan khi click video.
        - competitor_urls: Danh sách URL kênh đối thủ (dùng cho luồng ghé thăm kênh đối thủ).
     """
-    import re
     search_topics: list[str] = []
     allowed_keywords: list[str] = []
     valid_channel_urls: list[str] = []

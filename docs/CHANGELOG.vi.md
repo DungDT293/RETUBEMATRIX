@@ -7,6 +7,20 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-11-18
+
+### Thêm mới
+
+- **Tự Động Trích Xuất Cookie Profile Tránh Bot Check Cho yt-dlp** - Tự động nhận diện và nạp cookie từ Profile Test / BrowserMulti (`--cookies-from-browser "chrome:<dir>\Default"`) khi tải video từ YouTube, triệt tiêu hoàn toàn lỗi yêu cầu đăng nhập bot ("Sign in to confirm you're not a bot").
+- **Thanh Task Dock Toàn Cục Kèm Ước Lượng Thời Gian (ETA)** - Tích hợp dock hiển thị tiến trình nổi cố định ở góc dưới màn hình, duy trì liên tục khi chuyển tab để hiển thị tốc độ, phần trăm và thời gian hoàn thành (ETA) cho mọi tác vụ Tải video, Render lách bản quyền, Quét BKT và Đăng kênh đích.
+- **Ngăn Kéo Quản Lý Đa Nhiệm Ngầm** - Bổ sung giao diện mở rộng hiển thị danh sách nhiều tác vụ chạy ngầm song song với cơ chế tự động dọn dẹp sau khi hoàn tất.
+
+### Sửa lỗi
+
+- **Lỗ Hổng Đăng Trùng Lặp 2 Video Lên Kênh Đích** - Thiết lập hệ thống kiểm soát 3 lớp (SQLite Database, Rust IPC Guard và Quét DOM YouTube Studio) ngăn chặn triệt để tình trạng xuất bản trùng lặp các video đã có trên kênh đích.
+- **Mất Trạng Thái Tiến Trình Khi Chuyển Tab** - Khắc phục hiện tượng reset bộ nhớ khi tải lại danh sách kênh, bảo toàn nguyên vẹn trạng thái tải và tiến trình đang xử lý.
+- **Chuẩn Hóa URL Kênh Trong Truy Vấn Cơ Sở Dữ Liệu** - Tự động làm sạch các hậu tố `/videos`, `/shorts`, `/streams` và dấu gạch chéo cuối URL khi lưu trạng thái tải xuống, ngăn ngừa lỗi không tìm thấy kênh trong SQLite.
+
 ## [1.3.2] - 2026-11-17
 
 ### Thêm mới

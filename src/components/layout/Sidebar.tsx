@@ -10,6 +10,7 @@ import {
   FolderDown,
   Globe,
   LayoutDashboard,
+  Loader2,
   LogIn,
   Moon,
   ScrollText,
@@ -24,6 +25,8 @@ import { useTranslation } from 'react-i18next';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { isOwnerEmail, useAuth } from '@/contexts/AuthContext';
+import { useChannels } from '@/contexts/channels-context';
+import { useDownload } from '@/contexts/download-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 
@@ -109,6 +112,8 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { mode, toggleMode } = useTheme();
   const { user, isAuthenticated, isHwidMismatch } = useAuth();
+  const { isDownloading: isChannelsDownloading, checkingChannelIds } = useChannels();
+  const { isDownloading: isUniversalDownloading } = useDownload();
   const [appVersion, setAppVersion] = useState('1.2.1');
 
   useEffect(() => {
@@ -223,51 +228,68 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
 
         {/* Navigation */}
         <nav className="relative flex-1 p-2 space-y-1 mt-2">
-          {visibleNavItems.map((item, index) => (
-            <Tooltip key={item.id}>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={() => onPageChange(item.id)}
-                  className={cn(
-                    'group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl',
-                    'transition-all duration-200 ease-out',
-                    'hover:bg-white/[0.08] dark:hover:bg-white/[0.05]',
-                    currentPage === item.id && ['bg-primary/10', 'text-primary'],
-                    currentPage !== item.id && 'text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'flex-shrink-0 transition-all duration-200 relative',
-                      'group-hover:scale-110',
-                      currentPage === item.id && 'drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]',
-                    )}
-                  >
-                    {item.icon}
-                  </span>
-                  <span
-                    className={cn(
-                      'text-sm font-medium whitespace-nowrap transition-all duration-300',
-                      isCollapsed ? 'opacity-0 w-0' : 'opacity-100',
-                    )}
-                  >
-                    {`${index + 1}. ${t(item.labelKey)}`}
-                  </span>
+          {visibleNavItems.map((item, index) => {
+            const isWorking =
+              (item.id === 'channels' && (isChannelsDownloading || checkingChannelIds.size > 0)) ||
+              (item.id === 'universal' && isUniversalDownloading);
 
-                  {/* Active indicator */}
-                  {currentPage === item.id && (
-                    <div className="absolute left-0 w-1 h-5 rounded-r-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
-                  )}
-                </button>
-              </TooltipTrigger>
-              {isCollapsed && (
-                <TooltipContent side="right" className="font-medium">
-                  {`${index + 1}. ${t(item.labelKey)}`}
-                </TooltipContent>
-              )}
-            </Tooltip>
-          ))}
+            return (
+              <Tooltip key={item.id}>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => onPageChange(item.id)}
+                    className={cn(
+                      'group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl relative',
+                      'transition-all duration-200 ease-out',
+                      'hover:bg-white/[0.08] dark:hover:bg-white/[0.05]',
+                      currentPage === item.id && ['bg-primary/10', 'text-primary'],
+                      currentPage !== item.id && 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'flex-shrink-0 transition-all duration-200 relative',
+                        'group-hover:scale-110',
+                        currentPage === item.id && 'drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]',
+                      )}
+                    >
+                      {item.icon}
+                      {isWorking && isCollapsed && (
+                        <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                        </span>
+                      )}
+                    </span>
+                    <span
+                      className={cn(
+                        'text-sm font-medium whitespace-nowrap transition-all duration-300',
+                        isCollapsed ? 'opacity-0 w-0' : 'opacity-100',
+                      )}
+                    >
+                      {`${index + 1}. ${t(item.labelKey)}`}
+                    </span>
+
+                    {/* Background Working Indicator */}
+                    {isWorking && !isCollapsed && (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-primary ml-auto flex-shrink-0" />
+                    )}
+
+                    {/* Active indicator */}
+                    {currentPage === item.id && (
+                      <div className="absolute left-0 w-1 h-5 rounded-r-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                {isCollapsed && (
+                  <TooltipContent side="right" className="font-medium">
+                    {`${index + 1}. ${t(item.labelKey)}`}
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            );
+          })}
         </nav>
 
         {/* Bottom Actions */}

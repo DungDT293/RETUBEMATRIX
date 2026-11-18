@@ -1442,6 +1442,11 @@ class CloakSession:
             remaining = await asyncio.to_thread(wait_for_profile_processes_exit, self.profile_dir, 10.0) if self.profile_dir else []
             if remaining:
                 logger.warning("Profile release waiting timed out | profile=%s | pids=%s", self.profile_name, remaining)
+                try:
+                    from core.engines.browsermulti_native import graceful_terminate_pids
+                    graceful_terminate_pids(remaining, timeout=3.0)
+                except Exception:
+                    pass
             _log_resource_snapshot("after_close", self.profile_name, self.profile_dir, capture_processes=True)
             logger.info("Đã đóng trình duyệt")
         except asyncio.TimeoutError:

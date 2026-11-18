@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import time
 from typing import Any, Dict
 
@@ -31,6 +32,10 @@ async def inspect_studio_modal_state(page: Any) -> Dict[str, Any]:
         "visRadiosVisible": False,
         "postSaveDialogs": [],
         "backdropOpened": False,
+        "isFullPageEditor": False,
+        "fullPageSavePresent": False,
+        "fullPageSaveActionable": False,
+        "fullPageVisSelectPresent": False,
     }
 
 
@@ -322,6 +327,7 @@ async def dismiss_blocking_studio_dialogs(
     result = {
         "handled": False,
         "type": "none",
+        "needsReload": False,
         "reloaded": False,
         "details": "",
     }
@@ -332,34 +338,84 @@ async def dismiss_blocking_studio_dialogs(
                 "return __rtmDom.inspectAndDismissBlockingDialog(arg);",
                 {"allowReload": allow_reload},
             )
-            if not diag or not diag.get("found"):
-                break
+            found_diag = bool(diag and diag.get("found"))
+            if found_diag:
+                logger.info(
+                    "[%s] Phát hiện và bấm đóng hộp thoại cản trở: button='%s', allSet=%s, needsReload=%s, sample='%s'",
+                    context,
+                    diag.get("buttonText"),
+                    diag.get("isAllSet"),
+                    diag.get("needsReload"),
+                    diag.get("sample"),
+                )
+                result["handled"] = True
+                result["type"] = "you_are_all_set" if diag.get("isAllSet") else "blocking_notice"
+                result["needsReload"] = bool(diag.get("needsReload"))
+                result["details"] = diag.get("sample", "")
 
-            logger.info(
-                "[%s] Phát hiện và bấm đóng hộp thoại cản trở: button='%s', allSet=%s, needsReload=%s, sample='%s'",
-                context,
-                diag.get("buttonText"),
-                diag.get("isAllSet"),
-                diag.get("needsReload"),
-                diag.get("sample"),
-            )
-            result["handled"] = True
-            result["type"] = "you_are_all_set" if diag.get("isAllSet") else "blocking_notice"
-            result["details"] = diag.get("sample", "")
+            # Playwright native fallback click với force=True:
+            # CHỈ chạy khi thực sự có blocking dialog container trên trang (KHÔNG bao giờ quét trên toàn document)
+            native_clicked = False
+            has_blocking_container = await page.evaluate("""() => {
+                const candidates = document.querySelectorAll('ytcp-feature-eligibility-dialog, ytcp-confirmation-dialog, ytcp-dialog, tp-yt-paper-dialog[opened]');
+                for (const c of candidates) {
+                    const tag = (c.tagName || '').toLowerCase();
+                    if (tag === 'ytcp-uploads-dialog') continue;
+                    if (c.closest && c.closest('ytcp-uploads-dialog, ytcp-video-row')) continue;
+                    if (c.offsetParent !== null || (c.getClientRects && c.getClientRects().length > 0)) {
+                        return true;
+                    }
+                }
+                return false;
+            }""")
+
+            if has_blocking_container:
+                for btn_sel in [
+                    'ytcp-feature-eligibility-dialog #cancel-button',
+                    'ytcp-feature-eligibility-dialog #dismiss-button',
+                    'ytcp-feature-eligibility-dialog [dialog-dismiss]',
+                    'ytcp-feature-eligibility-dialog #close-button',
+                    'ytcp-feature-eligibility-dialog ytcp-button',
+                    'ytcp-confirmation-dialog #confirm-button',
+                    'ytcp-confirmation-dialog #dismiss-button',
+                    'ytcp-confirmation-dialog #cancel-button',
+                    'ytcp-confirmation-dialog ytcp-button[dialog-confirm]',
+                    'tp-yt-paper-dialog[opened]:not(ytcp-uploads-dialog) [dialog-confirm]',
+                    'tp-yt-paper-dialog[opened]:not(ytcp-uploads-dialog) [dialog-dismiss]',
+                    'ytcp-dialog[opened]:not(ytcp-uploads-dialog) #confirm-button',
+                    'ytcp-dialog[opened]:not(ytcp-uploads-dialog) #dismiss-button',
+                    'ytcp-dialog[opened]:not(ytcp-uploads-dialog) #cancel-button',
+                ]:
+                    try:
+                        loc = page.locator(btn_sel).first
+                        if await loc.count() > 0 and await loc.is_visible():
+                            await loc.click(force=True, timeout=1500)
+                            logger.info("[%s] Playwright native fallback click thành công trên selector: %s", context, btn_sel)
+                            native_clicked = True
+                            if not result["handled"]:
+                                result["handled"] = True
+                                result["type"] = "blocking_notice"
+                                result["needsReload"] = False
+                                result["details"] = f"Native click: {btn_sel}"
+                            break
+                    except Exception:
+                        pass
+
+            if not found_diag and not native_clicked:
+                break
 
             # Chờ modal đóng và backdrop mờ dần
             await asyncio.sleep(0.6)
 
             # Xử lý yêu cầu reload trang nếu modal yêu cầu
-            if diag.get("needsReload") and allow_reload and context != "upload_streaming":
+            if result.get("needsReload") and allow_reload and context != "upload_streaming":
                 logger.info("[%s] Modal yêu cầu làm mới trang. Tiến hành reload Studio an toàn...", context)
                 cur_url = getattr(page, "url", "") or ""
                 target_url = cur_url
                 if "/channel/" in cur_url:
-                    import re
                     cid_match = re.search(r"/channel/([^/?#]+)", cur_url)
                     if cid_match:
-                        target_url = f"https://studio.youtube.com/channel/{cid_match.group(1)}/videos/upload"
+                        target_url = f"https://studio.youtube.com/channel/{cid_match.group(1)}"
                 if not target_url or "studio.youtube.com" not in target_url:
                     target_url = "https://studio.youtube.com/"
 

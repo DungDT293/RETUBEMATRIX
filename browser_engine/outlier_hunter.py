@@ -76,7 +76,6 @@ def parse_subscribers(val) -> int:
     s = str(val).strip().upper()
     if not s:
         return 0
-    import re
     m = re.search(r"([\d\.,]+)\s*([KkMmBbNn]|TRIỆU|NGHÌN|TR|NG|TỶ)?", s)
     if not m:
         try:
@@ -173,7 +172,6 @@ def is_reup_safe_and_valid_small_channel(video: Dict, settings: Dict) -> Tuple[b
     """
     6 LỚP BẢO VỆ CHỐNG BẢN QUYỀN NẶNG, CONTENT NGƯỜI THẬT & CHỐNG KÊNH LỚN / LỖI PARSE SUB
     """
-    import re
     title_lower = (video.get("title") or "").lower()
     channel_lower = (video.get("channel") or video.get("uploader") or video.get("channel_name") or "").lower()
     duration = safe_int(video.get("duration"), 0)

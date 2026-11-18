@@ -1,3 +1,4 @@
+import { listen } from '@tauri-apps/api/event';
 import { FolderDown, Globe, Loader2, Plus, RefreshCw, Search, Tv } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -74,6 +75,8 @@ export function ChannelsPage() {
     checkingChannelIds,
     checkChannelNow,
     isDownloading,
+    downloadingIds,
+    videoStates,
     outputPath,
     selectOutputFolder,
     downloadSelectedVideos,
@@ -89,12 +92,51 @@ export function ChannelsPage() {
   const [statsMap, setStatsMap] = useState<Record<string, ChannelStats>>({});
   const [loadingStats, setLoadingStats] = useState(false);
 
-  // Expanded channel id (accordion)
-  const [expandedChannelId, setExpandedChannelId] = useState<string | null>(null);
+  // Expanded channel id (accordion) - Persisted across reloads and tab navigation
+  const [expandedChannelId, setExpandedChannelId] = useState<string | null>(() => {
+    try {
+      return sessionStorage.getItem('retubematrix_expanded_channel_id') || null;
+    } catch {
+      return null;
+    }
+  });
 
   // Videos of expanded channel
   const [channelVideosMap, setChannelVideosMap] = useState<Record<string, ChannelVideo[]>>({});
   const [loadingVideos, setLoadingVideos] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (expandedChannelId) {
+        sessionStorage.setItem('retubematrix_expanded_channel_id', expandedChannelId);
+      } else {
+        sessionStorage.removeItem('retubematrix_expanded_channel_id');
+      }
+    } catch {
+      // ignore
+    }
+  }, [expandedChannelId]);
+
+  // Tự động khôi phục danh sách video nếu expandedChannelId có từ session storage
+  useEffect(() => {
+    if (expandedChannelId && !channelVideosMap[expandedChannelId]) {
+      setLoadingVideos(true);
+      getSavedChannelVideos({
+        channelId: expandedChannelId,
+        status: null,
+        limit: 0,
+      })
+        .then((videos) => {
+          setChannelVideosMap((prev) => ({ ...prev, [expandedChannelId]: videos }));
+        })
+        .catch((err) => {
+          console.error('Failed to restore saved channel videos:', err);
+        })
+        .finally(() => {
+          setLoadingVideos(false);
+        });
+    }
+  }, [expandedChannelId, channelVideosMap]);
 
   // Selected videos for batch download
   const [selectedVideoIds, setSelectedVideoIds] = useState<Set<string>>(new Set());
@@ -182,6 +224,54 @@ export function ChannelsPage() {
               downloadSpeed: downloadSpeed ?? item.downloadSpeed,
               downloadEta: downloadEta ?? item.downloadEta,
               downloadSize: downloadSize ?? item.downloadSize,
+            };
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
+    }).then((fn) => {
+      unlisten = fn;
+    });
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
+
+  // Lắng nghe realtime tiến trình Reup/Edit render FFmpeg để hiển thị ETA và %
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    listen<{
+      percent: number;
+      speed?: string;
+      fps?: number;
+      eta_seconds?: number;
+      status: string;
+    }>('reup-pipeline-progress', (event) => {
+      const payload = event.payload;
+      if (!payload) return;
+
+      const etaFormatted =
+        payload.eta_seconds != null
+          ? payload.eta_seconds < 60
+            ? `${payload.eta_seconds}s`
+            : `${Math.floor(payload.eta_seconds / 60)}p ${payload.eta_seconds % 60}s`
+          : undefined;
+
+      setReupProgressMap((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        for (const chId of Object.keys(next)) {
+          const item = next[chId];
+          if (item?.isRunning) {
+            next[chId] = {
+              ...item,
+              downloadPercent: payload.percent,
+              downloadSpeed:
+                payload.speed || (payload.fps ? `${payload.fps.toFixed(0)} fps` : undefined),
+              downloadEta: etaFormatted,
+              progressText: `${payload.status || 'Đang render Reup'}${etaFormatted ? ` (Còn ~${etaFormatted})` : ''}`,
             };
             changed = true;
           }
@@ -407,6 +497,7 @@ export function ChannelsPage() {
             [channelId]: {
               channelId,
               isRunning: true,
+              currentVideoId: v.video_id,
               currentStep: stepIndex,
               totalSteps: total,
               progressText: `[${stepIndex}/${total}] Đang tải video: "${v.title}"...`,
@@ -595,6 +686,25 @@ export function ChannelsPage() {
               });
               break;
             }
+          } else if (finishedJob.status === 'publish_failed') {
+            const failMsg =
+              finishedJob.errorMessage || finishedJob.restriction || 'Đăng lên Kênh Đích thất bại';
+            setReupProgressMap((prev) => ({
+              ...prev,
+              [channelId]: {
+                channelId,
+                isRunning: false,
+                currentStep: stepIndex,
+                totalSteps: total,
+                progressText: `Auto Reup dừng lại ở video [${stepIndex}/${total}] do lỗi đăng kênh đích: ${failMsg}`,
+                status: 'failed',
+              },
+            }));
+            toast.error({
+              title: `Video ${stepIndex}/${total} Lỗi Đăng Kênh Đích`,
+              message: `Video đã sạch bản quyền nhưng bước đăng sang Kênh Đích gặp lỗi: ${failMsg}. Bạn có thể bấm "Tiếp tục đăng" để thử lại.`,
+            });
+            break;
           } else if (finishedJob.status === 'failed') {
             const isUserCancelled =
               finishedJob.restriction?.includes('hủy') ||
@@ -849,10 +959,57 @@ export function ChannelsPage() {
     setSelectedVideoIds(new Set());
   };
 
+  // Single download video
+  const handleDownloadSingleVideo = async (video: ChannelVideo) => {
+    const channel = followedChannels.find((c) => c.id === expandedChannelId);
+    toast.info({
+      title: 'Đang tải video...',
+      message: video.title || video.url,
+    });
+    try {
+      await downloadSelectedVideos(
+        channel?.download_quality || 'best',
+        channel?.download_format || 'mp4',
+        channel?.download_video_codec || 'auto',
+        channel?.download_preferred_fps || 'original',
+        [
+          {
+            id: video.video_id,
+            title: video.title,
+            url: video.url,
+            thumbnail: video.thumbnail || undefined,
+            duration: video.duration || undefined,
+          },
+        ],
+        channel?.url,
+        channel?.name,
+      );
+    } catch (err) {
+      console.error('Lỗi khi tải video:', err);
+      toast.error({
+        title: 'Lỗi tải video',
+        message: `Không thể tải video: ${video.title || video.url}`,
+      });
+    }
+  };
+
   // Batch download selected videos
   const handleDownloadSelected = async (videosToDownload: ChannelVideo[]) => {
-    if (videosToDownload.length === 0) return;
+    if (videosToDownload.length === 0) {
+      toast.warning({
+        title: 'Chưa chọn video',
+        message: 'Vui lòng tích chọn ít nhất 1 video để tải về.',
+      });
+      return;
+    }
     const channel = followedChannels.find((c) => c.id === expandedChannelId);
+    toast.info({
+      title: 'Đang tải video...',
+      message:
+        videosToDownload.length === 1
+          ? videosToDownload[0].title || videosToDownload[0].url
+          : `Đang tải ${videosToDownload.length} video được chọn`,
+    });
     const entries = videosToDownload.map((v) => ({
       id: v.video_id,
       title: v.title,
@@ -872,6 +1029,10 @@ export function ChannelsPage() {
       );
     } catch (err) {
       console.error('Failed to download selected videos:', err);
+      toast.error({
+        title: 'Lỗi tải video',
+        message: 'Không thể bắt đầu tải video đã chọn.',
+      });
     }
   };
 
@@ -1050,6 +1211,9 @@ export function ChannelsPage() {
                         onDeselectAll={handleDeselectAllVideos}
                         onDownloadSelected={handleDownloadSelected}
                         isDownloading={isDownloading}
+                        downloadingVideoIds={downloadingIds}
+                        videoStates={videoStates}
+                        onDownloadSingleVideo={handleDownloadSingleVideo}
                       />
                     </div>
                   )}

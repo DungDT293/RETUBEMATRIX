@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
+use tauri::{AppHandle, Manager};
 
 #[cfg(windows)]
 use super::command::CommandExt;
@@ -87,6 +88,79 @@ pub fn find_system_binary(binary_name: &str, fallback_dirs: &[PathBuf]) -> Optio
     system_binary_candidates(binary_name, fallback_dirs)
         .into_iter()
         .find(|path| path.exists())
+}
+
+/// Collect prioritized candidate paths for an application-managed or bundled binary.
+pub fn app_binary_candidates_from_roots(
+    binary_name: &str,
+    exe_dir: Option<&Path>,
+    res_dir: Option<&Path>,
+    app_data_dir: Option<&Path>,
+    cwd: Option<&Path>,
+) -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+
+    // 1. Next to current running executable and relative development/bundle layouts
+    if let Some(exe_dir) = exe_dir {
+        candidates.push(exe_dir.join("bin").join(binary_name));
+        candidates.push(exe_dir.join(binary_name));
+        candidates.push(exe_dir.join("resources").join("bin").join(binary_name));
+        candidates.push(exe_dir.join("resources").join(binary_name));
+        candidates.push(exe_dir.join("src-tauri").join("bin").join(binary_name));
+        candidates.push(exe_dir.join("..").join("src-tauri").join("bin").join(binary_name));
+        candidates.push(exe_dir.join("..").join("bin").join(binary_name));
+        candidates.push(exe_dir.join("..").join("..").join("bin").join(binary_name));
+        candidates.push(exe_dir.join("..").join("..").join("src-tauri").join("bin").join(binary_name));
+    }
+
+    // 2. Tauri resource directory
+    if let Some(res_dir) = res_dir {
+        candidates.push(res_dir.join("bin").join(binary_name));
+        candidates.push(res_dir.join(binary_name));
+        candidates.push(res_dir.join("resources").join("bin").join(binary_name));
+        candidates.push(res_dir.join("src-tauri").join("bin").join(binary_name));
+        candidates.push(res_dir.join("..").join("src-tauri").join("bin").join(binary_name));
+        candidates.push(res_dir.join("..").join("bin").join(binary_name));
+    }
+
+    // 3. App data directory (downloaded or user-managed)
+    if let Some(app_data_dir) = app_data_dir {
+        candidates.push(app_data_dir.join("bin").join(binary_name));
+        candidates.push(app_data_dir.join(binary_name));
+    }
+
+    // 4. Current working directory (CWD candidates for bat script, cmd, npm/bun run)
+    if let Some(cwd) = cwd {
+        candidates.push(cwd.join("src-tauri").join("bin").join(binary_name));
+        candidates.push(cwd.join("bin").join(binary_name));
+        candidates.push(cwd.join(binary_name));
+        candidates.push(cwd.join("..").join("src-tauri").join("bin").join(binary_name));
+        candidates.push(cwd.join("..").join("bin").join(binary_name));
+    }
+
+    unique_paths(candidates)
+}
+
+/// Find an application-managed or bundled binary path by probing candidate locations in order:
+/// 1. Next to current running executable and relative development/bundle layouts
+/// 2. Inside Tauri resource directory
+/// 3. Inside application data directory (downloaded or user-managed)
+/// 4. Inside current working directory (CWD candidates for CLI, terminal, .bat scripts)
+pub fn find_app_binary(app: &AppHandle, binary_name: &str) -> Option<PathBuf> {
+    let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.to_path_buf()));
+    let res_dir = app.path().resource_dir().ok();
+    let app_data_dir = app.path().app_data_dir().ok();
+    let cwd = std::env::current_dir().ok();
+
+    app_binary_candidates_from_roots(
+        binary_name,
+        exe_dir.as_deref(),
+        res_dir.as_deref(),
+        app_data_dir.as_deref(),
+        cwd.as_deref(),
+    )
+    .into_iter()
+    .find(|path| path.exists())
 }
 
 pub fn unix_system_binary_dirs() -> Vec<PathBuf> {
@@ -454,5 +528,38 @@ HKEY_CURRENT_USER\Environment
         assert!(dirs.contains(&app_data.join("Python").join("Python312").join("Scripts")));
 
         std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn app_binary_candidates_include_all_required_locations() {
+        let exe_dir = PathBuf::from(r"C:\App\src-tauri\target\debug");
+        let res_dir = PathBuf::from(r"C:\App\resources");
+        let app_data_dir = PathBuf::from(r"C:\AppData\RETubeMatrix");
+        let cwd = PathBuf::from(r"C:\App");
+
+        let candidates = app_binary_candidates_from_roots(
+            "ffmpeg.exe",
+            Some(&exe_dir),
+            Some(&res_dir),
+            Some(&app_data_dir),
+            Some(&cwd),
+        );
+
+        // exe_dir candidates
+        assert!(candidates.contains(&exe_dir.join("bin").join("ffmpeg.exe")));
+        assert!(candidates.contains(&exe_dir.join("src-tauri").join("bin").join("ffmpeg.exe")));
+        assert!(candidates.contains(&exe_dir.join("..").join("src-tauri").join("bin").join("ffmpeg.exe")));
+        assert!(candidates.contains(&exe_dir.join("..").join("bin").join("ffmpeg.exe")));
+        assert!(candidates.contains(&exe_dir.join("..").join("..").join("bin").join("ffmpeg.exe")));
+
+        // res_dir candidates
+        assert!(candidates.contains(&res_dir.join("bin").join("ffmpeg.exe")));
+
+        // app_data_dir candidates
+        assert!(candidates.contains(&app_data_dir.join("bin").join("ffmpeg.exe")));
+
+        // cwd candidates
+        assert!(candidates.contains(&cwd.join("src-tauri").join("bin").join("ffmpeg.exe")));
+        assert!(candidates.contains(&cwd.join("bin").join("ffmpeg.exe")));
     }
 }

@@ -207,6 +207,9 @@ export interface VideoDownloadState {
   status: 'pending' | 'downloading' | 'completed' | 'error';
   progress: number;
   speed: string;
+  eta?: string;
+  downloaded_size?: string;
+  filesize?: number;
   error?: string;
 }
 
@@ -679,7 +682,15 @@ export function useChannelsController(): ChannelsContextType {
         setBrowseChannelAvatar(null);
         setBrowseHasMore(false);
         setSelectedVideoIds(new Set());
-        setVideoStates(new Map());
+        setVideoStates((prev) => {
+          const next = new Map();
+          for (const [k, v] of prev.entries()) {
+            if (v.status === 'downloading') {
+              next.set(k, v);
+            }
+          }
+          return next;
+        });
       }
       setBrowseFetchProgress(null);
 
@@ -1063,9 +1074,19 @@ export function useChannelsController(): ChannelsContextType {
         // Mark as downloading
         setVideoStates((prev) => {
           const next = new Map(prev);
-          next.set(video.id, { status: 'downloading', progress: 0, speed: '' });
+          const dlState = { status: 'downloading' as const, progress: 0, speed: '' };
+          next.set(video.id, dlState);
+          if (video.video_id) {
+            next.set(video.video_id, dlState);
+          }
           return next;
         });
+
+        const channelMeta = followedChannelsRef.current.find(
+          (c) => c.url === targetChannelUrl || c.name === targetChannelName,
+        );
+        const preferredChannelProfile =
+          channelMeta?.target_profile_id || channelMeta?.bkt_profile_id || undefined;
 
         try {
           await persistManualChannelDownloadCompletion({
@@ -1090,6 +1111,10 @@ export function useChannelsController(): ChannelsContextType {
                 useBunRuntime,
                 useActualPlayerJs,
                 ...networkOptions,
+                cookieBrowserProfile:
+                  networkOptions.cookieBrowserProfile || preferredChannelProfile,
+                cookie_browser_profile:
+                  networkOptions.cookie_browser_profile || preferredChannelProfile,
                 embedMetadata,
                 embedThumbnail,
                 filenameMetadataEnabled,
@@ -1197,13 +1222,40 @@ export function useChannelsController(): ChannelsContextType {
             }
           }
         } catch (error) {
-          const msg = localizeUnknownError(error);
+          const rawMsg = String(error);
+          let friendlyError = localizeUnknownError(error);
+          if (
+            rawMsg.includes('Sign in to confirm you’re not a bot') ||
+            rawMsg.includes("confirm you're not a bot") ||
+            rawMsg.toLowerCase().includes('bot')
+          ) {
+            friendlyError =
+              'YouTube chặn bot. Hệ thống đang tự động trích xuất Cookie từ Hồ sơ Test/Kênh Đích để thử lại hoặc yêu cầu mở Profile.';
+          }
           console.error(`Failed to download ${video.title}:`, error);
+          toastRef.current?.error({
+            title: 'Lỗi tải video',
+            message: `Không thể tải ${video.title}: ${friendlyError}`,
+          });
           setVideoStates((prev) => {
             const next = new Map(prev);
-            next.set(video.id, { status: 'error', progress: 0, speed: '', error: msg });
+            const errState = {
+              status: 'error' as const,
+              progress: 0,
+              speed: '',
+              error: friendlyError,
+            };
+            next.set(video.id, errState);
+            if (video.video_id) {
+              next.set(video.video_id, errState);
+            }
             return next;
           });
+          updateChannelVideoStatusByVideoId({
+            channelUrl: targetChannelUrl,
+            videoId: video.video_id || video.id,
+            status: 'error',
+          }).catch(() => {});
         }
       };
 
@@ -1282,7 +1334,13 @@ export function useChannelsController(): ChannelsContextType {
         downloadingIdsRef.current.delete(videoId);
         setVideoStates((prev) => {
           const next = new Map(prev);
-          next.set(videoId, { status: 'completed', progress: 100, speed: '' });
+          next.set(videoId, {
+            status: 'completed',
+            progress: 100,
+            speed: '',
+            downloaded_size: progress.downloaded_size,
+            filesize: progress.filesize,
+          });
           return next;
         });
         setDownloadingIds((prev) => {
@@ -1292,6 +1350,11 @@ export function useChannelsController(): ChannelsContextType {
         });
         downloadingIdsRef.current.delete(videoId);
         downloadIdMapRef.current.delete(progress.id);
+
+        toastRef.current?.success({
+          title: 'Tải video thành công',
+          message: progress.title ? `Đã tải xong: ${progress.title}` : 'Đã tải xong video về máy',
+        });
 
         // Persist download status to DB
         updateChannelVideoStatusByVideoId({
@@ -1303,18 +1366,37 @@ export function useChannelsController(): ChannelsContextType {
         // Update tray menu (download completed = count changed)
         rebuildTrayMenu().catch(() => {});
       } else if (progress.status === 'error') {
+        const rawError = progress.error_message || '';
+        let friendlyError =
+          localizeProgressError(
+            progress.error_code,
+            progress.error_message,
+            progress.error_params,
+          ) ||
+          rawError ||
+          'Lỗi tải video';
+
+        if (
+          rawError.includes('Sign in to confirm you’re not a bot') ||
+          rawError.includes("confirm you're not a bot") ||
+          rawError.toLowerCase().includes('bot')
+        ) {
+          friendlyError =
+            'YouTube chặn bot. Cần cấu hình Cookie trình duyệt hoặc đổi IP/Proxy để tiếp tục tải.';
+        }
+
+        toastRef.current?.error({
+          title: 'Lỗi tải video',
+          message: friendlyError,
+        });
+
         setVideoStates((prev) => {
           const next = new Map(prev);
           next.set(videoId, {
             status: 'error',
             progress: 0,
             speed: '',
-            error:
-              localizeProgressError(
-                progress.error_code,
-                progress.error_message,
-                progress.error_params,
-              ) || 'Download failed',
+            error: friendlyError,
           });
           return next;
         });
@@ -1332,6 +1414,9 @@ export function useChannelsController(): ChannelsContextType {
             status: 'downloading',
             progress: progress.percent,
             speed: progress.speed,
+            eta: progress.eta,
+            downloaded_size: progress.downloaded_size,
+            filesize: progress.filesize,
           });
           return next;
         });
@@ -1482,20 +1567,30 @@ export function useChannelsController(): ChannelsContextType {
 
       let autoRunId = 0;
       try {
-        // Nếu kênh đang ở chế độ Auto Reup (đã gán kênh đích), luồng tuần tự 1-by-1
-        // chịu trách nhiệm tải từng video và dọn sạch đĩa; bỏ qua tải hàng loạt để tránh tràn ổ cứng.
+        // Kiem tra kenh Auto Reup: Neu kenh da gan kenh dich, tai tuan tu 1-by-1 de bao ve dung luong o dia
         const targetCh = followedChannelsRef.current.find((c) => c.id === channel_id);
-        if (targetCh && (targetCh.target_profile_id || targetCh.bkt_profile_id)) {
+        const isAutoReupChannel = Boolean(
+          targetCh && (targetCh.target_profile_id || targetCh.bkt_profile_id),
+        );
+
+        // Neu kenh dang co video trong tien trinh tai xu ly, tam hoan chu ky de tranh tranh chap
+        if (isAutoReupChannel && downloadingIdsRef.current.size > 0) {
+          console.log(
+            `[Auto-Download] Kenh "${channel_name}" dang co video xu ly. Tam hoan chu ky polling.`,
+          );
           return;
         }
+
         const claimedRunId = downloadRunGuardRef.current.tryStart();
         if (claimedRunId === null) return;
         autoRunId = claimedRunId;
 
+        // Voi kenh Auto Reup: gioi han 5 video moi nhat de bao ve dung luong o dia
+        const fetchLimit = isAutoReupChannel ? 5 : 50;
         const newVideos = await getSavedChannelVideos({
           channelId: channel_id,
           status: 'new',
-          limit: 50,
+          limit: fetchLimit,
         });
 
         if (newVideos.length === 0) return;
@@ -1665,7 +1760,7 @@ export function useChannelsController(): ChannelsContextType {
           return;
         }
 
-        const maxConcurrent = Math.max(1, download_threads || 1);
+        const maxConcurrent = isAutoReupChannel ? 1 : Math.max(1, download_threads || 1);
         const workflowSnapshots = loadPluginWorkflowSnapshots();
         const queuedAutoDownloads = videosToAutoDownload.map((video) => ({
           video,
@@ -1730,6 +1825,20 @@ export function useChannelsController(): ChannelsContextType {
           if (!downloadRunGuardRef.current.isActive(autoRunId)) return;
           await updateChannelVideoStatus({ id: video.id, status: 'downloading' });
 
+          downloadingIdsRef.current.add(video.id);
+          downloadRunGuardRef.current.track(downloadId);
+          downloadIdMapRef.current.set(downloadId, {
+            videoId: video.id,
+            channelUrl: targetChannel?.url || '',
+            runId: autoRunId,
+          });
+          setDownloadingIds((prev) => new Set([...prev, video.id]));
+          setVideoStates((prev) => {
+            const next = new Map(prev);
+            next.set(video.id, { status: 'downloading', progress: 0, speed: '' });
+            return next;
+          });
+
           try {
             await downloadVideoCommand({
               id: downloadId,
@@ -1772,6 +1881,22 @@ export function useChannelsController(): ChannelsContextType {
 
             if (!downloadRunGuardRef.current.isActive(autoRunId)) return;
             await updateChannelVideoStatus({ id: video.id, status: 'downloaded' });
+            setDownloadingIds((prev) => {
+              const next = new Set(prev);
+              next.delete(video.id);
+              return next;
+            });
+            downloadingIdsRef.current.delete(video.id);
+            downloadIdMapRef.current.delete(downloadId);
+            setVideoStates((prev) => {
+              const next = new Map(prev);
+              next.set(video.id, {
+                status: 'completed',
+                progress: 100,
+                speed: '',
+              });
+              return next;
+            });
 
             // KÍCH HOẠT QUY TRÌNH AUTO-PILOT (REUP LV.1 -> BKT TEST -> AUTO PUBLISH MAIN CHANNEL)
             const targetProfile =
@@ -1836,7 +1961,39 @@ export function useChannelsController(): ChannelsContextType {
             }
           } catch (error) {
             console.error(`Auto-download failed for ${video.title}:`, error);
-            const errMsg = String(error).toLowerCase();
+            const rawMsg = String(error);
+            const errMsg = rawMsg.toLowerCase();
+            let friendlyError = localizeUnknownError(error);
+            if (
+              rawMsg.includes('Sign in to confirm you’re not a bot') ||
+              rawMsg.includes("confirm you're not a bot") ||
+              rawMsg.toLowerCase().includes('bot')
+            ) {
+              friendlyError =
+                'YouTube chặn bot. Cần cấu hình Cookie trình duyệt hoặc đổi IP/Proxy để tiếp tục tải.';
+            }
+            toastRef.current?.error({
+              title: 'Lỗi tải video',
+              message: `Tải tự động thất bại [${video.title}]: ${friendlyError}`,
+            });
+            setVideoStates((prev) => {
+              const next = new Map(prev);
+              next.set(video.id, {
+                status: 'error',
+                progress: 0,
+                speed: '',
+                error: friendlyError,
+              });
+              return next;
+            });
+            setDownloadingIds((prev) => {
+              const next = new Set(prev);
+              next.delete(video.id);
+              return next;
+            });
+            downloadingIdsRef.current.delete(video.id);
+            downloadIdMapRef.current.delete(downloadId);
+
             if (!shouldUpdateAutoDownloadStatus(downloadRunGuardRef.current.isActive(autoRunId))) {
               return;
             }

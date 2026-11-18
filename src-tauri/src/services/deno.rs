@@ -1,10 +1,10 @@
 use crate::types::DenoStatus;
 #[cfg(not(windows))]
 use crate::utils::unix_system_binary_dirs;
-use crate::utils::{find_system_binary, CommandExt};
+use crate::utils::{find_app_binary, find_system_binary, CommandExt};
 use std::path::PathBuf;
 use std::process::Stdio;
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 use tokio::process::Command;
 
 fn get_system_deno_path() -> Option<PathBuf> {
@@ -31,102 +31,57 @@ fn get_system_deno_path() -> Option<PathBuf> {
     find_system_binary(binary_name, &fallback_dirs)
 }
 
-/// Get the Deno binary path (bundled, app data or system)
-pub async fn get_deno_path(app: &AppHandle) -> Option<PathBuf> {
+pub fn get_app_deno_path(app: &AppHandle) -> Option<PathBuf> {
     #[cfg(windows)]
     let binary_name = "deno.exe";
     #[cfg(not(windows))]
     let binary_name = "deno";
 
-    // 1. Check bundled bin next to current running executable
-    if let Ok(exe_path) = std::env::current_exe() {
-        if let Some(exe_dir) = exe_path.parent() {
-            let candidates = [
-                exe_dir.join("bin").join(binary_name),
-                exe_dir.join(binary_name),
-                exe_dir.join("resources").join("bin").join(binary_name),
-                exe_dir.join("resources").join(binary_name),
-            ];
-            for cand in candidates {
-                if cand.exists() {
-                    return Some(cand);
-                }
-            }
-        }
-    }
+    find_app_binary(app, binary_name)
+}
 
-    // 2. Check Tauri resource directory
-    if let Ok(res_dir) = app.path().resource_dir() {
-        let candidates = [
-            res_dir.join("bin").join(binary_name),
-            res_dir.join(binary_name),
-            res_dir.join("resources").join("bin").join(binary_name),
-        ];
-        for cand in candidates {
-            if cand.exists() {
-                return Some(cand);
-            }
-        }
-    }
-
-    // 3. First check app data directory
-    if let Ok(app_data_dir) = app.path().app_data_dir() {
-        let bin_dir = app_data_dir.join("bin");
-        let deno_path = bin_dir.join(binary_name);
-
-        if deno_path.exists() {
-            return Some(deno_path);
-        }
-    }
-
-    get_system_deno_path()
+/// Get the Deno binary path (bundled, app data or system)
+pub async fn get_deno_path(app: &AppHandle) -> Option<PathBuf> {
+    get_app_deno_path(app).or_else(get_system_deno_path)
 }
 
 /// Check Deno runtime status
 pub async fn check_deno_internal(app: &AppHandle) -> Result<DenoStatus, String> {
-    // First check app data directory
-    if let Ok(app_data_dir) = app.path().app_data_dir() {
-        let bin_dir = app_data_dir.join("bin");
-        #[cfg(windows)]
-        let deno_path = bin_dir.join("deno.exe");
-        #[cfg(not(windows))]
-        let deno_path = bin_dir.join("deno");
+    // 1. Check bundled/app-managed Deno first
+    if let Some(deno_path) = get_app_deno_path(app) {
+        let mut cmd = Command::new(&deno_path);
+        cmd.args(["--version"])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        cmd.hide_window();
+        let output = cmd.output().await;
 
-        if deno_path.exists() {
-            let mut cmd = Command::new(&deno_path);
-            cmd.args(["--version"])
-                .stdout(Stdio::piped())
-                .stderr(Stdio::piped());
-            cmd.hide_window();
-            let output = cmd.output().await;
-
-            if let Ok(output) = output {
-                if output.status.success() {
-                    let stdout = String::from_utf8_lossy(&output.stdout);
-                    // Deno outputs: "deno 2.1.2 (stable, release, aarch64-apple-darwin)"
-                    let version = stdout
-                        .lines()
-                        .next()
-                        .map(|l| {
-                            l.trim_start_matches("deno ")
-                                .split_whitespace()
-                                .next()
-                                .unwrap_or("")
-                                .to_string()
-                        })
-                        .unwrap_or_default();
-                    return Ok(DenoStatus {
-                        installed: true,
-                        version: Some(version),
-                        binary_path: Some(deno_path.to_string_lossy().to_string()),
-                        is_system: false,
-                    });
-                }
+        if let Ok(output) = output {
+            if output.status.success() {
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                // Deno outputs: "deno 2.1.2 (stable, release, aarch64-apple-darwin)"
+                let version = stdout
+                    .lines()
+                    .next()
+                    .map(|l| {
+                        l.trim_start_matches("deno ")
+                            .split_whitespace()
+                            .next()
+                            .unwrap_or("")
+                            .to_string()
+                    })
+                    .unwrap_or_default();
+                return Ok(DenoStatus {
+                    installed: true,
+                    version: Some(version),
+                    binary_path: Some(deno_path.to_string_lossy().to_string()),
+                    is_system: false,
+                });
             }
         }
     }
 
-    // Check system Deno (PATH first, then well-known locations)
+    // 2. Fall back to system Deno (PATH first, then well-known locations)
     let deno_path = get_system_deno_path();
     let deno_cmd = deno_path
         .as_ref()

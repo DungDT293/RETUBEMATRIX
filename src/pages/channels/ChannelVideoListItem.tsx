@@ -4,6 +4,7 @@ import {
   ThumbnailFailedBadge,
 } from '@/components/download/ThumbnailStatusBadge';
 import type { VideoDownloadState } from '@/contexts/channels/useChannelsController';
+import { formatEta } from '@/lib/format-eta';
 import type { PlaylistVideoEntry } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -117,9 +118,10 @@ export function ChannelVideoListItem({
                   />
                 </div>
               </div>
-              <div className="flex items-center justify-between text-[10px] text-white/90 font-medium">
+              <div className="flex items-center justify-between text-[10px] text-white/90 font-medium tabular-nums">
                 <span>{(videoState?.progress || 0).toFixed(0)}%</span>
                 {videoState?.speed && <span>{videoState.speed}</span>}
+                {videoState?.eta && <span>{formatEta(videoState.eta)}</span>}
               </div>
             </div>
           </div>
@@ -156,7 +158,13 @@ export function ChannelVideoListItem({
               {isError && <XCircle className="w-3 h-3" />}
               <span>
                 {isPending && 'Pending'}
-                {isActive && `${(videoState.progress || 0).toFixed(0)}%`}
+                {isActive && (
+                  <span className="tabular-nums">
+                    {(videoState.progress || 0).toFixed(0)}%
+                    {videoState.speed && ` • ${videoState.speed}`}
+                    {videoState.eta && ` • ${formatEta(videoState.eta)}`}
+                  </span>
+                )}
                 {isCompleted && 'Completed'}
                 {isError && 'Failed'}
               </span>

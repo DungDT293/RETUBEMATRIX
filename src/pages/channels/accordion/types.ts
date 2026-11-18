@@ -1,3 +1,4 @@
+import type { VideoDownloadState } from '@/contexts/channels/useChannelsController';
 import type { ChannelVideo, FollowedChannel } from '@/lib/types';
 
 export type FilterType = 'all' | 'video' | 'shorts' | 'stream';
@@ -29,6 +30,9 @@ export interface ChannelVideoAccordionProps {
   onDeselectAll: () => void;
   onDownloadSelected: (videos: ChannelVideo[]) => void;
   isDownloading: boolean;
+  downloadingVideoIds?: Set<string>;
+  videoStates?: Map<string, VideoDownloadState>;
+  onDownloadSingleVideo?: (video: ChannelVideo) => void;
   onDeleteVideo?: (videoId: string) => void;
   channel?: FollowedChannel;
 }

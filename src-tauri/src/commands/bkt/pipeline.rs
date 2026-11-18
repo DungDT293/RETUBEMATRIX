@@ -1116,7 +1116,12 @@ pub async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, pr
                         );
                         failed_job.status = "publish_failed".to_string();
                         failed_job.restriction = Some(fail_msg.clone());
-                        failed_job.error_message = Some(fail_msg);
+                        failed_job.error_message = Some(fail_msg.clone());
+                        if job.video_source_type == "channel_video" {
+                            if let Some(ref ref_id) = job.source_ref_id {
+                                publish::update_channel_video_publish_result(ref_id, false, &fail_msg, None, job.target_profile_id.as_deref().or(job.main_target_profile_id.as_deref()));
+                            }
+                        }
                         let _ = app.emit("bkt-test-job-updated", &failed_job);
                     }
                 }

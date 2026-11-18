@@ -929,7 +929,26 @@ pub fn build_cookie_args(
                 }
             }
         }
-        _ => {}
+        "profile" | "test_profile" | "auto" => {
+            if let Some(browser_arg) = crate::commands::resolve_profile_cookie_browser_arg(None, cookie_browser_profile) {
+                log::info!("[YT-DLP COOKIE] Đã tự động áp dụng Cookie từ Profile: {}", browser_arg);
+                args.push("--cookies-from-browser".to_string());
+                args.push(browser_arg);
+            }
+        }
+        _ => {
+            // MẶC ĐỊNH CHO YOUTUBE:
+            // Khi cookie_mode đang tắt (off) hoặc chưa cấu hình, nếu tải từ YouTube,
+            // tự động trích xuất cookie từ Profile Test / BrowserMulti để không bao giờ bị YouTube chặn bot!
+            let lower_url = url.to_ascii_lowercase();
+            if lower_url.contains("youtube.com") || lower_url.contains("youtu.be") {
+                if let Some(browser_arg) = crate::commands::resolve_profile_cookie_browser_arg(None, cookie_browser_profile) {
+                    log::info!("[YT-DLP COOKIE] Tự động kích hoạt Cookie từ Test Profile để tránh bot check: {}", browser_arg);
+                    args.push("--cookies-from-browser".to_string());
+                    args.push(browser_arg);
+                }
+            }
+        }
     }
 
     args

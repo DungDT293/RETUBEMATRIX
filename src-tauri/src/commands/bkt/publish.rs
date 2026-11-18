@@ -75,16 +75,35 @@ pub fn can_recheck_bkt_status(status: &str) -> bool {
     status == "failed"
 }
 
-pub fn update_channel_video_publish_result(ref_id: &str, published: bool, message: &str) {
+pub fn update_channel_video_publish_result(
+    ref_id: &str,
+    published: bool,
+    message: &str,
+    published_yt_id: Option<&str>,
+    target_profile_id: Option<&str>,
+) {
     let status = channel_video_bkt_status_after_publish(published);
     let risk_status = channel_video_risk_status_after_publish(published);
     if let Ok(conn) = database::get_db() {
-        let _ = conn.execute(
-            "UPDATE channel_videos
-             SET bkt_check_status = ?1, risk_status = ?2, bkt_restriction = ?3, risk_reason = ?3
-             WHERE video_id = ?4 OR id = ?4",
-            params![status, risk_status, message, ref_id],
-        );
+        if published {
+            let _ = conn.execute(
+                "UPDATE channel_videos
+                 SET bkt_check_status = ?1, risk_status = ?2, bkt_restriction = ?3, risk_reason = ?3,
+                     target_published = 1,
+                     target_video_id = COALESCE(?5, target_video_id),
+                     target_profile_id = COALESCE(?6, target_profile_id),
+                     target_published_at = CURRENT_TIMESTAMP
+                 WHERE video_id = ?4 OR id = ?4",
+                params![status, risk_status, message, ref_id, published_yt_id, target_profile_id],
+            );
+        } else {
+            let _ = conn.execute(
+                "UPDATE channel_videos
+                 SET bkt_check_status = ?1, risk_status = ?2, bkt_restriction = ?3, risk_reason = ?3
+                 WHERE video_id = ?4 OR id = ?4",
+                params![status, risk_status, message, ref_id],
+            );
+        }
     }
     let _ = database::recalculate_channel_risk_by_video_db(ref_id);
 }
@@ -110,6 +129,80 @@ pub async fn publish_bkt_job_to_main_cmd(
         .clone()
         .or_else(|| job.main_target_profile_id.clone())
         .ok_or_else(|| "Tác vụ này không có cấu hình Kênh Đích (target_profile_id)".to_string())?;
+
+    // 0. KIEM TRA CHONG DANG TRUNG LAP (DATABASE GUARD):
+    if let Ok(conn) = database::get_db() {
+        let clean_target_title = job.target_title.as_deref().unwrap_or(&job.video_title).trim();
+        let title_prefix = if clean_target_title.chars().count() > 30 {
+            clean_target_title.chars().take(30).collect::<String>()
+        } else {
+            clean_target_title.to_string()
+        };
+        let title_like_pattern = format!("{title_prefix}%");
+
+        let existing_published: Option<(String, Option<String>)> = conn.query_row(
+            "SELECT id, youtube_video_id FROM bkt_test_jobs 
+             WHERE (status = 'published' OR restriction LIKE '%Đã xuất bản%')
+               AND (target_profile_id = ?1 OR main_target_profile_id = ?1)
+               AND (video_title = ?2 OR target_title = ?2 
+                    OR video_title LIKE ?5 OR target_title LIKE ?5
+                    OR (source_ref_id IS NOT NULL AND source_ref_id = ?3))
+               AND id != ?4
+             LIMIT 1",
+            rusqlite::params![target_profile, clean_target_title, job.source_ref_id, job.id, title_like_pattern],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        ).ok();
+
+        let existing_channel_vid: Option<Option<String>> = if existing_published.is_none() {
+            conn.query_row(
+                "SELECT target_video_id FROM channel_videos
+                 WHERE (target_published = 1 OR bkt_check_status = 'published' OR bkt_restriction LIKE '%Đã xuất bản%')
+                   AND (target_profile_id = ?1 OR target_profile_id IS NULL)
+                   AND ((?2 IS NOT NULL AND (id = ?2 OR video_id = ?2))
+                        OR title = ?3 OR original_title = ?3
+                        OR title LIKE ?4 OR original_title LIKE ?4)
+                 LIMIT 1",
+                rusqlite::params![target_profile, job.source_ref_id, clean_target_title, title_like_pattern],
+                |r| r.get(0),
+            ).ok()
+        } else {
+            None
+        };
+
+        let is_already_published = existing_published.is_some() || existing_channel_vid.is_some();
+        if is_already_published {
+            let yt_id = existing_published
+                .and_then(|(_, id)| id)
+                .or_else(|| existing_channel_vid.flatten())
+                .unwrap_or_else(|| "published_confirmed".to_string());
+            let yt_url = if yt_id.len() == 11 && !yt_id.contains(' ') {
+                format!("https://youtu.be/{yt_id}")
+            } else {
+                "https://studio.youtube.com/ (Đã xuất bản trên kênh)".to_string()
+            };
+            let success_msg = format!("Video đã được xuất bản lên Kênh Đích từ trước ({yt_url}). Đã đồng bộ trạng thái, không đăng trùng!");
+            let _ = database::update_bkt_test_job_status_db(
+                &job.id,
+                "published",
+                job.reup_path.as_deref(),
+                Some(&yt_id),
+                Some(&success_msg),
+                None,
+            );
+            if job.video_source_type == "channel_video" {
+                if let Some(ref ref_id) = job.source_ref_id {
+                    update_channel_video_publish_result(ref_id, true, &success_msg, Some(&yt_id), Some(&target_profile));
+                }
+            }
+            let mut updated_job = job.clone();
+            updated_job.status = "published".to_string();
+            updated_job.youtube_video_id = Some(yt_id);
+            updated_job.restriction = Some(success_msg.clone());
+            let _ = app.emit("bkt-test-job-updated", &updated_job);
+            log::info!("[BKT ANTI-DUPLICATE] {}", success_msg);
+            return Ok(success_msg);
+        }
+    }
 
     let upload_video_path = if let Some(ref path) = job.reup_path {
         let p = Path::new(path);
@@ -215,7 +308,25 @@ pub async fn publish_bkt_job_to_main_cmd(
     updated_job.restriction = Some(publish_wait_msg);
     let _ = app.emit("bkt-test-job-updated", &updated_job);
 
-    match crate::commands::profiles::upload_video_multibrowser(app.clone(), upload_params).await {
+    let mut upload_res = crate::commands::profiles::upload_video_multibrowser(app.clone(), upload_params.clone()).await;
+
+    // Tự động giải phóng nếu gặp tiến trình Chromium mồ côi (PID lock) và thử lại 1 lần
+    if let Ok(ref res) = upload_res {
+        if !res.success {
+            let err = res.error.as_deref().unwrap_or("");
+            if err.contains("không tự động dừng tiến trình đang sống") || err.contains("Hồ sơ đang mở trong Chromium") {
+                log::warn!(
+                    "[BKT PUBLISH] Phát hiện PID Chromium cũ chưa thoát cho hồ sơ '{}'. Tự động giải phóng và thử lại...",
+                    target_profile
+                );
+                let _ = crate::commands::profiles::stop_multibrowser_profile(app.clone(), target_profile.clone()).await;
+                tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+                upload_res = crate::commands::profiles::upload_video_multibrowser(app.clone(), upload_params).await;
+            }
+        }
+    }
+
+    match upload_res {
         Ok(upload_res) => {
             if upload_res.success {
                 let published_yt_id = upload_res
@@ -242,11 +353,17 @@ pub async fn publish_bkt_job_to_main_cmd(
                     None,
                 );
                 updated_job.status = "published".to_string();
-                updated_job.youtube_video_id = published_yt_id;
+                updated_job.youtube_video_id = published_yt_id.clone();
                 updated_job.restriction = Some(success_msg.clone());
                 if job.video_source_type == "channel_video" {
                     if let Some(ref ref_id) = job.source_ref_id {
-                        update_channel_video_publish_result(ref_id, true, &success_msg);
+                        update_channel_video_publish_result(
+                            ref_id,
+                            true,
+                            &success_msg,
+                            published_yt_id.as_deref(),
+                            Some(&target_profile),
+                        );
                     }
                 }
                 let _ = app.emit("bkt-test-job-updated", &updated_job);
@@ -283,7 +400,7 @@ pub async fn publish_bkt_job_to_main_cmd(
                 updated_job.error_message = Some(fail_msg.clone());
                 if job.video_source_type == "channel_video" {
                     if let Some(ref ref_id) = job.source_ref_id {
-                        update_channel_video_publish_result(ref_id, false, &fail_msg);
+                        update_channel_video_publish_result(ref_id, false, &fail_msg, None, Some(&target_profile));
                     }
                 }
                 let _ = app.emit("bkt-test-job-updated", &updated_job);
@@ -305,7 +422,7 @@ pub async fn publish_bkt_job_to_main_cmd(
             updated_job.error_message = Some(fail_msg.clone());
             if job.video_source_type == "channel_video" {
                 if let Some(ref ref_id) = job.source_ref_id {
-                    update_channel_video_publish_result(ref_id, false, &fail_msg);
+                    update_channel_video_publish_result(ref_id, false, &fail_msg, None, Some(&target_profile));
                 }
             }
             let _ = app.emit("bkt-test-job-updated", &updated_job);
@@ -409,7 +526,7 @@ pub async fn recheck_bkt_job_cmd(
         if let Some(ref ref_id) = job.source_ref_id {
             if let Ok(conn) = database::get_db() {
                 let _ = conn.execute(
-                    "UPDATE channel_videos SET bkt_check_status = 'pending', risk_status = 'pending', risk_reason = 'Đang xếp hàng chờ tải lại và quét bản quyền...' WHERE video_id = ?1 OR id = ?1",
+                    "UPDATE channel_videos SET bkt_check_status = 'pending', risk_status = 'pending', bkt_restriction = 'Đang xếp hàng chờ tải lại và quét bản quyền...', risk_reason = 'Đang xếp hàng chờ tải lại và quét bản quyền...' WHERE video_id = ?1 OR id = ?1",
                     rusqlite::params![ref_id],
                 );
             }

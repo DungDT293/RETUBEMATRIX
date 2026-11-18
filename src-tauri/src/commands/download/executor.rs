@@ -333,6 +333,12 @@ pub async fn download_video(
     }
     args.extend(advanced_args.args);
 
+    // Default to IPv4 to prevent Windows IPv6 DNS/routing hangs and YouTube 403 blocks,
+    // unless the user explicitly configured --force-ipv6 in advanced options.
+    if !args.iter().any(|a| a == "--force-ipv6" || a == "--force-ipv4") {
+        args.push("--force-ipv4".to_string());
+    }
+
     // Merge YouTube extractor settings into a single --extractor-args value.
     // See: https://github.com/yt-dlp/yt-dlp/issues/14680
     let is_youtube_url = url.contains("youtube.com") || url.contains("youtu.be");
@@ -918,6 +924,35 @@ pub async fn download_video(
                                 &observed_filepaths,
                             );
                             final_filepath = output_paths.first().cloned();
+
+                            if !output_paths.is_empty() {
+                                let proc_title = if reup_mod_enabled.unwrap_or(false) {
+                                    "Đang render lách bản quyền video (Reup)..."
+                                } else {
+                                    "Đang làm sạch metadata & đổi MD5 video..."
+                                };
+                                let progress = DownloadProgress {
+                                    id: id.clone(),
+                                    percent: 99.0,
+                                    speed: String::new(),
+                                    eta: String::new(),
+                                    status: "downloading".to_string(),
+                                    title: Some(proc_title.to_string()),
+                                    playlist_index: current_index,
+                                    playlist_count: total_count,
+                                    filesize: None,
+                                    resolution: None,
+                                    format_ext: None,
+                                    error_message: None,
+                                    error_code: None,
+                                    error_params: None,
+                                    history_id: None,
+                                    filepath: None,
+                                    downloaded_size: None,
+                                    elapsed_time: None,
+                                };
+                                app.emit("download-progress", progress).ok();
+                            }
 
                             for path in &output_paths {
                                 if reup_mod_enabled.unwrap_or(false) {
@@ -1595,6 +1630,35 @@ async fn handle_tokio_download(
             .unwrap_or_default();
         let output_paths =
             job_output_filepaths(&output_directory, &printed_filepaths, &observed_filepaths);
+
+        if !output_paths.is_empty() {
+            let proc_title = if reup_mod_enabled.unwrap_or(false) {
+                "Đang render lách bản quyền video (Reup)..."
+            } else {
+                "Đang làm sạch metadata & đổi MD5 video..."
+            };
+            let progress = DownloadProgress {
+                id: id.clone(),
+                percent: 99.0,
+                speed: String::new(),
+                eta: String::new(),
+                status: "downloading".to_string(),
+                title: Some(proc_title.to_string()),
+                playlist_index: current_index,
+                playlist_count: total_count,
+                filesize: None,
+                resolution: None,
+                format_ext: None,
+                error_message: None,
+                error_code: None,
+                error_params: None,
+                history_id: None,
+                filepath: None,
+                downloaded_size: None,
+                elapsed_time: None,
+            };
+            app.emit("download-progress", progress).ok();
+        }
 
         // Tự động làm sạch metadata, đổi MD5 hoặc áp dụng lách bản quyền cho video sau khi tải về thành công
         for path in &output_paths {

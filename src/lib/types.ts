@@ -863,6 +863,7 @@ export interface SubtitleInfo {
 
 export interface PlaylistVideoEntry {
   id: string;
+  video_id?: string;
   title: string;
   url: string;
   thumbnail?: string;
@@ -1429,10 +1430,24 @@ export interface ChannelVideo {
   risk_reason?: string;
   is_bkt_test?: boolean;
   bkt_youtube_id?: string;
-  bkt_check_status?: 'pending' | 'green_clean' | 'red_matched' | 'failed' | 'publish_failed';
+  bkt_check_status?:
+    | 'pending'
+    | 'green_clean'
+    | 'red_matched'
+    | 'failed'
+    | 'publish_failed'
+    | 'reuping'
+    | 'uploading'
+    | 'checking'
+    | 'publishing'
+    | 'published';
   bkt_restriction?: string;
   reup_pipeline_level?: number;
   is_downloaded?: number | boolean;
+  target_published?: number;
+  target_video_id?: string;
+  target_profile_id?: string;
+  target_published_at?: string;
   original_title?: string;
   originalTitle?: string;
   original_description?: string;

@@ -259,24 +259,44 @@ const __rtmDom = (() => {
     }
 
     function collectVisibleText(root, excludeIds = []) {
-        if (!root || !isReallyVisible(root)) return '';
+        if (!root) return '';
         const excluded = new Set(excludeIds.map(s => String(s || '').toLowerCase()));
         const parts = [];
+        const seen = new Set();
         const walk = (node) => {
-            if (!node) return;
+            if (!node || seen.has(node)) return;
+            seen.add(node);
             if (node.nodeType === 3) {
                 const t = (node.textContent || '').trim();
                 if (t) parts.push(t);
                 return;
             }
             if (node.nodeType !== 1) return;
-            if (!isReallyVisible(node)) return;
+            const tag = (node.tagName || '').toUpperCase();
+            if (tag === 'STYLE' || tag === 'SCRIPT' || tag === 'TEMPLATE' || tag === 'NOSCRIPT') return;
             const id = (node.id || '').toLowerCase();
             if (id && excluded.has(id)) return;
             if (node.classList) {
                 for (const cls of node.classList) {
                     if (excluded.has(cls.toLowerCase())) return;
                 }
+            }
+            if (node.hasAttribute && node.hasAttribute('hidden')) return;
+            if (node.getAttribute && (node.getAttribute('aria-hidden') || '').toLowerCase() === 'true') return;
+
+            try {
+                const st = window.getComputedStyle(node);
+                if (st && (st.display === 'none' || st.visibility === 'hidden' || parseFloat(st.opacity || '1') <= 0.01)) {
+                    return;
+                }
+            } catch (_) {}
+
+            // Nhận diện slotted content trong Web Components
+            if (tag === 'SLOT' && typeof node.assignedNodes === 'function') {
+                try {
+                    const assigned = node.assignedNodes({ flatten: true });
+                    for (const a of assigned) walk(a);
+                } catch (_) {}
             }
             if (node.shadowRoot) {
                 for (const ch of node.shadowRoot.childNodes) walk(ch);
@@ -357,12 +377,20 @@ const __rtmDom = (() => {
     const DEFAULT_CONTAINER_SURFACE_SELECTOR = [
         'tp-yt-paper-dialog',
         'ytcp-dialog',
+        'ytcp-confirmation-dialog',
+        'ytcp-alert-dialog',
+        'ytcp-feature-eligibility-dialog',
+        'ytcp-modal-dialog',
         '#dialog',
         '#close-button',
+        '#confirm-button',
+        '#dismiss-button',
         '#title-textarea',
         '#description-textarea',
         '#next-button',
         '#done-button',
+        '#publish-button',
+        '#save-button',
         'ytcp-uploads-file-picker',
         'ytcp-text-menu',
         'tp-yt-paper-listbox',
@@ -370,6 +398,7 @@ const __rtmDom = (() => {
         'tp-yt-paper-radio-button',
         '[role="menu"]',
         '[role="dialog"]',
+        '[role="alertdialog"]',
         '[role="button"]',
         'button',
         'a[href]',
@@ -415,18 +444,34 @@ const __rtmDom = (() => {
         if (attrStep) return attrStep;
         if (deepFirstVisible(
             dlg,
-            'ytcp-uploads-review, tp-yt-paper-radio-button[name="PUBLIC"], tp-yt-paper-radio-button[name="UNLISTED"], tp-yt-paper-radio-button[name="PRIVATE"], ytcp-button#done-button, #done-button'
+            'ytcp-uploads-review, tp-yt-paper-radio-button[name="PUBLIC"], tp-yt-paper-radio-button[name="UNLISTED"], tp-yt-paper-radio-button[name="PRIVATE"], ytcp-button#done-button, #done-button, ytcp-button#publish-button, #publish-button, ytcp-button#save-button, #save-button'
         )) {
             return 'REVIEW';
         }
-        if (deepFirstVisible(dlg, 'ytcp-uploads-checks')) {
+        if (deepFirstVisible(dlg, 'ytcp-uploads-checks, ytcp-checks-content')) {
             return 'CHECKS';
         }
-        if (deepFirstVisible(dlg, 'ytcp-uploads-video-elements')) {
+        if (deepFirstVisible(dlg, 'ytcp-uploads-video-elements, ytcp-video-elements')) {
             return 'VIDEO_ELEMENTS';
+        }
+        if (deepFirstVisible(dlg, 'ytcp-video-monetization, ytcp-uploads-monetization, ytcp-video-metadata-monetization, ytcp-video-monetization-editor, [name="MONETIZATION_ON"]')) {
+            return 'MONETIZATION';
         }
         if (deepFirstVisible(dlg, 'ytcp-video-metadata-ad-suitability, ytcp-uploads-ad-suitability')) {
             return 'SUITABILITY';
+        }
+        const stepper = deepFirstVisible(dlg, 'ytcp-stepper, #stepper, ytcp-badge-stepper');
+        if (stepper) {
+            const activeBadge = deepFirstVisible(stepper, '.step.active, [selected], .step-badge.active, ytcp-step-badge[selected], [role="tab"][aria-selected="true"]');
+            if (activeBadge) {
+                const btxt = (collectVisibleText(activeBadge) || '').toLowerCase();
+                const bid = (activeBadge.id || '').toLowerCase();
+                if (bid.includes('monetiz') || btxt.includes('monetiz') || btxt.includes('kiếm tiền') || btxt.includes('获利')) return 'MONETIZATION';
+                if (bid.includes('suitab') || btxt.includes('suitab') || btxt.includes('phù hợp') || btxt.includes('quảng cáo')) return 'SUITABILITY';
+                if (bid.includes('3') || btxt.includes('visibility') || btxt.includes('hiển thị') || btxt.includes('visibilidad') || btxt.includes('review')) return 'REVIEW';
+                if (bid.includes('2') || btxt.includes('checks') || btxt.includes('kiểm tra')) return 'CHECKS';
+                if (bid.includes('1') || btxt.includes('elements') || btxt.includes('thành phần')) return 'VIDEO_ELEMENTS';
+            }
         }
         if (deepFirstVisible(dlg, 'ytcp-video-metadata-editor, #title-textarea, #description-textarea, ytcp-uploads-file-picker')) {
             return 'DETAILS';
@@ -439,7 +484,7 @@ const __rtmDom = (() => {
         for (const d of dlgs) {
             if (!isContainerVisiblyMounted(d)) continue;
             const hasEditorControls = Boolean(
-                deepFirstVisible(d, '#title-textarea, #description-textarea, #next-button, #done-button, ytcp-uploads-file-picker')
+                deepFirstVisible(d, '#title-textarea, #description-textarea, #next-button, #done-button, #publish-button, #save-button, ytcp-uploads-file-picker')
             );
             const step = detectUploadWizardStep(d);
             if (hasEditorControls || step.length > 0) {
@@ -471,7 +516,7 @@ const __rtmDom = (() => {
         if (!isModalSurface) return false;
 
         // Reject upload/metadata editor or cancel buttons inside dialog.
-        const hasEditor = Boolean(deepFirstVisible(d, '#title-textarea, #description-textarea, #next-button, #done-button, ytcp-uploads-file-picker'));
+        const hasEditor = Boolean(deepFirstVisible(d, '#title-textarea, #description-textarea, #next-button, #done-button, #publish-button, #save-button, ytcp-uploads-file-picker'));
         if (hasEditor) return false;
 
         const hasUploadOrShareSignals = Boolean(
@@ -544,7 +589,22 @@ const __rtmDom = (() => {
     function inspectAndDismissBlockingDialog(opts = {}) {
         const candidates = deepQueryMounted(
             document,
-            'ytcp-confirmation-dialog, ytcp-dialog, tp-yt-paper-dialog, [role="dialog"], [role="alertdialog"], ytcp-alert-dialog, ytcp-feature-eligibility-dialog, dialog'
+            [
+                'ytcp-confirmation-dialog',
+                'ytcp-dialog',
+                'tp-yt-paper-dialog',
+                '[role="dialog"]',
+                '[role="alertdialog"]',
+                'ytcp-alert-dialog',
+                'ytcp-feature-eligibility-dialog',
+                'ytcp-modal-dialog',
+                'ytcp-info-dialog',
+                'dialog',
+                '.ytcp-dialog',
+                '.ytcp-confirmation-dialog',
+                'ytcp-popup-container > *',
+                '[opened]',
+            ].join(', ')
         );
         // Bổ sung các overlay container hoặc modal nằm cạnh backdrop đang mở
         const backdrops = deepQueryAll(document, 'iron-overlay-backdrop.opened, tp-yt-iron-overlay-backdrop.opened');
@@ -556,6 +616,16 @@ const __rtmDom = (() => {
                 }
                 next = next.nextElementSibling;
             }
+            let prev = b.previousElementSibling;
+            while (prev) {
+                if (isContainerVisiblyMounted(prev) && !candidates.includes(prev)) {
+                    const prevTag = (prev.tagName || '').toLowerCase();
+                    if (prevTag.includes('dialog') || prevTag.includes('popup')) {
+                        candidates.push(prev);
+                    }
+                }
+                prev = prev.previousElementSibling;
+            }
         }
 
         for (const dlg of candidates) {
@@ -563,6 +633,7 @@ const __rtmDom = (() => {
             const tag = (dlg.tagName || '').toLowerCase();
             // Không nhầm lẫn giao diện chính của wizard upload hoặc row video với dialog chặn
             if (tag === 'ytcp-uploads-dialog' || tag === 'ytcp-video-row') continue;
+            if (hasAncestorTag(dlg, new Set(['ytcp-uploads-dialog', 'ytcp-video-row']))) continue;
             if (tag === 'ytcp-uploads-file-picker' || tag === 'ytcp-video-metadata-editor' || tag === 'ytcp-uploads-review') continue;
 
             const fullText = (collectVisibleText(dlg) || '').toLowerCase();
@@ -580,7 +651,9 @@ const __rtmDom = (() => {
                 || fullText.includes("you are all set")
                 || fullText.includes("all set")
                 || fullText.includes("use these features now")
+                || fullText.includes("use this feature now")
                 || fullText.includes("access to this feature")
+                || fullText.includes("access to these features")
                 || fullText.includes("ready to upload")
                 || fullText.includes("feature eligibility")
                 || fullText.includes("features unlocked")
@@ -589,7 +662,11 @@ const __rtmDom = (() => {
                 || fullText.includes("alles bereit")
                 || fullText.includes("все готово")
                 || fullText.includes("全部就绪")
+                || fullText.includes("设定已完成")
                 || fullText.includes("設定が完了しました")
+                || fullText.includes("准备就绪")
+                || fullText.includes("已获得此功能")
+                || fullText.includes("可以使用此功能")
             );
 
             // Nhận diện thông điệp yêu cầu làm mới trang
@@ -599,6 +676,7 @@ const __rtmDom = (() => {
                 || fullText.includes("làm mới trang")
                 || fullText.includes("tải lại trang")
                 || fullText.includes("try refreshing the page")
+                || fullText.includes("refreshing the page")
                 || fullText.includes("refresh the page")
                 || fullText.includes("reload the page")
                 || fullText.includes("actualizar la página")
@@ -606,15 +684,45 @@ const __rtmDom = (() => {
                 || fullText.includes("seite neu laden")
                 || fullText.includes("перезагрузить страницу")
                 || fullText.includes("请刷新页面")
+                || fullText.includes("刷新页面")
+                || fullText.includes("重新加载页面")
                 || fullText.includes("ページを再読み込み")
+                || fullText.includes("ページを更新")
             );
 
-            if (!isAllSet && !needsReload) continue;
+            // Nhận diện thông báo xác minh tính năng / SĐT / đối tượng người xem / đủ điều kiện
+            const isEligibilityOrVerification = (
+                tag.includes("eligibility")
+                || tag.includes("feature")
+                || fullText.includes("đủ điều kiện")
+                || fullText.includes("tính năng bậc trung")
+                || fullText.includes("tính năng tiêu chuẩn")
+                || fullText.includes("tính năng trung gian")
+                || fullText.includes("tính năng nâng cao")
+                || fullText.includes("tính năng trung cấp")
+                || fullText.includes("xác minh số điện thoại")
+                || fullText.includes("xác minh bằng số điện thoại")
+                || fullText.includes("phone number verification")
+                || fullText.includes("verify your phone number")
+                || fullText.includes("intermediate features")
+                || fullText.includes("advanced features")
+                || fullText.includes("custom thumbnails")
+                || fullText.includes("hình thu nhỏ tùy chỉnh")
+                || fullText.includes("tell us about your audience")
+                || fullText.includes("đối tượng người xem")
+                || fullText.includes("daily upload limit")
+                || fullText.includes("giới hạn tải lên hằng ngày")
+                || fullText.includes("giới hạn tải lên hàng ngày")
+                || fullText.includes("funciones intermedias")
+                || fullText.includes("requisitos")
+            );
+
+            if (!isAllSet && !needsReload && !isEligibilityOrVerification) continue;
 
             // Tìm nút an toàn để dismiss
             const btns = deepQueryVisible(
                 dlg,
-                '#confirm-button, [dialog-confirm], #dismiss-button, [dialog-dismiss], ytcp-button.ytcp-confirmation-dialog, ytcp-button#primary-action-button, ytcp-button, button, [role="button"]'
+                '#confirm-button, [dialog-confirm], #dismiss-button, [dialog-dismiss], #cancel-button, #close-button, ytcp-icon-button#close-button, ytcp-button.ytcp-confirmation-dialog, ytcp-button#primary-action-button, ytcp-button, button, [role="button"]'
             );
             for (const b of btns) {
                 const btxt = (collectVisibleText(b) || '').toLowerCase();
@@ -622,19 +730,32 @@ const __rtmDom = (() => {
                 const aria = (b.getAttribute('aria-label') || '').toLowerCase();
                 const combined = `${bid} ${btxt} ${aria}`;
 
-                if (isCancelForbiddenControl(b)) continue;
-                if (combined.includes('hủy') || combined.includes('cancel') || combined.includes('không')) continue;
+                if (!isEligibilityOrVerification && isCancelForbiddenControl(b)) continue;
+                if (!isEligibilityOrVerification && (combined.includes('hủy') || combined.includes('cancel') || combined.includes('không'))) continue;
 
                 const isSafeConfirm = (
                     bid.includes('confirm')
                     || bid.includes('dismiss')
+                    || bid.includes('cancel')
+                    || bid.includes('close')
                     || b.hasAttribute('dialog-confirm')
                     || b.hasAttribute('dialog-dismiss')
-                    || /\b(got it|đã hiểu|xong|done|ok|tiếp tục|continue|làm mới|refresh|đóng|close)\b/i.test(combined)
+                    || /\b(got it|đã hiểu|xong|done|ok|tiếp tục|continue|làm mới|refresh|đóng|close|understood|entendido|compris|hủy|cancel|bỏ qua|dismiss)\b/i.test(combined)
                     || combined.includes('đã hiểu')
                     || combined.includes('got it')
+                    || combined.includes('đóng')
+                    || combined.includes('close')
+                    || combined.includes('hủy')
+                    || combined.includes('cancel')
+                    || combined.includes('bỏ qua')
                     || combined.includes('閉じる')
                     || combined.includes('知道了')
+                    || combined.includes('确定')
+                    || combined.includes('了解')
+                    || combined.includes("j'ai compris")
+                    || combined.includes('entendido')
+                    || combined.includes('không phải bây giờ')
+                    || combined.includes('not now')
                 );
 
                 if (isSafeConfirm) {
@@ -661,7 +782,24 @@ const __rtmDom = (() => {
         const globalButtons = deepQueryVisible(document, 'ytcp-button, button, [role="button"]');
         for (const gb of globalButtons) {
             const txt = (collectVisibleText(gb) || '').toLowerCase().trim();
-            if (txt === 'đã hiểu' || txt === 'got it' || txt === '知道了' || txt === '閉じる') {
+            if (
+                txt === 'đã hiểu'
+                || txt === 'got it'
+                || txt === '知道了'
+                || txt === '閉じる'
+                || txt === '了解'
+                || txt === '确定'
+                || txt.includes('đã hiểu')
+                || txt.includes('got it')
+                || txt.includes('知道了')
+                || txt.includes('閉じる')
+                || txt.includes('了解')
+                || txt.includes('确定')
+                || txt.includes("j'ai compris")
+                || txt.includes('entendido')
+                || txt.includes('alles klar')
+            ) {
+                if (isCancelForbiddenControl(gb)) continue;
                 const nativeBtn = resolveNativeButton(gb) || gb;
                 try {
                     if (typeof nativeBtn.click === 'function') nativeBtn.click();
@@ -717,13 +855,40 @@ const __rtmDom = (() => {
         }
 
         const uploadDlg = findMountedContainer(document, 'ytcp-uploads-dialog');
-        const doneBtn = uploadDlg ? deepFirstVisible(uploadDlg, 'ytcp-button#done-button, #done-button') : null;
+        let doneBtn = uploadDlg ? deepFirstVisible(
+            uploadDlg,
+            'ytcp-button#done-button, ytcp-button#publish-button, ytcp-button#save-button, #done-button, #publish-button, #save-button, ytcp-button#primary-action-button, [test-id="done-button"], [test-id="publish-button"], [test-id="save-button"]'
+        ) : null;
+        if (!doneBtn && uploadDlg) {
+            const candidates = deepQueryAll(uploadDlg, 'ytcp-button, button');
+            for (const c of candidates) {
+                const txt = ((c.textContent || '') + ' ' + (c.getAttribute('aria-label') || '') + ' ' + (c.id || '')).toLowerCase();
+                if (/\b(publish|save|done|xuất bản|lưu|xong|publicar|guardar)\b/i.test(txt) && isReallyVisible(c)) {
+                    doneBtn = c;
+                    break;
+                }
+            }
+        }
         const nextBtn = uploadDlg ? deepFirstVisible(uploadDlg, 'ytcp-button#next-button, #next-button') : null;
         const visRadio = uploadDlg
             ? deepFirstVisible(
                 uploadDlg,
                 'tp-yt-paper-radio-button[name="PUBLIC"], tp-yt-paper-radio-button[name="UNLISTED"], tp-yt-paper-radio-button[name="PRIVATE"]'
             )
+            : deepFirstVisible(
+                document,
+                'tp-yt-paper-radio-button[name="PUBLIC"], tp-yt-paper-radio-button[name="UNLISTED"], tp-yt-paper-radio-button[name="PRIVATE"]'
+            );
+
+        const isFullPage = Boolean(
+            (typeof window !== 'undefined' && window.location && window.location.href.includes('/video/') && window.location.href.includes('/edit'))
+            || document.querySelector('ytcp-video-metadata-editor-basic, ytcp-video-metadata-editor, ytcp-video-metadata-editor-advanced, ytcp-video-details')
+        );
+        const fullPageSaveBtn = isFullPage
+            ? deepFirstVisible(document, '#save-button, ytcp-button#save-button, [test-id="save-button"], #publish-button, ytcp-button#publish-button')
+            : null;
+        const fullPageVisSelect = isFullPage
+            ? deepFirstVisible(document, 'ytcp-video-visibility-select, #visibility-select, [test-id="visibility-button"], [test-id="visibility-select"]')
             : null;
 
         return {
@@ -736,6 +901,10 @@ const __rtmDom = (() => {
             visRadiosVisible: Boolean(visRadio),
             postSaveDialogs,
             backdropOpened,
+            isFullPageEditor: isFullPage,
+            fullPageSavePresent: Boolean(fullPageSaveBtn),
+            fullPageSaveActionable: fullPageSaveBtn ? isButtonActionable(fullPageSaveBtn) : false,
+            fullPageVisSelectPresent: Boolean(fullPageVisSelect),
         };
     }
 

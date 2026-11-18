@@ -4,6 +4,7 @@ import {
   Calendar,
   CheckCircle2,
   CheckSquare,
+  Download,
   ExternalLink,
   Film,
   Flame,
@@ -22,6 +23,8 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { canContinueBktPublish, canRetryBktTest } from '@/contexts/channels/channel-flow-safety';
+import type { VideoDownloadState } from '@/contexts/channels/useChannelsController';
+import { formatEta } from '@/lib/format-eta';
 import type { BktTestJob, ChannelVideo } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { formatDuration, formatUploadDateTime } from '@/pages/channels/channelUtils';
@@ -37,6 +40,9 @@ interface ChannelVideoRowProps {
   video: ChannelVideo;
   isSelected: boolean;
   onToggleSelect: (videoId: string) => void;
+  onDownloadSingle?: (video: ChannelVideo) => void;
+  isDownloadingSingle?: boolean;
+  downloadState?: VideoDownloadState;
   linkedJob?: BktTestJob;
   activePhase?: string;
   isTestingThisVideo: boolean;
@@ -50,6 +56,9 @@ export const ChannelVideoRow = React.memo(function ChannelVideoRow({
   video,
   isSelected,
   onToggleSelect,
+  onDownloadSingle,
+  isDownloadingSingle,
+  downloadState,
   linkedJob,
   activePhase,
   isTestingThisVideo,
@@ -158,84 +167,111 @@ export const ChannelVideoRow = React.memo(function ChannelVideoRow({
           )}
 
           {/* KHÂU 4: BKT Shadow Check Status */}
-          {(Boolean(video.is_bkt_test) || video.bkt_check_status) && (
-            <>
-              {video.bkt_check_status === 'green_clean' && (
-                <Badge
-                  variant="outline"
-                  className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1"
-                >
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                  <span>BKT: Sạch Bản Quyền</span>
-                </Badge>
-              )}
-              {video.bkt_check_status === 'red_matched' && (
-                <Badge
-                  variant="outline"
-                  className="bg-rose-500/15 text-rose-400 border border-rose-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1 cursor-help"
-                  title={
-                    video.bkt_restriction || video.risk_reason || 'YouTube phát hiện bản quyền'
-                  }
-                >
-                  <AlertTriangle className="w-3 h-3 text-rose-400" />
-                  <span>
-                    BKT: Dính ({video.bkt_restriction || video.risk_reason || 'Bản quyền'}) -&gt;
-                    Lv.2
-                  </span>
-                </Badge>
-              )}
-              {video.bkt_check_status === 'failed' && (
-                <Badge
-                  variant="outline"
-                  className="bg-red-500/15 text-red-400 border border-red-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1 cursor-help"
-                  title={video.bkt_restriction || video.risk_reason || 'Tiến trình BKT gặp lỗi'}
-                >
-                  <AlertCircle className="w-3 h-3 text-red-400" />
-                  <span>
-                    BKT: Lỗi ({video.bkt_restriction || video.risk_reason || 'Kiểm tra thất bại'})
-                  </span>
-                </Badge>
-              )}
-              {video.bkt_check_status === 'publish_failed' && (
-                <Badge
-                  variant="outline"
-                  className="bg-orange-500/15 text-orange-400 border border-orange-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1 cursor-help"
-                  title={video.bkt_restriction || 'BKT sạch; bước đăng Kênh Đích thất bại'}
-                >
-                  <AlertCircle className="w-3 h-3 text-orange-400" />
-                  <span>BKT: Sạch, đăng lỗi</span>
-                </Badge>
-              )}
-              {(!video.bkt_check_status || video.bkt_check_status === 'pending') &&
-                (() => {
-                  const isBusy = Boolean(activePhase);
-                  const liveLabel =
-                    video.bkt_restriction || video.risk_reason || 'BKT: Chờ YouTube Check';
-                  const badgeTone =
-                    activePhase === 'uploading'
-                      ? 'bg-sky-500/15 text-sky-400 border-sky-500/30'
-                      : 'bg-amber-500/15 text-amber-400 border-amber-500/30';
-                  return (
-                    <div className="inline-flex items-center gap-1">
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          badgeTone,
-                          'border text-[10px] px-1.5 py-0 flex items-center gap-1 max-w-[260px]',
-                          isBusy && 'animate-pulse',
-                        )}
-                        title={liveLabel}
-                      >
-                        <Loader2 className="w-3 h-3 animate-spin shrink-0" />
-                        <span className="truncate">
-                          {liveLabel.startsWith('BKT:') ? liveLabel : `BKT: ${liveLabel}`}
-                        </span>
-                      </Badge>
-                    </div>
-                  );
-                })()}
-            </>
-          )}
+          {(() => {
+            const effectiveStatus =
+              linkedJob?.status === 'publish_failed'
+                ? 'publish_failed'
+                : (video.bkt_check_status as string | undefined);
+            const isBkt =
+              Boolean(video.is_bkt_test) || Boolean(video.bkt_check_status) || Boolean(linkedJob);
+            if (!isBkt) return null;
+
+            return (
+              <>
+                {effectiveStatus === 'green_clean' && (
+                  <Badge
+                    variant="outline"
+                    className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1"
+                  >
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                    <span>BKT: Sạch Bản Quyền</span>
+                  </Badge>
+                )}
+                {effectiveStatus === 'red_matched' && (
+                  <Badge
+                    variant="outline"
+                    className="bg-rose-500/15 text-rose-400 border border-rose-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1 cursor-help"
+                    title={
+                      video.bkt_restriction || video.risk_reason || 'YouTube phát hiện bản quyền'
+                    }
+                  >
+                    <AlertTriangle className="w-3 h-3 text-rose-400" />
+                    <span>
+                      BKT: Dính ({video.bkt_restriction || video.risk_reason || 'Bản quyền'}) -&gt;
+                      Lv.2
+                    </span>
+                  </Badge>
+                )}
+                {effectiveStatus === 'failed' && (
+                  <Badge
+                    variant="outline"
+                    className="bg-red-500/15 text-red-400 border border-red-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1 cursor-help"
+                    title={
+                      linkedJob?.errorMessage ||
+                      linkedJob?.restriction ||
+                      video.bkt_restriction ||
+                      video.risk_reason ||
+                      'Tiến trình BKT gặp lỗi'
+                    }
+                  >
+                    <AlertCircle className="w-3 h-3 text-red-400" />
+                    <span>
+                      BKT: Lỗi (
+                      {linkedJob?.errorMessage ||
+                        linkedJob?.restriction ||
+                        video.bkt_restriction ||
+                        video.risk_reason ||
+                        'Kiểm tra thất bại'}
+                      )
+                    </span>
+                  </Badge>
+                )}
+                {effectiveStatus === 'publish_failed' && (
+                  <Badge
+                    variant="outline"
+                    className="bg-orange-500/15 text-orange-400 border border-orange-500/30 text-[10px] px-1.5 py-0 flex items-center gap-1 cursor-help shrink-0"
+                    title={
+                      linkedJob?.errorMessage ||
+                      linkedJob?.restriction ||
+                      video.bkt_restriction ||
+                      'BKT sạch; bước đăng Kênh Đích thất bại. Bấm Tiếp tục đăng để thử lại.'
+                    }
+                  >
+                    <AlertCircle className="w-3 h-3 text-orange-400 shrink-0" />
+                    <span className="whitespace-nowrap">BKT: Sạch (Lỗi đăng Kênh Đích)</span>
+                  </Badge>
+                )}
+                {(!effectiveStatus || effectiveStatus === 'pending') &&
+                  (() => {
+                    const isBusy = Boolean(activePhase);
+                    const liveLabel =
+                      video.bkt_restriction || video.risk_reason || 'BKT: Chờ YouTube Check';
+                    const badgeTone =
+                      activePhase === 'uploading'
+                        ? 'bg-sky-500/15 text-sky-400 border-sky-500/30'
+                        : 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+                    return (
+                      <div className="inline-flex items-center gap-1">
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            badgeTone,
+                            'border text-[10px] px-1.5 py-0 flex items-center gap-1 max-w-[260px]',
+                            isBusy && 'animate-pulse',
+                          )}
+                          title={liveLabel}
+                        >
+                          <Loader2 className="w-3 h-3 animate-spin shrink-0" />
+                          <span className="truncate">
+                            {liveLabel.startsWith('BKT:') ? liveLabel : `BKT: ${liveLabel}`}
+                          </span>
+                        </Badge>
+                      </div>
+                    );
+                  })()}
+              </>
+            );
+          })()}
 
           {(() => {
             const uploadTimeStr = formatUploadDateTime(
@@ -428,6 +464,69 @@ export const ChannelVideoRow = React.memo(function ChannelVideoRow({
           );
         })()}
 
+        {!isDownloaded &&
+          video.status !== 'skipped' &&
+          onDownloadSingle &&
+          (isDownloadingSingle || downloadState?.status === 'downloading' ? (
+            <div className="flex flex-col gap-1 min-w-[140px] max-w-[200px] px-2.5 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30 shadow-sm">
+              <div className="flex items-center justify-between text-[10px] font-semibold text-purple-600 dark:text-purple-400">
+                <span className="flex items-center gap-1">
+                  <Loader2 className="w-3 h-3 animate-spin text-purple-500" />
+                  <span>
+                    {downloadState?.progress
+                      ? `${Math.round(downloadState.progress)}%`
+                      : 'Đang tải'}
+                  </span>
+                </span>
+                {downloadState?.speed && (
+                  <span className="text-[10px] text-muted-foreground">{downloadState.speed}</span>
+                )}
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-purple-500/20 overflow-hidden">
+                <div
+                  className="h-full bg-purple-500 transition-all duration-300 rounded-full"
+                  style={{ width: `${Math.max(5, Math.min(100, downloadState?.progress || 0))}%` }}
+                />
+              </div>
+              <div className="text-[9px] text-muted-foreground flex items-center justify-between gap-1">
+                <span>{downloadState?.eta ? formatEta(downloadState.eta) : 'Đang đồng bộ...'}</span>
+                {downloadState?.downloaded_size && (
+                  <span className="truncate max-w-[65px]">{downloadState.downloaded_size}</span>
+                )}
+              </div>
+            </div>
+          ) : downloadState?.status === 'error' ? (
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onDownloadSingle(video)}
+                className="h-7 px-2 text-[11px] gap-1 font-medium border-rose-500/40 text-rose-600 dark:text-rose-400 hover:bg-rose-500/10"
+                title={downloadState.error || 'Lỗi tải video'}
+              >
+                <AlertTriangle className="w-3 h-3 text-rose-500" />
+                <span>Thử lại</span>
+              </Button>
+              <span
+                className="text-[10px] text-rose-500 max-w-[140px] truncate font-medium"
+                title={downloadState.error}
+              >
+                {downloadState.error}
+              </span>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDownloadSingle(video)}
+              className="h-7 px-2 text-[11px] gap-1 font-medium border-purple-500/30 text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
+              title="Tải video này về máy"
+            >
+              <Download className="w-3 h-3 text-purple-500" />
+              <span>Tải video</span>
+            </Button>
+          ))}
+
         {isDownloaded ? (
           <Badge
             variant="outline"
@@ -439,11 +538,11 @@ export const ChannelVideoRow = React.memo(function ChannelVideoRow({
           <Badge variant="outline" className="text-xs text-muted-foreground/70 border-dashed">
             Đã bỏ qua
           </Badge>
-        ) : (
+        ) : !onDownloadSingle ? (
           <Badge variant="secondary" className="text-xs text-muted-foreground">
             Chưa tải
           </Badge>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -786,6 +786,68 @@ pub async fn upload_video_multibrowser(
         params.title.chars().count(),
         params.tags
     );
+
+    // 0. KIỂM TRA CHỐNG ĐĂNG TRÙNG CẤP TOÀN CỤC (GLOBAL PRE-UPLOAD DB GUARD):
+    if let Ok(conn) = crate::database::get_db() {
+        let clean_title = params.title.trim();
+        let title_prefix = if clean_title.chars().count() > 30 {
+            clean_title.chars().take(30).collect::<String>()
+        } else {
+            clean_title.to_string()
+        };
+        let title_like_pattern = format!("{title_prefix}%");
+
+        // Kiểm tra độc lập cả bkt_test_jobs và channel_videos (loại bỏ lỗ hổng join rỗng)
+        let mut existing_yt_id: Option<String> = None;
+
+        // 1. Kiểm tra trong bkt_test_jobs
+        if let Ok(yt_id) = conn.query_row(
+            "SELECT COALESCE(youtube_video_id, 'existing') FROM bkt_test_jobs
+             WHERE (status = 'published' OR restriction LIKE '%Đã xuất bản%')
+               AND (main_target_profile_id = ?1 OR target_profile_id = ?1)
+               AND (video_title = ?2 OR target_title = ?2 OR video_title LIKE ?3 OR target_title LIKE ?3)
+             LIMIT 1",
+            rusqlite::params![params.profile_id, clean_title, title_like_pattern],
+            |r| r.get(0),
+        ) {
+            existing_yt_id = Some(yt_id);
+        }
+
+        // 2. Nếu chưa thấy, kiểm tra trong channel_videos
+        if existing_yt_id.is_none() {
+            if let Ok(yt_id) = conn.query_row(
+                "SELECT COALESCE(target_video_id, video_id, 'existing') FROM channel_videos
+                 WHERE (target_published = 1 OR bkt_check_status = 'published' OR bkt_restriction LIKE '%Đã xuất bản%')
+                   AND (target_profile_id = ?1 OR target_profile_id IS NULL)
+                   AND (title = ?2 OR original_title = ?2 OR title LIKE ?3 OR original_title LIKE ?3)
+                 LIMIT 1",
+                rusqlite::params![params.profile_id, clean_title, title_like_pattern],
+                |r| r.get(0),
+            ) {
+                existing_yt_id = Some(yt_id);
+            }
+        }
+
+        if let Some(yt_id) = existing_yt_id {
+            let vid_url = if yt_id.len() == 11 && !yt_id.contains(' ') {
+                format!("https://youtu.be/{yt_id}")
+            } else {
+                "https://studio.youtube.com/ (Đã xuất bản trên kênh)".to_string()
+            };
+            log::warn!(
+                "[ANTI-DUPLICATE GUARD] Video '{}' đã được xuất bản trước đó lên Profile '{}' (URL: {}). Từ chối upload lặp lại!",
+                params.title,
+                params.profile_id,
+                vid_url
+            );
+            return Ok(MultiBrowserUploadResult {
+                success: true,
+                video_url: Some(vid_url),
+                youtube_video_id: if yt_id.len() == 11 && !yt_id.contains(' ') { Some(yt_id) } else { None },
+                error: None,
+            });
+        }
+    }
     let data_json = serde_json::to_string(&params).map_err(|e| e.to_string())?;
     let data_b64 = BASE64_STANDARD.encode(data_json.as_bytes());
 
@@ -1654,6 +1716,90 @@ pub fn resolve_profile_dir_path(data_dir: &Path, profile_id: &str) -> Result<Pat
     }
 
     Err(format!("Không tìm thấy thư mục hồ sơ cho profile_id: {profile_id}"))
+}
+
+/// Tự động tìm kiếm đường dẫn profile Chromium có chứa Cookie YouTube hợp lệ
+/// Ưu tiên:
+/// 1. `preferred_profile_id` (nếu chỉ định)
+/// 2. Profile thuộc Kênh Test BKT (chứa '[BKT Test]' hoặc group 'Kênh Test BKT')
+/// 3. Profile bất kỳ có file `Default/Network/Cookies`
+pub fn resolve_profile_cookie_browser_arg(
+    app: Option<&AppHandle>,
+    preferred_profile_id: Option<&str>,
+) -> Option<String> {
+    let data_dir = get_browser_data_dir(app)?;
+    let profiles_root = data_dir.join("profiles");
+    let profiles_json = data_dir.join("profiles.json");
+
+    // Helper: kiểm tra file Network/Cookies hoặc Cookies có tồn tại và > 0 bytes
+    let check_profile_cookies = |dir: &Path| -> Option<PathBuf> {
+        let default_dir = dir.join("Default");
+        let network_cookies = default_dir.join("Network").join("Cookies");
+        if network_cookies.is_file() && network_cookies.metadata().map(|m| m.len() > 0).unwrap_or(false) {
+            return Some(default_dir);
+        }
+        let legacy_cookies = default_dir.join("Cookies");
+        if legacy_cookies.is_file() && legacy_cookies.metadata().map(|m| m.len() > 0).unwrap_or(false) {
+            return Some(default_dir);
+        }
+        None
+    };
+
+    // 1. Nếu có preferred_profile_id, kiểm tra nó trước
+    if let Some(pref_id) = preferred_profile_id {
+        if !pref_id.trim().is_empty() {
+            if let Ok(dir) = resolve_profile_dir_path(&data_dir, pref_id) {
+                if let Some(default_dir) = check_profile_cookies(&dir) {
+                    return Some(format!("chrome:{}", default_dir.display()));
+                }
+            }
+        }
+    }
+
+    // 2. Tra cứu profiles.json: Ưu tiên hồ sơ BKT Test
+    if profiles_json.is_file() {
+        if let Ok(content) = std::fs::read_to_string(&profiles_json) {
+            if let Ok(rows) = serde_json::from_str::<Vec<serde_json::Value>>(&content) {
+                // Ưu tiên BKT test profiles
+                for row in &rows {
+                    let name = row.get("profile_name").and_then(|v| v.as_str()).unwrap_or("");
+                    let group = row.get("group").and_then(|v| v.as_str()).unwrap_or("");
+                    let is_bkt = name.contains("[BKT Test]") || group.contains("BKT") || name.to_lowercase().contains("test");
+                    if is_bkt {
+                        if let Some(raw_dir) = row.get("profile_dir").and_then(|v| v.as_str()) {
+                            let p_dir = profiles_root.join(raw_dir);
+                            if let Some(default_dir) = check_profile_cookies(&p_dir) {
+                                return Some(format!("chrome:{}", default_dir.display()));
+                            }
+                        }
+                    }
+                }
+                // Fallback: bất kỳ profile nào trong profiles.json có cookies
+                for row in &rows {
+                    if let Some(raw_dir) = row.get("profile_dir").and_then(|v| v.as_str()) {
+                        let p_dir = profiles_root.join(raw_dir);
+                        if let Some(default_dir) = check_profile_cookies(&p_dir) {
+                            return Some(format!("chrome:{}", default_dir.display()));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. Fallback: Quét trực tiếp thư mục profiles
+    if let Ok(entries) = std::fs::read_dir(&profiles_root) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                if let Some(default_dir) = check_profile_cookies(&path) {
+                    return Some(format!("chrome:{}", default_dir.display()));
+                }
+            }
+        }
+    }
+
+    None
 }
 
 #[tauri::command]

@@ -929,14 +929,26 @@ async def _async_upload_video(args):
 
         duration = time.time() - t0
         if video_url:
-            yt_id = _extract_verified_youtube_id(video_url)
-            if not yt_id:
-                raise RuntimeError("Không thể xác minh URL/ID video YouTube 11 ký tự; không báo thành công.")
+            is_dup = False
+            if str(video_url).startswith("duplicate_verified:"):
+                is_dup = True
+                dup_id = str(video_url).split(":", 1)[1].strip()
+                if len(dup_id) == 11 and YOUTUBE_ID_RE.match(dup_id):
+                    yt_id = dup_id
+                    video_url = f"https://youtu.be/{dup_id}"
+                else:
+                    yt_id = None
+                    video_url = "https://studio.youtube.com/ (Đã xuất bản trên kênh)"
+            else:
+                yt_id = _extract_verified_youtube_id(video_url)
+                if not yt_id:
+                    raise RuntimeError("Không thể xác minh URL/ID video YouTube 11 ký tự; không báo thành công.")
 
             print(json.dumps({
                 "success": True,
                 "video_url": video_url,
-                "youtube_video_id": yt_id
+                "youtube_video_id": yt_id,
+                "is_duplicate": is_dup
             }, ensure_ascii=False))
             sys.stdout.flush()
             update_profile(profile_id, last_run_status="success", last_run_error="")
