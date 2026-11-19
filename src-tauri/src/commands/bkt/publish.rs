@@ -113,6 +113,7 @@ pub fn update_channel_video_publish_result(
 pub async fn publish_bkt_job_to_main_cmd(
     app: AppHandle,
     job_id: String,
+    target_profile_id: Option<String>,
 ) -> Result<String, String> {
     let job = database::get_bkt_test_job_by_id_db(&job_id)?
         .ok_or_else(|| format!("Không tìm thấy job BKT có ID: {job_id}"))?;
@@ -124,11 +125,88 @@ pub async fn publish_bkt_job_to_main_cmd(
         ));
     }
 
-    let target_profile = job
-        .target_profile_id
-        .clone()
-        .or_else(|| job.main_target_profile_id.clone())
-        .ok_or_else(|| "Tác vụ này không có cấu hình Kênh Đích (target_profile_id)".to_string())?;
+    let mut target_profile = target_profile_id
+        .filter(|s| !s.trim().is_empty())
+        .or_else(|| job.target_profile_id.clone().filter(|s| !s.trim().is_empty()))
+        .or_else(|| job.main_target_profile_id.clone().filter(|s| !s.trim().is_empty()));
+
+    // 0. SELF-HEALING & DATABASE FALLBACK:
+    // Nếu job chưa có target_profile_id (do tạo trước khi gán kênh đích), tự động tra cứu từ followed_channels hoặc channel_videos
+    if target_profile.is_none() {
+        if let Ok(conn) = database::get_db() {
+            // Cách 1: Tra cứu theo source_ref_id trong channel_videos và followed_channels
+            if let Some(ref ref_id) = job.source_ref_id {
+                let resolved: Option<(Option<String>, Option<String>, Option<String>)> = conn.query_row(
+                    "SELECT cv.target_profile_id, fc.target_profile_id, fc.bkt_profile_id
+                     FROM channel_videos cv
+                     LEFT JOIN followed_channels fc ON cv.channel_id = fc.id
+                     WHERE cv.id = ?1 OR cv.video_id = ?1
+                     LIMIT 1",
+                    rusqlite::params![ref_id],
+                    |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                ).ok();
+
+                if let Some((cv_target, fc_target, fc_bkt)) = resolved {
+                    target_profile = cv_target
+                        .filter(|s| !s.trim().is_empty())
+                        .or_else(|| fc_target.filter(|s| !s.trim().is_empty()))
+                        .or_else(|| fc_bkt.filter(|s| !s.trim().is_empty()));
+                }
+            }
+
+            // Cách 2: Tra cứu theo job.channel_id trong followed_channels
+            if target_profile.is_none() {
+                if let Some(ref ch_id) = job.channel_id {
+                    let fc_target: Option<String> = conn.query_row(
+                        "SELECT COALESCE(target_profile_id, bkt_profile_id)
+                         FROM followed_channels
+                         WHERE id = ?1 OR url = ?1 OR name = ?1
+                         LIMIT 1",
+                        rusqlite::params![ch_id],
+                        |r| r.get(0),
+                    ).ok().flatten();
+
+                    target_profile = fc_target.filter(|s| !s.trim().is_empty());
+                }
+            }
+
+            // Cách 3: Tra cứu mờ theo tên video trong channel_videos
+            if target_profile.is_none() {
+                let title_target: Option<String> = conn.query_row(
+                    "SELECT COALESCE(cv.target_profile_id, fc.target_profile_id, fc.bkt_profile_id)
+                     FROM channel_videos cv
+                     LEFT JOIN followed_channels fc ON cv.channel_id = fc.id
+                     WHERE cv.title = ?1 OR cv.original_title = ?1
+                     LIMIT 1",
+                    rusqlite::params![job.video_title],
+                    |r| r.get(0),
+                ).ok().flatten();
+
+                target_profile = title_target.filter(|s| !s.trim().is_empty());
+            }
+        }
+    }
+
+    let target_profile = target_profile
+        .ok_or_else(|| "Tác vụ này không có cấu hình Kênh Đích (target_profile_id). Vui lòng gán Kênh Đích cho kênh đối thủ hoặc chọn hồ sơ đích trước khi bấm Đăng ngay.".to_string())?;
+
+    // Tự động chữa lành (self-heal) DB bkt_test_jobs và channel_videos để các lần thao tác sau không bị lỗi
+    if let Ok(conn) = database::get_db() {
+        let _ = conn.execute(
+            "UPDATE bkt_test_jobs
+             SET target_profile_id = ?1, main_target_profile_id = ?1, updated_at = CURRENT_TIMESTAMP
+             WHERE id = ?2",
+            rusqlite::params![target_profile, job.id],
+        );
+        if let Some(ref ref_id) = job.source_ref_id {
+            let _ = conn.execute(
+                "UPDATE channel_videos
+                 SET target_profile_id = ?1
+                 WHERE (id = ?2 OR video_id = ?2) AND (target_profile_id IS NULL OR target_profile_id = '')",
+                rusqlite::params![target_profile, ref_id],
+            );
+        }
+    }
 
     // 0. KIEM TRA CHONG DANG TRUNG LAP (DATABASE GUARD):
     if let Ok(conn) = database::get_db() {
@@ -452,7 +530,7 @@ pub async fn publish_bkt_catchup_cmd(app: AppHandle) -> Result<BktCatchupResult,
             .await
             .map_err(|e| format!("Không thể giữ FIFO BKT cho catch-up: {e}"))?;
 
-        let publish_result = publish_bkt_job_to_main_cmd(app.clone(), job_id.clone()).await;
+        let publish_result = publish_bkt_job_to_main_cmd(app.clone(), job_id.clone(), None).await;
         drop(permit);
 
         match publish_result {
@@ -500,6 +578,16 @@ pub async fn recheck_bkt_job_cmd(
             "Chỉ được chạy lại job BKT ở trạng thái failed, hiện tại: {}",
             job.status
         ));
+    }
+
+    // Kiểm tra kênh test có đang hoạt động không (is_active = 1)
+    if let Ok(Some(ch)) = database::get_bkt_test_channel_by_id_db(&job.test_channel_id) {
+        if !ch.is_active {
+            return Err(format!(
+                "Kênh test '{}' hiện đang Tạm dừng. Vui lòng bật lại kênh test trước khi chạy lại tác vụ này.",
+                ch.name
+            ));
+        }
     }
 
     let profile_id = job.test_profile_id.clone().ok_or_else(|| {

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.4] - 2026-11-19
+
+### Added
+
+- **Automated In-App Google Trends YouTube Search** - Integrated fully automated Google Trends YouTube Search (`gprop=youtube`) into Outlier Hunter with interactive SVG area charts, momentum score metrics (Breakout, Exploding, Growing, Stable, Declining), breakout and top search queries tables, one-click niche hunting, actionable creator strategy recommendations, and local SQLite caching with dynamic TTL.
+- **BKT Test Channel Active Toggle and Automatic Failover** - Added an active toggle switch for each BKT test channel card, enabling creators to enable or disable specific test profiles; yt-dlp cookie extraction and background copyright check pipelines now automatically skip inactive profiles and seamlessly failover across all active test channels when encountering expired cookies or bot-challenge rate limits.
+- **Smart Target Profile Fallback for Instant Publishing** - Enhanced the instant publishing pipeline (`publish_bkt_job_to_main`) to automatically detect missing target channels, fall back to channel default target profiles or prompt channel assignment, and instantly bind without requiring creators to reconfigure from scratch.
+
+### Fixed
+
+- **InnerTube Subscriber and Publish Date Parsing** - Normalized InnerTube extraction to accurately retrieve channel subscriber counts across localized multiplier units (`K`, `M`, `B`, `N`, `Triệu`, `Nghìn`) and exact video publish timestamps, resolving false subscriber metrics and inverted upload dates in Outlier Hunter.
+- **YouTube Studio Dialog Dismissal in Pre-Upload State** - Expanded blocking dialog inspection and pointer event dismissal for YouTube Studio upload wizards, ensuring modal notifications do not freeze subsequent automated reup uploads.
+
 ## [1.3.3] - 2026-11-18
 
 ### Added

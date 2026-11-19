@@ -53,6 +53,7 @@ export function BktChannelConfigSection({ manager }: BktChannelConfigSectionProp
     handleOpenEdit,
     handleSave,
     handleDelete,
+    handleToggleActive,
     handleLaunchProfile,
   } = manager;
 
@@ -140,7 +141,22 @@ export function BktChannelConfigSection({ manager }: BktChannelConfigSectionProp
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className="flex items-center mr-1"
+                        title={
+                          ch.isActive
+                            ? 'Kênh đang BẬT: Sẵn sàng test video và cấp cookie'
+                            : 'Kênh đang TẮT: Tạm dừng nhận video test và không lấy cookie'
+                        }
+                      >
+                        <Switch
+                          checked={ch.isActive}
+                          onCheckedChange={(checked) => handleToggleActive(ch, checked)}
+                          className="data-[state=checked]:bg-emerald-500 scale-90"
+                          aria-label={`Bật/tắt kênh test ${ch.name}`}
+                        />
+                      </div>
                       <Button
                         variant="ghost"
                         size="icon"

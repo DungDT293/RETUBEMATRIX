@@ -690,6 +690,16 @@ const __rtmDom = (() => {
                 || fullText.includes("ページを更新")
             );
 
+            // Nhận diện lỗi giới hạn tải lên trong ngày
+            const isDailyUploadLimit = (
+                fullText.includes("daily upload limit")
+                || fullText.includes("upload limit reached")
+                || fullText.includes("giới hạn tải lên hằng ngày")
+                || fullText.includes("giới hạn tải lên hàng ngày")
+                || fullText.includes("đã đạt đến giới hạn tải lên")
+                || fullText.includes("đạt giới hạn tải lên")
+            );
+
             // Nhận diện thông báo xác minh tính năng / SĐT / đối tượng người xem / đủ điều kiện
             const isEligibilityOrVerification = (
                 tag.includes("eligibility")
@@ -710,9 +720,7 @@ const __rtmDom = (() => {
                 || fullText.includes("hình thu nhỏ tùy chỉnh")
                 || fullText.includes("tell us about your audience")
                 || fullText.includes("đối tượng người xem")
-                || fullText.includes("daily upload limit")
-                || fullText.includes("giới hạn tải lên hằng ngày")
-                || fullText.includes("giới hạn tải lên hàng ngày")
+                || isDailyUploadLimit
                 || fullText.includes("funciones intermedias")
                 || fullText.includes("requisitos")
             );
@@ -771,6 +779,7 @@ const __rtmDom = (() => {
                         clicked: true,
                         needsReload: needsReload,
                         isAllSet: isAllSet,
+                        isDailyLimit: isDailyUploadLimit,
                         buttonText: btxt || bid,
                         sample: fullText.slice(0, 100),
                     };

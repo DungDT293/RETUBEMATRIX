@@ -1254,12 +1254,19 @@ class YouTubeUpload:
             logger.info("Đã chọn file, chờ dialog metadata xuất hiện")
 
             # Chờ dialog chuyển sang bước Details / BASIC_INFO (metadata) xuyên Shadow DOM
-            logger.info("Chờ dialog chi tiết video (Details) xuất hiện...")
+            # Tính toán timeout linh hoạt dựa theo dung lượng file (tối thiểu 180s cho video dung lượng lớn/phim dài)
+            try:
+                file_size_mb = os.path.getsize(video_path) / (1024 * 1024)
+            except Exception:
+                file_size_mb = 100.0
+
+            metadata_wait_timeout = max(180.0, min(360.0, 90.0 + (file_size_mb / 10.0)))
+            logger.info("Chờ dialog chi tiết video (Details) xuất hiện (file %.1f MB, timeout tối đa %.0fs)...", file_size_mb, metadata_wait_timeout)
             title_box_ready = False
             need_session_reload = False
             t_wait_start = time.time()
 
-            while time.time() - t_wait_start < 45.0:
+            while time.time() - t_wait_start < metadata_wait_timeout:
                 if is_browser_disconnected(page):
                     raise RuntimeError("Cửa sổ/thẻ YouTube Studio đã bị đóng trong lúc chờ dialog metadata.")
 
@@ -1268,35 +1275,120 @@ class YouTubeUpload:
                     dismiss_res = await dismiss_blocking_studio_dialogs(page, allow_reload=False, context="metadata_wait_loop")
                     if dismiss_res and dismiss_res.get("handled"):
                         logger.info("Đã phát hiện và đóng hộp thoại chặn trong lúc chờ metadata: %s", dismiss_res)
+                        if dismiss_res.get("isDailyLimit"):
+                            logger.error("Kênh đã đạt Daily Upload Limit: %s", dismiss_res.get("details"))
+                            raise RuntimeError(f"Kênh đã đạt giới hạn tải lên hàng ngày của YouTube Studio (Daily Upload Limit): {dismiss_res.get('details')}")
                         if dismiss_res.get("needsReload") and upload_flow_attempt < max_upload_flow_attempts - 1:
                             logger.info("Modal quyền tính năng yêu cầu reload Studio. Đánh dấu để reload và thử lại luồng upload...")
                             need_session_reload = True
                             break
 
+                    # Dynamic Keep-Alive: Nếu upload stream đang hoạt động tích cực, gia hạn thời gian chờ
+                    try:
+                        uploading_active = await page.evaluate(r"""() => {
+                            const prog = document.querySelector('ytcp-video-upload-progress');
+                            if (prog && prog.offsetParent !== null) {
+                                const txt = (prog.innerText || '').toLowerCase();
+                                if (txt.includes('%') || txt.includes('đang tải') || txt.includes('uploading') || txt.includes('đang xử lý') || txt.includes('processing')) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }""")
+                        if uploading_active:
+                            t_wait_start = max(t_wait_start, time.time() - (metadata_wait_timeout - 60.0))
+                    except Exception:
+                        pass
+
                     state = await eval_studio_dom(
                         page,
                         r"""
-                        const res = { hasTitleBox: false, isDocked: false, errorMessage: '' };
+                        const res = { hasTitleBox: false, isDocked: false, errorMessage: '', isDuplicate: false };
 
-                        // 1. Kiểm tra cảnh báo lỗi/hạn ngạch từ YouTube Studio (Daily upload limit, verification, duplicate, etc.)
-                        const alertModal = __rtmDom.deepFirstVisible(
+                        // 1. Kiểm tra cảnh báo lỗi thực sự từ YouTube Studio (loại trừ ytcp-uploads-dialog)
+                        const isUploadsDialogMember = (el) => {
+                            if (!el) return false;
+                            const tag = (el.tagName || '').toLowerCase();
+                            if (tag === 'ytcp-uploads-dialog' || tag === 'ytcp-uploads-file-picker') return true;
+                            if (__rtmDom.hasAncestorTag && __rtmDom.hasAncestorTag(el, new Set(['ytcp-uploads-dialog', 'ytcp-uploads-file-picker']))) return true;
+                            if (typeof el.closest === 'function' && el.closest('ytcp-uploads-dialog, ytcp-uploads-file-picker')) return true;
+                            return false;
+                        };
+
+                        const modalCandidates = __rtmDom.deepQueryVisible(
                             document,
-                            'ytcp-confirmation-dialog #dialog, tp-yt-paper-dialog:not([id*="upload"]), ytcp-dialog[type="error"], ytcp-alert-dialog'
+                            'ytcp-confirmation-dialog, ytcp-dialog[type="error"], ytcp-alert-dialog, tp-yt-paper-dialog.ytcp-confirmation-dialog'
                         );
-                        if (alertModal && __rtmDom.isReallyVisible(alertModal)) {
-                            const txt = __rtmDom.collectVisibleText(alertModal).trim().toLowerCase();
-                            if (txt && (txt.includes('giới hạn') || txt.includes('limit') || txt.includes('xác minh') || txt.includes('verify') || txt.includes('error') || txt.includes('trùng lặp') || txt.includes('duplicate'))) {
+
+                        for (const modal of modalCandidates) {
+                            if (!__rtmDom.isReallyVisible(modal)) continue;
+                            if (isUploadsDialogMember(modal)) continue;
+                            // Nếu hộp thoại chứa các thành phần nhập metadata thì đó là wizard upload đang hoạt động, không phải alert lỗi
+                            if (modal.querySelector && modal.querySelector('#title-textarea, #description-textarea, ytcp-uploads-file-picker, #select-files-button')) continue;
+
+                            const txt = __rtmDom.collectVisibleText(modal).trim().toLowerCase();
+                            if (!txt) continue;
+
+                            // Kiểm tra trùng lặp file
+                            const isDup = txt.includes('trung lap') || txt.includes('trùng lặp') || txt.includes('duplicate') || txt.includes('ban sao') || txt.includes('bản sao') || txt.includes('already uploaded');
+                            if (isDup) {
                                 res.errorMessage = txt.replace(/\s+/g, ' ');
-                                if (txt.includes('trùng lặp') || txt.includes('duplicate')) {
-                                    res.isDuplicate = true;
-                                }
+                                res.isDuplicate = true;
+                                return res;
+                            }
+
+                            // BỎ QUA nếu là nội dung giới hạn độ tuổi (COPPA / Age restriction)
+                            const isAgeRestrictionOnly = (
+                                (txt.includes('do tuoi') || txt.includes('độ tuổi') || txt.includes('age restriction') || txt.includes('18 tuoi') || txt.includes('18 tuổi') || txt.includes('tre em') || txt.includes('trẻ em') || txt.includes('made for kids'))
+                                && !txt.includes('gioi han tai len') && !txt.includes('giới hạn tải lên') && !txt.includes('daily upload limit') && !txt.includes('24 gio') && !txt.includes('24 giờ')
+                            );
+                            if (isAgeRestrictionOnly) {
+                                continue;
+                            }
+
+                            // Nhận diện lỗi giới hạn số lượng video tải lên trong ngày (Daily upload limit)
+                            const isDailyUploadLimit = (
+                                txt.includes('gioi han tai len')
+                                || txt.includes('giới hạn tải lên')
+                                || txt.includes('gioi han hang ngay')
+                                || txt.includes('giới hạn hàng ngày')
+                                || txt.includes('gioi han so luong video')
+                                || txt.includes('giới hạn số lượng video')
+                                || ((txt.includes('dat') || txt.includes('đạt')) && (txt.includes('gioi han') || txt.includes('giới hạn')) && (txt.includes('tai len') || txt.includes('tải lên') || txt.includes('24 gio') || txt.includes('24 giờ') || txt.includes('video')))
+                                || txt.includes('daily upload limit')
+                                || txt.includes('upload limit reached')
+                                || (txt.includes('daily limit') && txt.includes('upload'))
+                                || (txt.includes('upload limit') && (txt.includes('24 hours') || txt.includes('reached')))
+                            );
+
+                            // Nhận diện yêu cầu xác minh tài khoản / tính năng nâng cao
+                            const isVerificationBlock = (
+                                (txt.includes('xac minh') || txt.includes('xác minh') || txt.includes('verify') || txt.includes('verification'))
+                                && (txt.includes('so dien thoai') || txt.includes('số điện thoại') || txt.includes('phone') || txt.includes('tinh nang') || txt.includes('tính năng') || txt.includes('feature'))
+                            );
+
+                            // Thông báo lỗi tải lên tường minh
+                            const isExplicitUploadError = (
+                                modal.tagName.toLowerCase() === 'ytcp-alert-dialog'
+                                || modal.getAttribute('type') === 'error'
+                                || txt.includes('khong the tai len')
+                                || txt.includes('không thể tải lên')
+                                || txt.includes('could not upload')
+                                || txt.includes('upload failed')
+                            );
+
+                            if (isDailyUploadLimit || isVerificationBlock || isExplicitUploadError) {
+                                res.errorMessage = txt.replace(/\s+/g, ' ');
                                 return res;
                             }
                         }
 
-                        // 2. Tìm title box xuyên Shadow DOM trong ytcp-uploads-dialog hoặc toàn bộ document
+                        // 2. Tìm title box xuyên Shadow DOM (ưu tiên trong ytcp-uploads-dialog)
+                        const uploadDlg = __rtmDom.deepFirstVisible(document, 'ytcp-uploads-dialog');
+                        const searchScope = uploadDlg || document;
+
                         const titleHost = __rtmDom.deepFirstVisible(
-                            document,
+                            searchScope,
                             '#title-textarea, ytcp-social-suggestions-textbox[id="title-textarea"], ytcp-video-title, ytcp-video-metadata-editor-basic, ytcp-video-metadata-editor, [aria-label*="tiêu đề" i], [aria-label*="title" i]'
                         );
                         if (titleHost) {
@@ -1306,19 +1398,27 @@ class YouTubeUpload:
                                 return res;
                             }
                         }
-                        const directTb = __rtmDom.deepFirstVisible(document, '#textbox[contenteditable="true"], [id="textbox"], ytcp-uploads-dialog #textbox');
+                        const directTb = __rtmDom.deepFirstVisible(searchScope, '#title-textarea #textbox, #textbox[contenteditable="true"], ytcp-uploads-dialog #textbox');
                         if (directTb && __rtmDom.isReallyVisible(directTb)) {
                             res.hasTitleBox = true;
                             return res;
                         }
 
-                        // 3. Kiểm tra xem dialog có bị Studio tự động thu nhỏ xuống dock dưới cùng không
-                        const docked = __rtmDom.deepFirstVisible(
-                            document,
-                            'ytcp-video-upload-progress, .progress-bar-container, [id*="upload-progress"]'
-                        );
-                        if (docked && __rtmDom.isReallyVisible(docked)) {
-                            res.isDocked = true;
+                        // 3. Kiểm tra xem hộp thoại có bị thu nhỏ (docked) thực sự không
+                        if (uploadDlg) {
+                            const isDockedAttr = uploadDlg.hasAttribute('docked')
+                                || uploadDlg.classList.contains('docked')
+                                || uploadDlg.getAttribute('dialog-type') === 'floating';
+                            const rect = uploadDlg.getBoundingClientRect ? uploadDlg.getBoundingClientRect() : null;
+                            const isDockedHeight = rect && rect.height > 0 && rect.height < 120;
+                            if (isDockedAttr || isDockedHeight) {
+                                res.isDocked = true;
+                            }
+                        } else {
+                            const floatingDock = __rtmDom.deepFirstVisible(document, 'ytcp-uploads-dialog[docked], .ytcp-uploads-dialog.docked, #dock-container ytcp-video-upload-progress');
+                            if (floatingDock && __rtmDom.isReallyVisible(floatingDock)) {
+                                res.isDocked = true;
+                            }
                         }
                         return res;
                         """,
@@ -1371,17 +1471,28 @@ class YouTubeUpload:
                         break
 
                     if state and state.get("isDocked"):
-                        # Thử click vào thanh dock để mở lại hộp thoại nếu bị YouTube tự thu nhỏ
+                        # Thử phục hồi hộp thoại nếu bị YouTube tự thu nhỏ xuống dock
+                        logger.info("Phát hiện hộp thoại upload bị thu nhỏ (docked). Đang mở lại...")
                         await eval_studio_dom(
                             page,
                             r"""
-                            const docked = __rtmDom.deepFirstVisible(document, 'ytcp-video-upload-progress, .progress-bar-container');
-                            if (docked) {
-                                const clk = __rtmDom.deepFirstVisible(
-                                    docked,
-                                    '#dialog-title, .title-text, #title, .progress-label, .card-contents, [role="button"]:not(#cancel-button):not([aria-label*="cancel" i]):not([aria-label*="hủy" i])'
-                                ) || docked;
-                                if (typeof clk.click === 'function') clk.click();
+                            const uploadDlg = __rtmDom.deepFirstVisible(document, 'ytcp-uploads-dialog');
+                            if (uploadDlg) {
+                                if (typeof uploadDlg.undock === 'function') {
+                                    uploadDlg.undock();
+                                    return;
+                                }
+                                const expandBtn = __rtmDom.deepFirstVisible(
+                                    uploadDlg,
+                                    '#expand-button, [aria-label*="expand" i], [aria-label*="phóng to" i], [aria-label*="mở rộng" i], [aria-label*="restore" i], #dialog-title, .title-text, .header-content'
+                                );
+                                if (expandBtn && typeof expandBtn.click === 'function') {
+                                    expandBtn.click();
+                                    return;
+                                }
+                                if (typeof uploadDlg.click === 'function') {
+                                    uploadDlg.click();
+                                }
                             }
                             """,
                         )

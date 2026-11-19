@@ -1720,9 +1720,92 @@ pub fn resolve_profile_dir_path(data_dir: &Path, profile_id: &str) -> Result<Pat
 
 /// Tự động tìm kiếm đường dẫn profile Chromium có chứa Cookie YouTube hợp lệ
 /// Ưu tiên:
-/// 1. `preferred_profile_id` (nếu chỉ định)
-/// 2. Profile thuộc Kênh Test BKT (chứa '[BKT Test]' hoặc group 'Kênh Test BKT')
-/// 3. Profile bất kỳ có file `Default/Network/Cookies`
+/// 1. `preferred_profile_id` (nếu chỉ định và không bị vô hiệu hóa)
+/// 2. Bể Kênh Test Bản Quyền Active (bkt_test_channels WHERE is_active = 1): Tự động xoay tua (Round-Robin Failover)
+/// 3. Profile thuộc Kênh Test BKT từ profiles.json (chưa bị tắt)
+/// 4. Profile bất kỳ có file `Default/Network/Cookies`
+/// Kiểm tra file cookie của Profile Chromium có tồn tại, không rỗng và có cookie hợp lệ (chưa hết hạn)
+fn is_cookie_file_valid(cookie_file: &Path) -> bool {
+    let metadata = match cookie_file.metadata() {
+        Ok(m) => m,
+        Err(_) => return false,
+    };
+
+    if metadata.len() == 0 {
+        return false;
+    }
+
+    // Cố gắng đọc SQLite ở chế độ Read-Only + Immutable (an toàn tuyệt đối, không lock file khi browser đang chạy)
+    let path_str = cookie_file.to_string_lossy().replace('\\', "/");
+    let uri = format!("file:{}?mode=ro&immutable=1", path_str);
+    if let Ok(conn) = rusqlite::Connection::open_with_flags(
+        &uri,
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_URI,
+    ) {
+        // Chromium FILETIME (microseconds kể từ 1601-01-01)
+        // 11644473600 giây giữa 1601-01-01 và Unix epoch 1970-01-01
+        let now_filetime = (chrono::Utc::now().timestamp() + 11_644_473_600) * 1_000_000;
+
+        // 1. Kiểm tra cookie YouTube / Google còn hạn (expires_utc == 0 là session cookie, hoặc expires_utc > now)
+        let yt_valid: Result<i64, _> = conn.query_row(
+            "SELECT count(*) FROM cookies WHERE (host_key LIKE '%youtube.com%' OR host_key LIKE '%google.com%') AND (expires_utc = 0 OR expires_utc > ?1)",
+            rusqlite::params![now_filetime],
+            |r| r.get(0),
+        );
+        if let Ok(count) = yt_valid {
+            if count > 0 {
+                return true;
+            }
+        }
+
+        // 2. Nếu có cookie YouTube nhưng tất cả đã hết hạn -> cookie không còn hợp lệ, cần fallback sang profile khác
+        let yt_total: Result<i64, _> = conn.query_row(
+            "SELECT count(*) FROM cookies WHERE (host_key LIKE '%youtube.com%' OR host_key LIKE '%google.com%')",
+            [],
+            |r| r.get(0),
+        );
+        if let Ok(total) = yt_total {
+            if total > 0 {
+                log::warn!(
+                    "[COOKIE CHECK] File cookie tại {:?} chứa {} cookie YouTube nhưng toàn bộ đã hết hạn!",
+                    cookie_file,
+                    total
+                );
+                return false;
+            }
+        }
+
+        // 3. Nếu không có cookie YouTube riêng biệt, kiểm tra bất kỳ cookie nào còn hạn
+        let any_valid: Result<i64, _> = conn.query_row(
+            "SELECT count(*) FROM cookies WHERE (expires_utc = 0 OR expires_utc > ?1)",
+            rusqlite::params![now_filetime],
+            |r| r.get(0),
+        );
+        if let Ok(count) = any_valid {
+            if count > 0 {
+                return true;
+            }
+        }
+
+        let any_total: Result<i64, _> = conn.query_row("SELECT count(*) FROM cookies", [], |r| r.get(0));
+        if let Ok(total) = any_total {
+            if total > 0 {
+                log::warn!(
+                    "[COOKIE CHECK] File cookie tại {:?} có {} cookie nhưng toàn bộ đã hết hạn!",
+                    cookie_file,
+                    total
+                );
+                return false;
+            }
+        }
+    }
+
+    // Fallback nếu không mở được SQLite: kiểm tra kích thước file > 0
+    metadata.len() > 0
+}
+
+static COOKIE_ROTATION_COUNTER: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
 pub fn resolve_profile_cookie_browser_arg(
     app: Option<&AppHandle>,
     preferred_profile_id: Option<&str>,
@@ -1731,24 +1814,57 @@ pub fn resolve_profile_cookie_browser_arg(
     let profiles_root = data_dir.join("profiles");
     let profiles_json = data_dir.join("profiles.json");
 
-    // Helper: kiểm tra file Network/Cookies hoặc Cookies có tồn tại và > 0 bytes
+    // Helper: kiểm tra file Network/Cookies hoặc Cookies có tồn tại, > 0 bytes và chưa hết hạn
     let check_profile_cookies = |dir: &Path| -> Option<PathBuf> {
         let default_dir = dir.join("Default");
         let network_cookies = default_dir.join("Network").join("Cookies");
-        if network_cookies.is_file() && network_cookies.metadata().map(|m| m.len() > 0).unwrap_or(false) {
+        if network_cookies.is_file() && is_cookie_file_valid(&network_cookies) {
             return Some(default_dir);
         }
         let legacy_cookies = default_dir.join("Cookies");
-        if legacy_cookies.is_file() && legacy_cookies.metadata().map(|m| m.len() > 0).unwrap_or(false) {
+        if legacy_cookies.is_file() && is_cookie_file_valid(&legacy_cookies) {
             return Some(default_dir);
         }
         None
     };
 
-    // 1. Nếu có preferred_profile_id, kiểm tra nó trước
+    // Lấy danh sách ID profile bị người dùng tắt (is_active = 0) và danh sách profile kênh test đang bật (is_active = 1)
+    let (active_test_profiles, disabled_profile_ids): (Vec<(String, String)>, std::collections::HashSet<String>) =
+        if let Ok(conn) = crate::database::get_db() {
+            let mut active = Vec::new();
+            let mut disabled = std::collections::HashSet::new();
+
+            if let Ok(mut stmt) = conn.prepare(
+                "SELECT profile_id, name, is_active FROM bkt_test_channels
+                 WHERE id != 'fast_track_direct' AND profile_id IS NOT NULL AND TRIM(profile_id) != ''
+                 ORDER BY priority DESC, created_at ASC",
+            ) {
+                let rows = stmt.query_map([], |r| {
+                    let pid: String = r.get(0)?;
+                    let name: String = r.get(1)?;
+                    let is_act: i64 = r.get(2)?;
+                    Ok((pid, name, is_act == 1))
+                });
+                if let Ok(rows) = rows {
+                    for row in rows.flatten() {
+                        if row.2 {
+                            active.push((row.0, row.1));
+                        } else {
+                            disabled.insert(row.0);
+                        }
+                    }
+                }
+            }
+            (active, disabled)
+        } else {
+            (Vec::new(), std::collections::HashSet::new())
+        };
+
+    // 1. Nếu có preferred_profile_id, kiểm tra xem có bị vô hiệu hóa không trước khi dùng
     if let Some(pref_id) = preferred_profile_id {
-        if !pref_id.trim().is_empty() {
-            if let Ok(dir) = resolve_profile_dir_path(&data_dir, pref_id) {
+        let trimmed_pref = pref_id.trim();
+        if !trimmed_pref.is_empty() && !disabled_profile_ids.contains(trimmed_pref) {
+            if let Ok(dir) = resolve_profile_dir_path(&data_dir, trimmed_pref) {
                 if let Some(default_dir) = check_profile_cookies(&dir) {
                     return Some(format!("chrome:{}", default_dir.display()));
                 }
@@ -1756,12 +1872,51 @@ pub fn resolve_profile_cookie_browser_arg(
         }
     }
 
-    // 2. Tra cứu profiles.json: Ưu tiên hồ sơ BKT Test
+    // 2. Bể Kênh Test Active (Round-Robin Cookie Failover & Rotation):
+    // Luân chuyển đều giữa các kênh test đang BẬT. Nếu 1 kênh thiếu cookie hoặc bị lỗi/hết hạn, tự động fallback sang kênh test active kế tiếp
+    if !active_test_profiles.is_empty() {
+        let n = active_test_profiles.len();
+        let start_idx = COOKIE_ROTATION_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed) % n;
+        for i in 0..n {
+            let idx = (start_idx + i) % n;
+            let (cand_id, cand_name) = &active_test_profiles[idx];
+            if let Ok(dir) = resolve_profile_dir_path(&data_dir, cand_id) {
+                if let Some(default_dir) = check_profile_cookies(&dir) {
+                    log::info!(
+                        "[BKT COOKIE POOL] Tự động cấp cookie từ Kênh Test active: '{}' (Profile ID: {}, thứ tự {}/{})",
+                        cand_name,
+                        cand_id,
+                        idx + 1,
+                        n
+                    );
+                    return Some(format!("chrome:{}", default_dir.display()));
+                } else {
+                    log::warn!(
+                        "[BKT COOKIE ROTATION] Kênh test active '{}' ({}) không có cookie YouTube hợp lệ hoặc đã hết hạn, tự động fallback sang kênh kế tiếp",
+                        cand_name,
+                        cand_id
+                    );
+                }
+            } else {
+                log::warn!(
+                    "[BKT COOKIE ROTATION] Không tìm thấy thư mục profile cho kênh test active '{}' ({}), tiếp tục thử kênh tiếp theo",
+                    cand_name,
+                    cand_id
+                );
+            }
+        }
+    }
+
+    // 3. Fallback: Tra cứu profiles.json (bỏ qua các profile thuộc kênh test đã bị tắt)
     if profiles_json.is_file() {
         if let Ok(content) = std::fs::read_to_string(&profiles_json) {
             if let Ok(rows) = serde_json::from_str::<Vec<serde_json::Value>>(&content) {
-                // Ưu tiên BKT test profiles
+                // Ưu tiên BKT test profiles chưa bị tắt
                 for row in &rows {
+                    let pid = row.get("id").and_then(|v| v.as_str()).unwrap_or("");
+                    if disabled_profile_ids.contains(pid) {
+                        continue;
+                    }
                     let name = row.get("profile_name").and_then(|v| v.as_str()).unwrap_or("");
                     let group = row.get("group").and_then(|v| v.as_str()).unwrap_or("");
                     let is_bkt = name.contains("[BKT Test]") || group.contains("BKT") || name.to_lowercase().contains("test");
@@ -1774,8 +1929,12 @@ pub fn resolve_profile_cookie_browser_arg(
                         }
                     }
                 }
-                // Fallback: bất kỳ profile nào trong profiles.json có cookies
+                // Fallback: bất kỳ profile nào trong profiles.json có cookies (chưa bị tắt)
                 for row in &rows {
+                    let pid = row.get("id").and_then(|v| v.as_str()).unwrap_or("");
+                    if disabled_profile_ids.contains(pid) {
+                        continue;
+                    }
                     if let Some(raw_dir) = row.get("profile_dir").and_then(|v| v.as_str()) {
                         let p_dir = profiles_root.join(raw_dir);
                         if let Some(default_dir) = check_profile_cookies(&p_dir) {
@@ -1787,11 +1946,15 @@ pub fn resolve_profile_cookie_browser_arg(
         }
     }
 
-    // 3. Fallback: Quét trực tiếp thư mục profiles
+    // 4. Fallback cuối cùng: Quét trực tiếp thư mục profiles (bỏ qua profile của kênh test bị tắt)
     if let Ok(entries) = std::fs::read_dir(&profiles_root) {
         for entry in entries.flatten() {
             let path = entry.path();
             if path.is_dir() {
+                let dir_name = path.file_name().and_then(|f| f.to_str()).unwrap_or("");
+                if disabled_profile_ids.iter().any(|d| dir_name.contains(d)) {
+                    continue;
+                }
                 if let Some(default_dir) = check_profile_cookies(&path) {
                     return Some(format!("chrome:{}", default_dir.display()));
                 }

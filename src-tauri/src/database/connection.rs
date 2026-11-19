@@ -1133,6 +1133,23 @@ pub fn init_database(app: &AppHandle) -> Result<(), String> {
     conn.execute("CREATE INDEX IF NOT EXISTS idx_outlier_niche ON outlier_videos(niche)", []).ok();
     conn.execute("CREATE INDEX IF NOT EXISTS idx_outlier_opp ON outlier_videos(opportunity_score DESC)", []).ok();
 
+    // Google Trends Cache table (YouTube Search Trend caching & rate-limit protection)
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS google_trends_cache (
+            cache_key TEXT PRIMARY KEY,
+            keyword TEXT NOT NULL,
+            compare_keyword TEXT,
+            geo TEXT NOT NULL,
+            time_range TEXT NOT NULL,
+            data_json TEXT NOT NULL,
+            created_at INTEGER NOT NULL,
+            expires_at INTEGER NOT NULL
+        )",
+        [],
+    )
+    .ok();
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_trends_cache_exp ON google_trends_cache(expires_at)", []).ok();
+
     // BKT Test Channels Pool table
     conn.execute(
         "CREATE TABLE IF NOT EXISTS bkt_test_channels (

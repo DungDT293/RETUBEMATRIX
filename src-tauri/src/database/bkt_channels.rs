@@ -266,6 +266,54 @@ pub fn delete_bkt_test_channel_db(id: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// Bật / tắt trạng thái kích hoạt của Kênh Test Bản Quyền
+pub fn toggle_bkt_channel_active_db(channel_id: &str, is_active: bool) -> Result<(), String> {
+    if channel_id == FAST_TRACK_CHANNEL_ID {
+        return Err("Không thể thay đổi trạng thái của kênh hệ thống Fast-Track".to_string());
+    }
+    let conn = get_db()?;
+    let now_str = Local::now().to_rfc3339();
+    let rows_affected = conn
+        .execute(
+            "UPDATE bkt_test_channels
+             SET is_active = ?1, updated_at = ?2
+             WHERE id = ?3",
+            params![if is_active { 1 } else { 0 }, now_str, channel_id],
+        )
+        .map_err(|e| format!("Lỗi cập nhật trạng thái kênh test: {e}"))?;
+
+    if rows_affected == 0 {
+        return Err(format!("Không tìm thấy kênh test có ID: {channel_id}"));
+    }
+    Ok(())
+}
+
+/// Lấy danh sách profile_id của các kênh test BKT đang BẬT (is_active = 1)
+pub fn get_active_bkt_test_channel_profiles_db() -> Result<Vec<String>, String> {
+    let conn = get_db()?;
+    let mut stmt = conn
+        .prepare(
+            "SELECT profile_id
+             FROM bkt_test_channels
+             WHERE is_active = 1 AND id != ?1 AND TRIM(profile_id) != ''
+             ORDER BY priority DESC, updated_at DESC",
+        )
+        .map_err(|e| format!("Lỗi truy vấn profile kênh test active: {e}"))?;
+
+    let rows = stmt
+        .query_map(params![FAST_TRACK_CHANNEL_ID], |row| row.get::<_, String>(0))
+        .map_err(|e| format!("Lỗi map profile_id: {e}"))?;
+
+    let mut profiles = Vec::new();
+    for p in rows.flatten() {
+        let trimmed = p.trim().to_string();
+        if !trimmed.is_empty() && !profiles.contains(&trimmed) {
+            profiles.push(trimmed);
+        }
+    }
+    Ok(profiles)
+}
+
 /// Tăng số lượng video đã test hôm nay cho một kênh test. Trả về false nếu đã đạt quota.
 pub fn increment_bkt_channel_used_db(id: &str, count: i64) -> Result<bool, String> {
     if id == FAST_TRACK_CHANNEL_ID {
@@ -306,7 +354,7 @@ pub fn reserve_bkt_channel_and_create_job_with_conn(
             .execute(
                 "UPDATE bkt_test_channels
                  SET daily_used = daily_used + 1, updated_at = CURRENT_TIMESTAMP
-                 WHERE id = ?1 AND daily_used < daily_quota",
+                 WHERE id = ?1 AND is_active = 1 AND daily_used < daily_quota",
                 params![job.test_channel_id],
             )
             .map_err(|e| format!("Lỗi giữ quota kênh test BKT: {e}"))?;
@@ -586,17 +634,19 @@ pub fn get_bkt_catchup_job_ids_with_conn(
 ) -> Result<Vec<String>, String> {
     let mut stmt = conn
         .prepare(
-            "SELECT id
-             FROM bkt_test_jobs
-             WHERE status IN ('green_clean', 'publish_failed')
-               AND COALESCE(auto_publish_main, 0) = 0
-               AND source_ref_id IS NOT NULL
-               AND TRIM(source_ref_id) <> ''
-               AND reup_path IS NOT NULL
-               AND TRIM(reup_path) <> ''
-               AND COALESCE(target_profile_id, main_target_profile_id) IS NOT NULL
-               AND TRIM(COALESCE(target_profile_id, main_target_profile_id)) <> ''
-             ORDER BY created_at ASC, id ASC",
+            "SELECT j.id
+             FROM bkt_test_jobs j
+             LEFT JOIN channel_videos cv ON (j.source_ref_id IS NOT NULL AND (cv.id = j.source_ref_id OR cv.video_id = j.source_ref_id))
+             LEFT JOIN followed_channels fc ON (j.channel_id = fc.id OR cv.channel_id = fc.id)
+             WHERE j.status IN ('green_clean', 'publish_failed')
+               AND COALESCE(j.auto_publish_main, 0) = 0
+               AND j.source_ref_id IS NOT NULL
+               AND TRIM(j.source_ref_id) <> ''
+               AND j.reup_path IS NOT NULL
+               AND TRIM(j.reup_path) <> ''
+               AND COALESCE(j.target_profile_id, j.main_target_profile_id, cv.target_profile_id, fc.target_profile_id, fc.bkt_profile_id) IS NOT NULL
+               AND TRIM(COALESCE(j.target_profile_id, j.main_target_profile_id, cv.target_profile_id, fc.target_profile_id, fc.bkt_profile_id)) <> ''
+             ORDER BY j.created_at ASC, j.id ASC",
         )
         .map_err(|e| format!("Lỗi truy vấn job BKT chờ catch-up: {e}"))?;
     let rows = stmt
@@ -687,7 +737,7 @@ pub fn get_existing_bkt_checkpoint_db(
         .prepare(
             "SELECT j.test_channel_id, j.youtube_video_id, j.reup_path, j.status
              FROM bkt_test_jobs j
-             JOIN bkt_test_channels tc ON j.test_channel_id = tc.id
+             JOIN bkt_test_channels tc ON j.test_channel_id = tc.id AND tc.is_active = 1
              WHERE ((?1 IS NOT NULL AND TRIM(?1) <> '' AND j.source_ref_id = ?1) OR j.video_path = ?2)
                AND j.youtube_video_id IS NOT NULL
                AND TRIM(j.youtube_video_id) <> ''

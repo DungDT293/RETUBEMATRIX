@@ -963,8 +963,8 @@ export function ChannelsPage() {
   const handleDownloadSingleVideo = async (video: ChannelVideo) => {
     const channel = followedChannels.find((c) => c.id === expandedChannelId);
     toast.info({
-      title: 'Đang tải video...',
-      message: video.title || video.url,
+      title: 'Đang bắt đầu tải video...',
+      message: `${video.title || video.url} (Tiến trình %, tốc độ và ETA còn lại hiển thị ở góc dưới)`,
     });
     try {
       await downloadSelectedVideos(

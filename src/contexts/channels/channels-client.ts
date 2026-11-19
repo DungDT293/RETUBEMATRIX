@@ -394,6 +394,15 @@ export async function deleteBktTestChannel(channelId: string): Promise<void> {
   await invoke('delete_bkt_test_channel', { channelId, channel_id: channelId });
 }
 
+export async function toggleBktChannelActive(channelId: string, isActive: boolean): Promise<void> {
+  await invoke('toggle_bkt_channel_active', {
+    channelId,
+    channel_id: channelId,
+    isActive,
+    is_active: isActive,
+  });
+}
+
 export async function getBktTestJobs(limit?: number): Promise<BktTestJob[]> {
   return await invoke<BktTestJob[]>('get_bkt_test_jobs', { limit: limit ?? null });
 }
@@ -415,8 +424,16 @@ export async function getChannelVideoEditedFilepath(videoId: string): Promise<st
   });
 }
 
-export async function publishBktJobToMain(jobId: string): Promise<string> {
-  return await invoke<string>('publish_bkt_job_to_main_cmd', { jobId, job_id: jobId });
+export async function publishBktJobToMain(
+  jobId: string,
+  targetProfileId?: string | null,
+): Promise<string> {
+  return await invoke<string>('publish_bkt_job_to_main_cmd', {
+    jobId,
+    job_id: jobId,
+    targetProfileId: targetProfileId?.trim() || null,
+    target_profile_id: targetProfileId?.trim() || null,
+  });
 }
 
 export async function publishBktCatchup(): Promise<import('@/lib/types').BktCatchupResult> {

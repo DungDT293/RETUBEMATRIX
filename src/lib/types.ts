@@ -1686,6 +1686,7 @@ export interface BktTestJob {
   updatedAt: string;
   mainTargetProfileId?: string | null;
   targetProfileId?: string | null;
+  channelId?: string | null;
   testProfileId?: string | null;
   autoPublishMain?: boolean | null;
   uploadPercent?: number | null;

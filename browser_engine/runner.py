@@ -1655,6 +1655,54 @@ def action_analyze_competitor(args):
         sys.stdout.flush()
 
 
+def action_analyze_trends(args):
+    try:
+        from outlier_hunter import analyze_google_trends
+        raw_data = get_payload(args)
+        keyword = (raw_data.get("keyword") or "").strip()
+        compare_keyword = (raw_data.get("compare_keyword") or raw_data.get("compareKeyword") or "").strip()
+        geo = (raw_data.get("geo") or "VN").strip()
+        time_range = (raw_data.get("time_range") or raw_data.get("timeRange") or "today 12-m").strip()
+        hl = (raw_data.get("hl") or "vi").strip()
+
+        logger.info(f"Phân tích Google Trends YouTube Search cho '{keyword}' (compare: '{compare_keyword}', geo: '{geo}', time: '{time_range}')")
+        result = analyze_google_trends(
+            keyword=keyword,
+            compare_keyword=compare_keyword or None,
+            geo=geo,
+            time_range=time_range,
+            hl=hl
+        )
+        print(json.dumps(result, ensure_ascii=True))
+        sys.stdout.flush()
+    except Exception as e:
+        logger.error(f"Lỗi action_analyze_trends: {e}")
+        print(json.dumps({
+            "success": False,
+            "error": str(e),
+            "is_low_volume": True,
+            "timeline": [],
+            "top_queries": [],
+            "rising_queries": [],
+            "momentum": {
+                "verdict": "stable",
+                "verdictLabel": "Lỗi phân tích",
+                "currentScore": 0,
+                "avgScore": 0.0,
+                "peakScore": 0,
+                "peakTime": "",
+                "deltaPercent": 0.0,
+            },
+            "recommendation": {
+                "urgency": "low",
+                "actionText": f"Không thể lấy dữ liệu Google Trends: {e}",
+                "contentAngle": ""
+            }
+        }, ensure_ascii=True))
+        sys.stdout.flush()
+
+
+
 async def _async_sync_channel_analytics(args):
     """
     Mở trình duyệt Profile kênh, vào YouTube Studio Analytics,
@@ -1918,6 +1966,8 @@ def main():
         "find_goldmines",
         "analyze_hook",
         "analyze_competitor",
+        "analyze_trends",
+        "fetch_youtube_trends",
         "extract_channel_seo",
         "configure_channel_settings",
         "sync_channel_analytics",
@@ -1982,6 +2032,8 @@ def main():
         action_analyze_hook(args)
     elif args.action == "analyze_competitor":
         action_analyze_competitor(args)
+    elif args.action in ("analyze_trends", "fetch_youtube_trends"):
+        action_analyze_trends(args)
     elif args.action == "nurture_channel":
         asyncio.run(_async_nurture_channel(args))
     elif args.action == "test_profile_connection":

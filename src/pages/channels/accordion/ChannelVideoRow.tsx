@@ -473,13 +473,15 @@ export const ChannelVideoRow = React.memo(function ChannelVideoRow({
                 <span className="flex items-center gap-1">
                   <Loader2 className="w-3 h-3 animate-spin text-purple-500" />
                   <span>
-                    {downloadState?.progress
+                    {downloadState?.progress != null
                       ? `${Math.round(downloadState.progress)}%`
-                      : 'Đang tải'}
+                      : 'Đang kết nối...'}
                   </span>
                 </span>
-                {downloadState?.speed && (
+                {downloadState?.speed ? (
                   <span className="text-[10px] text-muted-foreground">{downloadState.speed}</span>
+                ) : (
+                  <span className="text-[10px] text-muted-foreground">-- MB/s</span>
                 )}
               </div>
               <div className="w-full h-1.5 rounded-full bg-purple-500/20 overflow-hidden">
@@ -488,10 +490,12 @@ export const ChannelVideoRow = React.memo(function ChannelVideoRow({
                   style={{ width: `${Math.max(5, Math.min(100, downloadState?.progress || 0))}%` }}
                 />
               </div>
-              <div className="text-[9px] text-muted-foreground flex items-center justify-between gap-1">
-                <span>{downloadState?.eta ? formatEta(downloadState.eta) : 'Đang đồng bộ...'}</span>
+              <div className="text-[9px] text-muted-foreground flex items-center justify-between gap-1 font-mono">
+                <span>
+                  {downloadState?.eta ? formatEta(downloadState.eta) : 'Đang tính toán ETA...'}
+                </span>
                 {downloadState?.downloaded_size && (
-                  <span className="truncate max-w-[65px]">{downloadState.downloaded_size}</span>
+                  <span className="truncate max-w-[75px]">{downloadState.downloaded_size}</span>
                 )}
               </div>
             </div>

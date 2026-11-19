@@ -351,6 +351,7 @@ async def dismiss_blocking_studio_dialogs(
                 result["handled"] = True
                 result["type"] = "you_are_all_set" if diag.get("isAllSet") else "blocking_notice"
                 result["needsReload"] = bool(diag.get("needsReload"))
+                result["isDailyLimit"] = bool(diag.get("isDailyLimit"))
                 result["details"] = diag.get("sample", "")
 
             # Playwright native fallback click với force=True:

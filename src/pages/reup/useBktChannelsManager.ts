@@ -12,6 +12,7 @@ import {
   publishBktJobToMain,
   recheckBktJob,
   saveBktTestChannel,
+  toggleBktChannelActive,
 } from '@/contexts/channels/channels-client';
 import type {
   BktTestChannel,
@@ -224,6 +225,39 @@ export function useBktChannelsManager(): BktChannelsManager {
     }
   };
 
+  const handleToggleActive = async (ch: BktTestChannel, nextActive: boolean) => {
+    // Cập nhật giao diện tức thì (optimistic update)
+    setChannels((prev) => prev.map((c) => (c.id === ch.id ? { ...c, isActive: nextActive } : c)));
+
+    try {
+      await toggleBktChannelActive(ch.id, nextActive);
+
+      workTelemetryService.syncManagedChannel({
+        channel_type: 'test',
+        channel_id: ch.profileId,
+        channel_title: ch.name,
+        action: 'upsert',
+        status: nextActive ? 'active' : 'inactive',
+      });
+
+      toast.success({
+        title: nextActive ? 'Đã kích hoạt kênh test' : 'Đã tạm dừng kênh test',
+        description: nextActive
+          ? `Kênh "${ch.name}" sẽ được dùng để test video và trích xuất cookie.`
+          : `Kênh "${ch.name}" đã tạm ngưng, không nhận video test và không lấy cookie.`,
+      });
+    } catch (err) {
+      // Rollback lại trạng thái cũ nếu lỗi
+      setChannels((prev) =>
+        prev.map((c) => (c.id === ch.id ? { ...c, isActive: ch.isActive } : c)),
+      );
+      toast.error({
+        title: 'Lỗi cập nhật trạng thái',
+        description: String(err),
+      });
+    }
+  };
+
   const handleLaunchProfile = async (profileId: string) => {
     try {
       toast.info({
@@ -350,6 +384,7 @@ export function useBktChannelsManager(): BktChannelsManager {
     handleOpenEdit,
     handleSave,
     handleDelete,
+    handleToggleActive,
     handleLaunchProfile,
     publishingJobId,
     handlePublishToMain,

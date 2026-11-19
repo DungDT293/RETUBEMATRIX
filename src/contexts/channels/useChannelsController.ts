@@ -360,9 +360,9 @@ export function useChannelsController(): ChannelsContextType {
 
   // Per-video download progress: videoId -> state
   const [videoStates, setVideoStates] = useState<Map<string, VideoDownloadState>>(new Map());
-  // Map downloadId -> { videoId, channelUrl } (to match progress events back to videos and update DB)
+  // Map downloadId -> { videoId, altVideoId, channelUrl } (to match progress events back to videos and update DB)
   const downloadIdMapRef = useRef<
-    Map<string, { videoId: string; channelUrl: string; runId: number }>
+    Map<string, { videoId: string; altVideoId?: string; channelUrl: string; runId: number }>
   >(new Map());
   const downloadRunGuardRef = useRef(createDownloadRunGuard());
 
@@ -911,7 +911,62 @@ export function useChannelsController(): ChannelsContextType {
       const filteredDuplicateCandidates =
         await filterDownloadedDuplicateCandidates(duplicateCandidates);
       const videosToDownload = filteredDuplicateCandidates.map((candidate) => candidate.video);
-      if (videosToDownload.length === 0) return;
+
+      // Nếu có video bị loại trừ do đã tồn tại trong thư viện máy tính (trùng lặp)
+      const duplicateVideos = selectedVideosToDownload.filter(
+        (v) => !videosToDownload.some((vt) => vt.id === v.id),
+      );
+      if (duplicateVideos.length > 0) {
+        setVideoStates((prev) => {
+          const next = new Map(prev);
+          for (const dup of duplicateVideos) {
+            const completedState: VideoDownloadState = {
+              status: 'completed',
+              progress: 100,
+              speed: '',
+              downloaded_size: 'Đã có sẵn',
+            };
+            next.set(dup.id, completedState);
+            const alt =
+              'video_id' in dup && typeof dup.video_id === 'string' ? dup.video_id : undefined;
+            if (alt) {
+              next.set(alt, completedState);
+            }
+          }
+          return next;
+        });
+
+        // Đồng bộ trạng thái vào DB để UI chuyển ngay thành "Đã tải về"
+        for (const dup of duplicateVideos) {
+          updateChannelVideoStatusByVideoId({
+            channelUrl: targetChannelUrl,
+            videoId: dup.id,
+            status: 'downloaded',
+          }).catch(() => {});
+          const alt =
+            'video_id' in dup && typeof dup.video_id === 'string' ? dup.video_id : undefined;
+          if (alt && alt !== dup.id) {
+            updateChannelVideoStatusByVideoId({
+              channelUrl: targetChannelUrl,
+              videoId: alt,
+              status: 'downloaded',
+            }).catch(() => {});
+          }
+        }
+      }
+
+      if (videosToDownload.length === 0) {
+        if (duplicateVideos.length > 0) {
+          toastRef.current?.info({
+            title: 'Video đã tồn tại',
+            message:
+              duplicateVideos.length === 1
+                ? `"${duplicateVideos[0].title || duplicateVideos[0].url}" đã có sẵn trong thư viện máy tính.`
+                : `${duplicateVideos.length} video đã có sẵn trong thư viện máy tính.`,
+          });
+        }
+        return;
+      }
       const runId = downloadRunGuardRef.current.tryStart();
       if (runId === null) return;
 
@@ -1063,8 +1118,11 @@ export function useChannelsController(): ChannelsContextType {
       }) => {
         downloadingIdsRef.current.add(video.id);
         downloadRunGuardRef.current.track(downloadId);
+        const altId =
+          'video_id' in video && typeof video.video_id === 'string' ? video.video_id : video.id;
         downloadIdMapRef.current.set(downloadId, {
           videoId: video.id,
+          altVideoId: altId !== video.id ? altId : undefined,
           channelUrl: targetChannelUrl,
           runId,
         });
@@ -1328,27 +1386,32 @@ export function useChannelsController(): ChannelsContextType {
       const mapping = downloadIdMapRef.current.get(progress.id);
       if (!mapping || !downloadRunGuardRef.current.isActive(mapping.runId)) return;
 
-      const { videoId, channelUrl } = mapping;
+      const { videoId, altVideoId, channelUrl } = mapping;
 
       if (progress.status === 'finished') {
         downloadingIdsRef.current.delete(videoId);
+        if (altVideoId) downloadingIdsRef.current.delete(altVideoId);
         setVideoStates((prev) => {
           const next = new Map(prev);
-          next.set(videoId, {
+          const finishedState: VideoDownloadState = {
             status: 'completed',
             progress: 100,
             speed: '',
             downloaded_size: progress.downloaded_size,
             filesize: progress.filesize,
-          });
+          };
+          next.set(videoId, finishedState);
+          if (altVideoId) {
+            next.set(altVideoId, finishedState);
+          }
           return next;
         });
         setDownloadingIds((prev) => {
           const next = new Set(prev);
           next.delete(videoId);
+          if (altVideoId) next.delete(altVideoId);
           return next;
         });
-        downloadingIdsRef.current.delete(videoId);
         downloadIdMapRef.current.delete(progress.id);
 
         toastRef.current?.success({
@@ -1362,6 +1425,13 @@ export function useChannelsController(): ChannelsContextType {
           videoId,
           status: 'downloaded',
         }).catch((e) => console.error('Failed to update video status in DB:', e));
+        if (altVideoId && altVideoId !== videoId) {
+          updateChannelVideoStatusByVideoId({
+            channelUrl,
+            videoId: altVideoId,
+            status: 'downloaded',
+          }).catch(() => {});
+        }
 
         // Update tray menu (download completed = count changed)
         rebuildTrayMenu().catch(() => {});
@@ -1392,32 +1462,42 @@ export function useChannelsController(): ChannelsContextType {
 
         setVideoStates((prev) => {
           const next = new Map(prev);
-          next.set(videoId, {
+          const errorState: VideoDownloadState = {
             status: 'error',
             progress: 0,
             speed: '',
             error: friendlyError,
-          });
+          };
+          next.set(videoId, errorState);
+          if (altVideoId) {
+            next.set(altVideoId, errorState);
+          }
           return next;
         });
         setDownloadingIds((prev) => {
           const next = new Set(prev);
           next.delete(videoId);
+          if (altVideoId) next.delete(altVideoId);
           return next;
         });
         downloadingIdsRef.current.delete(videoId);
+        if (altVideoId) downloadingIdsRef.current.delete(altVideoId);
         downloadIdMapRef.current.delete(progress.id);
       } else {
         setVideoStates((prev) => {
           const next = new Map(prev);
-          next.set(videoId, {
+          const activeState: VideoDownloadState = {
             status: 'downloading',
             progress: progress.percent,
             speed: progress.speed,
             eta: progress.eta,
             downloaded_size: progress.downloaded_size,
             filesize: progress.filesize,
-          });
+          };
+          next.set(videoId, activeState);
+          if (altVideoId) {
+            next.set(altVideoId, activeState);
+          }
           return next;
         });
       }

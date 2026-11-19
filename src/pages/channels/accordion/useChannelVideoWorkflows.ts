@@ -119,7 +119,26 @@ export function useChannelVideoWorkflows({
           message: `Đang kiểm tra lại trên ${job.testChannelName || 'kênh test'}.`,
         });
       } else {
-        const result = await publishBktJobToMain(job.id);
+        const resolvedChannel =
+          channel ||
+          followedChannels.find(
+            (c) => c.name === channelName || (job.channelId && c.id === job.channelId),
+          );
+        const fallbackTargetProfileId =
+          resolvedChannel?.target_profile_id || resolvedChannel?.bkt_profile_id || null;
+        const effectiveTargetProfileId =
+          job.targetProfileId || job.mainTargetProfileId || fallbackTargetProfileId || undefined;
+
+        if (!effectiveTargetProfileId) {
+          toast.warning({
+            title: 'Chưa cấu hình Kênh Đích',
+            message:
+              'Vui lòng gán Hồ Sơ Kênh Đích (Target Profile) cho kênh này trước khi bấm Đăng ngay.',
+          });
+          return;
+        }
+
+        const result = await publishBktJobToMain(job.id, effectiveTargetProfileId);
         toast.success({ title: 'Đã gửi đăng Kênh Đích', message: result });
       }
       setBktJobs(await getBktTestJobs(300));

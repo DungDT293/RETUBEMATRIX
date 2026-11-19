@@ -318,3 +318,75 @@ export async function extractVideoSeoTags(videoUrl: string): Promise<VideoSeoTag
     video_url: videoUrl,
   });
 }
+
+export interface GoogleTrendsTimelinePoint {
+  time: number;
+  formattedTime: string;
+  formattedAxisTime?: string;
+  value: number;
+  compareValue?: number;
+  isPartial?: boolean;
+}
+
+export interface GoogleTrendsQueryItem {
+  query: string;
+  value: number;
+  formattedValue: string;
+  isBreakout: boolean;
+}
+
+export interface GoogleTrendsMetrics {
+  currentScore: number;
+  previousScore: number;
+  deltaPercent: number;
+  averageScore: number;
+  peakScore: number;
+  peakDate: string;
+}
+
+export interface GoogleTrendsMomentumVerdict {
+  status: 'exploding' | 'growing' | 'stable' | 'declining' | 'breakout';
+  label: string;
+  description: string;
+}
+
+export interface GoogleTrendsRecommendation {
+  urgency: 'high' | 'medium' | 'low';
+  actionText: string;
+  contentAngle: string;
+}
+
+export interface GoogleTrendsAnalysisResult {
+  success: boolean;
+  isLowVolume?: boolean;
+  keyword: string;
+  compareKeyword?: string | null;
+  geo: string;
+  timeRange: string;
+  metrics: GoogleTrendsMetrics;
+  momentumVerdict: GoogleTrendsMomentumVerdict;
+  recommendation: GoogleTrendsRecommendation;
+  timeline: GoogleTrendsTimelinePoint[];
+  risingQueries: GoogleTrendsQueryItem[];
+  topQueries: GoogleTrendsQueryItem[];
+  source?: string;
+  isStale?: boolean;
+  warningMessage?: string;
+  error?: string;
+}
+
+export async function analyzeGoogleTrends(
+  keyword: string,
+  compareKeyword?: string,
+  geo?: string,
+  timeRange?: string,
+): Promise<GoogleTrendsAnalysisResult> {
+  return await invoke<GoogleTrendsAnalysisResult>('analyze_google_trends_cmd', {
+    keyword,
+    compareKeyword: compareKeyword || null,
+    compare_keyword: compareKeyword || null,
+    geo: geo || 'VN',
+    timeRange: timeRange || 'today 12-m',
+    time_range: timeRange || 'today 12-m',
+  });
+}

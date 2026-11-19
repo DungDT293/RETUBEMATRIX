@@ -79,6 +79,7 @@ export interface BktChannelsManager {
   handleOpenEdit: (ch: BktTestChannel) => void;
   handleSave: () => Promise<void>;
   handleDelete: (ch: BktTestChannel) => Promise<void>;
+  handleToggleActive: (ch: BktTestChannel, nextActive: boolean) => Promise<void>;
   handleLaunchProfile: (profileId: string) => Promise<void>;
   // Job actions
   publishingJobId: string | null;

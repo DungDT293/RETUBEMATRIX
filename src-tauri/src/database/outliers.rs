@@ -334,6 +334,9 @@ pub fn upsert_outlier_video_db(v: &OutlierVideo) -> Result<(), String> {
             ?28, ?29, ?30, ?31, ?32
         )
         ON CONFLICT(id) DO UPDATE SET
+            niche = excluded.niche,
+            subscribers = excluded.subscribers,
+            upload_timestamp = excluded.upload_timestamp,
             views = excluded.views,
             likes = excluded.likes,
             comments = excluded.comments,
@@ -432,4 +435,143 @@ pub fn clear_all_outliers_db() -> Result<(), String> {
 
     Ok(())
 }
+
+// ==============================================================================
+// GOOGLE TRENDS YOUTUBE SEARCH CACHE
+// ==============================================================================
+
+fn ensure_trends_cache_table(conn: &rusqlite::Connection) {
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS google_trends_cache (
+            cache_key TEXT PRIMARY KEY,
+            keyword TEXT NOT NULL,
+            compare_keyword TEXT,
+            geo TEXT NOT NULL,
+            time_range TEXT NOT NULL,
+            data_json TEXT NOT NULL,
+            created_at INTEGER NOT NULL,
+            expires_at INTEGER NOT NULL
+        )",
+        [],
+    )
+    .ok();
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_trends_cache_exp ON google_trends_cache(expires_at)",
+        [],
+    )
+    .ok();
+}
+
+/// Tính thời gian sống (TTL tính bằng giây) phù hợp theo khung thời gian Trends
+pub fn calculate_trends_ttl(time_range: &str) -> i64 {
+    let clean = time_range.trim().to_lowercase();
+    if clean.contains("now") || clean.contains("7-d") || clean.contains("1-d") || clean.contains("hour") {
+        // Khung thời gian ngắn (giờ đến 7 ngày): TTL 2 giờ (7200s)
+        7200
+    } else if clean.contains("1-m") || clean.contains("3-m") {
+        // Khung thời gian trung hạn (1-3 tháng): TTL 6 giờ (21600s)
+        21600
+    } else {
+        // Khung thời gian dài hạn (12 tháng, 5 năm, toàn thời gian): TTL 24 giờ (86400s)
+        86400
+    }
+}
+
+/// Tạo cache key duy nhất cho cặp từ khóa, thị trường và khung thời gian
+pub fn build_trends_cache_key(
+    keyword: &str,
+    compare_keyword: Option<&str>,
+    geo: &str,
+    time_range: &str,
+) -> String {
+    let kw = keyword.trim().to_lowercase();
+    let cmp = compare_keyword
+        .unwrap_or_default()
+        .trim()
+        .to_lowercase();
+    let g = geo.trim().to_uppercase();
+    let tr = time_range.trim().to_lowercase();
+    format!("{kw}::{cmp}::{g}::{tr}")
+}
+
+/// Lấy dữ liệu Google Trends từ cache SQLite nếu chưa hết hạn (TTL)
+pub fn get_google_trends_cache_db(cache_key: &str) -> Result<Option<serde_json::Value>, String> {
+    let conn = get_db()?;
+    ensure_trends_cache_table(&conn);
+
+    let now_ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs() as i64;
+
+    let mut stmt = conn
+        .prepare(
+            "SELECT data_json FROM google_trends_cache
+             WHERE cache_key = ?1 AND expires_at > ?2",
+        )
+        .map_err(|e| format!("Failed to prepare trends cache select: {e}"))?;
+
+    let mut rows = stmt
+        .query(params![cache_key, now_ts])
+        .map_err(|e| format!("Failed to query trends cache: {e}"))?;
+
+    if let Some(row) = rows.next().map_err(|e| e.to_string())? {
+        let json_str: String = row.get(0).map_err(|e| e.to_string())?;
+        if let Ok(mut val) = serde_json::from_str::<serde_json::Value>(&json_str) {
+            if let Some(obj) = val.as_object_mut() {
+                obj.insert("from_cache".to_string(), serde_json::Value::Bool(true));
+            }
+            return Ok(Some(val));
+        }
+    }
+
+    Ok(None)
+}
+
+/// Lưu hoặc cập nhật dữ liệu Google Trends vào cache SQLite
+pub fn upsert_google_trends_cache_db(
+    cache_key: &str,
+    keyword: &str,
+    compare_keyword: Option<&str>,
+    geo: &str,
+    time_range: &str,
+    data: &serde_json::Value,
+    ttl_seconds: i64,
+) -> Result<(), String> {
+    let conn = get_db()?;
+    ensure_trends_cache_table(&conn);
+
+    let now_ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs() as i64;
+
+    let expires_at = now_ts + ttl_seconds;
+    let json_str = serde_json::to_string(data)
+        .map_err(|e| format!("Failed to serialize trends json for cache: {e}"))?;
+
+    conn.execute(
+        "INSERT INTO google_trends_cache (
+            cache_key, keyword, compare_keyword, geo, time_range, data_json, created_at, expires_at
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+        ON CONFLICT(cache_key) DO UPDATE SET
+            data_json = excluded.data_json,
+            created_at = excluded.created_at,
+            expires_at = excluded.expires_at",
+        params![
+            cache_key,
+            keyword,
+            compare_keyword,
+            geo,
+            time_range,
+            json_str,
+            now_ts,
+            expires_at
+        ],
+    )
+    .map_err(|e| format!("Failed to upsert google trends cache: {e}"))?;
+
+    Ok(())
+}
+
 

@@ -204,23 +204,24 @@ def is_reup_safe_and_valid_small_channel(video: Dict, settings: Dict) -> Tuple[b
     if raw_subs <= 0:
         if views < 3000:
             return False, "Loại bỏ: Không lấy được số Subscriber thật của kênh (Kênh ẩn sub hoặc thiếu dữ liệu)"
-        # Với video có lượt view tốt, tạm gán ngưỡng cơ sở để không vứt bỏ video đột biến
-        raw_subs = 10000
+        # Với kênh ẩn sub nhưng view tốt, giữ raw_subs = 0 để tránh tính toán ảo tưởng (không gán cứng 10000)
+        raw_subs = 0
     
     # Nếu video > 500k views mà báo kênh < 1.000 sub -> 99.9% là lỗi parse chữ K/M/N (ví dụ 340K/340N -> 340)
-    if views > 500_000 and raw_subs < 1_000:
+    if views > 500_000 and 0 < raw_subs < 1_000:
         return False, f"Loại bỏ: Nghi vấn lỗi parse Sub ({raw_subs} subs nhưng {views:,} views)"
 
     # Nếu video > 100k views mà báo kênh < 100 sub -> Kênh bất thường hoặc lỗi parse
-    if views > 100_000 and raw_subs < 100:
+    if views > 100_000 and 0 < raw_subs < 100:
         return False, f"Loại bỏ: Kênh bất thường ({raw_subs} subs nhưng {views:,} views)"
 
     # Kênh vượt quá Max Subscribers trong cấu hình (Linh hoạt: mặc định 150k subs, nếu ratio >= 3.0x cho phép tới 250k)
-    base_max_subs = safe_int(settings.get("max_subscribers"), 150000)
-    ratio_sub = views / max(raw_subs, 1)
-    max_subs = max(base_max_subs, 250000) if ratio_sub >= 3.0 else base_max_subs
-    if raw_subs > max_subs:
-        return False, f"Kênh quá lớn: {raw_subs:,} subs (ngưỡng tối đa: {max_subs:,})"
+    if raw_subs > 0:
+        base_max_subs = safe_int(settings.get("max_subscribers"), 150000)
+        ratio_sub = views / max(raw_subs, 1)
+        max_subs = max(base_max_subs, 250000) if ratio_sub >= 3.0 else base_max_subs
+        if raw_subs > max_subs:
+            return False, f"Kênh quá lớn: {raw_subs:,} subs (ngưỡng tối đa: {max_subs:,})"
 
     # 4. CHỐT CHẶN 4: GIỚI HẠN THỜI LƯỢNG (Chặn Gameshow / Livestream / Phim siêu dài > 3 tiếng)
     if is_live:
@@ -260,15 +261,15 @@ def evaluate_outlier_candidate(
     views = safe_int(video.get("view_count") if video.get("view_count") is not None else video.get("views"), 0)
     raw_subs_cand = video.get("channel_follower_count") if video.get("channel_follower_count") is not None else video.get("subscribers")
     raw_subs = safe_int(raw_subs_cand, 0)
-    subs_floor = max(raw_subs, 500)
-    hours = max(safe_float(video.get("hours_published"), 1.0), 1.0)
+    subs_floor = max(raw_subs, 300) if raw_subs > 0 else 0
+    hours = max(safe_float(video.get("hours_published"), 1.0), 0.5)
     likes = safe_int(video.get("like_count") if video.get("like_count") is not None else video.get("likes"), 0)
     comments = safe_int(video.get("comment_count") if video.get("comment_count") is not None else video.get("comments"), 0)
     min_dur = safe_int(settings.get("min_duration"), 60)
 
     # Khung giờ: Cho phép các video bứt phá ngách mọi thời điểm (mặc định mở rộng)
     max_hours = safe_float(settings.get("max_hours_published"), 87600.0)
-    if hours < 1.0 or hours > max_hours:
+    if hours < 0.1 or hours > max_hours:
         return None, f"Ngoài khung giờ: Hours={hours:.1f}h"
 
     # Quy mô cơ sở (Kênh nhỏ - View lớn)
@@ -277,10 +278,14 @@ def evaluate_outlier_candidate(
         return None, f"Views={views:,} (<{min_views:,})"
 
     # Tỷ lệ Đột biến Sub
-    sub_outlier = views / subs_floor
-    min_sub_out = safe_float(settings.get("min_sub_outlier"), 1.8)
-    if sub_outlier < min_sub_out:
-        return None, f"Chưa đạt Sub Outlier: {sub_outlier:.1f}x (<{min_sub_out}x)"
+    if subs_floor > 0:
+        sub_outlier = views / subs_floor
+        min_sub_out = safe_float(settings.get("min_sub_outlier"), 1.8)
+        if sub_outlier < min_sub_out:
+            return None, f"Chưa đạt Sub Outlier: {sub_outlier:.1f}x (<{min_sub_out}x)"
+    else:
+        # Kênh ẩn sub: không thể tính sub outlier ratio chính xác, giữ tỷ lệ an toàn 1.0x
+        sub_outlier = 1.0
 
     # Bộ lọc Chống Buff View & Google Ads (Organic Engagement)
     # Chỉ áp dụng khi có dữ liệu likes hoặc comments thực tế (tránh loại trừ nhầm các video từ search playlist)
@@ -1333,10 +1338,11 @@ def fetch_live_trending_topics(geo: str = "VN", limit: int = 20) -> List[Dict]:
     try:
         import urllib.request
         import xml.etree.ElementTree as ET
-        req = urllib.request.Request(
-            url,
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-        )
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8" if clean_geo == "VN" else "en-US,en;q=0.9",
+        }
+        req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req, timeout=8) as resp:
             xml_data = resp.read()
         root = ET.fromstring(xml_data)
@@ -1351,17 +1357,24 @@ def fetch_live_trending_topics(geo: str = "VN", limit: int = 20) -> List[Dict]:
             pub_date = pub_el.text.strip() if pub_el is not None and pub_el.text else ""
             desc_el = item.find("description")
             desc = desc_el.text.strip() if desc_el is not None and desc_el.text else ""
-            
-            if title:
-                topics.append({
-                    "title": title,
-                    "traffic": traffic,
-                    "pub_date": pub_date,
-                    "geo": clean_geo,
-                    "description": desc,
-                })
-                if len(topics) >= limit:
-                    break
+
+            if not title:
+                continue
+
+            # Khi người dùng chọn thị trường Việt Nam (geo=VN), lọc bỏ các từ khóa dính chữ tiếng Hàn (Hangul), tiếng Nhật (Kana), tiếng Thái, tiếng Hoa
+            if clean_geo == "VN":
+                if re.search(r"[\uac00-\ud7af\u1100-\u11ff\u3040-\u30ff\u4e00-\u9fff\u0e00-\u0e7f\u0600-\u06ff\u0400-\u04ff]", title):
+                    continue
+
+            topics.append({
+                "title": title,
+                "traffic": traffic,
+                "pub_date": pub_date,
+                "geo": clean_geo,
+                "description": desc,
+            })
+            if len(topics) >= limit:
+                break
         return topics
     except Exception as e:
         logger.warning(f"Lỗi fetch_live_trending_topics cho geo={clean_geo}: {e}")
@@ -1380,17 +1393,174 @@ def get_niche_query_for_market(niche_key_or_name: str, geo: str = "VN") -> Tuple
 
     if clean_geo == "VN":
         for item in STANDARDIZED_NICHES_VIET:
-            if clean in (item["id"].lower(), item["name"].lower()):
+            n_id = item["id"].lower()
+            n_name = item["name"].lower()
+            n_query = item.get("query", "").lower()
+            if clean in (n_id, n_name, n_query) or clean == n_query:
+                return item["name"], item["query"]
+            # Kiểm tra cụm từ khóa đặc trưng của từng ngách chuẩn
+            if n_id == "review_phim" and any(k in clean for k in ["tóm tắt phim", "review phim", "phim hay", "tóm tắt"]):
+                return item["name"], item["query"]
+            if n_id == "nhac" and any(k in clean for k in ["nhạc", "remix", "speed up", "lofi", "không lời", "8d audio"]):
+                return item["name"], item["query"]
+            if n_id == "ai_news" and any(k in clean for k in ["ai ", "trí tuệ nhân tạo", "chatgpt", "deepseek", "công nghệ"]):
+                return item["name"], item["query"]
+            if n_id == "nau_an" and any(k in clean for k in ["nấu ăn", "món ăn", "ẩm thực", "công thức"]):
+                return item["name"], item["query"]
+            if n_id == "facts" and any(k in clean for k in ["sự thật", "bí ẩn", "khoa học", "kỳ lạ"]):
+                return item["name"], item["query"]
+            if n_id == "meo_vat" and any(k in clean for k in ["mẹo vặt", "life hack", "thủ thuật", "gia đình"]):
+                return item["name"], item["query"]
+            if n_id == "manga" and any(k in clean for k in ["manga", "manhwa", "truyện tranh", "webtoon"]):
                 return item["name"], item["query"]
     else:
         for item in GEO_NICHES_FOREIGN:
             queries = item.get("queries") or {}
             target_query = queries.get(clean_geo) or queries.get("GLOBAL") or item.get("name")
             cat_vn = item.get("category_vn", "").lower()
-            if clean in (item["id"].lower(), item["name"].lower(), cat_vn):
+            n_id = item["id"].lower()
+            n_name = item["name"].lower()
+            if clean in (n_id, n_name, cat_vn) or any(clean == q.lower() for q in queries.values()):
                 return item["name"], target_query
 
     return niche_key_or_name, niche_key_or_name
+
+
+def fetch_channel_subs_innertube(browse_id: str, timeout: int = 6) -> int:
+    """
+    Lấy số lượng người đăng ký thật của kênh qua YouTube InnerTube Browse API trong ~0.3s.
+    """
+    if not browse_id:
+        return 0
+    clean_id = browse_id.strip()
+    if "/" in clean_id:
+        clean_id = clean_id.rstrip("/").split("/")[-1]
+    
+    url = "https://www.youtube.com/youtubei/v1/browse?prettyPrint=false"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "context": {"client": {"clientName": "WEB", "clientVersion": "2.20241108.00.00", "hl": "vi", "gl": "VN"}},
+        "browseId": clean_id
+    }
+    try:
+        req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        header = data.get("header", {})
+        found = ""
+        def _search_header(obj):
+            nonlocal found
+            if found:
+                return
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    if isinstance(v, str) and any(w in v.lower() for w in ["người đăng ký", "subscriber", "subscribers"]):
+                        found = v
+                        return
+                    _search_header(v)
+            elif isinstance(obj, list):
+                for item in obj:
+                    _search_header(item)
+        _search_header(header)
+        if found:
+            return parse_subscribers(found)
+    except Exception as e:
+        logger.debug(f"Không thể lấy subs InnerTube cho {clean_id}: {e}")
+    return 0
+
+
+def search_innertube(query_text: str, limit: int = 25, geo: str = "VN") -> List[Dict]:
+    """
+    Tìm kiếm video trên YouTube bằng InnerTube Search API trực tiếp (~0.8s).
+    Trả về thời gian đăng tự nhiên chính xác (publishedTimeText), viewCountText, duration, channel info.
+    """
+    clean_geo = (geo or "VN").strip().upper()
+    hl = "vi" if clean_geo == "VN" else "en"
+    gl = clean_geo if clean_geo in ("VN", "US", "JP", "KR", "TH", "GB", "DE", "FR", "ID", "BR", "TW") else "VN"
+
+    url = "https://www.youtube.com/youtubei/v1/search?prettyPrint=false"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": f"{hl}-{gl},{hl};q=0.9,en;q=0.8",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "context": {
+            "client": {
+                "clientName": "WEB",
+                "clientVersion": "2.20241108.00.00",
+                "hl": hl,
+                "gl": gl
+            }
+        },
+        "query": query_text
+    }
+    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+
+    results = []
+    def _extract_vids(obj):
+        if isinstance(obj, dict):
+            if "videoRenderer" in obj:
+                vr = obj["videoRenderer"]
+                vid_id = vr.get("videoId")
+                if vid_id:
+                    title = ""
+                    title_obj = vr.get("title", {})
+                    if "runs" in title_obj and title_obj["runs"]:
+                        title = title_obj["runs"][0].get("text", "")
+                    elif "simpleText" in title_obj:
+                        title = title_obj["simpleText"]
+                    
+                    published_time = vr.get("publishedTimeText", {}).get("simpleText", "")
+                    view_str = vr.get("viewCountText", {}).get("simpleText", "")
+                    owner_text = ""
+                    owner_obj = vr.get("ownerText") or vr.get("shortBylineText") or {}
+                    if "runs" in owner_obj and owner_obj["runs"]:
+                        owner_text = owner_obj["runs"][0].get("text", "")
+                    
+                    channel_id = ""
+                    if "runs" in owner_obj and owner_obj["runs"]:
+                        channel_id = owner_obj["runs"][0].get("navigationEndpoint", {}).get("browseEndpoint", {}).get("browseId", "")
+                    
+                    length_str = vr.get("lengthText", {}).get("simpleText", "")
+                    duration = 0
+                    if length_str:
+                        parts = length_str.split(":")
+                        if len(parts) == 2:
+                            duration = safe_int(parts[0]) * 60 + safe_int(parts[1])
+                        elif len(parts) == 3:
+                            duration = safe_int(parts[0]) * 3600 + safe_int(parts[1]) * 60 + safe_int(parts[2])
+                    
+                    thumb_url = f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg"
+                    if "thumbnail" in vr and "thumbnails" in vr["thumbnail"] and vr["thumbnail"]["thumbnails"]:
+                        thumb_url = vr["thumbnail"]["thumbnails"][-1].get("url", thumb_url)
+
+                    views = parse_views_str(view_str)
+                    results.append({
+                        "id": vid_id,
+                        "title": title,
+                        "thumbnail_url": thumb_url,
+                        "channel_id": channel_id,
+                        "channel_name": owner_text or "YouTube Creator",
+                        "channel_url": f"https://www.youtube.com/channel/{channel_id}" if channel_id else "",
+                        "published_time_text": published_time,
+                        "views": views,
+                        "duration": duration,
+                    })
+            for v in obj.values():
+                _extract_vids(v)
+        elif isinstance(obj, list):
+            for item in obj:
+                _extract_vids(item)
+
+    _extract_vids(data)
+    return results[:limit]
 
 
 def _scan_single_query(
@@ -1399,15 +1569,171 @@ def _scan_single_query(
     settings: Dict,
     channel_cache: Dict[str, List[Dict]],
     time_range: str = "all",
-    limit: int = 15
+    limit: int = 15,
+    geo: str = "VN"
 ) -> List[Dict]:
+    now_ts = int(time.time())
+    clean_time = (time_range or "all").lower().strip()
+    discovered = []
+    seen_ids = set()
+    channel_sub_cache: Dict[str, int] = {}
+    min_views = int(settings.get("min_views", 3000))
+
+    # BƯỚC 1: Ưu tiên dùng YouTube InnerTube Search API (chính xác thời gian đăng tự nhiên và cực nhanh ~0.8s)
+    innertube_candidates = []
+    try:
+        innertube_candidates = search_innertube(query_text, limit=max(limit, 25), geo=geo)
+    except Exception as it_err:
+        logger.debug(f"InnerTube Search không khả dụng cho '{query_text}', chuyển sang yt-dlp fallback: {it_err}")
+        innertube_candidates = []
+
+    if innertube_candidates:
+        for item in innertube_candidates:
+            vid_id = item.get("id")
+            if not vid_id or vid_id in seen_ids:
+                continue
+
+            views = safe_int(item.get("views"), 0)
+            if views < min_views:
+                continue
+
+            pub_text = item.get("published_time_text", "")
+            hours_published = parse_time_str_to_hours(pub_text)
+            upload_ts = now_ts - int(hours_published * 3600)
+
+            # Lọc theo time_range:
+            if clean_time in ("24h", "today", "now-24h", "24") and hours_published > 28.0:
+                continue
+            if clean_time in ("48h", "now-48h", "48") and hours_published > 52.0:
+                continue
+            if clean_time in ("7d", "week", "this_week", "now-7d", "7") and hours_published > 172.0:
+                continue
+
+            ch_id = item.get("channel_id") or ""
+            parsed_subs = 0
+            if ch_id:
+                if ch_id in channel_sub_cache:
+                    parsed_subs = channel_sub_cache[ch_id]
+                else:
+                    try:
+                        parsed_subs = fetch_channel_subs_innertube(ch_id)
+                        channel_sub_cache[ch_id] = parsed_subs
+                    except Exception:
+                        parsed_subs = 0
+
+            video_candidate = {
+                "id": vid_id,
+                "title": item.get("title") or "",
+                "thumbnail_url": item.get("thumbnail_url") or f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg",
+                "channel_id": ch_id,
+                "channel_name": item.get("channel_name") or "YouTube Creator",
+                "channel_url": f"https://www.youtube.com/channel/{ch_id}" if ch_id else "",
+                "channel_is_verified": False,
+                "subscribers": parsed_subs,
+                "channel_follower_count": parsed_subs,
+                "views": views,
+                "view_count": views,
+                "likes": 0,
+                "like_count": 0,
+                "comments": 0,
+                "comment_count": 0,
+                "duration": safe_int(item.get("duration"), 0),
+                "upload_timestamp": upload_ts,
+                "hours_published": hours_published,
+                "is_live": False,
+                "was_live": False,
+                "tags": [],
+                "categories": [],
+            }
+
+            safe, safe_reason = is_reup_safe_and_valid_small_channel(video_candidate, settings)
+            if not safe:
+                logger.debug(f"Bỏ qua '{video_candidate['title'][:40]}': {safe_reason}")
+                continue
+
+            max_hours = safe_float(settings.get("max_hours_published"), 87600.0)
+            if hours_published < 0.1 or hours_published > max_hours:
+                continue
+
+            subs_floor = max(parsed_subs, 300) if parsed_subs > 0 else 0
+            sub_outlier = views / subs_floor if subs_floor > 0 else 1.0
+            min_sub_out = float(settings.get("min_sub_outlier", 1.8)) if parsed_subs > 0 else 1.0
+            if parsed_subs > 0 and sub_outlier < min_sub_out:
+                continue
+
+            # Đạt sơ lọc -> Tải baseline kênh nếu sub_outlier cận biên
+            ch_url = video_candidate["channel_url"]
+            recent_videos = []
+            if ch_url and sub_outlier < 2.0:
+                if ch_url in channel_cache:
+                    recent_videos = channel_cache[ch_url]
+                else:
+                    try:
+                        recent_videos = fetch_channel_recent_videos(ch_url, limit=8)
+                        channel_cache[ch_url] = recent_videos
+                    except Exception:
+                        recent_videos = []
+
+            evaluation, reason = evaluate_outlier_candidate(video_candidate, recent_videos, settings)
+            if evaluation:
+                logger.info(f"[OUTLIER DISCOVERED] '{video_candidate['title']}' | Niche: {niche_label} | Sub: {parsed_subs} | View: {views} | VPH: {evaluation['avg_vph']} | SubRatio: {evaluation['sub_outlier_ratio']}x")
+                
+                auto_dl = settings.get("auto_download", False)
+                init_status = "discovered"
+                if auto_dl and (evaluation["momentum_score"] >= 1.15 or evaluation["baseline_outlier_ratio"] >= 15.0):
+                    init_status = "watchlist"
+
+                outlier_record = {
+                    "id": vid_id,
+                    "niche": niche_label,
+                    "title": video_candidate["title"],
+                    "thumbnail_url": video_candidate["thumbnail_url"],
+                    "channel_id": video_candidate["channel_id"],
+                    "channel_name": video_candidate["channel_name"],
+                    "subscribers": parsed_subs,
+                    "views": views,
+                    "likes": video_candidate["likes"],
+                    "comments": video_candidate["comments"],
+                    "duration": video_candidate["duration"],
+                    "upload_timestamp": upload_ts,
+                    "hours_published": round(hours_published, 2),
+                    "avg_vph": evaluation["avg_vph"],
+                    "current_vph": evaluation["current_vph"],
+                    "momentum_score": evaluation["momentum_score"],
+                    "sub_outlier_ratio": evaluation["sub_outlier_ratio"],
+                    "baseline_median_views": evaluation["baseline_median_views"],
+                    "baseline_outlier_ratio": evaluation["baseline_outlier_ratio"],
+                    "engagement_rate": evaluation["engagement_rate"],
+                    "view_history": json.dumps(evaluation["view_history"], ensure_ascii=False) if isinstance(evaluation.get("view_history"), (list, dict)) else (evaluation.get("view_history") or "[]"),
+                    "status": init_status,
+                    "local_filepath": None,
+                    "reup_filepath": None,
+                    "bkt_status": "none",
+                    "opportunity_score": round(min(min(evaluation["sub_outlier_ratio"] * 3.5, 40.0) + min(evaluation["baseline_outlier_ratio"] * 3.5, 30.0) + min((evaluation["avg_vph"] / 30.0) * 5, 20.0) + min((evaluation["engagement_rate"] / 0.01) * 5, 10.0), 100.0), 1),
+                    "demand_signal": json.dumps({
+                        "demand_score": min(int(evaluation["sub_outlier_ratio"] * 8 + 30), 100),
+                        "demand_level": "Cực Cao (Viral Demand)" if evaluation["sub_outlier_ratio"] >= 8.0 else ("Cao (Nhu cầu lớn)" if evaluation["sub_outlier_ratio"] >= 3.0 else "Bình thường"),
+                        "triggers_found": ["hóng phần tiếp", "nội dung cuốn"],
+                        "top_demand_quotes": []
+                    }, ensure_ascii=False),
+                    "hook_analysis": "",
+                    "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "last_ping_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "tags": json.dumps(video_candidate["tags"], ensure_ascii=False),
+                    "categories": json.dumps(video_candidate["categories"], ensure_ascii=False),
+                }
+                discovered.append(outlier_record)
+                seen_ids.add(vid_id)
+
+    if discovered:
+        return discovered
+
+    # BƯỚC 2: Fallback qua yt-dlp nếu InnerTube không lấy được kết quả
     ytdlp_bin = get_ytdlp_bin()
     if not shutil.which(ytdlp_bin) and not os.path.exists(ytdlp_bin):
         raise FileNotFoundError(f"Không tìm thấy file thực thi yt-dlp tại '{ytdlp_bin}'.")
 
     import urllib.parse
-    clean_time = (time_range or "all").lower().strip()
-    
     if clean_time in ("24h", "today", "now-24h", "24"):
         encoded = urllib.parse.quote(query_text)
         target_url = f"https://www.youtube.com/results?search_query={encoded}&sp=CAMSAggC"
@@ -1477,33 +1803,75 @@ def _scan_single_query(
         logger.error(f"Lỗi chạy yt-dlp cho '{query_text}': {e}")
         return []
 
-    discovered = []
-    now_ts = int(time.time())
-
+    # Thu thập ứng viên thô từ yt-dlp flat-playlist
+    raw_candidates = []
     for line in res.stdout.splitlines():
         line = line.strip()
         if not (line.startswith("{") and line.endswith("}")):
             continue
         try:
             raw = json.loads(line)
+            vid_id = raw.get("id")
+            if vid_id and safe_int(raw.get("view_count"), 0) >= min_views:
+                raw_candidates.append(raw)
         except Exception:
             continue
 
+    if not raw_candidates:
+        return []
+
+    # Batch lấy metadata chính xác (upload_date, timestamp, channel_follower_count) bằng yt-dlp --print
+    cand_ids = [r["id"] for r in raw_candidates[:15]]
+    meta_map = {}
+    try:
+        cmd_meta = [
+            ytdlp_bin,
+            "--no-warnings",
+            "-i",
+            "--skip-download",
+            "--print",
+            "%(id)s\t%(upload_date)s\t%(timestamp)s\t%(channel_follower_count)s\t%(view_count)s",
+            *cand_ids
+        ]
+        res_meta = subprocess.run(cmd_meta, **kwargs)
+        if res_meta.returncode == 0 or res_meta.stdout.strip():
+            for m_line in res_meta.stdout.splitlines():
+                parts = m_line.strip().split("\t")
+                if len(parts) >= 2:
+                    m_id = parts[0].strip()
+                    m_date = parts[1].strip() if parts[1].strip() != "NA" else ""
+                    m_ts = safe_int(parts[2].strip()) if len(parts) > 2 and parts[2].strip() != "NA" else 0
+                    m_subs = parse_subscribers(parts[3].strip()) if len(parts) > 3 and parts[3].strip() != "NA" else 0
+                    meta_map[m_id] = {
+                        "upload_date": m_date,
+                        "timestamp": m_ts,
+                        "subscribers": m_subs
+                    }
+    except Exception as meta_err:
+        logger.debug(f"Không thể batch query metadata qua yt-dlp --print: {meta_err}")
+
+    for raw in raw_candidates:
         vid_id = raw.get("id")
-        if not vid_id:
+        if not vid_id or vid_id in seen_ids:
             continue
 
-        upload_ts = raw.get("timestamp")
-        if not upload_ts and raw.get("upload_date"):
+        meta = meta_map.get(vid_id, {})
+        upload_ts = meta.get("timestamp") or raw.get("timestamp")
+        upload_date = meta.get("upload_date") or raw.get("upload_date")
+
+        if not upload_ts and upload_date:
             try:
-                t_str = raw.get("upload_date")
-                t_struct = time.strptime(t_str, "%Y%m%d")
+                t_struct = time.strptime(str(upload_date), "%Y%m%d")
                 upload_ts = int(time.mktime(t_struct))
             except Exception:
-                upload_ts = now_ts - 86400
+                upload_ts = None
 
-        upload_ts = upload_ts or (now_ts - 86400)
-        hours_published = max((now_ts - upload_ts) / 3600.0, 1.0)
+        if upload_ts:
+            hours_published = max((now_ts - upload_ts) / 3600.0, 0.5)
+        else:
+            # Nếu hoàn toàn không có ngày đăng, gán mặc định 720 giờ (30 ngày trước), TUYỆT ĐỐI không ép 24h
+            hours_published = 720.0
+            upload_ts = now_ts - int(hours_published * 3600)
 
         # Giới hạn theo time_range:
         if clean_time in ("24h", "today", "now-24h", "24") and hours_published > 28.0:
@@ -1513,13 +1881,10 @@ def _scan_single_query(
         if clean_time in ("7d", "week", "this_week", "now-7d", "7") and hours_published > 172.0:
             continue
 
-        raw_subs_cand = raw.get("channel_follower_count")
-        if raw_subs_cand is None:
-            raw_subs_cand = raw.get("subscribers") or raw.get("uploader_subscribers") or raw.get("channel_subscribers")
-        parsed_subs = parse_subscribers(raw_subs_cand)
-        cand_views = safe_int(raw.get("view_count"), 0)
-        if parsed_subs <= 0 and cand_views >= 3000:
-            parsed_subs = 10000
+        parsed_subs = meta.get("subscribers") or 0
+        if parsed_subs <= 0:
+            raw_subs_cand = raw.get("channel_follower_count") or raw.get("subscribers")
+            parsed_subs = parse_subscribers(raw_subs_cand)
 
         raw_tags = raw.get("tags") or []
         if isinstance(raw_tags, str):
@@ -1537,6 +1902,7 @@ def _scan_single_query(
         else:
             raw_categories = []
 
+        cand_views = safe_int(raw.get("view_count"), 0)
         video_candidate = {
             "id": vid_id,
             "title": raw.get("title") or "",
@@ -1547,8 +1913,8 @@ def _scan_single_query(
             "channel_is_verified": bool(raw.get("channel_is_verified", False)),
             "subscribers": parsed_subs,
             "channel_follower_count": parsed_subs,
-            "views": safe_int(raw.get("view_count"), 0),
-            "view_count": safe_int(raw.get("view_count"), 0),
+            "views": cand_views,
+            "view_count": cand_views,
             "likes": safe_int(raw.get("like_count"), 0),
             "like_count": safe_int(raw.get("like_count"), 0),
             "comments": safe_int(raw.get("comment_count"), 0),
@@ -1570,20 +1936,19 @@ def _scan_single_query(
 
         # Sơ tuyển nhanh (Linh hoạt cho cả video mới nổ & nội dung Evergreen):
         max_hours = safe_float(settings.get("max_hours_published"), 87600.0)
-        if hours_published < 1.0 or hours_published > max_hours:
+        if hours_published < 0.1 or hours_published > max_hours:
             continue
 
-        min_views = int(settings.get("min_views", 3000))
         if video_candidate["views"] < min_views:
             continue
 
-        subs_floor = max(video_candidate["subscribers"], 300)
-        sub_outlier = video_candidate["views"] / subs_floor
-        min_sub_out = float(settings.get("min_sub_outlier", 1.8))
-        if sub_outlier < min_sub_out:
+        subs_floor = max(video_candidate["subscribers"], 300) if video_candidate["subscribers"] > 0 else 0
+        sub_outlier = video_candidate["views"] / subs_floor if subs_floor > 0 else 1.0
+        min_sub_out = float(settings.get("min_sub_outlier", 1.8)) if video_candidate["subscribers"] > 0 else 1.0
+        if video_candidate["subscribers"] > 0 and sub_outlier < min_sub_out:
             continue
 
-        # Đạt sơ lọc -> Tải baseline kênh (chỉ fetch khi sub_outlier cận biên < 2.0x để tăng tốc độ quét)
+        # Đạt sơ lọc -> Tải baseline kênh nếu sub_outlier cận biên
         ch_url = video_candidate["channel_url"]
         recent_videos = []
         if ch_url and sub_outlier < 2.0:
@@ -1645,6 +2010,7 @@ def _scan_single_query(
                 "categories": json.dumps(video_candidate["categories"], ensure_ascii=False),
             }
             discovered.append(outlier_record)
+            seen_ids.add(vid_id)
         else:
             logger.debug(f"Bỏ qua '{video_candidate['title'][:40]}': {reason}")
 
@@ -1690,7 +2056,8 @@ def hunt_niche_outliers(
                 settings=settings,
                 channel_cache=channel_cache,
                 time_range=time_range,
-                limit=10
+                limit=10,
+                geo=clean_geo
             )
             for item in found:
                 if item["id"] not in seen_ids:
@@ -1705,7 +2072,8 @@ def hunt_niche_outliers(
             settings=settings,
             channel_cache=channel_cache,
             time_range=time_range,
-            limit=25
+            limit=25,
+            geo=clean_geo
         )
         for item in found:
             if item["id"] not in seen_ids:
@@ -1750,4 +2118,394 @@ def ping_momentum_videos(videos: List[Dict]) -> List[Dict]:
             logger.warning(f"Lỗi ping momentum cho video {vid_id}: {e}")
 
     return updated
+
+
+# ==============================================================================
+# GOOGLE TRENDS YOUTUBE SEARCH ENGINE & MOMENTUM ANALYZER
+# ==============================================================================
+
+def analyze_google_trends(
+    keyword: str,
+    compare_keyword: Optional[str] = None,
+    geo: str = "VN",
+    time_range: str = "today 12-m",
+    hl: str = "vi"
+) -> Dict:
+    """
+    Phân tích xu hướng tìm kiếm YouTube (Google Trends - property=youtube) và tính toán động lượng (Momentum Engine).
+    Hỗ trợ từ khóa chính kèm từ khóa so sánh (compare_keyword), phân bổ địa lý (geo), khung thời gian (time_range).
+    """
+    clean_keyword = (keyword or "").strip()
+    if not clean_keyword:
+        return {
+            "success": False,
+            "error": "Từ khóa tìm kiếm không được để trống",
+            "is_low_volume": True,
+            "timeline": [],
+            "top_queries": [],
+            "rising_queries": [],
+            "momentum": {
+                "verdict": "stable",
+                "verdictLabel": "Không có dữ liệu",
+                "currentScore": 0,
+                "avgScore": 0.0,
+                "peakScore": 0,
+                "peakTime": "",
+                "deltaPercent": 0.0,
+            },
+            "recommendation": {
+                "urgency": "low",
+                "actionText": "Vui lòng nhập từ khóa hợp lệ để bắt đầu phân tích.",
+                "contentAngle": ""
+            }
+        }
+
+    clean_compare = (compare_keyword or "").strip()
+    clean_geo = "" if not geo or geo.upper() in ("GLOBAL", "ALL", "WORLDWIDE") else geo.strip().upper()
+    clean_time = (time_range or "today 12-m").strip()
+    clean_hl = (hl or "vi").strip().lower()
+
+    try:
+        import requests
+        has_requests = True
+    except ImportError:
+        has_requests = False
+
+    session = None
+    if has_requests:
+        session = requests.Session()
+        session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+        })
+
+    def _strip_trends_prefix(raw_text: str) -> str:
+        idx = raw_text.find("{")
+        return raw_text[idx:] if idx != -1 else raw_text
+
+    # 1. Warm up cookie NID
+    warmup_url = f"https://trends.google.com/trends/explore"
+    if session:
+        try:
+            session.get(warmup_url, timeout=8)
+        except Exception as e:
+            logger.debug(f"Warmup session warn: {e}")
+
+    # 2. Xây dựng payload Explore API
+    items = [{"keyword": clean_keyword, "geo": clean_geo, "time": clean_time}]
+    if clean_compare:
+        items.append({"keyword": clean_compare, "geo": clean_geo, "time": clean_time})
+
+    req_payload = {
+        "comparisonItem": items,
+        "category": 0,
+        "property": "youtube"
+    }
+
+    q_parts = [clean_keyword]
+    if clean_compare:
+        q_parts.append(clean_compare)
+    q_param = ",".join(q_parts)
+
+    ref_geo = f"geo={clean_geo}&" if clean_geo else ""
+    referer_url = f"https://trends.google.com/trends/explore?{ref_geo}gprop=youtube&q={urllib.parse.quote(q_param)}"
+
+    explore_headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Referer": referer_url
+    }
+
+    explore_url = (
+        f"https://trends.google.com/trends/api/explore?hl={clean_hl}&tz=-420&req="
+        + urllib.parse.quote(json.dumps(req_payload))
+    )
+
+    explore_data = {}
+    is_rate_limited = False
+
+    try:
+        if session:
+            resp = session.get(explore_url, headers=explore_headers, timeout=12)
+            if resp.status_code == 200:
+                explore_data = json.loads(_strip_trends_prefix(resp.text))
+            elif resp.status_code == 429:
+                is_rate_limited = True
+                logger.warning(f"Google Trends rate limit 429 cho explore: '{clean_keyword}'")
+        else:
+            req_obj = urllib.request.Request(explore_url, headers=explore_headers)
+            with urllib.request.urlopen(req_obj, timeout=12) as r:
+                explore_data = json.loads(_strip_trends_prefix(r.read().decode("utf-8")))
+    except Exception as e:
+        logger.warning(f"Lỗi gọi Google Trends explore API ({clean_keyword}): {e}")
+        if "429" in str(e):
+            is_rate_limited = True
+
+    widgets = {w.get("id"): w for w in explore_data.get("widgets", [])}
+    raw_timeline = []
+    top_queries = []
+    rising_queries = []
+
+    # 3. Lấy Timeseries (Interest Over Time)
+    ts_widget = widgets.get("TIMESERIES")
+    if ts_widget and ts_widget.get("token"):
+        try:
+            ts_url = (
+                f"https://trends.google.com/trends/api/widgetdata/multiline?hl={clean_hl}&tz=-420&req="
+                + urllib.parse.quote(json.dumps(ts_widget["request"]))
+                + "&token="
+                + urllib.parse.quote(ts_widget["token"])
+            )
+            if session:
+                tr = session.get(ts_url, headers=explore_headers, timeout=12)
+                if tr.status_code == 200:
+                    ts_json = json.loads(_strip_trends_prefix(tr.text))
+                    raw_timeline = ts_json.get("default", {}).get("timelineData", [])
+            else:
+                req_ts = urllib.request.Request(ts_url, headers=explore_headers)
+                with urllib.request.urlopen(req_ts, timeout=12) as r:
+                    ts_json = json.loads(_strip_trends_prefix(r.read().decode("utf-8")))
+                    raw_timeline = ts_json.get("default", {}).get("timelineData", [])
+        except Exception as e:
+            logger.warning(f"Lỗi lấy dữ liệu chuỗi thời gian Google Trends: {e}")
+
+    # 4. Lấy Related Queries (Top & Rising Searches)
+    rq_widget = widgets.get("RELATED_QUERIES")
+    if rq_widget and rq_widget.get("token"):
+        try:
+            rq_url = (
+                f"https://trends.google.com/trends/api/widgetdata/relatedsearches?hl={clean_hl}&tz=-420&req="
+                + urllib.parse.quote(json.dumps(rq_widget["request"]))
+                + "&token="
+                + urllib.parse.quote(rq_widget["token"])
+            )
+            if session:
+                rr = session.get(rq_url, headers=explore_headers, timeout=12)
+                if rr.status_code == 200:
+                    rq_json = json.loads(_strip_trends_prefix(rr.text))
+                    ranked_lists = rq_json.get("default", {}).get("rankedList", [])
+                    if len(ranked_lists) > 0:
+                        raw_top = ranked_lists[0].get("rankedKeyword", []) or ranked_lists[0].get("rankedItem", [])
+                        for item in raw_top:
+                            top_queries.append({
+                                "query": str(item.get("query", "")).strip(),
+                                "value": safe_int(item.get("value"), 0),
+                                "formattedValue": str(item.get("formattedValue", item.get("value", ""))),
+                            })
+                    if len(ranked_lists) > 1:
+                        raw_rising = ranked_lists[1].get("rankedKeyword", []) or ranked_lists[1].get("rankedItem", [])
+                        for item in raw_rising:
+                            f_val = str(item.get("formattedValue", item.get("value", "")))
+                            val_num = safe_int(item.get("value"), 0)
+                            is_breakout = (
+                                "đột phá" in f_val.lower()
+                                or "breakout" in f_val.lower()
+                                or val_num >= 5000
+                            )
+                            rising_queries.append({
+                                "query": str(item.get("query", "")).strip(),
+                                "value": val_num,
+                                "formattedValue": f_val,
+                                "isBreakout": is_breakout
+                            })
+            else:
+                req_rq = urllib.request.Request(rq_url, headers=explore_headers)
+                with urllib.request.urlopen(req_rq, timeout=12) as r:
+                    rq_json = json.loads(_strip_trends_prefix(r.read().decode("utf-8")))
+                    ranked_lists = rq_json.get("default", {}).get("rankedList", [])
+                    if len(ranked_lists) > 0:
+                        raw_top = ranked_lists[0].get("rankedKeyword", []) or ranked_lists[0].get("rankedItem", [])
+                        for item in raw_top:
+                            top_queries.append({
+                                "query": str(item.get("query", "")).strip(),
+                                "value": safe_int(item.get("value"), 0),
+                                "formattedValue": str(item.get("formattedValue", item.get("value", ""))),
+                            })
+                    if len(ranked_lists) > 1:
+                        raw_rising = ranked_lists[1].get("rankedKeyword", []) or ranked_lists[1].get("rankedItem", [])
+                        for item in raw_rising:
+                            f_val = str(item.get("formattedValue", item.get("value", "")))
+                            val_num = safe_int(item.get("value"), 0)
+                            is_breakout = (
+                                "đột phá" in f_val.lower()
+                                or "breakout" in f_val.lower()
+                                or val_num >= 5000
+                            )
+                            rising_queries.append({
+                                "query": str(item.get("query", "")).strip(),
+                                "value": val_num,
+                                "formattedValue": f_val,
+                                "isBreakout": is_breakout
+                            })
+        except Exception as e:
+            logger.warning(f"Lỗi lấy từ khóa liên quan Google Trends: {e}")
+
+    # 5. Chuẩn hóa dữ liệu Timeline
+    timeline_clean = []
+    primary_values = []
+    compare_values = []
+
+    for pt in raw_timeline:
+        vals = pt.get("value") or []
+        p_val = vals[0] if len(vals) > 0 else 0
+        c_val = vals[1] if len(vals) > 1 else None
+
+        primary_values.append(p_val)
+        if c_val is not None:
+            compare_values.append(c_val)
+
+        timeline_clean.append({
+            "time": str(pt.get("time", "")),
+            "formattedTime": str(pt.get("formattedTime", "")),
+            "formattedAxisTime": str(pt.get("formattedAxisTime", "")),
+            "value": p_val,
+            "compareValue": c_val,
+            "isPartial": bool(pt.get("isPartial", False)),
+        })
+
+    # 6. Thuật toán tính toán Động lượng (Momentum Engine)
+    is_low_volume = (
+        len(primary_values) == 0
+        or all(v == 0 for v in primary_values)
+    )
+
+    if is_low_volume:
+        current_score = 0
+        avg_score = 0.0
+        peak_score = 0
+        peak_time = ""
+        delta_percent = 0.0
+        momentum_verdict = "stable"
+        verdict_label = "Lượng tìm kiếm thấp / Chưa đủ dữ liệu"
+        urgency = "low"
+        action_text = (
+            f"Từ khóa '{clean_keyword}' có lượng tìm kiếm trên YouTube chưa đủ cao tại khu vực {clean_geo or 'Toàn cầu'}. "
+            "Nên kết hợp thêm các từ khóa hạt nhân có lượng tìm kiếm rộng hơn."
+        )
+        content_angle = f"Tập trung mở rộng chủ đề ngách và giải quyết nhu cầu tìm kiếm cụ thể liên quan đến '{clean_keyword}'."
+    else:
+        current_score = primary_values[-1]
+        avg_score = round(sum(primary_values) / len(primary_values), 1)
+        peak_score = max(primary_values)
+        peak_idx = primary_values.index(peak_score)
+        peak_time = timeline_clean[peak_idx].get("formattedTime", "")
+
+        # Tính gia tốc tăng trưởng delta %
+        if len(primary_values) >= 4:
+            window = min(4, len(primary_values) // 2)
+            recent_points = primary_values[-window:]
+            prev_points = primary_values[-window * 2 : -window] if len(primary_values) >= window * 2 else primary_values[:window]
+            recent_avg = sum(recent_points) / max(len(recent_points), 1)
+            prev_avg = sum(prev_points) / max(len(prev_points), 1) if prev_points else recent_avg
+            if prev_avg > 0:
+                delta_percent = round(((recent_avg - prev_avg) / prev_avg) * 100, 1)
+            else:
+                delta_percent = round(recent_avg * 100, 1)
+        else:
+            first_val = primary_values[0]
+            last_val = primary_values[-1]
+            if first_val > 0:
+                delta_percent = round(((last_val - first_val) / first_val) * 100, 1)
+            else:
+                delta_percent = 100.0 if last_val > 0 else 0.0
+
+        # Phân loại momentumVerdict
+        has_breakout_query = any(q.get("isBreakout") for q in rising_queries)
+
+        if has_breakout_query or (delta_percent >= 100.0 and current_score >= 70):
+            momentum_verdict = "breakout"
+            verdict_label = f"Đột phá mới nổi (+{delta_percent:+.0f}%)"
+            urgency = "critical"
+            action_text = (
+                f"Nhu cầu tìm kiếm YouTube cho '{clean_keyword}' đang tăng đột biến với mức độ cạnh tranh còn thấp. "
+                "Cần sản xuất và đăng tải video ngay trong 24 - 48 giờ để đón đầu lưu lượng đề xuất."
+            )
+        elif delta_percent >= 50.0 and current_score >= 60:
+            momentum_verdict = "exploding"
+            verdict_label = f"Đang bùng nổ (+{delta_percent:+.0f}%)"
+            urgency = "high"
+            action_text = (
+                f"Xu hướng tìm kiếm đang trong giai đoạn bùng nổ mạnh mẽ (+{delta_percent}%). "
+                "Đẩy mạnh sản xuất chuỗi video Shorts kết hợp Long-form xoay quanh các truy vấn gia tăng."
+            )
+        elif delta_percent > 15.0:
+            momentum_verdict = "growing"
+            verdict_label = f"Tăng trưởng đều (+{delta_percent:+.0f}%)"
+            urgency = "medium"
+            action_text = (
+                f"Chủ đề đang trên đà tăng trưởng ổn định. "
+                "Thích hợp phát triển chuỗi video định dạng Evergreen và tối ưu hóa SEO theo các từ khóa liên quan."
+            )
+        elif delta_percent < -15.0:
+            momentum_verdict = "declining"
+            verdict_label = f"Suy giảm ({delta_percent:+.0f}%)"
+            urgency = "low"
+            action_text = (
+                f"Lưu lượng quan tâm đang có dấu hiệu hạ nhiệt so với giai đoạn trước ({delta_percent}%). "
+                "Nên cân nhắc đổi mới góc tiếp cận hoặc kết hợp chủ đề đang lên khác."
+            )
+        else:
+            momentum_verdict = "stable"
+            verdict_label = f"Đi ngang / Ổn định ({delta_percent:+.0f}%)"
+            urgency = "medium"
+            action_text = (
+                f"Nhu cầu tìm kiếm duy trì đều đặn ổn định quanh năm. "
+                "Phù hợp làm nội dung trụ cột (Pillar content) giữ chân người đăng ký trung thành."
+            )
+
+        # Gợi ý góc nhìn nội dung (contentAngle)
+        highlight_queries = [q["query"] for q in rising_queries[:3] if q.get("query")]
+        if not highlight_queries:
+            highlight_queries = [q["query"] for q in top_queries[:3] if q.get("query")]
+        if highlight_queries:
+            content_angle = f"Khai thác trọng tâm các góc nhìn tìm kiếm nóng: {', '.join(highlight_queries)}."
+        else:
+            content_angle = f"Tập trung giải quyết thắc mắc thực tế và từ khóa ngách liên quan đến '{clean_keyword}'."
+
+    # Xử lý thông số so sánh nếu có
+    compare_summary = None
+    if clean_compare and compare_values:
+        c_avg = round(sum(compare_values) / len(compare_values), 1)
+        c_peak = max(compare_values)
+        compare_summary = {
+            "keyword": clean_compare,
+            "currentScore": compare_values[-1] if compare_values else 0,
+            "avgScore": c_avg,
+            "peakScore": c_peak,
+        }
+
+    status_ok = not is_rate_limited and not is_low_volume
+    if is_low_volume and not is_rate_limited:
+        status_ok = True
+
+    return {
+        "success": True if (timeline_clean or is_low_volume) else False,
+        "is_rate_limited": is_rate_limited,
+        "is_low_volume": is_low_volume,
+        "keyword": clean_keyword,
+        "compare_keyword": clean_compare or None,
+        "geo": clean_geo or "GLOBAL",
+        "time_range": clean_time,
+        "timeline": timeline_clean,
+        "top_queries": top_queries,
+        "rising_queries": rising_queries,
+        "momentum": {
+            "verdict": momentum_verdict,
+            "verdictLabel": verdict_label,
+            "currentScore": current_score,
+            "avgScore": avg_score,
+            "peakScore": peak_score,
+            "peakTime": peak_time,
+            "deltaPercent": delta_percent,
+        },
+        "compare_summary": compare_summary,
+        "recommendation": {
+            "urgency": urgency,
+            "actionText": action_text,
+            "contentAngle": content_angle
+        }
+    }
+
 

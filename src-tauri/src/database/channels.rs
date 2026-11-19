@@ -302,6 +302,29 @@ pub fn update_channel_reup_config_db(
         ],
     )
     .map_err(|e| format!("Failed to update channel reup config: {e}"))?;
+
+    // Cascade sync: Cập nhật ngay Kênh Đích cho các tác vụ BKT và video của kênh này nếu trước đó chưa được gán
+    if let Some(target_prof) = target_profile_id.filter(|s| !s.trim().is_empty()) {
+        let _ = conn.execute(
+            "UPDATE bkt_test_jobs 
+             SET target_profile_id = ?1,
+                 main_target_profile_id = COALESCE(main_target_profile_id, ?1),
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE (target_profile_id IS NULL OR target_profile_id = '')
+               AND (channel_id = ?2
+                    OR source_ref_id IN (SELECT id FROM channel_videos WHERE channel_id = ?2)
+                    OR source_ref_id IN (SELECT video_id FROM channel_videos WHERE channel_id = ?2))
+               AND status NOT IN ('published')",
+            params![target_prof, channel_id],
+        );
+        let _ = conn.execute(
+            "UPDATE channel_videos
+             SET target_profile_id = ?1
+             WHERE (target_profile_id IS NULL OR target_profile_id = '') AND channel_id = ?2
+               AND (target_published = 0 OR target_published IS NULL)",
+            params![target_prof, channel_id],
+        );
+    }
     Ok(())
 }
 
@@ -347,6 +370,29 @@ pub fn update_channel_bkt_config_db(
         params![if bkt_test_mode { 1 } else { 0 }, bkt_profile_id, channel_id],
     )
     .map_err(|e| format!("Failed to update channel BKT config: {}", e))?;
+
+    // Cascade sync: Cập nhật ngay Kênh Đích cho các tác vụ BKT và video của kênh này nếu trước đó chưa được gán
+    if let Some(bkt_prof) = bkt_profile_id.filter(|s| !s.trim().is_empty()) {
+        let _ = conn.execute(
+            "UPDATE bkt_test_jobs 
+             SET target_profile_id = ?1,
+                 main_target_profile_id = COALESCE(main_target_profile_id, ?1),
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE (target_profile_id IS NULL OR target_profile_id = '')
+               AND (channel_id = ?2
+                    OR source_ref_id IN (SELECT id FROM channel_videos WHERE channel_id = ?2)
+                    OR source_ref_id IN (SELECT video_id FROM channel_videos WHERE channel_id = ?2))
+               AND status NOT IN ('published')",
+            params![bkt_prof, channel_id],
+        );
+        let _ = conn.execute(
+            "UPDATE channel_videos
+             SET target_profile_id = ?1
+             WHERE (target_profile_id IS NULL OR target_profile_id = '') AND channel_id = ?2
+               AND (target_published = 0 OR target_published IS NULL)",
+            params![bkt_prof, channel_id],
+        );
+    }
     Ok(())
 }
 

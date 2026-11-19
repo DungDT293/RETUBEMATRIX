@@ -1084,6 +1084,40 @@ pub async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, pr
             return;
         }
 
+        // Tự phục hồi Target Profile từ kênh cha nếu trước đó được tạo khi chưa gán profile
+        if job.target_profile_id.is_none() && job.main_target_profile_id.is_none() {
+            if let Ok(conn) = database::get_db() {
+                let resolved: Option<String> = if let Some(ref ref_id) = job.source_ref_id {
+                    conn.query_row(
+                        "SELECT COALESCE(cv.target_profile_id, fc.target_profile_id, fc.bkt_profile_id)
+                         FROM channel_videos cv
+                         LEFT JOIN followed_channels fc ON cv.channel_id = fc.id
+                         WHERE cv.id = ?1 OR cv.video_id = ?1
+                         LIMIT 1",
+                        rusqlite::params![ref_id],
+                        |r| r.get(0),
+                    ).ok().flatten()
+                } else if let Some(ref ch_id) = job.channel_id {
+                    conn.query_row(
+                        "SELECT COALESCE(target_profile_id, bkt_profile_id) FROM followed_channels WHERE id = ?1 OR url = ?1 LIMIT 1",
+                        rusqlite::params![ch_id],
+                        |r| r.get(0),
+                    ).ok().flatten()
+                } else {
+                    None
+                };
+
+                if let Some(prof) = resolved.filter(|s| !s.trim().is_empty()) {
+                    job.target_profile_id = Some(prof.clone());
+                    job.main_target_profile_id = Some(prof.clone());
+                    let _ = conn.execute(
+                        "UPDATE bkt_test_jobs SET target_profile_id = ?1, main_target_profile_id = ?1, updated_at = CURRENT_TIMESTAMP WHERE id = ?2",
+                        rusqlite::params![prof, job.id],
+                    );
+                }
+            }
+        }
+
         // Auto Reup tuần tự: test sạch -> publish Kênh Đích -> mới nhả FIFO job kế tiếp.
         // Recheck luôn tắt auto_publish_main; publish thủ công vẫn đi qua command explicit này.
         let will_auto_publish = should_auto_publish_after_bkt_test(&job);
@@ -1101,7 +1135,7 @@ pub async fn run_single_bkt_job_pipeline(app: AppHandle, mut job: BktTestJob, pr
 
         if will_auto_publish {
             log::info!("[BKT AUTO-PUBLISH] Job {} sạch bản quyền + reup xong; bắt đầu đăng Kênh Đích trước job kế tiếp.", job.id);
-            if let Err(err) = publish_bkt_job_to_main_cmd(app.clone(), job.id.clone()).await {
+            if let Err(err) = publish_bkt_job_to_main_cmd(app.clone(), job.id.clone(), None).await {
                 log::error!("[BKT AUTO-PUBLISH] Job {} chưa đăng được; giữ FIFO barrier ở publish_failed: {err}", job.id);
                 if let Ok(Some(mut failed_job)) = database::get_bkt_test_job_by_id_db(&job.id) {
                     if failed_job.status == "green_clean" {

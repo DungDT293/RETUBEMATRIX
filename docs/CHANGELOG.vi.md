@@ -7,6 +7,19 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.3.4] - 2026-11-19
+
+### Thêm mới
+
+- **Tự Động Hóa Google Trends YouTube Search Trực Tiếp Trong App** - Tích hợp phân tích xu hướng YouTube Search (`gprop=youtube`) hoàn toàn tự động trong Săn Đề Xuất (Outlier Hunter) với biểu đồ diện tích SVG tương tác, đo lường đà tăng trưởng (Breakout, Bùng nổ, Tăng trưởng, Đi ngang, Suy giảm), bảng từ khóa bứt phá (Breakout) & tìm kiếm hàng đầu (Top Queries), nút 1-click săn ngách, lời khuyên chiến lược sáng tạo nội dung và lưu bộ nhớ đệm SQLite cục bộ theo TTL.
+- **Nút Gạt Kích Hoạt Kênh Test BKT & Tự Động Luân Chuyển Cookie Dự Phòng** - Bổ sung công tắc bật/tắt độc lập cho từng thẻ Hồ sơ Kênh Test BKT; hệ thống trích xuất cookie cho yt-dlp và tiến trình quét bản quyền tự động bỏ qua các kênh bị tắt và tự động luân chuyển (failover) thông minh sang các kênh test đang hoạt động khi một kênh hết hạn cookie hoặc bị chặn bot.
+- **Cơ Chế Tự Động Bổ Sung Kênh Đích Cho Quy Trình Đăng Ngay** - Nâng cấp luồng đăng video tức thì (`publish_bkt_job_to_main`) tự động nhận diện và gán bổ sung `target_profile_id` từ cấu hình kênh đối thủ khi video thiếu kênh đích, cho phép đăng thành công ngay lập tức mà không bắt người dùng cấu hình lại từ đầu.
+
+### Sửa lỗi
+
+- **Bóc Tách Số Lượng Người Đăng Ký & Ngày Đăng Kênh Trong Săn Đề Xuất** - Chuẩn hóa thuật toán bóc tách dữ liệu từ InnerTube API, nhận diện chính xác các hậu tố đơn vị quốc tế và tiếng Việt (`K`, `M`, `B`, `N`, `Triệu`, `Nghìn`) cùng mốc thời gian đăng video, khắc phục triệt để lỗi nhảy số liệu và nhận diện nhầm kênh nhỏ.
+- **Xử Lý Hộp Thoại Chặn Khi Tải Lên YouTube Studio** - Mở rộng cơ chế quét và đóng tự động các popup cản trở trên YouTube Studio trước khi mở hộp thoại tải tệp, ngăn ngừa hiện tượng treo luồng reup tự động.
+
 ## [1.3.3] - 2026-11-18
 
 ### Thêm mới

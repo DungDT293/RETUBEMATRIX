@@ -1,7 +1,13 @@
 import {
+  Activity,
+  AlertCircle,
+  ArrowRight,
   ArrowUpDown,
+  BarChart3,
   Bookmark,
   BookmarkCheck,
+  Calendar,
+  Check,
   Clock,
   Compass,
   Copy,
@@ -12,6 +18,7 @@ import {
   Globe,
   Layers,
   Loader2,
+  Minus,
   RefreshCw,
   Search,
   SlidersHorizontal,
@@ -19,9 +26,11 @@ import {
   Tag,
   Target,
   Trash2,
+  TrendingDown,
   TrendingUp,
   Tv,
   X,
+  Zap,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Page } from '@/components/layout';
@@ -49,12 +58,14 @@ import { useToast } from '@/components/ui/toast';
 import { useDownload } from '@/contexts/download-context';
 import {
   analyzeCompetitorChannel,
+  analyzeGoogleTrends,
   type CompetitorVideo,
   clearAllOutlierVideos,
   deleteOutlierVideo,
   extractVideoSeoTags,
   fetchLiveTrendingTopics,
   findKeywordGoldmines,
+  type GoogleTrendsAnalysisResult,
   getOutlierSettings,
   getOutlierVideos,
   type KeywordGoldmine,
@@ -297,6 +308,22 @@ function formatPublishedTime(hours?: number, uploadTs?: number): string {
   return `${years} năm trước`;
 }
 
+/**
+ * Định dạng số subscribers kênh rút gọn, an toàn (340K, 1.2M, hoặc Ẩn nếu <= 0)
+ */
+function formatSubscribers(subs?: number | null): string {
+  if (subs === undefined || subs === null || subs <= 0) {
+    return 'Ẩn';
+  }
+  if (subs >= 1_000_000) {
+    return `${(subs / 1_000_000).toFixed(1)}M`;
+  }
+  if (subs >= 1_000) {
+    return `${(subs / 1_000).toFixed(1)}K`;
+  }
+  return subs.toLocaleString('vi-VN');
+}
+
 interface OutlierHunterPageProps {
   onNavigate?: (page: Page) => void;
 }
@@ -340,10 +367,15 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
   const [isSearchingAlphabet, setIsSearchingAlphabet] = useState<boolean>(false);
   const [alphabetResults, setAlphabetResults] = useState<KeywordGoldmine[]>([]);
 
-  // Tool 2: Google Trends
+  // Tool 2: Google Trends YouTube Search
   const [trendsKeyword, setTrendsKeyword] = useState<string>('tóm tắt phim');
-  const [trendsCompareKeyword, setTrendsCompareKeyword] = useState<string>('review phim');
+  const [trendsCompareKeyword, setTrendsCompareKeyword] = useState<string>('');
   const [trendsGeo, setTrendsGeo] = useState<string>('VN');
+  const [trendsTimeRange, setTrendsTimeRange] = useState<string>('today 12-m');
+  const [isAnalyzingTrends, setIsAnalyzingTrends] = useState<boolean>(false);
+  const [trendsResult, setTrendsResult] = useState<GoogleTrendsAnalysisResult | null>(null);
+  const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
+  const [copiedQuery, setCopiedQuery] = useState<string | null>(null);
 
   // Tool 4: Kênh đối thủ & VPH
   const [competitorUrl, setCompetitorUrl] = useState<string>('');
@@ -529,7 +561,29 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     try {
       const updated = await triggerOutlierScan(nicheToScan, timeToUse, geoToUse);
       setVideos(updated);
-      setSelectedFilterNiche('all');
+
+      if (!isScanAll) {
+        const matchedNiche = STANDARDIZED_NICHES.find(
+          (sn) =>
+            sn.id.toLowerCase() === nicheToScan.toLowerCase() ||
+            sn.nameViet.toLowerCase() === nicheToScan.toLowerCase() ||
+            sn.defaultQueryViet.toLowerCase() === nicheToScan.toLowerCase() ||
+            nicheToScan.toLowerCase().includes(sn.defaultQueryViet.toLowerCase()) ||
+            sn.defaultQueryViet.toLowerCase().includes(nicheToScan.toLowerCase()),
+        );
+        if (matchedNiche) {
+          setSelectedFilterNiche(
+            market === 'viet' ? matchedNiche.nameViet : matchedNiche.nameForeign,
+          );
+        } else if (updated.length > 0 && updated[0].niche) {
+          setSelectedFilterNiche(updated[0].niche);
+        } else {
+          setSelectedFilterNiche('all');
+        }
+      } else {
+        setSelectedFilterNiche('all');
+      }
+
       if (updated.length > 0) {
         toast.success({
           title: 'Quét hoàn tất!',
@@ -625,18 +679,76 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
     }
   };
 
-  // Mở Tool 2: Google Trends (YouTube Search 12 tháng)
+  // Mở Tool 2: Google Trends (YouTube Search trên web)
   const handleOpenGoogleTrends = async () => {
     const q1 = encodeURIComponent(trendsKeyword.trim() || currentNiche);
     const q2 = trendsCompareKeyword.trim() ? encodeURIComponent(trendsCompareKeyword.trim()) : '';
     const queryPart = q2 ? `${q1},${q2}` : q1;
     const geo = trendsGeo === 'GLOBAL' ? '' : `&geo=${trendsGeo}`;
-    const url = `https://trends.google.com/trends/explore?date=today%2012-m&gprop=youtube${geo}&q=${queryPart}`;
+    const dateParam = encodeURIComponent(trendsTimeRange || 'today 12-m');
+    const url = `https://trends.google.com/trends/explore?date=${dateParam}&gprop=youtube${geo}&q=${queryPart}`;
 
     await openExternalUrl(url);
     toast.info({
-      title: 'Đã mở Google Trends',
-      description: 'Xem xu hướng tìm kiếm YouTube 12 tháng qua để đánh giá nhu cầu khán giả.',
+      title: 'Đã mở Google Trends trên web',
+      description: 'Đang xem biểu đồ trực tiếp trên giao diện Google Trends chính thức.',
+    });
+  };
+
+  // Kích hoạt phân tích Google Trends YouTube Search
+  const handleAnalyzeGoogleTrends = async (overrideKeyword?: string) => {
+    const kw = (overrideKeyword ?? trendsKeyword).trim() || currentNiche;
+    if (!kw) {
+      toast.warning({
+        title: 'Chưa nhập từ khóa',
+        description: 'Vui lòng nhập từ khóa để phân tích xu hướng tìm kiếm YouTube.',
+      });
+      return;
+    }
+
+    setIsAnalyzingTrends(true);
+    try {
+      const res = await analyzeGoogleTrends(
+        kw,
+        trendsCompareKeyword.trim() || undefined,
+        trendsGeo,
+        trendsTimeRange,
+      );
+      setTrendsResult(res);
+      if (res.isLowVolume) {
+        toast.info({
+          title: 'Lượng tìm kiếm thấp',
+          description: `Từ khóa "${kw}" có lượng tìm kiếm YouTube ít hoặc chưa có dữ liệu biến động rõ rệt.`,
+        });
+      } else if (!res.success && res.error) {
+        toast.warning({
+          title: 'Cảnh báo Google Trends',
+          description: res.error,
+        });
+      } else {
+        toast.success({
+          title: 'Phân tích xu hướng thành công',
+          description: `Đã cập nhật động lượng tìm kiếm YouTube cho "${kw}".`,
+        });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error({
+        title: 'Lỗi phân tích Google Trends',
+        description: msg,
+      });
+    } finally {
+      setIsAnalyzingTrends(false);
+    }
+  };
+
+  const handleCopyQuery = (queryText: string) => {
+    navigator.clipboard.writeText(queryText);
+    setCopiedQuery(queryText);
+    setTimeout(() => setCopiedQuery(null), 2000);
+    toast.success({
+      title: 'Đã sao chép từ khóa',
+      description: queryText,
     });
   };
 
@@ -1011,7 +1123,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
               ) : (
                 liveTopics.map((topic, i) => (
                   <button
-                    key={i}
+                    key={`${topic.geo}-${topic.title}-${i}`}
                     type="button"
                     onClick={() => handleSelectLiveTopic(topic.title)}
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition-all cursor-pointer group"
@@ -1251,15 +1363,22 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                 variant={activeTool === 'trends' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => {
-                  setActiveTool(activeTool === 'trends' ? 'none' : 'trends');
-                  setTrendsKeyword(nicheInput || currentNiche);
+                  const next = activeTool === 'trends' ? 'none' : 'trends';
+                  setActiveTool(next);
+                  if (next === 'trends') {
+                    const kw = nicheInput || currentNiche;
+                    setTrendsKeyword(kw);
+                    if (!trendsResult || trendsResult.keyword !== kw) {
+                      handleAnalyzeGoogleTrends(kw);
+                    }
+                  }
                 }}
                 className="text-xs justify-start gap-2 h-auto py-2"
               >
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                 <div className="text-left">
                   <div className="font-semibold leading-tight text-xs">2. Google Trends</div>
-                  <div className="text-[10px] opacity-70">YouTube Search 12T</div>
+                  <div className="text-[10px] opacity-70">YouTube Search Phân Tích</div>
                 </div>
               </Button>
 
@@ -1430,16 +1549,17 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
 
               {/* TOOL 2: GOOGLE TRENDS */}
               {activeTool === 'trends' && (
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  {/* Header */}
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
                         <TrendingUp className="w-4 h-4 text-emerald-400" />
-                        2. Google Trends (YouTube Search 12 Tháng)
+                        2. Phân Tích Google Trends YouTube Search Thông Minh
                       </h3>
                       <p className="text-[11px] text-muted-foreground">
-                        Kiểm tra xu hướng tìm kiếm trên YouTube theo quốc gia để xác nhận ngách đang
-                        tăng trưởng (Breakout) hay suy thoái.
+                        Đánh giá gia tốc tìm kiếm, chu kỳ đạt đỉnh và từ khóa bùng nổ (Breakout)
+                        trực tiếp từ dữ liệu YouTube Search.
                       </p>
                     </div>
                     <Button
@@ -1452,64 +1572,1005 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    <div>
-                      <Label className="text-[11px] text-muted-foreground">Từ khóa chính:</Label>
-                      <Input
-                        value={trendsKeyword}
-                        onChange={(e) => setTrendsKeyword(e.target.value)}
-                        className="text-xs h-9 mt-1"
-                        placeholder="Ví dụ: tóm tắt phim"
-                      />
+                  {/* Thanh điều khiển (Control bar) */}
+                  <div className="p-3 rounded-lg border border-border/60 bg-muted/20 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                      <div>
+                        <Label className="text-[11px] text-muted-foreground">Từ khóa chính:</Label>
+                        <Input
+                          value={trendsKeyword}
+                          onChange={(e) => setTrendsKeyword(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleAnalyzeGoogleTrends();
+                          }}
+                          className="text-xs h-9 mt-1"
+                          placeholder="Ví dụ: tóm tắt phim"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-[11px] text-muted-foreground">
+                          So sánh với từ khóa khác (Tùy chọn):
+                        </Label>
+                        <Input
+                          value={trendsCompareKeyword}
+                          onChange={(e) => setTrendsCompareKeyword(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleAnalyzeGoogleTrends();
+                          }}
+                          className="text-xs h-9 mt-1"
+                          placeholder="Ví dụ: review phim"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-[11px] text-muted-foreground">
+                          Quốc gia phân tích:
+                        </Label>
+                        <Select value={trendsGeo} onValueChange={setTrendsGeo}>
+                          <SelectTrigger className="text-xs h-9 mt-1">
+                            <SelectValue placeholder="Chọn quốc gia" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="VN">Việt Nam (VN)</SelectItem>
+                            <SelectItem value="US">Hoa Kỳ (US)</SelectItem>
+                            <SelectItem value="GLOBAL">Toàn cầu (Worldwide)</SelectItem>
+                            <SelectItem value="JP">Nhật Bản (JP)</SelectItem>
+                            <SelectItem value="KR">Hàn Quốc (KR)</SelectItem>
+                            <SelectItem value="TH">Thái Lan (TH)</SelectItem>
+                            <SelectItem value="GB">Vương Quốc Anh (GB)</SelectItem>
+                            <SelectItem value="DE">Đức (DE)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label className="text-[11px] text-muted-foreground">
+                          Khung thời gian:
+                        </Label>
+                        <div className="grid grid-cols-4 gap-1 mt-1 bg-muted/40 p-1 rounded-md border border-border/50">
+                          {[
+                            { id: 'today 12-m', label: '12T' },
+                            { id: 'today 3-m', label: '3T' },
+                            { id: 'today 1-m', label: '30N' },
+                            { id: 'now 7-d', label: '7N' },
+                          ].map((opt) => (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => setTrendsTimeRange(opt.id)}
+                              className={cn(
+                                'py-1 text-[11px] font-medium rounded transition-all text-center',
+                                trendsTimeRange === opt.id
+                                  ? 'bg-background text-foreground shadow-sm font-semibold'
+                                  : 'text-muted-foreground hover:text-foreground',
+                              )}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
-                    <div>
-                      <Label className="text-[11px] text-muted-foreground">
-                        So sánh với từ khóa gốc:
-                      </Label>
-                      <Input
-                        value={trendsCompareKeyword}
-                        onChange={(e) => setTrendsCompareKeyword(e.target.value)}
-                        className="text-xs h-9 mt-1"
-                        placeholder="Ví dụ: review phim"
-                      />
-                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-border/30">
+                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                        <span className="font-mono px-2 py-0.5 rounded bg-muted/50 border border-border/40 text-[10px]">
+                          gprop=youtube & {trendsTimeRange} & geo={trendsGeo}
+                        </span>
+                        {trendsResult?.source && (
+                          <Badge variant="outline" className="text-[10px] py-0">
+                            Nguồn:{' '}
+                            {trendsResult.source === 'pytrends'
+                              ? 'Google Trends API'
+                              : trendsResult.source}
+                          </Badge>
+                        )}
+                      </div>
 
-                    <div>
-                      <Label className="text-[11px] text-muted-foreground">
-                        Quốc gia phân tích:
-                      </Label>
-                      <Select value={trendsGeo} onValueChange={setTrendsGeo}>
-                        <SelectTrigger className="text-xs h-9 mt-1">
-                          <SelectValue placeholder="Chọn quốc gia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="VN">Việt Nam (VN)</SelectItem>
-                          <SelectItem value="US">Hoa Kỳ / Quốc tế (US)</SelectItem>
-                          <SelectItem value="GLOBAL">Toàn cầu (Worldwide)</SelectItem>
-                          <SelectItem value="JP">Nhật Bản (JP)</SelectItem>
-                          <SelectItem value="KR">Hàn Quốc (KR)</SelectItem>
-                          <SelectItem value="TH">Thái Lan (TH)</SelectItem>
-                          <SelectItem value="GB">Vương Quốc Anh (GB)</SelectItem>
-                          <SelectItem value="DE">Đức (DE)</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleOpenGoogleTrends}
+                          className="text-xs h-8 px-2.5 gap-1.5 text-muted-foreground hover:text-foreground"
+                          title="Mở Google Trends chính thức trên trình duyệt"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          Mở trên web
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleAnalyzeGoogleTrends()}
+                          disabled={isAnalyzingTrends}
+                          className="text-xs h-8 px-4 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                        >
+                          {isAnalyzingTrends ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              Đang phân tích...
+                            </>
+                          ) : (
+                            <>
+                              <Search className="w-3.5 h-3.5" />
+                              Phân Tích Xu Hướng
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="text-[11px] text-muted-foreground font-mono">
-                      gprop=youtube & date=today 12-m
-                    </span>
-                    <Button
-                      size="sm"
-                      onClick={handleOpenGoogleTrends}
-                      className="text-xs h-8 px-4 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      Mở Google Trends (YouTube Search)
-                    </Button>
-                  </div>
+                  {/* Khi đang tải: Skeleton Loader */}
+                  {isAnalyzingTrends && (
+                    <div className="space-y-3 animate-pulse">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div
+                            key={i}
+                            className="h-20 rounded-lg bg-muted/40 border border-border/40"
+                          />
+                        ))}
+                      </div>
+                      <div className="h-56 rounded-lg bg-muted/30 border border-border/40" />
+                      <div className="h-24 rounded-lg bg-muted/30 border border-border/40" />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="h-44 rounded-lg bg-muted/30 border border-border/40" />
+                        <div className="h-44 rounded-lg bg-muted/30 border border-border/40" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Khi chưa phân tích và không loading */}
+                  {!isAnalyzingTrends && !trendsResult && (
+                    <div className="py-8 px-4 text-center border border-dashed border-border/60 rounded-lg bg-muted/10 space-y-2">
+                      <div className="inline-flex p-3 rounded-full bg-emerald-500/10 text-emerald-400 mb-1">
+                        <TrendingUp className="w-5 h-5" />
+                      </div>
+                      <h4 className="text-xs font-semibold text-foreground">
+                        Sẵn Sàng Phân Tích Động Lượng YouTube Search
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground max-w-md mx-auto">
+                        Nhấn nút <strong>Phân Tích Xu Hướng</strong> để tải biểu đồ gia tốc, các cụm
+                        từ tăng đột biến (Breakout) và khuyến nghị chiến lược làm video.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Khi có kết quả phân tích */}
+                  {!isAnalyzingTrends && trendsResult && (
+                    <div className="space-y-3.5">
+                      {/* Cảnh báo hoặc Informative Empty State nếu Low Search Volume */}
+                      {trendsResult.isLowVolume ? (
+                        <div className="rounded-lg border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center space-y-2.5">
+                          <div className="inline-flex p-2 rounded-full bg-amber-500/10 text-amber-500">
+                            <AlertCircle className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-semibold text-foreground">
+                              Lượng Tìm Kiếm Quá Thấp (Low Search Volume)
+                            </h4>
+                            <p className="text-[11px] text-muted-foreground mt-1 max-w-lg mx-auto">
+                              Từ khóa{' '}
+                              <strong className="text-foreground">"{trendsResult.keyword}"</strong>{' '}
+                              có lượng tìm kiếm YouTube trong khung thời gian này chưa đủ ngưỡng để
+                              thống kê đồ thị chi tiết.
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setActiveTool('alphabet');
+                                setAlphabetSeed(trendsResult.keyword);
+                              }}
+                              className="text-xs h-7 gap-1.5 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+                            >
+                              <Search className="w-3.5 h-3.5" />
+                              Chuyển Sang YouTube A-Z Autosuggest
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setTrendsTimeRange('today 12-m');
+                                handleAnalyzeGoogleTrends(trendsResult.keyword);
+                              }}
+                              className="text-xs h-7 gap-1.5"
+                            >
+                              <Calendar className="w-3.5 h-3.5" />
+                              Thử Lại Khung 12 Tháng
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleOpenGoogleTrends}
+                              className="text-xs h-7 gap-1.5"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Xem Trên Web
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {/* 4 Thẻ Chỉ Số Động Lượng */}
+                          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                            {/* Card 1: Điểm Quan Tâm Hiện Tại */}
+                            <div className="p-3 rounded-lg border border-border/60 bg-card space-y-1.5">
+                              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                                <span>Điểm Quan Tâm Hiện Tại</span>
+                                <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                              </div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-2xl font-bold font-mono text-foreground">
+                                  {trendsResult.metrics.currentScore}
+                                </span>
+                                <span className="text-[11px] text-muted-foreground">/ 100</span>
+                              </div>
+                              <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                                <div
+                                  className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${Math.max(0, Math.min(100, trendsResult.metrics.currentScore))}%`,
+                                  }}
+                                />
+                              </div>
+                              <div className="text-[10px] text-muted-foreground pt-0.5">
+                                Trung bình kỳ:{' '}
+                                <strong className="text-foreground font-mono">
+                                  {trendsResult.metrics.averageScore}
+                                </strong>
+                                /100
+                              </div>
+                            </div>
+
+                            {/* Card 2: Gia Tốc Biến Thiên */}
+                            <div className="p-3 rounded-lg border border-border/60 bg-card space-y-1.5">
+                              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                                <span>Gia Tốc Biến Thiên</span>
+                                {trendsResult.metrics.deltaPercent > 0 ? (
+                                  <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                                ) : trendsResult.metrics.deltaPercent < 0 ? (
+                                  <TrendingDown className="w-3.5 h-3.5 text-rose-500" />
+                                ) : (
+                                  <Minus className="w-3.5 h-3.5 text-muted-foreground" />
+                                )}
+                              </div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span
+                                  className={cn(
+                                    'text-2xl font-bold font-mono',
+                                    trendsResult.metrics.deltaPercent > 0
+                                      ? 'text-emerald-500'
+                                      : trendsResult.metrics.deltaPercent < 0
+                                        ? 'text-rose-500'
+                                        : 'text-foreground',
+                                  )}
+                                >
+                                  {trendsResult.metrics.deltaPercent > 0
+                                    ? `+${trendsResult.metrics.deltaPercent}%`
+                                    : `${trendsResult.metrics.deltaPercent}%`}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-muted-foreground">
+                                So với mốc cơ sở:{' '}
+                                <strong className="text-foreground font-mono">
+                                  {trendsResult.metrics.previousScore}
+                                </strong>
+                                đ
+                              </div>
+                              <div className="text-[10px] text-muted-foreground truncate">
+                                {trendsResult.metrics.deltaPercent > 20
+                                  ? 'Gia tốc tăng mạnh'
+                                  : trendsResult.metrics.deltaPercent > 0
+                                    ? 'Đang có đà tăng'
+                                    : trendsResult.metrics.deltaPercent < -20
+                                      ? 'Sụt giảm đáng kể'
+                                      : 'Xu hướng đi ngang'}
+                              </div>
+                            </div>
+
+                            {/* Card 3: Đánh Giá Xu Hướng */}
+                            <div className="p-3 rounded-lg border border-border/60 bg-card space-y-1.5">
+                              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                                <span>Đánh Giá Xu Hướng</span>
+                                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                              </div>
+                              <div>
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    'text-[11px] font-semibold gap-1',
+                                    trendsResult.momentumVerdict.status === 'exploding'
+                                      ? 'border-rose-500/40 bg-rose-500/10 text-rose-500'
+                                      : trendsResult.momentumVerdict.status === 'breakout'
+                                        ? 'border-amber-500/40 bg-amber-500/10 text-amber-500'
+                                        : trendsResult.momentumVerdict.status === 'growing'
+                                          ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-500'
+                                          : trendsResult.momentumVerdict.status === 'stable'
+                                            ? 'border-sky-500/40 bg-sky-500/10 text-sky-500'
+                                            : 'border-border bg-muted text-muted-foreground',
+                                  )}
+                                >
+                                  {trendsResult.momentumVerdict.status === 'exploding' && (
+                                    <Zap className="w-3 h-3" />
+                                  )}
+                                  {trendsResult.momentumVerdict.status === 'breakout' && (
+                                    <Activity className="w-3 h-3" />
+                                  )}
+                                  {trendsResult.momentumVerdict.status === 'growing' && (
+                                    <TrendingUp className="w-3 h-3" />
+                                  )}
+                                  {trendsResult.momentumVerdict.status === 'stable' && (
+                                    <Minus className="w-3 h-3" />
+                                  )}
+                                  {trendsResult.momentumVerdict.status === 'declining' && (
+                                    <TrendingDown className="w-3 h-3" />
+                                  )}
+                                  {trendsResult.momentumVerdict.label}
+                                </Badge>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">
+                                {trendsResult.momentumVerdict.description}
+                              </p>
+                            </div>
+
+                            {/* Card 4: Chu Kỳ Đỉnh */}
+                            <div className="p-3 rounded-lg border border-border/60 bg-card space-y-1.5">
+                              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                                <span>Chu Kỳ Đỉnh</span>
+                                <Calendar className="w-3.5 h-3.5 text-sky-400" />
+                              </div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-2xl font-bold font-mono text-foreground">
+                                  {trendsResult.metrics.peakScore}
+                                </span>
+                                <span className="text-[11px] text-muted-foreground">/ 100</span>
+                              </div>
+                              <div className="text-[10px] text-muted-foreground truncate">
+                                Mốc đạt đỉnh:{' '}
+                                <strong className="text-foreground">
+                                  {trendsResult.metrics.peakDate || 'N/A'}
+                                </strong>
+                              </div>
+                              <div className="text-[10px] text-muted-foreground">
+                                Đỉnh cao nhất trong chu kỳ
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Biểu Đồ Sóng Nước Vector (Interactive SVG Area Chart) */}
+                          <div className="rounded-lg border border-border/60 bg-card p-3.5 space-y-2">
+                            <div className="flex items-center justify-between flex-wrap gap-2">
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                                  <BarChart3 className="w-4 h-4 text-emerald-400" />
+                                  Biểu Đồ Xu Hướng Tìm Kiếm YouTube
+                                </span>
+                                <div className="flex items-center gap-3 text-[11px]">
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500" />
+                                    <span className="font-medium text-foreground">
+                                      {trendsResult.keyword}
+                                    </span>
+                                  </div>
+                                  {trendsResult.compareKeyword && (
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="w-2.5 h-1 border-t-2 border-purple-500 border-dashed" />
+                                      <span className="font-medium text-purple-400">
+                                        {trendsResult.compareKeyword}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              <span className="text-[10px] text-muted-foreground">
+                                Rê chuột vào biểu đồ để xem điểm chi tiết từng mốc
+                              </span>
+                            </div>
+
+                            {/* SVG Chart Wrapper */}
+                            {trendsResult.timeline && trendsResult.timeline.length > 0 ? (
+                              <div className="relative w-full overflow-hidden select-none">
+                                {(() => {
+                                  const svgWidth = 760;
+                                  const svgHeight = 220;
+                                  const padding = { top: 16, right: 24, bottom: 28, left: 32 };
+                                  const innerWidth = svgWidth - padding.left - padding.right;
+                                  const innerHeight = svgHeight - padding.top - padding.bottom;
+                                  const timeline = trendsResult.timeline;
+
+                                  const points = timeline.map((pt, i) => {
+                                    const x =
+                                      padding.left +
+                                      (timeline.length > 1
+                                        ? (i / (timeline.length - 1)) * innerWidth
+                                        : innerWidth / 2);
+                                    const val = Math.max(0, Math.min(100, pt.value ?? 0));
+                                    const y = padding.top + innerHeight - (val / 100) * innerHeight;
+                                    return { x, y, pt, i };
+                                  });
+
+                                  const hasCompare = Boolean(
+                                    trendsResult.compareKeyword &&
+                                      timeline.some((p) => p.compareValue !== undefined),
+                                  );
+
+                                  const comparePoints = hasCompare
+                                    ? timeline.map((pt, i) => {
+                                        const x =
+                                          padding.left +
+                                          (timeline.length > 1
+                                            ? (i / (timeline.length - 1)) * innerWidth
+                                            : innerWidth / 2);
+                                        const val = Math.max(
+                                          0,
+                                          Math.min(100, pt.compareValue ?? 0),
+                                        );
+                                        const y =
+                                          padding.top + innerHeight - (val / 100) * innerHeight;
+                                        return { x, y, pt, i };
+                                      })
+                                    : [];
+
+                                  const buildSmoothPath = (
+                                    pts: { x: number; y: number }[],
+                                  ): string => {
+                                    if (pts.length === 0) return '';
+                                    if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+                                    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+                                    for (let i = 0; i < pts.length - 1; i++) {
+                                      const p0 = pts[i === 0 ? 0 : i - 1];
+                                      const p1 = pts[i];
+                                      const p2 = pts[i + 1];
+                                      const p3 = pts[i + 2 < pts.length ? i + 2 : i + 1];
+                                      const cp1x = p1.x + (p2.x - p0.x) / 6;
+                                      const cp1y = p1.y + (p2.y - p0.y) / 6;
+                                      const cp2x = p2.x - (p3.x - p1.x) / 6;
+                                      const cp2y = p2.y - (p3.y - p1.y) / 6;
+                                      d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+                                    }
+                                    return d;
+                                  };
+
+                                  const buildAreaPath = (
+                                    pts: { x: number; y: number }[],
+                                    baseY: number,
+                                  ): string => {
+                                    if (pts.length === 0) return '';
+                                    const linePath = buildSmoothPath(pts);
+                                    const first = pts[0];
+                                    const last = pts[pts.length - 1];
+                                    return `${linePath} L ${last.x.toFixed(1)} ${baseY} L ${first.x.toFixed(1)} ${baseY} Z`;
+                                  };
+
+                                  const primaryLineD = buildSmoothPath(points);
+                                  const primaryAreaD = buildAreaPath(
+                                    points,
+                                    padding.top + innerHeight,
+                                  );
+                                  const compareLineD = hasCompare
+                                    ? buildSmoothPath(comparePoints)
+                                    : '';
+                                  const compareAreaD = hasCompare
+                                    ? buildAreaPath(comparePoints, padding.top + innerHeight)
+                                    : '';
+
+                                  const hoveredPt =
+                                    hoveredPointIndex !== null && points[hoveredPointIndex]
+                                      ? points[hoveredPointIndex]
+                                      : null;
+                                  const hoveredCompPt =
+                                    hoveredPointIndex !== null && comparePoints[hoveredPointIndex]
+                                      ? comparePoints[hoveredPointIndex]
+                                      : null;
+
+                                  // Các mốc hiển thị trục hoành
+                                  const axisTicksCount = Math.min(6, timeline.length);
+                                  const axisIndices: number[] = [];
+                                  if (axisTicksCount > 1) {
+                                    for (let k = 0; k < axisTicksCount; k++) {
+                                      axisIndices.push(
+                                        Math.round(
+                                          (k / (axisTicksCount - 1)) * (timeline.length - 1),
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    axisIndices.push(0);
+                                  }
+
+                                  return (
+                                    <div className="relative">
+                                      <svg
+                                        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+                                        className="w-full h-auto overflow-visible cursor-crosshair"
+                                        onMouseMove={(e) => {
+                                          const rect = e.currentTarget.getBoundingClientRect();
+                                          const mouseX = e.clientX - rect.left;
+                                          const svgX = (mouseX / rect.width) * svgWidth;
+                                          if (
+                                            svgX < padding.left ||
+                                            svgX > svgWidth - padding.right
+                                          ) {
+                                            setHoveredPointIndex(null);
+                                            return;
+                                          }
+                                          const ratio = (svgX - padding.left) / innerWidth;
+                                          const idx = Math.max(
+                                            0,
+                                            Math.min(
+                                              timeline.length - 1,
+                                              Math.round(ratio * (timeline.length - 1)),
+                                            ),
+                                          );
+                                          setHoveredPointIndex(idx);
+                                        }}
+                                        onMouseLeave={() => setHoveredPointIndex(null)}
+                                      >
+                                        <title>Biểu đồ xu hướng tìm kiếm YouTube</title>
+                                        <defs>
+                                          <linearGradient
+                                            id="trendGradPrimary"
+                                            x1="0"
+                                            y1="0"
+                                            x2="0"
+                                            y2="1"
+                                          >
+                                            <stop
+                                              offset="0%"
+                                              stopColor="#10b981"
+                                              stopOpacity="0.32"
+                                            />
+                                            <stop
+                                              offset="100%"
+                                              stopColor="#10b981"
+                                              stopOpacity="0.0"
+                                            />
+                                          </linearGradient>
+                                          <linearGradient
+                                            id="trendGradCompare"
+                                            x1="0"
+                                            y1="0"
+                                            x2="0"
+                                            y2="1"
+                                          >
+                                            <stop
+                                              offset="0%"
+                                              stopColor="#8b5cf6"
+                                              stopOpacity="0.22"
+                                            />
+                                            <stop
+                                              offset="100%"
+                                              stopColor="#8b5cf6"
+                                              stopOpacity="0.0"
+                                            />
+                                          </linearGradient>
+                                        </defs>
+
+                                        {/* Grid lines ngang */}
+                                        {[100, 75, 50, 25, 0].map((val) => {
+                                          const y =
+                                            padding.top + innerHeight - (val / 100) * innerHeight;
+                                          return (
+                                            <g key={val}>
+                                              <line
+                                                x1={padding.left}
+                                                y1={y}
+                                                x2={svgWidth - padding.right}
+                                                y2={y}
+                                                stroke="currentColor"
+                                                strokeDasharray="2 2"
+                                                className="text-border/40"
+                                                strokeWidth="1"
+                                              />
+                                              <text
+                                                x={padding.left - 6}
+                                                y={y + 3}
+                                                textAnchor="end"
+                                                className="fill-muted-foreground text-[9px] font-mono"
+                                              >
+                                                {val}
+                                              </text>
+                                            </g>
+                                          );
+                                        })}
+
+                                        {/* Trục hoành labels */}
+                                        {axisIndices.map((idx) => {
+                                          const pt = points[idx];
+                                          if (!pt) return null;
+                                          const label =
+                                            pt.pt.formattedAxisTime || pt.pt.formattedTime;
+                                          return (
+                                            <text
+                                              key={idx}
+                                              x={pt.x}
+                                              y={padding.top + innerHeight + 18}
+                                              textAnchor="middle"
+                                              className="fill-muted-foreground text-[9px] font-mono"
+                                            >
+                                              {label}
+                                            </text>
+                                          );
+                                        })}
+
+                                        {/* Area fill Compare (nếu có) */}
+                                        {hasCompare && compareAreaD && (
+                                          <path d={compareAreaD} fill="url(#trendGradCompare)" />
+                                        )}
+
+                                        {/* Area fill Primary */}
+                                        {primaryAreaD && (
+                                          <path d={primaryAreaD} fill="url(#trendGradPrimary)" />
+                                        )}
+
+                                        {/* Đường Stroke Compare (nếu có) */}
+                                        {hasCompare && compareLineD && (
+                                          <path
+                                            d={compareLineD}
+                                            fill="none"
+                                            stroke="#8b5cf6"
+                                            strokeWidth="2"
+                                            strokeDasharray="4 4"
+                                            strokeLinecap="round"
+                                          />
+                                        )}
+
+                                        {/* Đường Stroke Primary */}
+                                        {primaryLineD && (
+                                          <path
+                                            d={primaryLineD}
+                                            fill="none"
+                                            stroke="#10b981"
+                                            strokeWidth="2.5"
+                                            strokeLinecap="round"
+                                          />
+                                        )}
+
+                                        {/* Hover Line & Marker */}
+                                        {hoveredPt && (
+                                          <g>
+                                            <line
+                                              x1={hoveredPt.x}
+                                              y1={padding.top}
+                                              x2={hoveredPt.x}
+                                              y2={padding.top + innerHeight}
+                                              stroke="currentColor"
+                                              strokeDasharray="3 3"
+                                              className="text-foreground/50"
+                                              strokeWidth="1.5"
+                                            />
+                                            {hoveredCompPt && (
+                                              <circle
+                                                cx={hoveredCompPt.x}
+                                                cy={hoveredCompPt.y}
+                                                r="4.5"
+                                                fill="#8b5cf6"
+                                                stroke="currentColor"
+                                                className="stroke-background"
+                                                strokeWidth="2"
+                                              />
+                                            )}
+                                            <circle
+                                              cx={hoveredPt.x}
+                                              cy={hoveredPt.y}
+                                              r="5"
+                                              fill="#10b981"
+                                              stroke="currentColor"
+                                              className="stroke-background"
+                                              strokeWidth="2"
+                                            />
+                                          </g>
+                                        )}
+                                      </svg>
+
+                                      {/* Hover Interactive Tooltip Box */}
+                                      {hoveredPt && (
+                                        <div
+                                          className={cn(
+                                            'absolute top-2 pointer-events-none p-2 rounded-md bg-popover/95 border border-border shadow-lg text-[11px] space-y-1 transition-transform z-10 backdrop-blur-sm',
+                                            hoveredPt.x > svgWidth * 0.7 ? 'right-2' : 'left-2',
+                                          )}
+                                        >
+                                          <div className="font-semibold text-foreground flex items-center gap-1.5 pb-0.5 border-b border-border/40">
+                                            <Calendar className="w-3 h-3 text-muted-foreground" />
+                                            {hoveredPt.pt.formattedTime}
+                                            {hoveredPt.pt.isPartial && (
+                                              <span className="text-[9px] px-1 rounded bg-amber-500/10 text-amber-500">
+                                                Dữ liệu chưa hoàn tất
+                                              </span>
+                                            )}
+                                          </div>
+                                          <div className="flex items-center justify-between gap-4">
+                                            <div className="flex items-center gap-1.5">
+                                              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                              <span className="text-muted-foreground">
+                                                {trendsResult.keyword}:
+                                              </span>
+                                            </div>
+                                            <span className="font-mono font-bold text-emerald-400">
+                                              {hoveredPt.pt.value}
+                                            </span>
+                                          </div>
+                                          {hasCompare && hoveredCompPt && (
+                                            <div className="flex items-center justify-between gap-4">
+                                              <div className="flex items-center gap-1.5">
+                                                <div className="w-2 h-2 rounded-full bg-purple-500" />
+                                                <span className="text-muted-foreground">
+                                                  {trendsResult.compareKeyword}:
+                                                </span>
+                                              </div>
+                                              <span className="font-mono font-bold text-purple-400">
+                                                {hoveredCompPt.pt.compareValue ?? 0}
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            ) : (
+                              <div className="py-8 text-center text-xs text-muted-foreground">
+                                Không có dữ liệu timeline chi tiết cho từ khóa này.
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Khối Khuyến Nghị Chiến Lược Cho Creator */}
+                          {trendsResult.recommendation && (
+                            <div className="rounded-lg border border-border/60 bg-card p-3.5 space-y-2.5">
+                              <div className="flex items-center justify-between flex-wrap gap-2">
+                                <div className="flex items-center gap-2">
+                                  <div className="p-1.5 rounded-md bg-purple-500/10 text-purple-400">
+                                    <Target className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-xs font-semibold text-foreground">
+                                      Chiến Lược Xuất Bản Đề Xuất Cho Creator
+                                    </h4>
+                                    <p className="text-[11px] text-muted-foreground">
+                                      Định hướng thời điểm xuất bản và góc tiếp cận nội dung theo
+                                      động lượng xu hướng
+                                    </p>
+                                  </div>
+                                </div>
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    'text-[10px] font-medium capitalize',
+                                    trendsResult.recommendation.urgency === 'high'
+                                      ? 'border-rose-500/40 bg-rose-500/10 text-rose-500'
+                                      : trendsResult.recommendation.urgency === 'medium'
+                                        ? 'border-amber-500/40 bg-amber-500/10 text-amber-500'
+                                        : 'border-border bg-muted text-muted-foreground',
+                                  )}
+                                >
+                                  Mức ưu tiên:{' '}
+                                  {trendsResult.recommendation.urgency === 'high'
+                                    ? 'Khẩn cấp'
+                                    : trendsResult.recommendation.urgency === 'medium'
+                                      ? 'Trung bình'
+                                      : 'Theo dõi'}
+                                </Badge>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1 text-xs">
+                                <div className="p-2.5 rounded-md bg-muted/20 border border-border/40 space-y-1">
+                                  <div className="font-semibold text-foreground text-[11px] flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                                    Thời Điểm & Hành Động
+                                  </div>
+                                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                    {trendsResult.recommendation.actionText}
+                                  </p>
+                                </div>
+
+                                <div className="p-2.5 rounded-md bg-muted/20 border border-border/40 space-y-1">
+                                  <div className="font-semibold text-foreground text-[11px] flex items-center gap-1.5">
+                                    <Compass className="w-3.5 h-3.5 text-purple-400" />
+                                    Góc Tiếp Cận Nội Dung (Content Angle)
+                                  </div>
+                                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                    {trendsResult.recommendation.contentAngle}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Bảng Từ Khóa Tăng Đột Biến (Breakout Queries) & Top Queries */}
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                            {/* Cột Trái: Rising / Breakout Queries */}
+                            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-2.5">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5">
+                                  <Activity className="w-4 h-4 text-amber-400" />
+                                  <h4 className="text-xs font-semibold text-foreground">
+                                    Từ Khóa Tăng Đột Biến (Breakout)
+                                  </h4>
+                                </div>
+                                <Badge variant="outline" className="text-[10px]">
+                                  {trendsResult.risingQueries?.length || 0} từ khóa
+                                </Badge>
+                              </div>
+
+                              {trendsResult.risingQueries &&
+                              trendsResult.risingQueries.length > 0 ? (
+                                <div className="max-h-64 overflow-y-auto pr-1 space-y-1.5 divide-y divide-border/20">
+                                  {trendsResult.risingQueries.map((item, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="pt-1.5 first:pt-0 flex items-center justify-between gap-2 hover:bg-muted/20 px-1 py-1 rounded"
+                                    >
+                                      <div className="min-w-0 flex-1">
+                                        <div className="text-xs font-medium text-foreground truncate">
+                                          {item.query}
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                                        {item.isBreakout ? (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-[10px] px-1.5 py-0 border-amber-500/40 bg-amber-500/10 text-amber-500 font-semibold"
+                                          >
+                                            Đột phá
+                                          </Badge>
+                                        ) : (
+                                          <Badge
+                                            variant="outline"
+                                            className="text-[10px] px-1.5 py-0 font-mono text-emerald-400 border-emerald-500/30"
+                                          >
+                                            +{item.value}%
+                                          </Badge>
+                                        )}
+
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleCopyQuery(item.query)}
+                                          className="h-6 px-1.5 text-[10px] text-muted-foreground hover:text-foreground"
+                                          title="Sao chép từ khóa"
+                                        >
+                                          {copiedQuery === item.query ? (
+                                            <Check className="w-3 h-3 text-emerald-400" />
+                                          ) : (
+                                            <Copy className="w-3 h-3" />
+                                          )}
+                                        </Button>
+
+                                        <Button
+                                          type="button"
+                                          variant="default"
+                                          size="sm"
+                                          onClick={() => {
+                                            setCurrentNiche(item.query);
+                                            setNicheInput(item.query);
+                                            setSelectedNicheId(null);
+                                            handleScanNiche(item.query);
+                                            toast.success({
+                                              title: 'Đã kích hoạt quét ngách',
+                                              description: `Bắt đầu săn video triệu view cho: ${item.query}`,
+                                            });
+                                          }}
+                                          className="h-6 px-2 text-[10px] gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                        >
+                                          <ArrowRight className="w-3 h-3" />
+                                          Săn Ngách Này
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="py-6 text-center text-xs text-muted-foreground">
+                                  Chưa ghi nhận từ khóa tăng đột biến trong kỳ phân tích này.
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Cột Phải: Top Queries */}
+                            <div className="rounded-lg border border-border/60 bg-card p-3 space-y-2.5">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5">
+                                  <BarChart3 className="w-4 h-4 text-emerald-400" />
+                                  <h4 className="text-xs font-semibold text-foreground">
+                                    Từ Khóa Tìm Kiếm Hàng Đầu (Top Queries)
+                                  </h4>
+                                </div>
+                                <Badge variant="outline" className="text-[10px]">
+                                  {trendsResult.topQueries?.length || 0} từ khóa
+                                </Badge>
+                              </div>
+
+                              {trendsResult.topQueries && trendsResult.topQueries.length > 0 ? (
+                                <div className="max-h-64 overflow-y-auto pr-1 space-y-1.5 divide-y divide-border/20">
+                                  {trendsResult.topQueries.map((item, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="pt-1.5 first:pt-0 flex items-center justify-between gap-2 hover:bg-muted/20 px-1 py-1 rounded"
+                                    >
+                                      <div className="min-w-0 flex-1">
+                                        <div className="text-xs font-medium text-foreground truncate">
+                                          {item.query}
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                                        <div className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground">
+                                          <div className="w-12 bg-muted rounded-full h-1 overflow-hidden">
+                                            <div
+                                              className="bg-emerald-500 h-full rounded-full"
+                                              style={{
+                                                width: `${Math.max(0, Math.min(100, item.value))}%`,
+                                              }}
+                                            />
+                                          </div>
+                                          <span>{item.value}</span>
+                                        </div>
+
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleCopyQuery(item.query)}
+                                          className="h-6 px-1.5 text-[10px] text-muted-foreground hover:text-foreground"
+                                          title="Sao chép từ khóa"
+                                        >
+                                          {copiedQuery === item.query ? (
+                                            <Check className="w-3 h-3 text-emerald-400" />
+                                          ) : (
+                                            <Copy className="w-3 h-3" />
+                                          )}
+                                        </Button>
+
+                                        <Button
+                                          type="button"
+                                          variant="default"
+                                          size="sm"
+                                          onClick={() => {
+                                            setCurrentNiche(item.query);
+                                            setNicheInput(item.query);
+                                            setSelectedNicheId(null);
+                                            handleScanNiche(item.query);
+                                            toast.success({
+                                              title: 'Đã kích hoạt quét ngách',
+                                              description: `Bắt đầu săn video triệu view cho: ${item.query}`,
+                                            });
+                                          }}
+                                          className="h-6 px-2 text-[10px] gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                        >
+                                          <ArrowRight className="w-3 h-3" />
+                                          Săn Ngách Này
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="py-6 text-center text-xs text-muted-foreground">
+                                  Không có dữ liệu từ khóa tìm kiếm hàng đầu.
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1844,7 +2905,7 @@ export function OutlierHunterPage({ onNavigate }: OutlierHunterPageProps = {}) {
                           <Tv className="w-3.5 h-3.5 text-muted-foreground" />
                           <span>{vid.channel_name}</span>
                           <span className="text-muted-foreground font-normal">
-                            ({vid.subscribers.toLocaleString()} subs)
+                            ({formatSubscribers(vid.subscribers)} subs)
                           </span>
                         </div>
                         <Badge

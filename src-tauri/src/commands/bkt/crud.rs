@@ -68,6 +68,12 @@ pub async fn delete_bkt_test_channel(channel_id: String) -> Result<(), String> {
     database::delete_bkt_test_channel_db(&channel_id)
 }
 
+/// Bật / tắt trạng thái kích hoạt của Kênh Test Bản Quyền
+#[tauri::command]
+pub async fn toggle_bkt_channel_active(channel_id: String, is_active: bool) -> Result<(), String> {
+    database::toggle_bkt_channel_active_db(&channel_id, is_active)
+}
+
 /// Lấy danh sách lịch sử tác vụ test video
 #[tauri::command]
 pub async fn get_bkt_test_jobs(limit: Option<i64>) -> Result<Vec<BktTestJob>, String> {
