@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-11-21
+
+### Fixed
+
+- **Persistent Auto Reup State and Safe Channel Risk Recalculation** - Resolved an issue where Auto Reup was unintentionally disabled after batch processing; channels are now only flagged as high-risk and paused when YouTube Studio detects consecutive verified Content ID copyright matches (`red_matched`), preventing false positives from previously downloaded history videos or pending tests.
+- **Copyright Risk Keyword Disambiguation** - Refined video title keyword analysis in polling engine by removing generic entertainment and publisher tokens (`official video`, `records`, `entertainment`, `bản quyền`, `độc quyền`), eliminating false-positive risk warnings on safe content.
+- **Accurate BKT Queue Risk Status** - Changed initial BKT job queue status from `red` to `pending` during batch channel copyright testing to prevent premature channel locking before YouTube Studio inspection begins.
+- **Top 5 Auto Reup Execution Safeguard** - Ensured sequential Top 5 batch runs retain the channel's `auto_download` switch in an active state upon successful completion, maintaining continuous periodic scanning.
+
 ## [1.3.4] - 2026-11-19
 
 ### Added

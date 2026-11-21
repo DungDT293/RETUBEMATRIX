@@ -516,7 +516,10 @@ pub fn recalculate_channel_risk_with_conn(
     let mut total_red = 0;
 
     for (_vid, risk_opt, bkt_opt) in &rows {
-        let is_red = risk_opt.as_deref() == Some("red") || bkt_opt.as_deref() == Some("red_matched");
+        let is_clean = bkt_opt.as_deref() == Some("green_clean") || bkt_opt.as_deref() == Some("published");
+        let is_red = !is_clean
+            && (bkt_opt.as_deref() == Some("red_matched")
+                || (risk_opt.as_deref() == Some("red") && bkt_opt.is_none()));
         if is_red {
             consecutive_red += 1;
             total_red += 1;
@@ -1352,6 +1355,10 @@ pub fn toggle_channel_auto_download_db(channel_id: &str, enabled: bool) -> Resul
         params![enabled as i64, channel_id],
     )
     .map_err(|e| format!("Failed to toggle channel auto download: {}", e))?;
+
+    if enabled {
+        let _ = recalculate_channel_risk_with_conn(&conn, channel_id);
+    }
     Ok(())
 }
 

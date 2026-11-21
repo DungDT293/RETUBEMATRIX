@@ -103,15 +103,7 @@ pub const COPYRIGHT_RISK_KEYWORDS: &[&str] = &[
     "wmg",
     " - topic",
     "official music video",
-    "official video",
-    "copyright",
     "all rights reserved",
-    "records",
-    "entertainment",
-    "bản quyền",
-    "độc quyền",
-    "mv official",
-    "official mv",
     "t-series",
     "zee music",
     "disney",
@@ -140,11 +132,11 @@ pub fn evaluate_channel_and_video_risk(
         }
     }
 
-    // 2. Kiểm tra trùng lặp lịch sử tuyệt đối
+    // 2. Kiểm tra trùng lặp lịch sử tuyệt đối (Không tính là lỗi bản quyền mà chỉ là trùng lặp)
     if database::is_video_in_history_db(video_id, canonical_url) {
         return (
-            "red".to_string(),
-            Some("Video đã tồn tại trong lịch sử tải (history)".to_string()),
+            "green".to_string(),
+            Some("Video đã tồn tại trong lịch sử tải (trùng lặp)".to_string()),
             true,
         );
     }

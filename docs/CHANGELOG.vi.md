@@ -7,6 +7,15 @@ và dự án tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-11-21
+
+### Sửa lỗi
+
+- **Duy Trì Trạng Thái Auto Reup & Tính Lại Rủi Ro Kênh Chuẩn Xác** - Khắc phục triệt để hiện tượng tự động ngắt tính năng Auto Reup sau khi chạy xong; hệ thống chỉ đánh dấu cảnh báo rủi ro cao và tạm dừng tải tự động khi thực sự có các video liên tiếp bị YouTube Studio xác nhận trùng khớp Content ID (`red_matched`), loại bỏ hoàn toàn việc nhận diện nhầm các video đã có trong lịch sử hoặc đang chờ kiểm tra BKT.
+- **Lọc Từ Khóa Rủi Ro Bản Quyền Chính Xác** - Làm sạch bộ từ khóa quét tiêu đề trong tiến trình Polling, loại bỏ các cụm từ chung chung (`official video`, `records`, `entertainment`, `bản quyền`, `độc quyền`), ngăn chặn cảnh báo rủi ro sai lệch trên các video an toàn.
+- **Chuẩn Hóa Trạng Thái Hàng Đợi BKT** - Điều chỉnh trạng thái ban đầu của video khi đưa vào hàng đợi kiểm tra BKT từ `red` thành `pending`, ngăn chặn việc khóa kênh oan trước khi YouTube Studio bắt đầu quét.
+- **Bảo Vệ Tính Năng Tự Động Reup Top 5 Tuần Tự** - Đảm bảo quy trình chạy tuần tự Top 5 giữ nguyên trạng thái kích hoạt `auto_download` cho kênh sau khi hoàn tất, giúp kênh tiếp tục quét và phát hiện các video mới định kỳ theo thời gian thực.
+
 ## [1.3.4] - 2026-11-19
 
 ### Thêm mới

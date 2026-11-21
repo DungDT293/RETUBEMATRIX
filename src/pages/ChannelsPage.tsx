@@ -800,6 +800,12 @@ export function ChannelsPage() {
           status: 'success',
         },
       }));
+      // Duy trì trạng thái Auto Reup trong database để tiếp tục đón bắt video mới từ bộ quét định kỳ
+      if (redCount < 2) {
+        try {
+          await toggleChannelAutoDownload(channelId, true);
+        } catch {}
+      }
       await refreshChannels();
       toast.success({
         title: 'Hoàn tất Auto Reup Top 5!',

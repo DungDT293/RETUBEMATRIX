@@ -1126,7 +1126,7 @@ pub async fn trigger_bkt_test_videos_batch(
 
             let _ = conn.execute(
                 "UPDATE channel_videos SET
-                    risk_status = 'red',
+                    risk_status = 'pending',
                     risk_reason = 'Người dùng kích hoạt: Chế độ Test trên kênh BKT (Shadow Check)',
                     is_bkt_test = 1
                  WHERE (channel_id = ?1 AND (video_id = ?2 OR id = ?2))",
